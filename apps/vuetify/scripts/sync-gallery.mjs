@@ -1,3 +1,4 @@
+/* global URL */
 import { readFileSync, writeFileSync } from "node:fs"
 
 const root = new URL("../../../", import.meta.url).pathname

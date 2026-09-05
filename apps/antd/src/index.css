@@ -1,0 +1,29 @@
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-sc";
+@import "lxgw-wenkai-screen-webfont/style.css";
+
+:root { --font-sans: "Inter Variable", sans-serif; }
+* { box-sizing: border-box; }
+html, body, #root { min-height: 100%; margin: 0; }
+body { font-family: var(--font-sans); }
+.app-content { min-height: calc(100vh - 64px); }
+.page { max-width: 1440px; margin: 0 auto; width: 100%; }
+.mobile-only { display: none; }
+@media (max-width: 767px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: inline-flex; }
+  .page { padding-inline: 12px !important; }
+  .app-content { padding: 16px 0 !important; }
+}
+.chart { width: 100%; height: 280px; }
+.mini-chart { width: 100%; height: 52px; }
+.component-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.wide-table { overflow-x: auto; }
+.wide-table > * { min-width: 760px; }
+.landing-section { padding-block: 56px; }
+.header-extra { max-width: 100%; overflow-x: auto; }
+@media (max-width: 767px) {
+  .landing-section .ant-row { margin-inline: 0 !important; }
+  .component-grid .ant-card-head-title { min-width: 0; white-space: normal; }
+}

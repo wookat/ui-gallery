@@ -1,0 +1,9 @@
+:root {
+  --app-font: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.v-application {
+  font-family: var(--app-font) !important;
+}
+html {
+  overflow-x: hidden;
+}

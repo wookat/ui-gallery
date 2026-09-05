@@ -1,10 +1,26 @@
-import { AlertDialog, Avatar, Button, Card, Chip, Input, Kbd, Label, Modal, Separator, Switch, Table, Tabs, TextField, toast } from "@heroui/react"
-import { Icon } from "@ui-gallery/icons-react"
+import { useState } from "react"
+import { AlertDialog, Avatar, Button, Card, Chip, ComboBox, Description, Input, InputGroup, Kbd, Label, ListBox, Modal, Select, Separator, Switch, Table, Tabs, TextArea, TextField, toast, ToggleButton, ToggleButtonGroup } from "@heroui/react"
+import { Icon } from "@/components/icon"
 import invoices from "@ui-gallery/spec/mock/invoices.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import sessions from "@ui-gallery/spec/mock/sessions.json"
 import team from "@ui-gallery/spec/mock/team.json"
 import { PageHeader, StatusBadge } from "./shared"
+
+const languages = [{ id: "zh-CN", label: "简体中文" }, { id: "en-US", label: "English (US)" }, { id: "ja-JP", label: "日本語" }]
+const timezones = [{ id: "Asia/Shanghai", label: "Asia/Shanghai (UTC+8)" }, { id: "Asia/Tokyo", label: "Asia/Tokyo (UTC+9)" }, { id: "Europe/London", label: "Europe/London (UTC+0)" }, { id: "America/New_York", label: "America/New_York (UTC-5)" }]
+const roles = ["owner", "admin", "member", "viewer"]
+const channels = [{ id: "email", label: "邮件" }, { id: "push", label: "推送" }, { id: "inapp", label: "站内" }]
+const DELETE_CONFIRM = "DELETE"
+
+function RoleSelect({ value, isDisabled }: { value: string; isDisabled?: boolean }) {
+  return (
+    <Select aria-label="角色" defaultValue={value} isDisabled={isDisabled} className="w-32" onChange={(key) => toast.success(`角色已更新为 ${String(key)}`)}>
+      <Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger>
+      <Select.Popover><ListBox>{roles.map((role) => <ListBox.Item key={role} id={role} textValue={role}>{role}<ListBox.ItemIndicator /></ListBox.Item>)}</ListBox></Select.Popover>
+    </Select>
+  )
+}
 
 function Row({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
@@ -16,6 +32,9 @@ function Row({ title, description, children }: { title: string; description: str
 }
 
 export function SettingsPage() {
+  const [invite, setInvite] = useState("")
+  const [confirmText, setConfirmText] = useState("")
+  const canDelete = confirmText === DELETE_CONFIRM
   return (
     <div className="space-y-6">
       <PageHeader title="设置" description="管理个人资料、安全、团队与账单。" />
@@ -40,6 +59,17 @@ export function SettingsPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <TextField defaultValue={team[0].name}><Label>姓名</Label><Input /></TextField>
                 <TextField defaultValue={team[0].email} type="email"><Label>邮箱</Label><Input /></TextField>
+                <TextField className="sm:col-span-2"><Label>简介</Label><TextArea placeholder="介绍一下你自己..." /><Description>会显示在团队成员列表中。</Description></TextField>
+                <Select defaultValue="zh-CN">
+                  <Label>语言</Label>
+                  <Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger>
+                  <Select.Popover><ListBox>{languages.map((lang) => <ListBox.Item key={lang.id} id={lang.id} textValue={lang.label}>{lang.label}<ListBox.ItemIndicator /></ListBox.Item>)}</ListBox></Select.Popover>
+                </Select>
+                <ComboBox defaultItems={timezones} defaultSelectedKey="Asia/Shanghai">
+                  <Label>时区</Label>
+                  <ComboBox.InputGroup><Input placeholder="搜索时区" /><ComboBox.Trigger /></ComboBox.InputGroup>
+                  <ComboBox.Popover><ListBox>{(item: (typeof timezones)[number]) => <ListBox.Item id={item.id} textValue={item.label}>{item.label}<ListBox.ItemIndicator /></ListBox.Item>}</ListBox></ComboBox.Popover>
+                </ComboBox>
               </div>
               <div className="flex justify-end"><Button onPress={() => toast.success("资料已保存")}>保存</Button></div>
             </Card.Content>
@@ -82,7 +112,12 @@ export function SettingsPage() {
         </Tabs.Panel>
         <Tabs.Panel id="notifications">
           <Card>
-            <Card.Header><Card.Title>通知偏好</Card.Title></Card.Header>
+            <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
+              <div><Card.Title>通知偏好</Card.Title><Card.Description>选择接收渠道与通知类型。</Card.Description></div>
+              <ToggleButtonGroup selectionMode="multiple" defaultSelectedKeys={["email", "inapp"]} aria-label="通知渠道">
+                {channels.map((ch, index) => <ToggleButton key={ch.id} id={ch.id} size="sm">{index > 0 ? <ToggleButtonGroup.Separator /> : null}{ch.label}</ToggleButton>)}
+              </ToggleButtonGroup>
+            </Card.Header>
             <Card.Content className="divide-y divide-border">
               <Row title="邮件通知" description="订单、账单与安全提醒"><Switch defaultSelected aria-label="邮件通知"><Switch.Control><Switch.Thumb /></Switch.Control></Switch></Row>
               <Row title="推送通知" description="移动端即时提醒"><Switch aria-label="推送通知"><Switch.Control><Switch.Thumb /></Switch.Control></Switch></Row>
@@ -92,8 +127,17 @@ export function SettingsPage() {
         </Tabs.Panel>
         <Tabs.Panel id="team">
           <Card>
-            <Card.Header className="flex-row items-center justify-between"><div><Card.Title>团队成员</Card.Title><Card.Description>{team.length} 位成员</Card.Description></div><Button size="sm"><Icon name="plus" size={16} />邀请</Button></Card.Header>
-            <Card.Content>
+            <Card.Header><Card.Title>团队成员</Card.Title><Card.Description>{team.length} 位成员</Card.Description></Card.Header>
+            <Card.Content className="space-y-4">
+              <TextField aria-label="邀请成员" type="email" value={invite} onChange={setInvite}>
+                <Label>邀请成员</Label>
+                <InputGroup>
+                  <InputGroup.Prefix><Icon name="mail" size={16} className="text-muted" /></InputGroup.Prefix>
+                  <InputGroup.Input placeholder="输入邮箱地址邀请加入" />
+                  <InputGroup.Suffix className="pr-1"><Button size="sm" isDisabled={!invite.includes("@")} onPress={() => { toast.success(`邀请已发送至 ${invite}`); setInvite("") }}><Icon name="plus" size={14} />邀请</Button></InputGroup.Suffix>
+                </InputGroup>
+                <Description>被邀请人将收到邮件，默认角色为 member。</Description>
+              </TextField>
               <Table>
                 <Table.ScrollContainer>
                   <Table.Content aria-label="团队成员">
@@ -112,9 +156,9 @@ export function SettingsPage() {
                               <div><p className="font-medium">{member.name}</p><p className="text-xs text-muted">{member.email}</p></div>
                             </div>
                           </Table.Cell>
-                          <Table.Cell><Chip size="sm" variant="secondary">{member.role}</Chip></Table.Cell>
+                          <Table.Cell><RoleSelect value={member.role} isDisabled={member.role === "owner"} /></Table.Cell>
                           <Table.Cell>{member.lastActive}</Table.Cell>
-                          <Table.Cell className="text-right"><Button isIconOnly variant="ghost" size="sm" aria-label="更多"><Icon name="more-horizontal" size={16} /></Button></Table.Cell>
+                          <Table.Cell className="text-right"><Button variant="ghost" size="sm" isDisabled={member.role === "owner"} onPress={() => toast.success(`已移除 ${member.name}`)}><Icon name="trash" size={14} />移除</Button></Table.Cell>
                         </Table.Row>
                       ))}
                     </Table.Body>
@@ -174,12 +218,18 @@ export function SettingsPage() {
       <Card className="border-danger">
         <Card.Header><Card.Title className="text-danger">危险区域</Card.Title><Card.Description>删除账户后所有数据将不可恢复。</Card.Description></Card.Header>
         <Card.Footer>
-          <AlertDialog>
+          <AlertDialog onOpenChange={(open) => { if (!open) setConfirmText("") }}>
             <Button variant="danger">删除账户</Button>
             <AlertDialog.Backdrop><AlertDialog.Container><AlertDialog.Dialog>
               <AlertDialog.Header><AlertDialog.Icon status="danger" /><AlertDialog.Heading>确认删除账户？</AlertDialog.Heading></AlertDialog.Header>
-              <AlertDialog.Body>此操作无法撤销，所有项目与数据都会被永久删除。</AlertDialog.Body>
-              <AlertDialog.Footer><Button slot="close" variant="secondary">取消</Button><Button slot="close" variant="danger" onPress={() => toast.danger("账户已删除")}>删除</Button></AlertDialog.Footer>
+              <AlertDialog.Body className="space-y-4">
+                <p>此操作无法撤销，所有项目与数据都会被永久删除。</p>
+                <TextField value={confirmText} onChange={setConfirmText} autoFocus>
+                  <Label>请输入 <span className="font-mono font-semibold">{DELETE_CONFIRM}</span> 以确认</Label>
+                  <Input placeholder={DELETE_CONFIRM} autoComplete="off" />
+                </TextField>
+              </AlertDialog.Body>
+              <AlertDialog.Footer><Button slot="close" variant="secondary">取消</Button><Button slot="close" variant="danger" isDisabled={!canDelete} onPress={() => toast.danger("账户已删除")}>删除账户</Button></AlertDialog.Footer>
             </AlertDialog.Dialog></AlertDialog.Container></AlertDialog.Backdrop>
           </AlertDialog>
         </Card.Footer>

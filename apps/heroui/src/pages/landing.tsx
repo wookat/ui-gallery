@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom"
 import { Accordion, Avatar, Button, Card, Chip, Separator } from "@heroui/react"
-import { Icon } from "@ui-gallery/icons-react"
+import { Icon } from "@/components/icon"
 import landing from "@ui-gallery/spec/mock/landing.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
+import series from "@ui-gallery/spec/mock/series.json"
+import stats from "@ui-gallery/spec/mock/stats.json"
+import orders from "@ui-gallery/spec/mock/orders.json"
+import { StatusBadge } from "./shared"
 import { Brand } from "@/layouts/app-shell"
 
 export function LandingPage() {
@@ -21,9 +25,49 @@ export function LandingPage() {
         <h1 className="mx-auto max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">{landing.hero.title}</h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-muted">{landing.hero.subtitle}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3"><Button size="lg" onPress={() => navigate("/login")}>{landing.hero.primary}<Icon name="arrow-right" size={16} /></Button><Button size="lg" variant="secondary" onPress={() => navigate("/")}>{landing.hero.secondary}</Button></div>
-        <div className="mt-14 aspect-video w-full overflow-hidden rounded-2xl border border-border bg-surface-secondary">
-          <div className="grid h-full grid-cols-3 gap-3 p-4">
-            {landing.numbers.map((item) => <div key={item.label} className="rounded-xl bg-surface p-4 text-left"><p className="text-2xl font-semibold">{item.value}</p><p className="text-xs text-muted">{item.label}</p></div>)}
+        <div className="mt-14 overflow-hidden rounded-2xl border border-border bg-surface-secondary shadow-xl" aria-label="产品截图占位" role="img">
+          <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
+            <span className="size-2.5 rounded-full bg-danger/70" /><span className="size-2.5 rounded-full bg-warning/70" /><span className="size-2.5 rounded-full bg-success/70" />
+            <span className="ml-3 rounded-md bg-surface px-3 py-0.5 text-xs text-muted">acme.dev/console</span>
+          </div>
+          <div className="grid text-left md:grid-cols-[160px_minmax(0,1fr)]">
+            <div className="hidden flex-col gap-1 border-r border-border p-3 md:flex">
+              {["仪表盘", "订单", "客户", "报表", "AI 助手", "设置"].map((item, index) => (
+                <span key={item} className={`rounded-md px-3 py-1.5 text-xs ${index === 0 ? "bg-surface font-medium" : "text-muted"}`}>{item}</span>
+              ))}
+            </div>
+            <div className="grid min-w-0 gap-3 p-3 sm:p-4">
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                {stats.map((item) => (
+                  <div key={item.key} className="rounded-xl bg-surface p-3">
+                    <p className="truncate text-xs text-muted">{item.label}</p>
+                    <p className="mt-1 text-lg font-semibold">{item.unit === "CNY" ? "¥" : ""}{item.value.toLocaleString()}</p>
+                    <p className={`text-xs ${item.delta >= 0 ? "text-success" : "text-danger"}`}>{item.delta >= 0 ? "+" : ""}{item.delta}%</p>
+                  </div>
+                ))}
+              </div>
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+                <div className="rounded-xl bg-surface p-3">
+                  <p className="text-xs text-muted">收入趋势</p>
+                  <div className="mt-3 flex h-28 items-end gap-2">
+                    {series.revenue.map((value, index) => (
+                      <div key={series.months[index]} className="flex min-w-0 flex-1 flex-col items-center gap-1">
+                        <div className="w-full rounded-t-md bg-accent/80" style={{ height: `${(value / Math.max(...series.revenue)) * 100}%` }} />
+                        <span className="text-[10px] text-muted">{series.months[index]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="hidden rounded-xl bg-surface p-3 sm:block">
+                  <p className="text-xs text-muted">最近订单</p>
+                  <ul className="mt-2 divide-y divide-border text-xs">
+                    {orders.slice(0, 4).map((order) => (
+                      <li key={order.id} className="flex items-center justify-between gap-2 py-1.5"><span className="truncate">{order.id} · {order.customer}</span><StatusBadge value={order.status} /></li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -63,9 +107,9 @@ export function LandingPage() {
       </section>
       <section className="mx-auto max-w-6xl px-4 py-16">
         <h2 className="text-center text-3xl font-semibold">客户怎么说</h2>
-        <div className="mt-10 flex snap-x gap-4 overflow-x-auto pb-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {landing.testimonials.map((item) => (
-            <Card key={item.name} className="w-72 shrink-0 snap-start">
+            <Card key={item.name} className="min-w-0">
               <Card.Content className="space-y-4">
                 <p className="text-sm">“{item.quote}”</p>
                 <div className="flex items-center gap-3"><Avatar size="sm"><Avatar.Fallback>{item.name.slice(0, 1)}</Avatar.Fallback></Avatar><div><p className="text-sm font-medium">{item.name}</p><p className="text-xs text-muted">{item.company}</p></div></div>

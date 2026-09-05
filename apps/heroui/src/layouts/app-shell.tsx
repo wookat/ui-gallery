@@ -1,8 +1,10 @@
 import { useState, type ReactNode } from "react"
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom"
-import { Avatar, Breadcrumbs, Button, Drawer, Dropdown, Label, SearchField, Separator, Surface, Tooltip } from "@heroui/react"
-import { Icon } from "@ui-gallery/icons-react"
+import { Avatar, Badge, Breadcrumbs, Button, Description, Drawer, Dropdown, Label, Popover, SearchField, Separator, Surface, Tooltip } from "@heroui/react"
+import { Icon } from "@/components/icon"
 import nav from "@ui-gallery/spec/mock/nav.json"
+import notifications from "@ui-gallery/spec/mock/notifications.json"
+import team from "@ui-gallery/spec/mock/team.json"
 
 export function Brand() {
   return (
@@ -60,6 +62,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { isDark, toggle } = useThemeToggle()
   const [mobileOpen, setMobileOpen] = useState(false)
   const current = nav.find((item) => item.path === location.pathname)?.label ?? "仪表盘"
+  const unread = notifications.filter((item) => item.unread).length
+  const owner = team.find((member) => member.role === "owner") ?? team[0]
 
   return (
     <div className="flex min-h-svh w-full bg-background text-foreground">
@@ -78,7 +82,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6">
           <Drawer isOpen={mobileOpen} onOpenChange={setMobileOpen}>
-            <Button isIconOnly variant="ghost" size="sm" aria-label="打开菜单" className="md:hidden"><Icon name="menu" /></Button>
+            <Button isIconOnly variant="ghost" aria-label="打开菜单" className="md:hidden"><Icon name="menu" /></Button>
             <Drawer.Backdrop>
               <Drawer.Content placement="left" className="w-72">
                 <Drawer.Dialog>
@@ -101,20 +105,56 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <SearchField.ClearButton />
               </SearchField.Group>
             </SearchField>
+            <Popover>
+              <Badge.Anchor>
+                <Button isIconOnly variant="ghost" aria-label={`通知，${unread} 条未读`}>
+                  <Icon name="bell" size={18} />
+                </Button>
+                {unread > 0 && <Badge color="danger" size="sm">{unread}</Badge>}
+              </Badge.Anchor>
+              <Popover.Content placement="bottom end" className="w-80 max-w-[calc(100vw-2rem)]">
+                <Popover.Dialog aria-label="通知列表">
+                  <div className="flex items-center justify-between">
+                    <Popover.Heading>通知</Popover.Heading>
+                    <span className="text-xs text-muted">{unread} 条未读</span>
+                  </div>
+                  <ul className="mt-3 divide-y divide-border">
+                    {notifications.map((item) => (
+                      <li key={item.title} className="flex items-start gap-3 py-3">
+                        <span className={`mt-1.5 size-2 shrink-0 rounded-full ${item.unread ? "bg-accent" : "bg-transparent"}`} aria-hidden="true" />
+                        <div className="min-w-0 flex-1">
+                          <p className={`truncate text-sm ${item.unread ? "font-medium" : "text-muted"}`}>{item.title}</p>
+                          <p className="text-xs text-muted">{item.time}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button variant="ghost" size="sm" className="mt-2 w-full" onPress={() => navigate("/settings")}>查看全部通知</Button>
+                </Popover.Dialog>
+              </Popover.Content>
+            </Popover>
             <Tooltip>
-              <Button isIconOnly variant="ghost" size="sm" aria-label="切换主题" onPress={toggle}><Icon name={isDark ? "sun" : "moon"} /></Button>
+              <Button isIconOnly variant="ghost" aria-label="切换主题" onPress={toggle}>
+                <Icon name={isDark ? "sun" : "moon"} size={18} />
+              </Button>
               <Tooltip.Content>切换主题</Tooltip.Content>
             </Tooltip>
             <Dropdown>
-              <Button isIconOnly variant="ghost" size="sm" className="rounded-full" aria-label="用户菜单">
+              <Button isIconOnly variant="ghost" className="rounded-full" aria-label="用户菜单">
                 <Avatar size="sm"><Avatar.Fallback>林</Avatar.Fallback></Avatar>
               </Button>
               <Dropdown.Popover placement="bottom end">
-                <Dropdown.Menu aria-label="用户菜单" onAction={(key) => { if (key === "settings") navigate("/settings"); if (key === "logout") navigate("/login") }}>
+                <Dropdown.Menu aria-label="用户菜单" onAction={(key) => { if (key === "profile" || key === "settings" || key === "billing") navigate("/settings"); if (key === "logout") navigate("/login") }}>
                   <Dropdown.Section>
-                    <Dropdown.Item id="name" isDisabled><Label>林晓</Label></Dropdown.Item>
-                    <Dropdown.Item id="settings"><Label>账户设置</Label></Dropdown.Item>
-                    <Dropdown.Item id="logout"><Icon name="log-out" size={16} /><Label>退出登录</Label></Dropdown.Item>
+                    <Dropdown.Item id="name" isDisabled textValue={owner.name}><Label>{owner.name}</Label><Description>{owner.email}</Description></Dropdown.Item>
+                  </Dropdown.Section>
+                  <Dropdown.Section>
+                    <Dropdown.Item id="profile" textValue="个人资料"><Icon name="user" size={16} /><Label>个人资料</Label></Dropdown.Item>
+                    <Dropdown.Item id="settings" textValue="账户设置"><Icon name="settings" size={16} /><Label>账户设置</Label></Dropdown.Item>
+                    <Dropdown.Item id="billing" textValue="计费与计划"><Icon name="shopping-cart" size={16} /><Label>计费与计划</Label></Dropdown.Item>
+                  </Dropdown.Section>
+                  <Dropdown.Section>
+                    <Dropdown.Item id="logout" textValue="退出登录"><Icon name="log-out" size={16} /><Label>退出登录</Label></Dropdown.Item>
                   </Dropdown.Section>
                 </Dropdown.Menu>
               </Dropdown.Popover>

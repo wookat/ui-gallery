@@ -30,6 +30,10 @@ html {
 }
 .prose-chat :where(pre) {
   overflow-x: auto;
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding-right: 3rem;
   border-radius: 0.5rem;
   background: var(--surface-secondary);
   padding: 0.75rem;

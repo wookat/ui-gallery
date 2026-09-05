@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { Accordion, Alert, AlertDialog, Autocomplete, Avatar, Badge, Breadcrumbs, Button, ButtonGroup, Calendar, Card, Checkbox, CheckboxGroup, Chip, CloseButton, ColorArea, ColorPicker, ColorSlider, ColorSwatch, ComboBox, DateField, DatePicker, DateRangePicker, Description, Disclosure, Drawer, Dropdown, EmptyState, FieldError, Fieldset, Form, Input, InputGroup, InputOTP, Kbd, Label, Link, ListBox, Menu, Meter, Modal, NumberField, Pagination, Popover, ProgressBar, ProgressCircle, Radio, RadioGroup, RangeCalendar, ScrollShadow, SearchField, Select, Separator, Skeleton, Slider, Spinner, Surface, Switch, Table, Tabs, Tag, TagGroup, TextArea, TextField, TimeField, toast, ToggleButton, ToggleButtonGroup, Toolbar, Tooltip, Typography } from "@heroui/react"
-import { Icon } from "@ui-gallery/icons-react"
+import { Icon } from "@/components/icon"
 import contract from "@ui-gallery/spec/contract.json"
 import team from "@ui-gallery/spec/mock/team.json"
 import orders from "@ui-gallery/spec/mock/orders.json"
@@ -72,7 +72,7 @@ function Demo({ name }: { name: string }): ReactNode {
     case "Timeline": return <ol className="relative space-y-4 border-l border-border pl-4 text-sm">{team.slice(0, 3).map((m) => <li key={m.email} className="relative"><span className="absolute -left-[21px] top-1 size-2.5 rounded-full bg-accent" /><p className="font-medium">{m.name}</p><p className="text-xs text-muted">{m.lastActive}</p></li>)}</ol>
     case "Calendar": return <Calendar aria-label="日历"><CalendarBody /></Calendar>
     case "Image": return <figure className="overflow-hidden rounded-xl border border-border"><div className="aspect-video bg-[linear-gradient(135deg,var(--accent),var(--surface-secondary))]" /><figcaption className="p-2 text-xs text-muted">占位图（aspect-video + Tailwind）</figcaption></figure>
-    case "Carousel": return <ScrollShadow orientation="horizontal" className="flex snap-x gap-3">{[1, 2, 3, 4].map((i) => <Surface key={i} variant="secondary" className="w-40 shrink-0 snap-start rounded-xl p-4 text-sm">卡片 {i}</Surface>)}</ScrollShadow>
+    case "Carousel": return <ScrollShadow orientation="horizontal" className="flex w-full max-w-full snap-x gap-3 overflow-x-auto">{[1, 2, 3, 4].map((i) => <Surface key={i} variant="secondary" className="w-40 shrink-0 snap-start rounded-xl p-4 text-sm">卡片 {i}</Surface>)}</ScrollShadow>
     case "Empty": return <EmptyState className="py-6"><div className="mx-auto grid size-10 place-items-center rounded-full bg-surface-secondary text-muted"><Icon name="inbox" size={18} /></div><p className="mt-3 font-medium">暂无数据</p><p className="text-xs text-muted">试试调整筛选条件。</p></EmptyState>
     case "Tooltip": return <div className="flex gap-2"><Tooltip><Button variant="secondary">悬停</Button><Tooltip.Content>提示内容</Tooltip.Content></Tooltip><Tooltip isOpen><Button variant="secondary">常开</Button><Tooltip.Content>始终显示</Tooltip.Content></Tooltip></div>
     case "Popover": return <Popover><Button variant="secondary">打开 Popover</Button><Popover.Content><Popover.Dialog><Popover.Heading>标题</Popover.Heading><p className="text-sm text-muted">Popover 内容。</p></Popover.Dialog></Popover.Content></Popover>
@@ -112,7 +112,7 @@ function Demo({ name }: { name: string }): ReactNode {
     case "Code": return <code className="rounded-md bg-surface-secondary px-2 py-1 font-mono text-xs">pnpm add @heroui/react</code>
     case "Divider": return <div className="space-y-2 text-sm"><p>上方</p><Separator /><div className="flex h-5 items-center gap-2"><span>左</span><Separator orientation="vertical" /><span>右</span></div></div>
     case "Link": return <div className="flex flex-wrap gap-3 text-sm"><Link href="#">默认链接</Link><Link href="#" isDisabled>禁用</Link><Link href="https://example.com" target="_blank">外部 <Icon name="external-link" size={14} /></Link></div>
-    default: return <EmptyState className="py-4"><Icon name="circle-help" className="mx-auto text-muted" /><p className="mt-2 text-sm font-medium">HeroUI 无此组件</p><p className="text-xs text-muted">该 contract 项目已明确标记为 missing。</p></EmptyState>
+    default: return <EmptyState className="py-4"><Icon name="archive" className="mx-auto text-muted" /><p className="mt-2 text-sm font-medium">HeroUI 无此组件</p><p className="text-xs text-muted">该 contract 项目已明确标记为 missing。</p></EmptyState>
   }
 }
 
@@ -148,7 +148,7 @@ export function ComponentsPage() {
               <div className="flex items-center justify-between gap-2"><Card.Title className="text-base">{name}</Card.Title><Chip size="sm" color={coverage[name] === "missing" ? "danger" : coverage[name] === "composed" ? "warning" : "success"}>{coverage[name]}</Chip></div>
               <Card.Description>default · disabled · loading · error variants</Card.Description>
             </Card.Header>
-            <Card.Content className="min-w-0 overflow-x-auto"><Demo name={name} /></Card.Content>
+            <Card.Content className="min-w-0 max-w-full overflow-x-auto"><Demo name={name} /></Card.Content>
           </Card>
         ))}
       </div>

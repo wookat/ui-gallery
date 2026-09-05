@@ -1,6 +1,6 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Avatar, Button, Card, Chip, Label, ProgressBar, ScrollShadow, Skeleton, Table, Tabs } from "@heroui/react"
-import { Icon } from "@ui-gallery/icons-react"
+import { Icon } from "@/components/icon"
 import activity from "@ui-gallery/spec/mock/activity.json"
 import orders from "@ui-gallery/spec/mock/orders.json"
 import series from "@ui-gallery/spec/mock/series.json"
@@ -36,7 +36,7 @@ export function DashboardPage() {
           </Card>
         ))}
       </div>
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
         <Card>
           <Card.Header><Card.Title>收入趋势</Card.Title><Card.Description>过去 7 个月的收入与订单</Card.Description></Card.Header>
           <Card.Content>
@@ -67,7 +67,7 @@ export function DashboardPage() {
           </Card.Content>
         </Card>
       </div>
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[repeat(2,minmax(0,1fr))]">
         <Card>
           <Card.Header><Card.Title>最近订单</Card.Title><Card.Description>最新的业务交易</Card.Description></Card.Header>
           <Card.Content>

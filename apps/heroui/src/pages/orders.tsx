@@ -1,10 +1,13 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState, type ComponentProps } from "react"
 import { Alert, AlertDialog, Button, Calendar, Card, Checkbox, Drawer, Dropdown, EmptyState, Input, Label, ListBox, Pagination, Popover, Select, Skeleton, Table, TextField, toast } from "@heroui/react"
-import { Icon } from "@ui-gallery/icons-react"
+import { Icon } from "@/components/icon"
 import orders from "@ui-gallery/spec/mock/orders.json"
 import { PageHeader, StatusBadge } from "./shared"
 
 type Order = (typeof orders)[number]
+type TableContentProps = ComponentProps<typeof Table.Content>
+type Selection = Parameters<NonNullable<TableContentProps["onSelectionChange"]>>[0]
+type SortDescriptor = Parameters<NonNullable<TableContentProps["onSortChange"]>>[0]
 const statuses = ["all", "paid", "pending", "shipped", "failed"]
 
 export function OrdersPage() {
@@ -13,8 +16,19 @@ export function OrdersPage() {
   const [selected, setSelected] = useState<Order | null>(null)
   const [date, setDate] = useState<string | null>(null)
   const [columns, setColumns] = useState(new Set(["customer", "amount", "status"]))
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set())
+  const [sort, setSort] = useState<SortDescriptor>({ column: "date", direction: "descending" })
   const showCustomer = columns.has("customer")
-  const filtered = useMemo(() => orders.filter((order) => order.id.toLowerCase().includes(query.toLowerCase()) && (status === "all" || order.status === status)), [query, status])
+  const filtered = useMemo(() => {
+    const list = orders.filter((order) => order.id.toLowerCase().includes(query.toLowerCase()) && (status === "all" || order.status === status))
+    const dir = sort.direction === "ascending" ? 1 : -1
+    return [...list].sort((a, b) => {
+      if (sort.column === "amount") return (a.amount - b.amount) * dir
+      const key = sort.column === "customer" ? "customer" : sort.column === "id" ? "id" : "date"
+      return a[key].localeCompare(b[key]) * dir
+    })
+  }, [query, status, sort])
+  const selectedCount = selectedKeys === "all" ? filtered.length : selectedKeys.size
   const remove = () => { toast.success("订单已删除"); setSelected(null) }
 
   return (
@@ -64,18 +78,20 @@ export function OrdersPage() {
               <div className="hidden md:block">
                 <Table>
                   <Table.ScrollContainer>
-                    <Table.Content aria-label="订单列表" selectionMode="multiple">
+                    <Table.Content aria-label="订单列表" selectionMode="multiple" selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys} sortDescriptor={sort} onSortChange={setSort}>
                       <Table.Header>
-                        <Table.Column isRowHeader>订单号</Table.Column>
-                        {showCustomer ? <Table.Column>客户</Table.Column> : null}
-                        <Table.Column>状态</Table.Column>
-                        <Table.Column>日期</Table.Column>
-                        <Table.Column className="text-right">金额</Table.Column>
-                        <Table.Column className="text-right">操作</Table.Column>
+                        <Table.Column width={48} minWidth={48}><Checkbox slot="selection" aria-label="全选"><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control></Checkbox></Table.Column>
+                        <Table.Column id="id" isRowHeader allowsSorting>{({ sortDirection }) => <Table.SortableColumnHeader sortDirection={sortDirection}>订单号</Table.SortableColumnHeader>}</Table.Column>
+                        {showCustomer ? <Table.Column id="customer" allowsSorting>{({ sortDirection }) => <Table.SortableColumnHeader sortDirection={sortDirection}>客户</Table.SortableColumnHeader>}</Table.Column> : null}
+                        <Table.Column id="status">状态</Table.Column>
+                        <Table.Column id="date" allowsSorting>{({ sortDirection }) => <Table.SortableColumnHeader sortDirection={sortDirection}>日期</Table.SortableColumnHeader>}</Table.Column>
+                        <Table.Column id="amount" allowsSorting className="text-right">{({ sortDirection }) => <Table.SortableColumnHeader sortDirection={sortDirection}>金额</Table.SortableColumnHeader>}</Table.Column>
+                        <Table.Column id="actions" className="text-right">操作</Table.Column>
                       </Table.Header>
                       <Table.Body>
                         {filtered.map((order) => (
                           <Table.Row key={order.id} id={order.id}>
+                            <Table.Cell><Checkbox slot="selection" aria-label={`选择 ${order.id}`}><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control></Checkbox></Table.Cell>
                             <Table.Cell className="font-medium">{order.id}</Table.Cell>
                             {showCustomer ? <Table.Cell>{order.customer}</Table.Cell> : null}
                             <Table.Cell><StatusBadge value={order.status} /></Table.Cell>
@@ -89,6 +105,7 @@ export function OrdersPage() {
                   </Table.ScrollContainer>
                 </Table>
               </div>
+              {selectedCount > 0 ? <p className="hidden text-sm text-muted md:block">已选择 {selectedCount} 条订单</p> : null}
               <div className="grid gap-3 md:hidden">
                 {filtered.map((order) => (
                   <Card key={order.id} className="cursor-pointer" onClick={() => setSelected(order)}>
@@ -132,7 +149,7 @@ export function OrdersPage() {
                       <div className="flex justify-between"><span className="text-muted">状态</span><StatusBadge value={selected.status} /></div>
                       <div className="flex justify-between"><span className="text-muted">金额</span><span>¥{selected.amount.toLocaleString()}</span></div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm"><Checkbox><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control>标记为已处理</Checkbox.Content></Checkbox></div>
+                    <div className="flex items-center gap-2 text-sm"><Checkbox name="handled" variant="secondary"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>标记为已处理</Label></Checkbox.Content></Checkbox></div>
                     <AlertDialog>
                       <Button variant="danger" fullWidth><Icon name="trash" size={16} />删除订单</Button>
                       <AlertDialog.Backdrop>

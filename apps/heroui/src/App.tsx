@@ -1,15 +1,16 @@
-import { useEffect, type ReactNode } from "react"
+import { lazy, Suspense, useEffect, type ReactNode } from "react"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import { Toast } from "@heroui/react"
+import { Spinner, Toast } from "@heroui/react"
 import { AppShell } from "@/layouts/app-shell"
-import { ComponentsPage } from "@/pages/components"
-import { DashboardPage } from "@/pages/dashboard"
-import { FormPage } from "@/pages/form"
-import { LandingPage } from "@/pages/landing"
-import { LoginPage } from "@/pages/login"
-import { ChatPage } from "@/pages/chat"
-import { OrdersPage } from "@/pages/orders"
-import { SettingsPage } from "@/pages/settings"
+
+const ComponentsPage = lazy(() => import("@/pages/components").then((m) => ({ default: m.ComponentsPage })))
+const DashboardPage = lazy(() => import("@/pages/dashboard").then((m) => ({ default: m.DashboardPage })))
+const FormPage = lazy(() => import("@/pages/form").then((m) => ({ default: m.FormPage })))
+const LandingPage = lazy(() => import("@/pages/landing").then((m) => ({ default: m.LandingPage })))
+const LoginPage = lazy(() => import("@/pages/login").then((m) => ({ default: m.LoginPage })))
+const ChatPage = lazy(() => import("@/pages/chat").then((m) => ({ default: m.ChatPage })))
+const OrdersPage = lazy(() => import("@/pages/orders").then((m) => ({ default: m.OrdersPage })))
+const SettingsPage = lazy(() => import("@/pages/settings").then((m) => ({ default: m.SettingsPage })))
 
 const fonts: Record<string, string> = {
   inter: "'Inter Variable', sans-serif",
@@ -29,15 +30,17 @@ function useUrlSettings() {
   }, [])
 }
 
-const shell = (element: ReactNode) => <AppShell>{element}</AppShell>
+const fallback = <div className="grid min-h-[50vh] place-items-center"><Spinner aria-label="页面加载中" /></div>
+const page = (element: ReactNode) => <Suspense fallback={fallback}>{element}</Suspense>
+const shell = (element: ReactNode) => <AppShell>{page(element)}</AppShell>
 const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
+  { path: "/login", element: page(<LoginPage />) },
   { path: "/", element: shell(<DashboardPage />) },
   { path: "/orders", element: shell(<OrdersPage />) },
   { path: "/form", element: shell(<FormPage />) },
   { path: "/settings", element: shell(<SettingsPage />) },
   { path: "/components", element: shell(<ComponentsPage />) },
-  { path: "/landing", element: <LandingPage /> },
+  { path: "/landing", element: page(<LandingPage />) },
   { path: "/chat", element: shell(<ChatPage />) },
 ], { basename: "/apps/heroui" })
 

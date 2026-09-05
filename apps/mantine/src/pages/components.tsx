@@ -100,7 +100,7 @@ export function ComponentsPage() {
           <Stack gap="xs">
             {([1, 2, 3, 4, 5, 6] as const).map((o) => <Title key={o} order={o}>标题 H{o}</Title>)}
             <Text>正文 Text，默认字号。</Text><Text size="sm" c="dimmed">次要文本 dimmed。</Text><Text fw={700}>加粗</Text><Text td="underline">下划线</Text><Text><Mark>高亮</Mark> 文本</Text>
-            <Blockquote cite="— 林晓" icon={<Icon name="message-square" size={16} />}>引用块：把团队的工作放进一个控制台。</Blockquote>
+            <Blockquote mt="md" cite="— 林晓" icon={<Icon name="message-square" size={16} />}>引用块：把团队的工作放进一个控制台。</Blockquote>
             <List size="sm"><List.Item>无序列表 1</List.Item><List.Item>无序列表 2</List.Item></List>
             <List size="sm" type="ordered"><List.Item>有序列表 1</List.Item><List.Item>有序列表 2</List.Item></List>
           </Stack>
@@ -224,7 +224,7 @@ export function ComponentsPage() {
       {/* 反馈 */}
       <Stack gap="md" id="feedback" style={{ scrollMarginTop: 80 }}>
         <Title order={2} size="h3">反馈</Title>
-        <Demo name="Alert" mantine="Alert — 4 级 × 4 variant"><Stack gap="sm">{[["blue", "信息", "info"], ["green", "成功", "check"], ["yellow", "警告", "alert-triangle"], ["red", "错误", "alert-circle"]].map(([c, t, i]) => <SimpleGrid key={c} cols={{ base: 1, sm: 2, lg: 4 }}>{(["light", "filled", "outline", "white"] as const).map((v) => <Alert key={v} color={c} variant={v} title={`${t} · ${v}`} icon={<Icon name={i} size={16} />} withCloseButton={v === "light"}>提示内容。</Alert>)}</SimpleGrid>)}</Stack></Demo>
+        <Demo name="Alert" mantine="Alert — 4 级 × 4 variant"><Stack gap="sm">{[["blue", "信息", "bell"], ["green", "成功", "check"], ["yellow", "警告", "alert-triangle"], ["red", "错误", "alert-circle"]].map(([c, t, i]) => <SimpleGrid key={c} cols={{ base: 1, sm: 2, lg: 4 }}>{(["light", "filled", "outline", "white"] as const).map((v) => <Alert key={v} color={c} variant={v} title={`${t} · ${v}`} icon={<Icon name={i} size={16} />} withCloseButton={v === "light"}>提示内容。</Alert>)}</SimpleGrid>)}</Stack></Demo>
         <SimpleGrid cols={{ base: 1, md: 2 }}>
           <Demo name="Toast" mantine="@mantine/notifications"><Group gap="xs"><Button size="xs" color="blue" onClick={() => toast("blue", "信息")}>info</Button><Button size="xs" color="green" onClick={() => toast("green", "成功")}>success</Button><Button size="xs" color="yellow" onClick={() => toast("yellow", "警告")}>warning</Button><Button size="xs" color="red" onClick={() => toast("red", "错误")}>error</Button><Button size="xs" variant="default" onClick={() => toast("teal", "带操作", true)}>带操作</Button><Button size="xs" variant="default" onClick={() => { const id = notifications.show({ loading: true, title: "处理中", message: "请稍候", autoClose: false }); setTimeout(() => notifications.update({ id, loading: false, color: "teal", title: "完成", message: "已处理", autoClose: 2000 }), 1500) }}>loading→done</Button></Group></Demo>
           <Demo name="Notification" mantine="Notification（静态）"><Stack gap="sm">{[["blue", "信息"], ["green", "成功"], ["yellow", "警告"], ["red", "错误"]].map(([c, t]) => <Notification key={c} color={c} title={t} withBorder>通知内容 · {t}</Notification>)}<Notification loading title="加载中" withCloseButton={false}>正在同步...</Notification></Stack></Demo>

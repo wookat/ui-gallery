@@ -55,7 +55,7 @@ function Navigation({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
             active={location.pathname === item.path}
             label={collapsed ? undefined : item.label}
             leftSection={<Icon name={item.icon} size={16} />}
-            rightSection={!collapsed && item.badge ? <Badge size="xs" circle>{item.badge}</Badge> : undefined}
+            rightSection={!collapsed && item.badge ? <Badge size="sm" variant="light">{item.badge}</Badge> : undefined}
             px={collapsed ? "xs" : "sm"}
             style={{ borderRadius: "var(--mantine-radius-sm)" }}
           />
@@ -123,7 +123,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Tooltip>
             <Menu position="bottom-end" width={200}>
               <Menu.Target>
-                <UnstyledButton aria-label="账户菜单"><Avatar radius="xl" color="blue">林</Avatar></UnstyledButton>
+                <UnstyledButton aria-label="账户菜单" w={40} h={40} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><Avatar radius="xl" color="blue" size={40}>林</Avatar></UnstyledButton>
               </Menu.Target>
               <Menu.Dropdown>
                 <Menu.Label>林晓 · m0@acme.dev</Menu.Label>

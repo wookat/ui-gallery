@@ -129,7 +129,7 @@ export function SettingsPage() {
             <Alert variant="light" color="blue" icon={<Icon name="tag" size={16} />} title="当前计划：Pro">
               <Group justify="space-between" wrap="wrap"><Text size="sm">每月 {money(99)}，下次扣款 2026-10-01。</Text><Button size="xs" variant="light">管理支付方式</Button></Group>
             </Alert>
-            <Group justify="center" gap="sm"><Text size="sm">按月</Text><Switch checked={yearly} onChange={(e) => setYearly(e.currentTarget.checked)} /><Text size="sm">按年</Text><Badge color="green" variant="light">省 20%</Badge></Group>
+            <Group justify="center" gap="sm"><Text size="sm">按月</Text><Switch size="md" label="按年" checked={yearly} onChange={(e) => setYearly(e.currentTarget.checked)} /><Badge color="green" variant="light">省 20%</Badge></Group>
             <SimpleGrid cols={{ base: 1, md: 3 }}>
               {plans.map((p) => (
                 <Card key={p.name} withBorder radius="md" padding="lg" style={p.recommended ? { borderColor: "var(--mantine-primary-color-filled)" } : undefined}>

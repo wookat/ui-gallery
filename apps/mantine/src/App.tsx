@@ -26,6 +26,9 @@ const fonts: Record<string, string> = {
 const theme = createTheme({
   fontFamily: `var(--ug-font, ${DEFAULT_THEME.fontFamily})`,
   headings: { fontFamily: `var(--ug-font, ${DEFAULT_THEME.fontFamily})` },
+  components: {
+    CodeHighlightControl: { defaultProps: { size: 40 } },
+  },
 })
 
 function readScheme(): MantineColorScheme {

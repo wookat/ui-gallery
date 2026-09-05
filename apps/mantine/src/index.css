@@ -21,9 +21,26 @@ body,
 :root {
   --ug-muted: var(--mantine-color-gray-7);
   --ug-placeholder: var(--mantine-color-gray-1);
+  --mantine-color-dimmed: var(--mantine-color-gray-7);
+  --mantine-color-placeholder: var(--mantine-color-gray-7);
 }
 
 :root[data-mantine-color-scheme="dark"] {
   --ug-muted: var(--mantine-color-gray-5);
   --ug-placeholder: var(--mantine-color-dark-5);
+  --mantine-color-dimmed: var(--mantine-color-gray-5);
+  --mantine-color-placeholder: var(--mantine-color-gray-5);
+}
+
+/* 移动端热区 ≥40px：仅覆盖 Mantine 尺寸变量 */
+@media (max-width: 48em) {
+  .mantine-Button-root { --button-height-xs: 40px; --button-height-sm: 42px; }
+  .mantine-Input-wrapper { --input-height-xs: 40px; --input-height-sm: 42px; }
+  .mantine-Tabs-tab { min-height: 44px; }
+  .mantine-Checkbox-root { --checkbox-size-sm: 24px; }
+  .mantine-Radio-root { --radio-size-sm: 24px; }
+  .mantine-Checkbox-body, .mantine-Radio-body, .mantine-Switch-body { min-height: 40px; align-items: center; }
+  .mantine-Checkbox-labelWrapper, .mantine-Radio-labelWrapper, .mantine-Switch-labelWrapper { display: flex; align-items: center; min-height: 40px; }
+  .mantine-Stepper-step { min-height: 40px; }
+  .mantine-Pagination-control { min-width: 40px; height: 40px; }
 }

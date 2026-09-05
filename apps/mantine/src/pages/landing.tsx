@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { Accordion, ActionIcon, Anchor, AspectRatio, Avatar, Badge, Box, Burger, Button, Card, Center, Container, Divider, Drawer, Grid, Group, List, Select, SimpleGrid, Stack, Switch, Text, ThemeIcon, Title } from "@mantine/core"
-import { Carousel } from "@mantine/carousel"
+import { Accordion, ActionIcon, Anchor, AspectRatio, Avatar, Badge, Box, Burger, Button, Card, Center, Container, Divider, Drawer, Grid, Group, List, Rating, Select, SimpleGrid, Stack, Switch, Text, ThemeIcon, Title } from "@mantine/core"
+import { Carousel, type CarouselProps } from "@mantine/carousel"
 import { Link } from "react-router-dom"
 import { Icon } from "@ui-gallery/icons-react"
 import landing from "@ui-gallery/spec/mock/landing.json"
@@ -16,10 +16,12 @@ const footerCols = [
   { title: "法律", links: ["隐私", "条款", "安全", "Cookie"] },
 ]
 const splits = landing.features.slice(0, 3)
+type EmblaApi = Parameters<NonNullable<CarouselProps["getEmblaApi"]>>[0]
 
 export function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [yearly, setYearly] = useState(false)
+  const [embla, setEmbla] = useState<EmblaApi | null>(null)
   const { computed, toggle } = useThemeToggle()
 
   return (
@@ -44,7 +46,6 @@ export function LandingPage() {
 
       <Container size="lg" py={{ base: 48, md: 96 }}>
         <Stack align="center" gap="lg" ta="center">
-          <Badge variant="light" size="lg">全新 2.0 版本</Badge>
           <Title order={1} fz={{ base: 32, md: 52 }} lh={1.15} maw={800}>{landing.hero.title}</Title>
           <Text c={muted} size="lg" maw={600}>{landing.hero.subtitle}</Text>
           <Group><Button size="md" rightSection={<Icon name="arrow-right" size={16} />}>{landing.hero.primary}</Button><Button size="md" variant="default" leftSection={<Icon name="play" size={16} />}>{landing.hero.secondary}</Button></Group>
@@ -100,7 +101,7 @@ export function LandingPage() {
       </Box>
 
       <Container size="lg" py={{ base: 48, md: 80 }} id="pricing">
-        <Stack align="center" ta="center" mb="xl"><Title order={2}>简单透明的定价</Title><Group gap="sm"><Text size="sm">按月</Text><Switch checked={yearly} onChange={(e) => setYearly(e.currentTarget.checked)} /><Text size="sm">按年</Text><Badge color="green" variant="light">省 20%</Badge></Group></Stack>
+        <Stack align="center" ta="center" mb="xl"><Title order={2}>简单透明的定价</Title><Group gap="sm"><Text size="sm">按月</Text><Switch size="md" label="按年" checked={yearly} onChange={(e) => setYearly(e.currentTarget.checked)} /><Badge color="green" variant="light">省 20%</Badge></Group></Stack>
         <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
           {plans.map((p) => (
             <Card key={p.name} withBorder radius="md" padding="xl" style={p.recommended ? { borderColor: "var(--mantine-primary-color-filled)", borderWidth: 2 } : undefined}>
@@ -115,17 +116,18 @@ export function LandingPage() {
 
       <Container size="lg" py="xl">
         <Title order={2} ta="center" mb="xl">用户怎么说</Title>
-        <Carousel slideSize={{ base: "100%", sm: "50%", md: "33.333%" }} slideGap="md" controlSize={40} styles={{ indicator: { width: 24, height: 8 } }} emblaOptions={{ align: "start", loop: true }} withIndicators>
+        <Carousel slideSize={{ base: "100%", sm: "50%", md: "33.333%" }} slideGap="md" emblaOptions={{ align: "start", loop: true }} withControls={false} withIndicators={false} getEmblaApi={setEmbla}>
           {landing.testimonials.map((t) => (
             <Carousel.Slide key={t.name}>
               <Card withBorder radius="md" padding="lg" h="100%">
-                <Group gap={2} c="yellow.6">{Array.from({ length: 5 }).map((_, i) => <Icon key={i} name="star" size={14} />)}</Group>
+                <Rating value={5} readOnly size="sm" />
                 <Text mt="md" size="sm">“{t.quote}”</Text>
                 <Group mt="lg" gap="sm"><Avatar radius="xl" color="initials" name={t.name}>{t.name.slice(0, 1)}</Avatar><div><Text size="sm" fw={500}>{t.name}</Text><Text size="xs" c={muted}>{t.company}</Text></div></Group>
               </Card>
             </Carousel.Slide>
           ))}
         </Carousel>
+        <Group justify="center" gap="sm" mt="md"><ActionIcon size={40} variant="default" aria-label="上一条" onClick={() => embla?.scrollPrev()}><Icon name="chevron-left" size={16} /></ActionIcon><ActionIcon size={40} variant="default" aria-label="下一条" onClick={() => embla?.scrollNext()}><Icon name="chevron-right" size={16} /></ActionIcon></Group>
       </Container>
 
       <Container size="sm" py={{ base: 48, md: 80 }}>
@@ -143,7 +145,7 @@ export function LandingPage() {
         <Container size="lg">
           <Grid gap="xl">
             <Grid.Col span={{ base: 12, md: 4 }}><Group gap="xs"><ThemeIcon radius="md"><Text fw={700} size="sm">A</Text></ThemeIcon><Text fw={600}>Acme Console</Text></Group><Text size="sm" c={muted} mt="sm">{landing.hero.subtitle}</Text></Grid.Col>
-            {footerCols.map((c) => <Grid.Col key={c.title} span={{ base: 6, sm: 3, md: 2 }}><Text fw={600} size="sm" mb="sm">{c.title}</Text><Stack gap={6}>{c.links.map((l) => <Anchor key={l} size="sm" c={muted} href="#">{l}</Anchor>)}</Stack></Grid.Col>)}
+            {footerCols.map((c) => <Grid.Col key={c.title} span={{ base: 6, sm: 3, md: 2 }}><Text fw={600} size="sm" mb="sm">{c.title}</Text><Stack gap={0}>{c.links.map((l) => <Anchor key={l} size="sm" c={muted} href="#" py={10} display="inline-block">{l}</Anchor>)}</Stack></Grid.Col>)}
           </Grid>
           <Divider my="lg" />
           <Group justify="space-between" wrap="wrap">

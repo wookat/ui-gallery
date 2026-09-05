@@ -1,8 +1,9 @@
-import { useState } from "react"
-import { ActionIcon, Autocomplete, Button, Card, Checkbox, ColorInput, DataList, Group, List, MultiSelect, NumberInput, Radio, RangeSlider, Rating, Select, Stack, Stepper, Switch, TagsInput, Text, TextInput, Textarea, ThemeIcon, Title, Tooltip } from "@mantine/core"
+import { useRef, useState } from "react"
+import { ActionIcon, Autocomplete, Button, Card, Checkbox, ColorInput, DataList, Group, List, MultiSelect, NumberInput, Radio, RangeSlider, Rating, Select, Stack, Stepper, Switch, TagsInput, Text, TextInput, Textarea, ThemeIcon, Title, Tooltip, type NumberInputHandlers } from "@mantine/core"
 import { DatePickerInput, TimeInput } from "@mantine/dates"
 import { Dropzone, type FileWithPath } from "@mantine/dropzone"
 import { useForm } from "@mantine/form"
+import { useMediaQuery } from "@mantine/hooks"
 import { Icon } from "@ui-gallery/icons-react"
 import team from "@ui-gallery/spec/mock/team.json"
 import { muted, PageHeader } from "./shared"
@@ -24,6 +25,8 @@ export function FormPage() {
   const [active, setActive] = useState(0)
   const [files, setFiles] = useState<FileWithPath[]>([])
   const [done, setDone] = useState(false)
+  const mobile = useMediaQuery("(max-width: 48em)", false, { getInitialValueInEffect: false })
+  const handlers = useRef<NumberInputHandlers>(null)
   const form = useForm({
     initialValues: {
       name: "", seats: 5, email: "", code: "+86", phone: "", desc: "", type: "team", modules: ["orders"], notify: true,
@@ -82,7 +85,7 @@ export function FormPage() {
     <Stack gap="lg">
       <PageHeader title="新建项目" description="三步完成项目配置。" />
       <Card withBorder radius="md" padding="lg">
-        <Stepper active={active} onStepClick={setActive} allowNextStepsSelect={false} size="sm">
+        <Stepper active={active} onStepClick={setActive} allowNextStepsSelect={false} size="sm" orientation={mobile ? "vertical" : "horizontal"}>
           <Stepper.Step label="基本信息" description="名称与联系人" />
           <Stepper.Step label="详细配置" description="区域、计划与预算" />
           <Stepper.Step label="确认" description="核对并提交" />
@@ -93,7 +96,7 @@ export function FormPage() {
             <>
               <TextInput label="项目名称" placeholder="例如：Q4 增长计划" required description="将显示在侧边栏与邀请邮件中" {...form.getInputProps("name")} />
               <Group grow align="flex-start">
-                <NumberInput label="席位数" min={1} max={500} required {...form.getInputProps("seats")} />
+                <NumberInput label="席位数" min={1} max={500} required hideControls handlersRef={handlers} leftSection={<ActionIcon size={40} variant="subtle" color="gray" aria-label="减少" onClick={() => handlers.current?.decrement()}><Icon name="minus" size={14} /></ActionIcon>} leftSectionWidth={44} leftSectionPointerEvents="all" rightSection={<ActionIcon size={40} variant="subtle" color="gray" aria-label="增加" onClick={() => handlers.current?.increment()}><Icon name="plus" size={14} /></ActionIcon>} rightSectionWidth={44} rightSectionPointerEvents="all" {...form.getInputProps("seats")} />
                 <TextInput label="联系邮箱" placeholder="you@example.com" required {...form.getInputProps("email")} />
               </Group>
               <Group align="flex-start" gap="xs" wrap="nowrap">

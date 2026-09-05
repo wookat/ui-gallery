@@ -50,6 +50,8 @@ export function OrdersPage() {
   const someSelected = rows.some((r) => selected.includes(r.id))
 
   const toggleSort = (key: SortKey) => setSort((s) => ({ key, dir: s.key === key ? (s.dir === 1 ? -1 : 1) : 1 }))
+  const toggleAll = () => setSelected(allSelected ? selected.filter((id) => !rows.some((r) => r.id === id)) : [...new Set([...selected, ...rows.map((r) => r.id)])])
+  const toggleRow = (id: string, checked?: boolean) => setSelected((current) => checked === undefined ? (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]) : checked ? [...new Set([...current, id])] : current.filter((value) => value !== id))
   const confirmDelete = () => {
     setDeleting(null)
     notifications.show({ title: "已删除", message: `订单 ${deleting?.id} 已删除`, color: "teal", icon: <Icon name="check" size={16} /> })
@@ -100,11 +102,11 @@ export function OrdersPage() {
             <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md" styles={{ th: { whiteSpace: "nowrap" }, td: { whiteSpace: "nowrap" } }}>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th w={40}><Checkbox aria-label="全选" checked={allSelected} indeterminate={someSelected && !allSelected} onChange={() => setSelected(allSelected ? selected.filter((id) => !rows.some((r) => r.id === id)) : [...new Set([...selected, ...rows.map((r) => r.id)])])} /></Table.Th>
+                  <Table.Th w={40} style={{ cursor: "pointer" }} onClick={toggleAll}><Checkbox size="md" aria-label="全选" checked={allSelected} indeterminate={someSelected && !allSelected} onClick={(e) => e.stopPropagation()} onChange={toggleAll} /></Table.Th>
                   {columns.filter((c) => visible[c.key]).map((c) => (
                     <Table.Th key={c.key} ta={c.align}>
                       {c.key === "product" || c.key === "channel" ? c.label : (
-                        <UnstyledButton onClick={() => toggleSort(c.key as SortKey)} fz="sm" fw={600}>
+                        <UnstyledButton onClick={() => toggleSort(c.key as SortKey)} fz="sm" fw={600} mih={{ base: 40, sm: 0 }} display="flex" style={{ alignItems: "center" }}>
                           <Group gap={4} wrap="nowrap" justify={c.align === "right" ? "flex-end" : undefined}>{c.label}<Icon name={sort.key === c.key ? (sort.dir === 1 ? "chevron-up" : "chevron-down") : "minus"} size={12} /></Group>
                         </UnstyledButton>
                       )}
@@ -116,7 +118,7 @@ export function OrdersPage() {
               <Table.Tbody>
                 {rows.map((o) => (
                   <Table.Tr key={o.id} bg={selected.includes(o.id) ? "var(--mantine-primary-color-light)" : undefined} onClick={() => setDetail(o)} style={{ cursor: "pointer" }}>
-                    <Table.Td onClick={(e) => e.stopPropagation()}><Checkbox aria-label={`选择 ${o.id}`} checked={selected.includes(o.id)} onChange={(e) => setSelected(e.currentTarget.checked ? [...selected, o.id] : selected.filter((id) => id !== o.id))} /></Table.Td>
+                    <Table.Td onClick={(e) => { e.stopPropagation(); toggleRow(o.id) }} style={{ cursor: "pointer" }}><Checkbox size="md" aria-label={`选择 ${o.id}`} checked={selected.includes(o.id)} onClick={(e) => e.stopPropagation()} onChange={(e) => toggleRow(o.id, e.currentTarget.checked)} /></Table.Td>
                     {visible.id ? <Table.Td><Text size="sm" fw={500}>{o.id}</Text></Table.Td> : null}
                     {visible.customer ? <Table.Td><Group gap="xs" wrap="nowrap"><Avatar size="sm" radius="xl" color="blue">{o.customer.slice(0, 1)}</Avatar><div><Text size="sm">{o.customer}</Text><Text size="xs" c={muted}>{o.email}</Text></div></Group></Table.Td> : null}
                     {visible.product ? <Table.Td><Text size="sm">{o.product}</Text></Table.Td> : null}

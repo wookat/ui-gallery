@@ -38,7 +38,7 @@ export const statusColor = (value: string) =>
   ["paid", "shipped", "active", "done", "owner"].includes(value) ? "green" : ["pending", "due", "admin"].includes(value) ? "yellow" : ["refunded", "failed", "cancelled"].includes(value) ? "red" : "gray"
 
 export function StatusBadge({ value }: { value: string }) {
-  return <Badge variant="light" color={statusColor(value)}>{value}</Badge>
+  return <Badge variant="dot" color={statusColor(value)}>{value}</Badge>
 }
 
 export const money = (amount: number, currency = "CNY") =>

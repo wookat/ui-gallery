@@ -63,11 +63,11 @@ export function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.currentTarget.value)}
                     error={passwordError}
-                    rightSectionWidth={44}
-                    vars={() => ({ root: { "--psi-button-size": "36px" } })}
+                    rightSectionWidth={48}
+                    vars={() => ({ root: { "--psi-button-size": "40px" } })}
                   />
                   <Group justify="space-between">
-                    <Checkbox label="记住我" size="sm" />
+                    <Checkbox label="记住我" size="md" />
                     <Anchor component={Link} to="#forgot" size="sm">忘记密码？</Anchor>
                   </Group>
                   <Button type="submit" fullWidth loading={loading}>登录</Button>

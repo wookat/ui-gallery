@@ -93,7 +93,7 @@ export function ChatPage() {
                       <Group gap="xs"><Text size="xs" fw={500}>{user ? "林晓" : "AI 助手"}</Text><Text size="xs" c={muted}>刚刚</Text></Group>
                       {m.tool ? (
                         <Card withBorder radius="md" padding="xs" w="100%">
-                          <UnstyledButton onClick={() => setOpen({ ...open, [i]: !open[i] })} w="100%">
+                          <UnstyledButton onClick={() => setOpen({ ...open, [i]: !open[i] })} w="100%" mih={40} display="flex" style={{ alignItems: "center" }}>
                             <Group justify="space-between" wrap="nowrap"><Group gap="xs"><Icon name="plug" size={14} /><Text size="xs" fw={500}>工具调用 · {m.tool.name}</Text><Badge size="xs" color="green" variant="light">{m.tool.status}</Badge></Group><Icon name={open[i] ? "chevron-up" : "chevron-down"} size={14} /></Group>
                           </UnstyledButton>
                           <Collapse expanded={!!open[i]}><CodeHighlight mt="xs" code={JSON.stringify(m.tool.args, null, 2)} language="json" radius="sm" /></Collapse>
@@ -120,7 +120,7 @@ export function ChatPage() {
             <Textarea variant="unstyled" autosize minRows={1} maxRows={6} placeholder="向 AI 助手提问..." value={draft} onChange={(e) => setDraft(e.currentTarget.value)} px={4} />
             <Group justify="space-between" mt={4} wrap="nowrap">
               <Group gap={4}><ActionIcon size={40} variant="subtle" color="gray" aria-label="附件"><Icon name="paperclip" size={16} /></ActionIcon><Text size="xs" c={muted} visibleFrom="sm">{draft.length}/2000 · <Kbd size="xs">Enter</Kbd> 发送，<Kbd size="xs">Shift</Kbd>+<Kbd size="xs">Enter</Kbd> 换行</Text></Group>
-              <Button size="xs" rightSection={<Icon name="send" size={14} />} disabled={!draft.trim()} onClick={() => setDraft("")}>发送</Button>
+              <Button size="sm" rightSection={<Icon name="send" size={14} />} disabled={!draft.trim()} onClick={() => setDraft("")}>发送</Button>
             </Group>
           </Paper>
         </Box>

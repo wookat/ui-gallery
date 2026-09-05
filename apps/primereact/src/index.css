@@ -13,6 +13,7 @@ a { color: var(--primary-color); }
 .page-title { margin: 0; font-size: 1.8rem; }
 .page-subtitle { margin: .35rem 0 0; color: var(--text-color-secondary); }
 .surface-card { border: 1px solid var(--surface-border); }
+.p-breadcrumb .p-menuitem-link { background: transparent; }
 .muted { color: var(--text-color-secondary); }
 .demo-card { scroll-margin-top: 5rem; }
 .table-scroll { overflow-x: auto; }

@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react"
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, RouterProvider, useLocation } from "react-router-dom"
 import { AppShell } from "@/layouts/app-shell"
 import { ComponentsPage } from "@/pages/components"
 import { DashboardPage } from "@/pages/dashboard"
@@ -10,8 +10,10 @@ import { ChatPage } from "@/pages/chat"
 import { OrdersPage } from "@/pages/orders"
 import { SettingsPage } from "@/pages/settings"
 
-export const lightTheme = new URL("primereact/resources/themes/lara-light-blue/theme.css?url", import.meta.url).href
-export const darkTheme = new URL("primereact/resources/themes/lara-dark-blue/theme.css?url", import.meta.url).href
+import lightTheme from "primereact/resources/themes/lara-light-blue/theme.css?url"
+import darkTheme from "primereact/resources/themes/lara-dark-blue/theme.css?url"
+
+export { lightTheme, darkTheme }
 export function applySettings() {
   const params = new URLSearchParams(window.location.search)
   const explicit = params.get("theme")
@@ -25,15 +27,19 @@ export function applySettings() {
   const font = fonts[params.get("font") ?? ""]
   if (font) document.documentElement.style.setProperty("--font-family", font)
 }
-function useSettings() { useEffect(() => { applySettings() }, []) }
+function SettingsSync({ children }: { children: ReactNode }) {
+  const { search } = useLocation()
+  useEffect(() => { applySettings() }, [search])
+  return children
+}
+const withSettings = (element: ReactNode) => <SettingsSync>{element}</SettingsSync>
 const shell = (element: ReactNode) => <AppShell>{element}</AppShell>
 const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> }, { path: "/", element: shell(<DashboardPage />) }, { path: "/orders", element: shell(<OrdersPage />) },
-  { path: "/form", element: shell(<FormPage />) }, { path: "/settings", element: shell(<SettingsPage />) }, { path: "/components", element: shell(<ComponentsPage />) },
-  { path: "/landing", element: <LandingPage /> }, { path: "/chat", element: shell(<ChatPage />) },
+  { path: "/login", element: withSettings(<LoginPage />) }, { path: "/", element: withSettings(shell(<DashboardPage />)) }, { path: "/orders", element: withSettings(shell(<OrdersPage />)) },
+  { path: "/form", element: withSettings(shell(<FormPage />)) }, { path: "/settings", element: withSettings(shell(<SettingsPage />)) }, { path: "/components", element: withSettings(shell(<ComponentsPage />)) },
+  { path: "/landing", element: withSettings(<LandingPage />) }, { path: "/chat", element: withSettings(shell(<ChatPage />)) },
 ], { basename: "/apps/primereact" })
 export default function App() {
-  useSettings()
   useEffect(() => { window.scrollTo(0, 0) }, [])
   return <RouterProvider router={router} />
 }

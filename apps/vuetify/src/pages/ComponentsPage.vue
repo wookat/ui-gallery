@@ -84,11 +84,11 @@ function backToTop() {
               <template v-else-if="name === 'Anchor'"><div class="d-flex ga-2"><v-btn href="#sec-Button" variant="text">按钮</v-btn><v-btn href="#sec-Table" variant="text">表格</v-btn></div></template>
               <template v-else-if="name === 'BackTop'"><v-fab icon="mdi-arrow-up" size="small" @click="backToTop" /></template>
               <template v-else-if="name === 'Affix'"><v-sheet class="pa-3" border style="position: sticky; top: 8px">sticky 内容</v-sheet></template>
-              <template v-else-if="['Navbar', 'Sidebar'].includes(name)"><v-app-bar v-if="name === 'Navbar'" position="static" flat border><v-app-bar-title>导航栏</v-app-bar-title></v-app-bar><v-layout v-else style="height: 120px"><v-navigation-drawer permanent width="140"><v-list-item title="侧边栏" /></v-navigation-drawer><v-main /></v-layout></template>
+              <template v-else-if="['Navbar', 'Sidebar'].includes(name)"><v-app-bar v-if="name === 'Navbar'" position="static" flat border><v-app-bar-title>导航栏</v-app-bar-title></v-app-bar><v-sheet v-else class="d-flex" height="120"><v-sheet width="140" color="surface-variant" class="pa-3">侧边栏</v-sheet><v-sheet class="flex-grow-1" /></v-sheet></template>
               <template v-else-if="name === 'CommandPalette'"><v-command-palette /></template>
               <template v-else-if="name === 'Grid'"><v-row><v-col v-for="n in 3" :key="n"><v-sheet border rounded class="pa-3">Col {{ n }}</v-sheet></v-col></v-row></template>
               <template v-else-if="name === 'Stack'"><div class="d-flex flex-column ga-2"><v-btn>垂直堆叠</v-btn><v-btn variant="tonal">间距 2</v-btn></div></template>
-              <template v-else-if="name === 'Layout'"><v-layout style="height: 100px"><v-app-bar position="static" density="compact" title="Layout" /><v-main /></v-layout></template>
+              <template v-else-if="name === 'Layout'"><v-sheet height="100" border><v-sheet color="surface-variant" class="pa-2 text-subtitle-2">Layout</v-sheet><v-sheet class="pa-2 text-caption">主内容区域</v-sheet></v-sheet></template>
               <template v-else-if="name === 'Container'"><v-container class="bg-surface-variant">容器内容</v-container></template>
               <template v-else-if="name === 'AspectRatio'"><v-responsive aspect-ratio="16/9" class="bg-surface-variant d-flex align-center justify-center">16:9</v-responsive></template>
               <template v-else-if="name === 'ScrollArea'"><div style="height: 120px; overflow-y: auto"><p v-for="n in 8" :key="n">可滚动内容 {{ n }}</p></div></template>

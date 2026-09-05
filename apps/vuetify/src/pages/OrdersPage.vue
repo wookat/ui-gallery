@@ -53,12 +53,22 @@ function removeOrder() {
           <v-select v-model="channel" :items="channels" label="渠道" multiple chips density="compact" variant="outlined" hide-details class="filter-select" />
           <v-menu :close-on-content-click="false"><template #activator="{ props }"><v-btn v-bind="props" variant="text"><Icon name="sliders" />列显示</v-btn></template><v-list density="compact"><v-list-item v-for="(_, key) in columns" :key="key"><template #prepend><v-checkbox-btn v-model="columns[key as keyof typeof columns]" /></template><v-list-item-title>{{ key }}</v-list-item-title></v-list-item></v-list></v-menu>
         </v-card-text>
-        <v-data-table v-model="selected" :headers="headers" :items="filtered" item-value="id" show-select hover @click:row="openOrder">
-          <template #[`item.customer`]="{ item }"><div class="d-flex align-center ga-2"><v-avatar size="30" color="primary" variant="tonal">{{ item.customer.slice(0, 1) }}</v-avatar><div><div>{{ item.customer }}</div><div class="text-caption text-medium-emphasis">{{ item.email }}</div></div></div></template>
-          <template #[`item.amount`]="{ item }"><span class="font-weight-medium">¥{{ money(item.amount) }}</span></template>
-          <template #[`item.status`]="{ item }"><v-chip size="small" :color="statusColor(item.status)" variant="tonal">{{ statusLabel(item.status) }}</v-chip></template>
-          <template #[`item.actions`]="{}"><v-menu><template #activator="{ props }"><v-btn v-bind="props" icon variant="text" size="small" @click.stop><Icon name="ellipsis" /></v-btn></template><v-list density="compact"><v-list-item title="编辑" /><v-list-item title="删除" @click="confirm = true" /></v-list></v-menu></template>
-        </v-data-table>
+        <div class="d-none d-sm-block">
+          <v-data-table v-model="selected" :headers="headers" :items="filtered" item-value="id" show-select hover @click:row="openOrder">
+            <template #[`item.customer`]="{ item }"><div class="d-flex align-center ga-2"><v-avatar size="30" color="primary" variant="tonal">{{ item.customer.slice(0, 1) }}</v-avatar><div><div>{{ item.customer }}</div><div class="text-caption text-medium-emphasis">{{ item.email }}</div></div></div></template>
+            <template #[`item.amount`]="{ item }"><span class="font-weight-medium">¥{{ money(item.amount) }}</span></template>
+            <template #[`item.status`]="{ item }"><v-chip size="small" :color="statusColor(item.status)" variant="tonal">{{ statusLabel(item.status) }}</v-chip></template>
+            <template #[`item.actions`]="{}"><v-menu><template #activator="{ props }"><v-btn v-bind="props" icon variant="text" size="small" @click.stop><Icon name="ellipsis" /></v-btn></template><v-list density="compact"><v-list-item title="编辑" /><v-list-item title="删除" @click="confirm = true" /></v-list></v-menu></template>
+          </v-data-table>
+        </div>
+        <div class="d-sm-none">
+          <v-list lines="two">
+            <v-list-item v-for="item in filtered" :key="item.id" :title="item.id" :subtitle="`${item.customer} · ${item.email}`" @click="openOrder($event, { item })">
+              <template #prepend><v-avatar size="32" color="primary" variant="tonal">{{ item.customer.slice(0, 1) }}</v-avatar></template>
+              <template #append><div class="text-right"><div class="font-weight-medium">¥{{ money(item.amount) }}</div><v-chip size="x-small" :color="statusColor(item.status)" variant="tonal">{{ statusLabel(item.status) }}</v-chip></div></template>
+            </v-list-item>
+          </v-list>
+        </div>
       </v-card>
     </template>
     <v-navigation-drawer v-model="drawer" location="end" temporary :width="Math.min(420, 375)" class="order-drawer">

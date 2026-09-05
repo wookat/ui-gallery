@@ -1,0 +1,13 @@
+{
+  "slug": "shadcn-svelte",
+  "name": "shadcn-svelte",
+  "framework": "svelte",
+  "version": "1.6.0",
+  "repo": "huntabyte/shadcn-svelte",
+  "license": { "github": "MIT", "npm": "MIT" },
+  "theme": { "dark": true, "nativeIcons": false },
+  "routes": ["/login", "/", "/orders", "/form", "/settings", "/components", "/landing", "/chat"],
+  "coverage": {},
+  "externals": { "chart": "layerchart" },
+  "notes": ""
+}

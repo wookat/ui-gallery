@@ -3,13 +3,20 @@ import { ref } from "vue"
 import AppIcon from "../../icons/AppIcon.vue"
 import DemoBlock from "./DemoBlock.vue"
 
-const names = ["Grid", "Stack", "QSpace", "QLayout", "Container", "QResponsive", "QSplitter", "QScrollArea", "QVirtualScroll", "QInfiniteScroll", "QIntersection", "QScrollObserver", "QParallax", "QNoSsr"]
+const names = ["Grid", "Stack", "QSpace", "QLayout", "Container", "QResponsive", "QSplitter", "QScrollArea", "QVirtualScroll", "QInfiniteScroll", "QIntersection", "QScrollObserver", "QParallax", "QNoSsr", "QVideo"]
 const split = ref(50)
 const splitVertical = ref(50)
 const virtualItems = Array.from({ length: 1000 }, (_, index) => `订单 #${index + 1}`)
 const infiniteItems = ref(["批次 1", "批次 2", "批次 3"])
 const intersectionVisible = ref(false)
 const scrollPosition = ref(0)
+const aliases: Record<string, string[]> = {
+  QLayout: ["Layout", "Sidebar"],
+  Container: ["Container"],
+  QResponsive: ["AspectRatio"],
+  QSplitter: ["Resizable"],
+  QScrollArea: ["ScrollArea"],
+}
 
 function loadMore(index: number, done: () => void) {
   window.setTimeout(() => {
@@ -20,7 +27,7 @@ function loadMore(index: number, done: () => void) {
 </script>
 
 <template>
-  <DemoBlock v-for="name in names" :id="name" :key="name" :title="name">
+  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="name">
     <template v-if="name === 'Grid'">
       <div class="row q-col-gutter-md"><div v-for="index in 12" :key="index" class="col-6 col-sm-3"><q-card bordered class="q-pa-sm text-center">col {{ index }}</q-card></div></div>
     </template>
@@ -31,7 +38,7 @@ function loadMore(index: number, done: () => void) {
       <q-card bordered><div class="row items-center q-pa-md"><span>左侧</span><q-space /><span>右侧</span></div></q-card><div class="text-caption text-grey-7 q-mt-sm">q-gutter-* 和 QSpace 用于 Stack / Space 布局。</div>
     </template>
     <template v-else-if="name === 'QLayout'">
-      <q-layout container view="hHh lpR fFf" style="height: 320px" class="bordered-layout"><q-header bordered><q-toolbar><q-toolbar-title>Layout container</q-toolbar-title></q-toolbar></q-header><q-drawer show-if-above bordered :width="100"><q-list dense><q-item>导航</q-item></q-list></q-drawer><q-page-container><q-page padding>QPageContainer / QPage</q-page></q-page-container><q-footer bordered><q-toolbar><q-toolbar-title class="text-caption">Footer</q-toolbar-title></q-toolbar></q-footer></q-layout>
+      <q-layout container view="hHh lpR fFf" style="height: 320px" class="bordered-layout"><q-header id="q-header" bordered><q-toolbar><q-toolbar-title>Layout container</q-toolbar-title></q-toolbar></q-header><q-drawer id="q-drawer" show-if-above bordered :width="100"><q-list dense><q-item>导航</q-item></q-list></q-drawer><q-page-container id="q-page-container"><q-page id="q-page" padding>QPageContainer / QPage</q-page></q-page-container><q-footer id="q-footer" bordered><q-toolbar><q-toolbar-title class="text-caption">Footer</q-toolbar-title></q-toolbar></q-footer></q-layout>
     </template>
     <template v-else-if="name === 'Container'">
       <div class="q-mx-auto bordered-layout q-pa-md" style="max-width: 960px">q-mx-auto max-width 960 container</div>
@@ -60,8 +67,12 @@ function loadMore(index: number, done: () => void) {
     <template v-else-if="name === 'QParallax'">
       <q-parallax :height="180"><template #media><div class="full-width full-height bg-primary" /></template><div class="absolute text-white text-h5">CSS gradient media</div></q-parallax>
     </template>
+    <template v-else-if="name === 'QVideo'">
+      <q-video :ratio="16 / 9" src="about:blank" title="QVideo" />
+      <div class="text-caption text-grey-7 q-mt-sm">QVideo 使用 about:blank，不请求网络视频。</div>
+    </template>
     <template v-else>
-      <q-no-ssr><span>QNoSsr 安全包装内容</span></q-no-ssr><div class="text-caption text-grey-7 q-mt-md">QVideo：需要外链视频源，本画廊不请求网络，仅列出。</div>
+      <q-no-ssr><span>QNoSsr 安全包装内容</span></q-no-ssr>
     </template>
   </DemoBlock>
 </template>

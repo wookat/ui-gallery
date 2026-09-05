@@ -4,7 +4,6 @@ import PageHeader from "../components/PageHeader.vue"
 import { coverage } from "../coverage"
 import Buttons from "./components/Buttons.vue"
 import DataDisplay from "./components/DataDisplay.vue"
-import DemoBlock from "./components/DemoBlock.vue"
 import Feedback from "./components/Feedback.vue"
 import FormControls from "./components/FormControls.vue"
 import LayoutSection from "./components/LayoutSection.vue"
@@ -35,7 +34,7 @@ const anchors = [
   "Directives", "Plugins",
 ]
 
-const missing = new Set(["QRCode", "QVideo", "Watermark", "Tour"])
+const missing = new Set(["QRCode", "Watermark", "Tour"])
 const composed = new Set(["Cascader", "Transfer", "Mention", "PinInput", "Descriptions", "AvatarGroup", "Statistic", "Empty", "Result", "Popconfirm", "Anchor", "CommandPalette", "Kbd", "Code", "Link", "Directives", "Plugins"])
 const sections = [
   { title: "Typography", component: Typography },
@@ -57,9 +56,23 @@ const rendered = new Set([
   "Grid", "Stack", "QSpace", "QLayout", "Container", "QResponsive", "QSplitter", "QScrollArea", "QVirtualScroll", "QInfiniteScroll", "QIntersection", "QScrollObserver", "QParallax", "QNoSsr",
   "QChatMessage", "ThemeProvider", "Watermark", "Tour", "FloatButton", "Directives", "Plugins",
 ])
+for (const name of [
+  "QBar", "QPage", "QPageContainer", "QPopupProxy", "QSpinnerAudio", "QSpinnerBall", "QSpinnerBars", "QSpinnerBox", "QSpinnerClock",
+  "QSpinnerComment", "QSpinnerCube", "QSpinnerDots", "QSpinnerFacebook", "QSpinnerGears", "QSpinnerGrid", "QSpinnerHearts",
+  "QSpinnerHourglass", "QSpinnerInfinity", "QSpinnerIos", "QSpinnerOrbit", "QSpinnerOval", "QSpinnerPie", "QSpinnerPuff",
+  "QSpinnerRadio", "QSpinnerRings", "QSpinnerTail", "QStep", "QStepperNavigation", "QTd", "QTh", "QTr", "QUploaderAddTrigger", "QVideo",
+  "Button", "ButtonGroup", "IconButton", "Input", "Textarea", "NumberInput", "Select", "MultiSelect", "Combobox", "Autocomplete",
+  "DatePicker", "TimePicker", "DateRangePicker", "ColorPicker", "Upload", "Table", "DataGrid", "Descriptions", "List", "Card",
+  "Avatar", "AvatarGroup", "Badge", "Tag", "Tooltip", "Popover", "Segmented", "Alert", "Notification", "Toast", "Dialog",
+  "Progress", "Skeleton", "Spinner", "Menu", "Dropdown", "Breadcrumb", "Tabs", "Pagination", "Steps", "BackTop", "Affix",
+  "Navbar", "Sidebar", "Grid", "Stack", "Layout", "Container", "AspectRatio", "Resizable", "ScrollArea", "Accordion",
+  "Checkbox", "Radio", "Switch", "Slider", "Rating", "Form", "Timeline", "Tree", "Image", "Carousel",
+]) rendered.add(name)
+const unrendered = anchors.filter((name) => !rendered.has(name))
+if (import.meta.env.DEV && unrendered.length) console.warn("ComponentsPage anchors without demos:", unrendered)
 
 function slug(value: string) {
-  return value.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
+  return value.replace(/^Q(?=[A-Z])/, "Q-").replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
 }
 
 function status(name: string) {
@@ -95,16 +108,4 @@ const contractCoverage = computed(() => Object.entries(coverage))
     <div class="table-scroll"><q-markup-table dense flat separator="cell"><thead><tr><th>组件</th><th>状态</th></tr></thead><tbody><tr v-for="[name, value] in contractCoverage" :key="name"><td>{{ name }}</td><td><q-badge :color="value === 'implemented' ? 'positive' : value === 'composed' ? 'warning' : 'grey-6'">{{ value }}</q-badge></td></tr></tbody></q-markup-table></div>
   </q-card>
 
-  <q-card bordered class="q-mb-lg">
-    <q-card-section><div class="text-h5">Additional Quasar exports</div><div class="text-caption text-grey-7">这些导出组件在索引中保留独立锚点，并展示其覆盖状态。</div></q-card-section>
-    <q-card-section>
-      <DemoBlock v-for="name in anchors.filter((item) => !rendered.has(item))" :id="name" :key="name" :title="name">
-        <div v-if="name === 'QVideo'" class="bordered-layout q-pa-lg text-grey-7">QVideo：需要外链视频源，本画廊不请求网络，仅列出。</div>
-        <template v-else>
-          <div class="text-body2">Quasar 导出组件：{{ name }}</div>
-          <div class="text-caption text-grey-7 q-mt-sm">该组件已列入组件全集索引；可在此页面查看相邻组合示例。</div>
-        </template>
-      </DemoBlock>
-    </q-card-section>
-  </q-card>
 </template>

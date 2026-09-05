@@ -12,7 +12,7 @@ import DemoBlock from "./DemoBlock.vue"
 const names = [
   "QTable", "QMarkupTable", "QList", "QItem", "QItemLabel", "QItemSection", "QCard", "QCardSection", "QCardActions",
   "QAvatar", "QBadge", "QChip", "Statistic", "QTimeline", "QTimelineEntry", "QTree", "Calendar", "QImg",
-  "QCarousel", "QCarouselSlide", "QCarouselControl", "Empty", "QTooltip", "QMenu", "QRCode", "QBtnToggle",
+  "QCarousel", "QCarouselSlide", "QCarouselControl", "Empty", "QTooltip", "QMenu", "QRCode",
 ]
 const tableColumns = [
   { name: "id", label: "订单", field: "id", sortable: true },
@@ -31,12 +31,31 @@ const segmented = ref("one")
 const dateValue = ref("2026/01/15")
 const tree = [{ label: "产品", icon: "folder", children: [{ label: "订单" }, { label: "设置" }] }, { label: "团队", children: [{ label: "成员" }] }]
 const previewSvg = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'><rect width='640' height='360' fill='#1976d2'/><circle cx='320' cy='180' r='80' fill='#fff' opacity='.25'/></svg>")}`
+const aliases: Record<string, string[]> = {
+  QTable: ["Table", "DataGrid", "QTd", "QTh", "QTr"],
+  QMarkupTable: ["Descriptions"],
+  QList: ["List"],
+  QCard: ["Card"],
+  QAvatar: ["Avatar", "AvatarGroup"],
+  QBadge: ["Badge"],
+  QChip: ["Tag"],
+  QMenu: ["Popover"],
+  QImg: ["Image"],
+  QCarousel: ["Carousel"],
+  QTimeline: ["Timeline"],
+  QTree: ["Tree"],
+  Empty: ["Empty"],
+  QTooltip: ["Tooltip"],
+}
 </script>
 
 <template>
-  <DemoBlock v-for="name in names" :id="name" :key="name" :title="name">
+  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="name">
     <template v-if="name === 'QTable'">
-      <div class="table-scroll"><q-table v-model:selected="selected" selection="multiple" :rows="rows" :columns="tableColumns" row-key="id" v-model:pagination="tablePagination" dense bordered flat :rows-per-page-options="[2, 4, 6]" sticky-header class="component-table"><template #body-cell-status="slot"><q-td :props="slot"><q-chip dense color="primary" text-color="white">{{ slot.value }}</q-chip></q-td></template></q-table></div>
+      <div class="table-scroll"><q-table v-model:selected="selected" selection="multiple" :rows="rows" :columns="tableColumns" row-key="id" v-model:pagination="tablePagination" dense bordered flat :rows-per-page-options="[2, 4, 6]" sticky-header class="component-table">
+        <template #header="props"><q-tr :props="props"><q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th></q-tr></template>
+        <template #body="props"><q-tr :props="props"><q-td v-for="col in props.cols" :key="col.name" :props="props"><q-chip v-if="col.name === 'status'" dense color="primary" text-color="white">{{ col.value }}</q-chip><template v-else>{{ col.value }}</template></q-td></q-tr></template>
+      </q-table></div>
       <div class="text-caption text-grey-7 q-mt-sm">支持 dense、sticky header、多选、排序、分页和状态单元格。</div>
     </template>
     <template v-else-if="name === 'QMarkupTable'">

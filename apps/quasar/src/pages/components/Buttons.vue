@@ -6,10 +6,17 @@ import DemoBlock from "./DemoBlock.vue"
 const names = ["QBtn", "QBtnGroup", "QBtnToggle", "QBtnDropdown", "QFab", "QFabAction", "QRouteTab"]
 const toggle = ref("one")
 const fab = ref(false)
+const aliases: Record<string, string[]> = {
+  QBtn: ["Button", "IconButton"],
+  QBtnGroup: ["ButtonGroup"],
+  QBtnDropdown: ["Dropdown"],
+  QFab: ["FloatButton"],
+  QBtnToggle: ["Segmented"],
+}
 </script>
 
 <template>
-  <DemoBlock v-for="name in names" :id="name" :key="name" :title="name">
+  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="name">
     <template v-if="name === 'QBtn'">
       <div class="row q-gutter-sm items-center">
         <q-btn color="primary" label="主按钮" />
@@ -26,6 +33,14 @@ const fab = ref(false)
         <q-btn v-for="size in ['xs', 'sm', 'md', 'lg', 'xl']" :key="size" :size="size" color="primary" :label="size" />
         <q-btn no-caps color="primary" label="no-caps" />
         <q-btn href="#q-input" flat color="primary" label="链接按钮" />
+      </div>
+      <div class="row q-gutter-sm items-center q-mt-md">
+        <q-btn flat color="primary" label="Flat row" />
+        <q-btn outline color="secondary" label="Outline row" />
+        <q-btn push color="accent" label="Push row" />
+        <q-btn unelevated color="positive" label="Unelevated row" />
+        <q-btn rounded color="warning" label="Rounded row" />
+        <q-btn glossy color="negative" label="Glossy row" />
       </div>
       <div class="row q-gutter-sm items-center q-mt-md">
         <q-btn v-for="size in ['xs', 'sm', 'md', 'lg', 'xl']" :key="`round-${size}`" round dense :size="size" color="primary"><AppIcon name="plus" /></q-btn>

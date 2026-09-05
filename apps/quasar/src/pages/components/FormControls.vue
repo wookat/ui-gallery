@@ -34,6 +34,20 @@ const district = ref("浦东")
 const transfer = ref(team.slice(0, 2).map((member) => member.name))
 const mention = ref("@")
 const options = ["one", "two", "three"]
+const aliases: Record<string, string[]> = {
+  QInput: ["Input", "Textarea", "NumberInput"],
+  QSelect: ["Select", "MultiSelect", "Combobox", "Autocomplete"],
+  QDate: ["DatePicker", "DateRangePicker", "QPopupProxy"],
+  QTime: ["TimePicker"],
+  QColor: ["ColorPicker"],
+  QUploader: ["Upload"],
+  QCheckbox: ["Checkbox"],
+  QRadio: ["Radio"],
+  QToggle: ["Switch"],
+  QSlider: ["Slider"],
+  QRating: ["Rating"],
+  QForm: ["Form"],
+}
 
 function validate() {
   void form.value?.validate()
@@ -41,7 +55,7 @@ function validate() {
 </script>
 
 <template>
-  <DemoBlock v-for="name in names" :id="name" :key="name" :title="name">
+  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="name">
     <template v-if="name === 'QInput'">
       <div class="row q-col-gutter-md">
         <div class="col-12 col-sm-6"><q-input v-model="text" label="默认输入" hint="请输入内容" counter maxlength="40" clearable /></div>
@@ -69,6 +83,9 @@ function validate() {
         <div class="col-12 col-sm-4"><q-select v-model="multi" outlined multiple use-chips new-value-mode="add-unique" use-input label="Tag input" /></div>
         <div class="col-12 col-sm-4"><q-select v-model="select" outlined :options="[{ label: '显示一', value: 'one' }]" emit-value map-options label="Map options" /></div>
         <div class="col-12 col-sm-4"><q-select model-value="禁用" outlined disable label="Disable" /></div>
+        <div class="col-12 col-sm-4"><q-select model-value="错误" outlined error error-message="请选择有效选项" label="Error" /></div>
+        <div class="col-12 col-sm-4"><q-select model-value="加载中" outlined loading label="Loading" /></div>
+        <div class="col-12 col-sm-4"><q-select v-model="multi" outlined multiple use-chips options-dense :options="options" label="Options dense" /></div>
       </div>
     </template>
     <template v-else-if="name === 'QOptionGroup'">
@@ -77,13 +94,13 @@ function validate() {
       <q-option-group v-model="toggleGroup" :options="[{ label: '启用', value: 'enabled' }]" type="toggle" class="q-mt-md" />
     </template>
     <template v-else-if="name === 'QCheckbox'">
-      <div class="row q-gutter-md items-center"><q-checkbox v-model="checked" val="a" label="默认" /><q-checkbox :model-value="true" color="secondary" size="xs" label="XS" /><q-checkbox :model-value="true" keep-color color="positive" label="Keep color" /><q-checkbox :model-value="false" toggle-indeterminate indeterminate-value="maybe" label="Indeterminate" disable /></div>
+      <div class="row q-gutter-md items-center"><q-checkbox v-model="checked" val="a" label="默认" /><q-checkbox v-for="size in ['xs', 'sm', 'md', 'lg', 'xl']" :key="size" :model-value="true" :size="size" :label="size" /><q-checkbox :model-value="true" keep-color color="positive" label="Keep color" /><q-checkbox :model-value="false" toggle-indeterminate indeterminate-value="maybe" label="Indeterminate" disable /></div>
     </template>
     <template v-else-if="name === 'QRadio'">
-      <div class="row q-gutter-md"><q-radio v-model="radio" val="a" label="Primary" /><q-radio v-model="radio" val="b" color="secondary" size="xs" label="Small" /><q-radio v-model="radio" val="c" disable label="Disable" /></div>
+      <div class="row q-gutter-md"><q-radio v-model="radio" val="a" label="Primary" /><q-radio v-for="size in ['xs', 'sm', 'md', 'lg', 'xl']" :key="size" v-model="radio" val="b" color="secondary" :size="size" :label="size" /><q-radio v-model="radio" val="c" disable label="Disable" /></div>
     </template>
     <template v-else-if="name === 'QToggle'">
-      <div class="row q-gutter-md items-center"><q-toggle v-model="toggled" label="开关" /><q-toggle v-model="toggled" color="positive" checked-icon="check" unchecked-icon="close" label="带图标" /><q-toggle :model-value="true" size="xl" disable label="XL disabled" /></div>
+      <div class="row q-gutter-md items-center"><q-toggle v-model="toggled" label="开关" /><q-toggle v-model="toggled" color="positive" checked-icon="check" unchecked-icon="close" label="带图标" /><q-toggle v-for="size in ['xs', 'sm', 'md', 'lg', 'xl']" :key="size" :model-value="true" :size="size" :label="size" /></div>
     </template>
     <template v-else-if="name === 'QSlider'">
       <q-slider v-model="slider" label label-always markers :step="10" color="primary" /><q-slider v-model="slider" vertical reverse style="height: 110px" class="q-mt-md" color="secondary" />
@@ -96,11 +113,14 @@ function validate() {
       <div class="text-caption text-grey-7 q-mt-sm">QRating 使用 Quasar 要求的 Material 字符串图标。</div>
     </template>
     <template v-else-if="name === 'QKnob'">
-      <q-knob v-model="knob" show-value size="80px" color="primary" /><q-knob v-model="knob" :thickness="0.2" color="secondary" track-color="grey-3" class="q-ml-lg" />
+      <q-knob v-model="knob" size="72px" color="primary" track-color="grey-3" class="text-primary q-ma-md" />
+      <q-knob v-model="knob" show-value size="72px" :thickness="0.22" color="primary" track-color="grey-3" class="text-primary q-ma-md"><span>{{ knob }}</span></q-knob>
+      <q-knob v-model="knob" disable show-value size="72px" color="secondary" track-color="grey-3" class="q-ma-md" />
     </template>
     <template v-else-if="name === 'QDate'">
       <div class="row q-col-gutter-md"><div class="col-12 col-sm-6"><q-date v-model="date" mask="YYYY/MM/DD" today-btn minimal /></div><div class="col-12 col-sm-6"><q-date v-model="dateRange" range mask="YYYY/MM/DD" /></div></div>
       <q-input v-model="date" outlined label="QInput + QPopupProxy"><template #append><q-popup-proxy cover transition-show="scale" transition-hide="scale"><q-date v-model="date" mask="YYYY/MM/DD" /></q-popup-proxy></template></q-input>
+      <q-btn outline color="primary" label="打开 QPopupProxy" class="q-mt-md"><q-popup-proxy><q-banner class="bg-primary text-white">QPopupProxy 内容</q-banner></q-popup-proxy></q-btn>
     </template>
     <template v-else-if="name === 'QTime'">
       <div class="row q-col-gutter-md"><div class="col-12 col-sm-6"><q-time v-model="time" format24h now-btn /></div><div class="col-12 col-sm-6"><q-time v-model="time" with-seconds landscape /></div></div>
@@ -109,7 +129,7 @@ function validate() {
       <div class="row items-center q-gutter-md"><q-color v-model="color" default-view="palette" /><q-input v-model="color" outlined label="Color value" style="max-width: 220px" /></div>
     </template>
     <template v-else-if="name === 'QUploader'">
-      <q-uploader url="" multiple bordered hide-upload-btn label="拖拽或选择文件" color="primary" style="max-width: 360px" />
+      <q-uploader url="" multiple bordered hide-upload-btn label="拖拽或选择文件" color="primary" style="max-width: 360px"><template #list><q-list bordered><q-item><q-item-section><q-uploader-add-trigger id="q-uploader-add-trigger"><q-btn flat color="primary" label="添加文件" /></q-uploader-add-trigger></q-item-section></q-item></q-list></template></q-uploader>
     </template>
     <template v-else-if="name === 'QEditor'">
       <q-editor v-model="editor" min-height="6rem" toolbar-toggle-color="primary" dense /><div class="text-caption text-grey-7 q-mt-sm">支持工具栏、紧凑模式和自定义 min-height。</div>

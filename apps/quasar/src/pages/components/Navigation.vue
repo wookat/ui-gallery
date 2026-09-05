@@ -5,17 +5,27 @@ import landing from "@ui-gallery/spec/mock/landing.json"
 import AppIcon from "../../icons/AppIcon.vue"
 import DemoBlock from "./DemoBlock.vue"
 
-const names = ["QListMenu", "QMenuDropdown", "QDrawer", "QHeader", "QFooter", "QToolbar", "QToolbarTitle", "QBreadcrumbs", "QBreadcrumbsEl", "QTabs", "QTab", "QTabPanels", "QTabPanel", "QPagination", "QPageScroller", "QPageSticky", "QExpansionItem", "Anchor", "CommandPalette"]
+const names = ["QListMenu", "QMenuDropdown", "QBar", "QToolbar", "QToolbarTitle", "QBreadcrumbs", "QBreadcrumbsEl", "QTabs", "QTab", "QTabPanels", "QTabPanel", "QPagination", "QPageScroller", "QPageSticky", "QExpansionItem", "Anchor", "CommandPalette"]
 const tab = ref("one")
 const page = ref(2)
 const command = ref(false)
 const commandSearch = ref("")
 const drawer = ref(false)
 const expanded = ref(true)
+const aliases: Record<string, string[]> = {
+  QListMenu: ["Menu"],
+  QToolbar: ["Navbar"],
+  QBreadcrumbs: ["Breadcrumb"],
+  QTabs: ["Tabs"],
+  QPagination: ["Pagination"],
+  QPageScroller: ["BackTop"],
+  QPageSticky: ["Affix"],
+  QExpansionItem: ["Accordion"],
+}
 </script>
 
 <template>
-  <DemoBlock v-for="name in names" :id="name" :key="name" :title="name">
+  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="name">
     <template v-if="name === 'QListMenu'">
       <div class="row q-gutter-lg">
         <q-list class="col-12 col-sm-5" bordered><q-item v-for="item in nav.slice(0, 4)" :key="item.key" clickable :to="item.path"><q-item-section avatar><AppIcon :name="item.icon" /></q-item-section><q-item-section>{{ item.label }}</q-item-section></q-item></q-list>
@@ -28,8 +38,12 @@ const expanded = ref(true)
     <template v-else-if="name === 'QDrawer'">
       <q-btn color="primary" label="打开 Sidebar" @click="drawer = true" /><q-drawer v-if="drawer" v-model="drawer" overlay bordered><q-list padding><q-item-label header>导航抽屉</q-item-label><q-item clickable v-close-popup><q-item-section>抽屉项目</q-item-section></q-item></q-list></q-drawer>
     </template>
-    <template v-else-if="name === 'QHeader' || name === 'QFooter' || name === 'QToolbar' || name === 'QToolbarTitle'">
-      <q-card bordered><q-toolbar class="bg-primary text-white"><q-toolbar-title>Acme Console</q-toolbar-title><q-btn flat round><AppIcon name="settings" /></q-btn></q-toolbar><q-card-section>Header / Toolbar / ToolbarTitle 组合示例</q-card-section><q-separator /><q-bar class="bg-dark text-white"><span>QBar title bar</span></q-bar></q-card>
+    <template v-else-if="name === 'QBar'">
+      <q-bar dense class="bg-grey-2 text-dark"><span>iOS-style title bar</span><q-space /><q-btn flat round dense><AppIcon name="x" :size="16" /></q-btn></q-bar>
+      <q-bar dark class="q-mt-sm"><span>Android-style title bar</span><q-space /><AppIcon name="more-horizontal" /></q-bar>
+    </template>
+    <template v-else-if="name === 'QToolbar' || name === 'QToolbarTitle'">
+      <q-card bordered><q-toolbar class="bg-primary text-white"><q-toolbar-title>Acme Console</q-toolbar-title><q-btn flat round><AppIcon name="settings" /></q-btn></q-toolbar><q-card-section>Toolbar / ToolbarTitle 组合示例</q-card-section></q-card>
     </template>
     <template v-else-if="name === 'QBreadcrumbs' || name === 'QBreadcrumbsEl'">
       <q-breadcrumbs gutter="md"><q-breadcrumbs-el to="/" label="Acme Console" /><q-breadcrumbs-el label="组件全集" /></q-breadcrumbs>
@@ -37,6 +51,7 @@ const expanded = ref(true)
     </template>
     <template v-else-if="name === 'QTabs' || name === 'QTab'">
       <q-tabs v-model="tab" dense outside-arrows mobile-arrows inline-label align="justify" active-color="primary"><q-tab name="one" label="概览" icon="dashboard" /><q-tab name="two" label="订单" icon="shopping_cart" alert /><q-tab name="three" label="设置" icon="settings" /></q-tabs>
+      <q-tabs v-model="tab" vertical dense align="left" class="q-mt-md" active-color="primary"><q-tab name="one" label="垂直概览" /><q-tab name="two" label="垂直订单" /><q-tab name="three" label="垂直设置" /></q-tabs>
     </template>
     <template v-else-if="name === 'QTabPanels' || name === 'QTabPanel'">
       <q-tab-panels v-model="tab" animated swipeable><q-tab-panel name="one">概览面板</q-tab-panel><q-tab-panel name="two">订单面板</q-tab-panel><q-tab-panel name="three">设置面板</q-tab-panel></q-tab-panels>

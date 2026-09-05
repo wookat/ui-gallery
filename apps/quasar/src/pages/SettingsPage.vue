@@ -49,8 +49,8 @@ function inviteMember() {
   <div class="q-gutter-y-lg">
     <PageHeader title="设置" description="管理个人资料、团队与账单。" />
     <div class="row q-col-gutter-lg items-start">
-      <div class="col-12 col-md-3">
-        <q-tabs v-model="tab" :vertical="$q.screen.gt.sm" :scrollable="$q.screen.lt.md" outside-arrows mobile-arrows dense align="left" active-color="primary" indicator-color="primary" class="settings-tabs text-grey-8">
+      <div class="col-12 col-md-2">
+        <q-tabs v-model="tab" :vertical="$q.screen.gt.sm" :scrollable="$q.screen.lt.md" outside-arrows mobile-arrows dense align="left" inline-label no-caps active-color="primary" indicator-color="primary" class="settings-tabs text-grey-8">
           <q-tab name="profile" label="个人资料" />
           <q-tab name="security" label="账号安全" />
           <q-tab name="notifications" label="通知" />

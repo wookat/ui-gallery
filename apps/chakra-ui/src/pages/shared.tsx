@@ -20,7 +20,7 @@ export function DatePickerField({ selectionMode = "single", inline = false }: { 
       <DatePicker.Control>
         <DatePicker.Input index={0} placeholder={selectionMode === "range" ? "开始日期" : "选择日期"} />
         {selectionMode === "range" ? <DatePicker.Input index={1} placeholder="结束日期" /> : null}
-        <DatePicker.Trigger asChild><Button variant="ghost" size="sm">日期</Button></DatePicker.Trigger>
+        <DatePicker.Trigger asChild><Button variant="ghost">日期</Button></DatePicker.Trigger>
       </DatePicker.Control>
       {inline ? content : <Portal><DatePicker.Positioner>{content}</DatePicker.Positioner></Portal>}
     </DatePicker.Root>

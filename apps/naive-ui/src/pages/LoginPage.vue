@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { useRouter } from "vue-router"
-import { NCard, NForm, NFormItem, NInput, NButton, NCheckbox, NDivider, NAlert, NFlex, NText, NH2, NAvatar, NA, type FormInst, type FormRules } from "naive-ui"
+import { NCard, NForm, NFormItem, NInput, NButton, NCheckbox, NDivider, NAlert, NFlex, NText, NH2, NAvatar, NA, useThemeVars, type FormInst, type FormRules } from "naive-ui"
 import { Icon } from "../icons"
 
 const router = useRouter()
+const themeVars = useThemeVars()
 const formRef = ref<FormInst | null>(null)
 const model = ref({ email: "", password: "", remember: true })
 const loading = ref(false)
@@ -30,7 +31,7 @@ const oauth = [
   <div class="login-page">
     <NCard class="login-card" :bordered="true">
       <NFlex vertical align="center" :size="4" style="margin-bottom: 20px">
-        <NAvatar :size="44" color="#18a058">A</NAvatar>
+        <NAvatar :size="44" :color="themeVars.primaryColor">A</NAvatar>
         <NH2 style="margin: 12px 0 0">登录 Acme Console</NH2>
         <NText depth="3">使用你的工作邮箱继续</NText>
       </NFlex>

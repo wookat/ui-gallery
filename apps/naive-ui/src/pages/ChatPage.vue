@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import MarkdownIt from "markdown-it"
-import { NCard, NList, NListItem, NThing, NBadge, NButton, NInput, NSelect, NAvatar, NFlex, NText, NTag, NCollapse, NCollapseItem, NCode, NSpace, NDrawer, NDrawerContent, NScrollbar, NEmpty, NTooltip, NSpin, NDivider, useMessage } from "naive-ui"
+import { NCard, NList, NListItem, NThing, NBadge, NButton, NInput, NSelect, NAvatar, NFlex, NText, NTag, NCollapse, NCollapseItem, NCode, NSpace, NDrawer, NDrawerContent, NScrollbar, NEmpty, NTooltip, NSpin, NDivider, useMessage, useThemeVars } from "naive-ui"
 import chat from "@ui-gallery/spec/mock/chat.json"
 import { Icon } from "../icons"
 import { useIsMobile } from "../composables"
@@ -9,6 +9,7 @@ import { useIsMobile } from "../composables"
 type Msg = (typeof chat.messages)[number]
 const md = new MarkdownIt({ html: false, linkify: false })
 const message = useMessage()
+const themeVars = useThemeVars()
 const isMobile = useIsMobile()
 const active = ref(chat.conversations[0]!.id)
 const listOpen = ref(false)
@@ -18,6 +19,13 @@ const modelOptions = chat.models.map((m) => ({ label: m, value: m }))
 const messages = ref<Msg[]>(chat.messages)
 const activeTitle = computed(() => chat.conversations.find((c) => c.id === active.value)?.title ?? "")
 const isEmpty = computed(() => active.value !== chat.conversations[0]!.id)
+md.renderer.rules.fence = (tokens, index) => {
+  const token = tokens[index]!
+  const info = token.info.trim().split(/\s+/)[0] ?? ""
+  const language = md.utils.escapeHtml(info)
+  const code = md.utils.escapeHtml(token.content)
+  return `<div class="code-block"><button type="button" class="code-copy" aria-label="复制代码" data-code="${code}">复制</button><pre><code class="language-${language}">${code}</code></pre></div>`
+}
 const render = (text: string) => md.render(text)
 function send() {
   if (!draft.value.trim()) return
@@ -25,6 +33,12 @@ function send() {
   draft.value = ""
 }
 function copy(text: string) { navigator.clipboard?.writeText(text).catch(() => undefined); message.success("已复制") }
+function onMarkdownClick(event: MouseEvent) {
+  const target = event.target
+  if (!(target instanceof Element)) return
+  const button = target.closest<HTMLButtonElement>(".code-copy")
+  if (button) copy(button.dataset.code ?? "")
+}
 </script>
 
 <template>
@@ -44,19 +58,19 @@ function copy(text: string) { navigator.clipboard?.writeText(text).catch(() => u
     <NCard size="small" style="flex: 1; min-width: 0" content-style="padding: 0; display: flex; flex-direction: column; height: 100%">
       <NFlex align="center" justify="space-between" style="padding: 10px 14px; border-bottom: 1px solid var(--n-border-color, rgba(128,128,128,.2))">
         <NFlex align="center" :size="8" :wrap="false" style="min-width: 0">
-          <NButton v-if="isMobile" quaternary circle size="small" aria-label="对话列表" @click="listOpen = true"><template #icon><Icon name="list" /></template></NButton>
+          <NButton v-if="isMobile" quaternary circle size="large" aria-label="对话列表" @click="listOpen = true"><template #icon><Icon name="list" /></template></NButton>
           <NText strong style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ activeTitle }}</NText>
         </NFlex>
-        <NSelect v-model:value="model" :options="modelOptions" size="small" style="width: 160px" />
+        <NSelect v-model:value="model" :options="modelOptions" size="medium" style="width: 160px" />
       </NFlex>
       <NScrollbar style="flex: 1" content-style="padding: 16px">
         <NEmpty v-if="isEmpty" description="这个对话还没有消息" style="margin-top: 80px">
 <template #icon><Icon name="message-square" :size="40" /></template>
-          <template #extra><NFlex justify="center" :wrap="true"><NButton v-for="s in chat.suggestions" :key="s" size="small" secondary round @click="draft = s">{{ s }}</NButton></NFlex></template>
+          <template #extra><NFlex justify="center" :wrap="true"><NButton v-for="s in chat.suggestions" :key="s" size="medium" secondary round @click="draft = s">{{ s }}</NButton></NFlex></template>
         </NEmpty>
         <NSpace v-else vertical :size="20">
           <NFlex v-for="(m, i) in messages" :key="i" :justify="m.role === 'user' ? 'end' : 'start'" :wrap="false" :size="10">
-            <NAvatar v-if="m.role === 'assistant'" round :size="32" color="#18a058"><Icon name="bot" :size="18" /></NAvatar>
+            <NAvatar v-if="m.role === 'assistant'" round :size="32" :color="themeVars.primaryColor"><Icon name="bot" :size="18" /></NAvatar>
             <div :style="{ maxWidth: isMobile ? '92%' : '75%', minWidth: 0 }">
               <NCard v-if="m.role === 'user'" size="small" embedded :bordered="false" style="border-radius: 12px 12px 4px 12px">{{ m.content }}</NCard>
               <template v-else>
@@ -67,7 +81,7 @@ function copy(text: string) { navigator.clipboard?.writeText(text).catch(() => u
                 </NCollapseItem>
 </NCollapse>
                 <!-- eslint-disable-next-line vue/no-v-html -- markdown-it 渲染本地 mock，html 已关闭 -->
-                <div class="md" v-html="render(m.content)" />
+                <div class="md" @click="onMarkdownClick" v-html="render(m.content)" />
                 <NFlex v-if="m.streaming" align="center" :size="6"><NSpin :size="14" /><NText depth="3" style="font-size: 12px">生成中…</NText></NFlex>
                 <NFlex align="center" :size="4" style="margin-top: 6px" :wrap="true">
                   <NTooltip><template #trigger><NButton quaternary size="tiny" aria-label="复制" @click="copy(m.content)"><template #icon><Icon name="copy" :size="14" /></template></NButton></template>复制</NTooltip>
@@ -81,11 +95,11 @@ function copy(text: string) { navigator.clipboard?.writeText(text).catch(() => u
         </NSpace>
       </NScrollbar>
       <div style="padding: 12px 14px; border-top: 1px solid rgba(128,128,128,.2)">
-        <NFlex v-if="!isEmpty" :size="6" :wrap="true" style="margin-bottom: 8px"><NButton v-for="s in chat.suggestions.slice(0, isMobile ? 2 : 4)" :key="s" size="tiny" secondary round @click="draft = s">{{ s }}</NButton></NFlex>
+        <NFlex v-if="!isEmpty" :size="6" :wrap="true" style="margin-bottom: 8px"><NButton v-for="s in chat.suggestions.slice(0, isMobile ? 2 : 4)" :key="s" size="medium" secondary round @click="draft = s">{{ s }}</NButton></NFlex>
         <NInput v-model:value="draft" type="textarea" placeholder="输入消息，Enter 发送，Shift+Enter 换行" :autosize="{ minRows: 1, maxRows: 5 }" @keydown.enter.exact.prevent="send" />
         <NFlex justify="space-between" align="center" style="margin-top: 8px">
-          <NFlex :size="4"><NButton quaternary size="small" aria-label="附件"><template #icon><Icon name="paperclip" /></template></NButton><NButton quaternary size="small" aria-label="语音"><template #icon><Icon name="mic" /></template></NButton></NFlex>
-          <NButton type="primary" size="small" :disabled="!draft.trim()" @click="send"><template #icon><Icon name="send" :size="14" /></template>发送</NButton>
+          <NFlex :size="4"><NButton quaternary size="medium" aria-label="附件"><template #icon><Icon name="paperclip" /></template></NButton><NButton quaternary size="medium" aria-label="语音"><template #icon><Icon name="mic" /></template></NButton></NFlex>
+          <NButton type="primary" size="medium" :disabled="!draft.trim()" @click="send"><template #icon><Icon name="send" :size="14" /></template>发送</NButton>
         </NFlex>
       </div>
     </NCard>
@@ -96,6 +110,8 @@ function copy(text: string) { navigator.clipboard?.writeText(text).catch(() => u
 .md :deep(p) { margin: 0 0 8px; }
 .md :deep(table) { border-collapse: collapse; margin: 8px 0; font-size: 13px; display: block; overflow-x: auto; max-width: 100%; }
 .md :deep(th), .md :deep(td) { border: 1px solid rgba(128,128,128,.3); padding: 4px 10px; text-align: left; }
-.md :deep(pre) { background: rgba(128,128,128,.12); padding: 10px 12px; border-radius: 6px; overflow-x: auto; font-size: 13px; margin: 8px 0; }
+.md :deep(pre) { background: rgba(128,128,128,.12); padding: 10px 12px; border-radius: 6px; overflow-x: auto; font-size: 13px; margin: 8px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .md :deep(code) { font-family: v-mono, SFMono-Regular, Menlo, Consolas, monospace; }
+.md :deep(.code-block) { position: relative; }
+.md :deep(.code-copy) { position: absolute; right: 8px; top: 6px; min-height: 40px; min-width: 40px; padding: 0 8px; border: 1px solid rgba(128,128,128,.35); border-radius: 4px; background: rgba(128,128,128,.12); color: inherit; cursor: pointer; }
 </style>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref } from "vue"
 import { RouterLink, useRoute, useRouter } from "vue-router"
-import { NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NMenu, NButton, NBreadcrumb, NBreadcrumbItem, NInput, NBadge, NPopover, NList, NListItem, NThing, NDropdown, NAvatar, NDrawer, NDrawerContent, NFlex, NText, NTooltip, NDivider, type MenuOption, type DropdownOption } from "naive-ui"
+import { NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NMenu, NButton, NBreadcrumb, NBreadcrumbItem, NInput, NBadge, NPopover, NList, NListItem, NThing, NDropdown, NAvatar, NDrawer, NDrawerContent, NFlex, NText, NTooltip, NDivider, useThemeVars, type MenuOption, type DropdownOption } from "naive-ui"
 import nav from "@ui-gallery/spec/mock/nav.json"
 import notifications from "@ui-gallery/spec/mock/notifications.json"
 import { Icon, renderIcon } from "../icons"
@@ -14,6 +14,7 @@ const isMobile = useIsMobile()
 const collapsed = ref(false)
 const drawer = ref(false)
 const search = ref("")
+const themeVars = useThemeVars()
 
 const menuOptions = computed<MenuOption[]>(() => [
   {
@@ -46,13 +47,16 @@ function onUserMenu(key: string) {
 
 <template>
   <NLayout has-sider style="min-height: 100vh">
-    <NLayoutSider v-if="!isMobile" bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed" show-trigger @collapse="collapsed = true" @expand="collapsed = false" :native-scrollbar="false" content-style="display:flex;flex-direction:column;height:100%">
-      <div style="padding: 16px 20px; display: flex; align-items: center; gap: 10px">
-        <NAvatar :size="28" color="#18a058" style="flex-shrink: 0">A</NAvatar>
+    <NLayoutSider v-if="!isMobile" bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed" :native-scrollbar="false" content-style="display:flex;flex-direction:column;height:100%">
+        <div style="padding: 16px 20px; display: flex; align-items: center; gap: 10px">
+        <NAvatar :size="28" :color="themeVars.primaryColor" style="flex-shrink: 0">A</NAvatar>
         <NText v-if="!collapsed" strong style="white-space: nowrap">Acme Console</NText>
       </div>
       <NMenu :collapsed="collapsed" :collapsed-width="64" :collapsed-icon-size="20" :options="menuOptions" :value="route.path" style="flex: 1" />
       <NDivider style="margin: 0" />
+      <NButton quaternary circle size="large" :aria-label="collapsed ? '展开侧栏' : '折叠侧栏'" style="align-self: center; margin: 8px" @click="collapsed = !collapsed">
+        <template #icon><Icon :name="collapsed ? 'chevron-right' : 'panel-left'" /></template>
+      </NButton>
       <RouterLink to="/settings" style="text-decoration: none">
         <NFlex align="center" :wrap="false" style="padding: 12px 16px">
           <NAvatar round :size="32">林</NAvatar>
@@ -65,7 +69,7 @@ function onUserMenu(key: string) {
     </NLayoutSider>
     <NLayout :native-scrollbar="false" content-style="min-height:100vh;display:flex;flex-direction:column">
       <NLayoutHeader bordered position="static" style="height: 64px; display: flex; align-items: center; gap: 12px; padding: 0 16px">
-        <NButton v-if="isMobile" quaternary circle aria-label="打开导航" @click="drawer = true"><template #icon><Icon name="menu" /></template></NButton>
+        <NButton v-if="isMobile" quaternary circle size="large" aria-label="打开导航" @click="drawer = true"><template #icon><Icon name="menu" /></template></NButton>
         <NBreadcrumb v-if="!isMobile">
           <NBreadcrumbItem><RouterLink to="/">Acme Console</RouterLink></NBreadcrumbItem>
           <NBreadcrumbItem>{{ current }}</NBreadcrumbItem>
@@ -76,7 +80,7 @@ function onUserMenu(key: string) {
           <NPopover trigger="click" placement="bottom-end" style="padding: 0; width: 300px">
             <template #trigger>
               <NBadge :value="unread" :offset="[-4, 4]">
-                <NButton quaternary circle aria-label="通知"><template #icon><Icon name="bell" /></template></NButton>
+                <NButton quaternary circle size="large" aria-label="通知"><template #icon><Icon name="bell" /></template></NButton>
               </NBadge>
             </template>
             <NList hoverable clickable>
@@ -85,9 +89,9 @@ function onUserMenu(key: string) {
               </NListItem>
             </NList>
           </NPopover>
-          <NTooltip><template #trigger><NButton quaternary circle aria-label="切换主题" @click="toggleTheme"><template #icon><Icon :name="isDark ? 'sun' : 'moon'" /></template></NButton></template>切换主题</NTooltip>
+          <NTooltip><template #trigger><NButton quaternary circle size="large" aria-label="切换主题" @click="toggleTheme"><template #icon><Icon :name="isDark ? 'sun' : 'moon'" /></template></NButton></template>切换主题</NTooltip>
           <NDropdown :options="userMenu" trigger="click" placement="bottom-end" @select="onUserMenu">
-            <NButton quaternary circle aria-label="用户菜单" style="padding: 0"><NAvatar round :size="32">林</NAvatar></NButton>
+            <NButton quaternary circle size="large" aria-label="用户菜单" style="padding: 0"><NAvatar round :size="32">林</NAvatar></NButton>
           </NDropdown>
         </NFlex>
       </NLayoutHeader>

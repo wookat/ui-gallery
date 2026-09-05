@@ -52,7 +52,7 @@ const columns = computed<DataTableColumns<Order>>(() => [
   ...(visible.value.includes("status") ? [{ title: "状态", key: "status", render: (row: Order) => h(StatusTag, { value: row.status }) }] : []),
   ...(visible.value.includes("date") ? [{ title: "日期", key: "date", sorter: "default" as const }] : []),
   ...(visible.value.includes("amount") ? [{ title: "金额", key: "amount", align: "right" as const, sorter: (a: Order, b: Order) => a.amount - b.amount, render: (row: Order) => formatMoney(row.amount) }] : []),
-  { title: "操作", key: "actions", width: 72, align: "right", render: (row) => h(NDropdown, { options: rowActions(row), trigger: "click" }, () => h(NButton, { quaternary: true, circle: true, size: "small", "aria-label": "操作", onClick: (e: MouseEvent) => e.stopPropagation() }, { icon: renderIcon("more-horizontal", 16) })) },
+  { title: "操作", key: "actions", width: 72, align: "right", render: (row) => h(NDropdown, { options: rowActions(row), trigger: "click" }, () => h(NButton, { quaternary: true, circle: true, size: "medium", "aria-label": "操作", onClick: (e: MouseEvent) => e.stopPropagation() }, { icon: renderIcon("more-horizontal", 16) })) },
 ])
 const rowProps = (row: Order) => ({ style: "cursor: pointer", onClick: () => { selected.value = row } })
 function reset() { query.value = ""; status.value = null; channels.value = []; range.value = null }
@@ -63,14 +63,14 @@ function reset() { query.value = ""; status.value = null; channels.value = []; r
     <PageHeader title="订单管理" description="搜索、筛选并查看全部订单。">
       <template #action>
         <NFlex>
-          <NRadioGroup v-model:value="view" size="small">
+          <NRadioGroup v-model:value="view" size="medium">
             <NRadioButton value="ok">正常</NRadioButton><NRadioButton value="loading">加载</NRadioButton><NRadioButton value="error">错误</NRadioButton>
           </NRadioGroup>
           <NButton secondary @click="message.info('已导出 CSV')"><template #icon><Icon name="download" /></template>导出</NButton>
         </NFlex>
       </template>
     </PageHeader>
-    <NAlert v-if="view === 'error'" type="error" title="加载订单失败"><NFlex align="center" justify="space-between" :wrap="true">网络连接超时，请检查网络后重试。<NButton size="small" secondary type="error" @click="view = 'ok'"><template #icon><Icon name="refresh" :size="14" /></template>重试</NButton></NFlex></NAlert>
+    <NAlert v-if="view === 'error'" type="error" title="加载订单失败"><NFlex align="center" justify="space-between" :wrap="true">网络连接超时，请检查网络后重试。<NButton size="medium" secondary type="error" @click="view = 'ok'"><template #icon><Icon name="refresh" :size="14" /></template>重试</NButton></NFlex></NAlert>
     <NCard size="small">
       <NFlex :wrap="true" :size="8" style="margin-bottom: 12px">
         <NInput v-model:value="query" placeholder="搜索订单号 / 客户 / 邮箱" clearable :style="{ width: isMobile ? '100%' : '240px' }"><template #prefix><Icon name="search" :size="15" /></template></NInput>
@@ -98,7 +98,7 @@ function reset() { query.value = ""; status.value = null; channels.value = []; r
       </NSpin>
       <NFlex justify="space-between" align="center" :wrap="true" style="margin-top: 12px">
         <NText depth="3" style="font-size: 12px">已选 {{ checked.length }} / 共 {{ filtered.length }} 条</NText>
-        <NPagination v-model:page="page" v-model:page-size="pageSize" :item-count="filtered.length" :page-sizes="[5, 10, 20]" show-size-picker :simple="isMobile" />
+        <NPagination v-model:page="page" v-model:page-size="pageSize" :item-count="filtered.length" :page-sizes="[5, 10, 20]" show-size-picker size="medium" :simple="isMobile" />
       </NFlex>
     </NCard>
     <NDrawer :show="!!selected" :width="isMobile ? '100%' : 420" placement="right" @update:show="(v: boolean) => !v && (selected = null)">

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import { NCard, NSteps, NStep, NForm, NFormItem, NInput, NInputNumber, NSelect, NRadioGroup, NRadio, NCheckboxGroup, NCheckbox, NSwitch, NDatePicker, NTimePicker, NSlider, NRate, NColorPicker, NUpload, NUploadDragger, NDynamicTags, NTooltip, NButton, NFlex, NDescriptions, NDescriptionsItem, NResult, NSpace, NText, NAutoComplete, NInputGroup, NGrid, NFormItemGi, type FormInst, type FormRules, type UploadFileInfo } from "naive-ui"
+import { NCard, NSteps, NStep, NForm, NFormItem, NInput, NInputNumber, NSelect, NRadioGroup, NRadio, NCheckboxGroup, NCheckbox, NSwitch, NDatePicker, NTimePicker, NSlider, NRate, NColorPicker, NUpload, NUploadDragger, NDynamicTags, NTooltip, NButton, NFlex, NDescriptions, NDescriptionsItem, NResult, NSpace, NText, NAutoComplete, NInputGroup, NGrid, NFormItemGi, useThemeVars, type FormInst, type FormRules, type UploadFileInfo } from "naive-ui"
 import PageHeader from "../components/PageHeader.vue"
 import { Icon } from "../icons"
 import { useIsMobile } from "../composables"
 
 const isMobile = useIsMobile()
+const themeVars = useThemeVars()
 const current = ref(1)
 const done = ref(false)
 const form1 = ref<FormInst | null>(null)
@@ -14,7 +15,7 @@ const form3 = ref<FormInst | null>(null)
 const submitting = ref(false)
 
 const basic = ref({ name: "", seats: 5 as number | null, email: "", country: "+86", phone: "", desc: "", type: "internal", modules: ["orders"], public: false })
-const detail = ref({ region: null as string | null, tags: [] as string[], owner: "", start: null as number | null, time: null as number | null, window: null as [number, number] | null, budget: [20, 60] as [number, number], priority: 3, color: "#18A058", files: [] as UploadFileInfo[], labels: ["v1"] })
+const detail = ref({ region: null as string | null, tags: [] as string[], owner: "", start: null as number | null, time: null as number | null, window: null as [number, number] | null, budget: [20, 60] as [number, number], priority: 3, color: themeVars.value.primaryColor, files: [] as UploadFileInfo[], labels: ["v1"] })
 const confirm = ref({ agree: false })
 
 const basicRules: FormRules = {

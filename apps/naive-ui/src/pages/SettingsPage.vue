@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { h, ref } from "vue"
-import { NCard, NTabs, NTabPane, NForm, NFormItem, NInput, NSelect, NButton, NAvatar, NUpload, NSwitch, NList, NListItem, NThing, NDataTable, NTag, NFlex, NSpace, NText, NGrid, NGi, NH3, NModal, NQrCode, NRadioGroup, NRadioButton, NDivider, NInputGroup, NBadge, useMessage, type DataTableColumns } from "naive-ui"
+import { NCard, NTabs, NTabPane, NForm, NFormItem, NInput, NSelect, NButton, NAvatar, NUpload, NSwitch, NList, NListItem, NThing, NDataTable, NTag, NFlex, NSpace, NText, NGrid, NGi, NH3, NModal, NQrCode, NRadioGroup, NRadioButton, NDivider, NInputGroup, NBadge, useMessage, useThemeVars, type DataTableColumns } from "naive-ui"
 import team from "@ui-gallery/spec/mock/team.json"
 import sessions from "@ui-gallery/spec/mock/sessions.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
@@ -12,6 +12,7 @@ import { useIsMobile } from "../composables"
 
 const isMobile = useIsMobile()
 const message = useMessage()
+const themeVars = useThemeVars()
 const tab = ref("profile")
 const profile = ref({ name: "林晓", bio: "Acme Console 产品负责人", lang: "zh-CN", tz: "Asia/Shanghai" })
 const langs = [{ label: "简体中文", value: "zh-CN" }, { label: "English", value: "en-US" }, { label: "日本語", value: "ja-JP" }]
@@ -30,16 +31,16 @@ const confirmText = ref("")
 type Member = (typeof members.value)[number]
 const memberColumns: DataTableColumns<Member> = [
   { title: "成员", key: "name", render: (row) => h(NFlex, { align: "center", wrap: false }, () => [h(NAvatar, { round: true, size: "small" }, () => row.name[0]), h("div", [h("div", row.name), h(NText, { depth: 3, style: "font-size:12px" }, () => row.email)])]) },
-  { title: "角色", key: "role", width: 140, render: (row) => h(NSelect, { value: row.role, options: roles, size: "small", onUpdateValue: (v: string) => { row.role = v } }) },
+  { title: "角色", key: "role", width: 140, render: (row) => h(NSelect, { value: row.role, options: roles, size: "medium", onUpdateValue: (v: string) => { row.role = v } }) },
   { title: "最近活跃", key: "lastActive" },
-  { title: "", key: "actions", width: 80, render: (row) => h(NButton, { size: "small", quaternary: true, type: "error", onClick: () => message.warning(`已移除 ${row.name}`) }, () => "移除") },
+  { title: "", key: "actions", width: 80, render: (row) => h(NButton, { size: "medium", quaternary: true, type: "error", onClick: () => message.warning(`已移除 ${row.name}`) }, () => "移除") },
 ]
 type Invoice = (typeof invoices)[number]
 const invoiceColumns: DataTableColumns<Invoice> = [
   { title: "发票号", key: "id" }, { title: "日期", key: "date" },
   { title: "金额", key: "amount", align: "right", render: (row) => `$${row.amount}` },
   { title: "状态", key: "status", render: (row) => h(StatusTag, { value: row.status }) },
-  { title: "", key: "dl", width: 60, render: () => h(NButton, { size: "tiny", quaternary: true, "aria-label": "下载" }, { icon: () => h(Icon, { name: "download", size: 14 }) }) },
+  { title: "", key: "dl", width: 60, render: () => h(NButton, { size: "medium", quaternary: true, "aria-label": "下载" }, { icon: () => h(Icon, { name: "download", size: 14 }) }) },
 ]
 </script>
 
@@ -50,7 +51,7 @@ const invoiceColumns: DataTableColumns<Invoice> = [
       <NTabPane name="profile" tab="个人资料">
         <NCard title="个人资料" size="small">
           <NForm :model="profile" label-placement="top">
-            <NFlex align="center" style="margin-bottom: 16px"><NAvatar round :size="64">林</NAvatar><NUpload :default-upload="false" :show-file-list="false" accept="image/*"><NButton secondary size="small"><template #icon><Icon name="upload" :size="14" /></template>上传头像</NButton></NUpload></NFlex>
+            <NFlex align="center" style="margin-bottom: 16px"><NAvatar round :size="64">林</NAvatar><NUpload :default-upload="false" :show-file-list="false" accept="image/*"><NButton secondary size="medium"><template #icon><Icon name="upload" :size="14" /></template>上传头像</NButton></NUpload></NFlex>
             <NGrid cols="1 m:2" responsive="screen" :x-gap="16">
               <NGi><NFormItem label="姓名"><NInput v-model:value="profile.name" /></NFormItem></NGi>
               <NGi><NFormItem label="语言"><NSelect v-model:value="profile.lang" :options="langs" /></NFormItem></NGi>
@@ -84,7 +85,7 @@ const invoiceColumns: DataTableColumns<Invoice> = [
             <NList hoverable>
               <NListItem v-for="s in sessions" :key="s.device">
                 <NThing :title="s.device" :description="s.location + ' · ' + s.time"><template #header-extra><NTag v-if="s.current" type="success" size="small" round :bordered="false">当前设备</NTag></template></NThing>
-                <template #suffix><NButton size="small" secondary :disabled="s.current" @click="message.success('会话已注销')">注销</NButton></template>
+                <template #suffix><NButton size="medium" secondary :disabled="s.current" @click="message.success('会话已注销')">注销</NButton></template>
               </NListItem>
             </NList>
           </NCard>
@@ -132,7 +133,7 @@ const invoiceColumns: DataTableColumns<Invoice> = [
       </NTabPane>
     </NTabs>
     <NDivider />
-    <NCard title="危险区" size="small" style="border-color: #d03050">
+    <NCard title="危险区" size="small" :style="{ borderColor: themeVars.errorColor }">
       <NFlex justify="space-between" align="center" :wrap="true">
         <div><NText strong>删除账号</NText><br /><NText depth="3">永久删除账号及所有数据，此操作不可撤销。</NText></div>
         <NButton type="error" @click="deleteOpen = true"><template #icon><Icon name="trash" /></template>删除账号</NButton>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h, ref } from "vue"
 import {
-  NCard, NTag, NFlex, NSpace, NText, NH1, NH2, NH3, NH4, NP, NBlockquote, NUl, NOl, NLi, NA, NGradientText, NButton, NButtonGroup, NInput, NInputGroup, NInputNumber, NSelect, NAutoComplete, NCheckbox, NCheckboxGroup, NRadio, NRadioGroup, NRadioButton, NSwitch, NSlider, NRate, NDatePicker, NTimePicker, NColorPicker, NUpload, NUploadDragger, NCascader, NTransfer, NMention, NInputOtp, NForm, NFormItem, NTable, NDataTable, NDescriptions, NDescriptionsItem, NList, NListItem, NThing, NAvatar, NAvatarGroup, NBadge, NStatistic, NTimeline, NTimelineItem, NTree, NCalendar, NImage, NImageGroup, NCarousel, NEmpty, NTooltip, NPopover, NQrCode, NTabs, NTabPane, NAlert, NModal, NDrawer, NDrawerContent, NProgress, NSkeleton, NSpin, NResult, NPopconfirm, NMenu, NDropdown, NBreadcrumb, NBreadcrumbItem, NPagination, NSteps, NStep, NAnchor, NAnchorLink, NBackTop, NAffix, NLayout, NLayoutHeader, NLayoutSider, NLayoutContent, NLayoutFooter, NGrid, NGi, NSplit, NScrollbar, NCollapse, NCollapseItem, NConfigProvider, NWatermark, NFloatButton, NFloatButtonGroup, NCode, NDivider, NIcon, NEllipsis, NNumberAnimation, NCountdown, NTime, NDynamicTags, NDynamicInput, NTreeSelect, NPopselect, NMarquee, NLog, NHighlight,
+  NCard, NTag, NFlex, NSpace, NText, NH1, NH2, NH3, NH4, NH5, NH6, NP, NBlockquote, NUl, NOl, NLi, NA, NGradientText, NButton, NButtonGroup, NInput, NInputGroup, NInputNumber, NSelect, NAutoComplete, NCheckbox, NCheckboxGroup, NRadio, NRadioGroup, NRadioButton, NSwitch, NSlider, NRate, NDatePicker, NTimePicker, NColorPicker, NUpload, NUploadDragger, NCascader, NTransfer, NMention, NInputOtp, NForm, NFormItem, NTable, NDataTable, NDescriptions, NDescriptionsItem, NList, NListItem, NThing, NAvatar, NAvatarGroup, NBadge, NStatistic, NTimeline, NTimelineItem, NTree, NCalendar, NImage, NImageGroup, NCarousel, NEmpty, NTooltip, NPopover, NQrCode, NTabs, NTab, NTabPane, NAlert, NModal, NDrawer, NDrawerContent, NProgress, NSkeleton, NSpin, NResult, NPopconfirm, NMenu, NDropdown, NBreadcrumb, NBreadcrumbItem, NPagination, NSteps, NStep, NAnchor, NAnchorLink, NBackTop, NAffix, NLayout, NLayoutHeader, NLayoutSider, NLayoutContent, NLayoutFooter, NGrid, NGi, NSplit, NScrollbar, NCollapse, NCollapseItem, NConfigProvider, NWatermark, NFloatButton, NFloatButtonGroup, NCode, NDivider, NIcon, NEllipsis, NNumberAnimation, NCountdown, NTime, NDynamicTags, NDynamicInput, NTreeSelect, NPopselect, NMarquee, NLog, NHighlight,
   useMessage, useNotification, useDialog, useLoadingBar, darkTheme, type DataTableColumns, type TreeOption, type CascaderOption, type MenuOption, type UploadFileInfo,
 } from "naive-ui"
 import orders from "@ui-gallery/spec/mock/orders.json"
@@ -101,7 +101,7 @@ const svgImg = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<sv
     </PageHeader>
     <NCard size="small" title="组件索引" id="index">
       <NFlex :size="6" :wrap="true">
-        <NButton v-for="name in componentNames" :key="name" size="tiny" secondary round tag="a" :href="`#${slug(name)}`" :type="coverage[name] === 'implemented' ? 'default' : coverageType[coverage[name]!]">{{ name }}</NButton>
+        <NButton v-for="name in componentNames" :key="name" size="medium" secondary round tag="a" :href="`#${slug(name)}`" :type="coverage[name] === 'implemented' ? 'default' : coverageType[coverage[name]!]">{{ name }}</NButton>
       </NFlex>
     </NCard>
 
@@ -111,7 +111,7 @@ const svgImg = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<sv
         <template #header-extra><NA href="#index" style="font-size: 12px">返回索引</NA></template>
 
         <NSpace v-if="name === 'Typography'" vertical>
-          <NH1 style="margin: 0">标题 H1</NH1><NH2 style="margin: 0">标题 H2</NH2><NH3 style="margin: 0">标题 H3</NH3><NH4 style="margin: 0">标题 H4</NH4>
+          <NH1 style="margin: 0">标题 H1</NH1><NH2 style="margin: 0">标题 H2</NH2><NH3 style="margin: 0">标题 H3</NH3><NH4 style="margin: 0">标题 H4</NH4><NH5 style="margin: 0">标题 H5</NH5><NH6 style="margin: 0">标题 H6</NH6>
           <NP>正文段落：Naive UI 是一个 Vue 3 组件库，<NText strong>加粗</NText>、<NText italic>斜体</NText>、<NText underline>下划线</NText>、<NText delete>删除线</NText>、<NText code>code</NText>、<NText type="success">成功色</NText>、<NText depth="3">次要文本</NText>。</NP>
           <NGradientText type="success" :size="20">渐变文本 Gradient</NGradientText>
           <NBlockquote>引用：把团队的工作放进一个控制台。</NBlockquote>
@@ -341,8 +341,8 @@ const svgImg = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<sv
         </NFlex>
 
         <NGrid v-else-if="name === 'Carousel'" cols="1 m:2" responsive="screen" :x-gap="16" :y-gap="16">
-          <NGi><NCarousel autoplay draggable show-arrow style="height: 200px"><img v-for="c in ['#18a058', '#2080f0', '#f0a020']" :key="c" :src="svgImg(c)" alt="" style="width: 100%; height: 200px; object-fit: cover" /></NCarousel></NGi>
-          <NGi><NCarousel effect="card" dot-type="line" :slides-per-view="1" style="height: 200px"><img v-for="c in ['#d03050', '#18a058', '#2080f0']" :key="c" :src="svgImg(c)" alt="" style="width: 100%; height: 200px; object-fit: cover" /></NCarousel></NGi>
+          <NGi style="min-width: 0"><div style="min-width: 0; width: 100%"><NCarousel autoplay draggable show-arrow style="height: 200px; width: 100%"><img v-for="c in ['#18a058', '#2080f0', '#f0a020']" :key="c" :src="svgImg(c)" alt="" style="display: block; width: 100%; max-width: 100%; height: 200px; object-fit: cover" /></NCarousel></div></NGi>
+          <NGi style="min-width: 0"><div style="min-width: 0; width: 100%"><NCarousel effect="card" dot-type="line" :slides-per-view="1" style="height: 200px; width: 100%"><img v-for="c in ['#d03050', '#18a058', '#2080f0']" :key="c" :src="svgImg(c)" alt="" style="display: block; width: 100%; max-width: 100%; height: 200px; object-fit: cover" /></NCarousel></div></NGi>
         </NGrid>
 
         <NGrid v-else-if="name === 'Empty'" cols="1 m:3" responsive="screen" :x-gap="16">
@@ -372,7 +372,7 @@ const svgImg = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<sv
         <NSpace v-else-if="name === 'Segmented'" vertical>
           <NRadioGroup v-model:value="seg" size="small"><NRadioButton value="day">日</NRadioButton><NRadioButton value="week">周</NRadioButton><NRadioButton value="month">月</NRadioButton></NRadioGroup>
           <NRadioGroup v-model:value="seg"><NRadioButton value="day">日</NRadioButton><NRadioButton value="week">周</NRadioButton><NRadioButton value="month" disabled>月</NRadioButton></NRadioGroup>
-          <NTabs type="segment" size="small" animated style="max-width: 320px"><NTabPane name="a" tab="概览" /><NTabPane name="b" tab="明细" /><NTabPane name="c" tab="设置" /></NTabs>
+          <NTabs type="segment" size="small" animated style="max-width: 320px"><NTab name="a">概览</NTab><NTab name="b">明细</NTab><NTab name="c">设置</NTab></NTabs>
         </NSpace>
 
         <NSpace v-else-if="name === 'Alert'" vertical>
@@ -456,10 +456,10 @@ const svgImg = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<sv
         </NSpace>
 
         <NSpace v-else-if="name === 'Tabs'" vertical>
-          <NTabs v-model:value="tab" type="line" animated><NTabPane name="a" tab="线条">线条型 Tabs</NTabPane><NTabPane name="b" tab="明细">明细内容</NTabPane><NTabPane name="c" tab="禁用" disabled /></NTabs>
-          <NTabs type="bar" size="small" default-value="a"><NTabPane name="a" tab="bar" /><NTabPane name="b" tab="小尺寸" /></NTabs>
-          <NTabs type="card" closable addable default-value="a" style="max-width: 480px"><NTabPane name="a" tab="卡片 A" /><NTabPane name="b" tab="卡片 B" /></NTabs>
-          <NTabs type="segment" size="large" default-value="a" style="max-width: 320px"><NTabPane name="a" tab="分段" /><NTabPane name="b" tab="large" /></NTabs>
+          <NTabs v-model:value="tab" type="line" animated><NTabPane name="a" tab="线条">线条型 Tabs</NTabPane><NTabPane name="b" tab="明细">明细内容</NTabPane><NTabPane name="c" tab="禁用" disabled>禁用内容</NTabPane></NTabs>
+          <NTabs type="bar" size="small" default-value="a"><NTab name="a">bar</NTab><NTab name="b">小尺寸</NTab></NTabs>
+          <NTabs type="card" closable default-value="a" style="max-width: 480px"><NTab name="a">卡片 A</NTab><NTab name="b">卡片 B</NTab></NTabs>
+          <NTabs type="segment" size="large" default-value="a" style="max-width: 320px"><NTab name="a">分段</NTab><NTab name="b">large</NTab></NTabs>
         </NSpace>
 
         <NSpace v-else-if="name === 'Pagination'" vertical>
@@ -573,10 +573,10 @@ const svgImg = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<sv
 
         <NSpace v-else-if="name === 'FloatButton'" vertical>
           <NText depth="3">页面右下角为全局悬浮按钮组；下方为内联示例。</NText>
-          <div style="position: relative; height: 80px">
+          <div style="position: relative; height: 96px">
             <NFloatButton position="absolute" :right="8" :bottom="8" type="primary" shape="circle"><Icon name="plus" /></NFloatButton>
-            <NFloatButton position="absolute" :right="72" :bottom="8" shape="square" width="auto" style="padding: 0 12px"><NFlex align="center" :size="6"><Icon name="message-circle" :size="16" />反馈</NFlex></NFloatButton>
-            <NFloatButtonGroup position="absolute" :right="136" :bottom="8" shape="square"><NFloatButton><Icon name="arrow-up" /></NFloatButton><NFloatButton><Icon name="arrow-down" /></NFloatButton></NFloatButtonGroup>
+            <NFloatButton position="absolute" :right="64" :bottom="8" shape="square"><Icon name="message-circle" :size="16" /><template #description>反馈</template></NFloatButton>
+            <NFloatButtonGroup position="absolute" :right="120" :bottom="8" shape="square"><NFloatButton><Icon name="arrow-up" /></NFloatButton><NFloatButton><Icon name="arrow-down" /></NFloatButton></NFloatButtonGroup>
           </div>
           <NFloatButtonGroup :right="isMobile ? 16 : 40" :bottom="isMobile ? 130 : 96" shape="circle"><NFloatButton menu-trigger="hover" type="primary"><Icon name="sparkles" /><template #menu><NFloatButton><Icon name="mail" /></NFloatButton><NFloatButton><Icon name="message-circle" /></NFloatButton></template></NFloatButton></NFloatButtonGroup>
         </NSpace>

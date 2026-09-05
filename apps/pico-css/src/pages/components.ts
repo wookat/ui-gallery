@@ -6,6 +6,15 @@ const keys = contract.components as string[]
 const button = (label: string, cls = "", extra = "") => `<button class="${cls}" ${extra}>${label}</button>`
 const input = (type = "text", extra = "") => `<input type="${type}" ${extra}>`
 
+function calendar(year: number, month: number, today: number): string {
+  const offset = (new Date(year, month - 1, 1).getDay() + 6) % 7
+  const days = new Date(year, month, 0).getDate()
+  const cells = [...Array.from({ length: offset }, () => ""), ...Array.from({ length: days }, (_, i) => String(i + 1))]
+  while (cells.length % 7) cells.push("")
+  const rows = Array.from({ length: cells.length / 7 }, (_, row) => `<tr>${cells.slice(row * 7, row * 7 + 7).map((d) => `<td class="${Number(d) === today ? "today" : ""}">${d}</td>`).join("")}</tr>`).join("")
+  return `<table class="calendar-demo"><caption>${year} 年 ${month} 月</caption><thead><tr>${["一", "二", "三", "四", "五", "六", "日"].map((x) => `<th>${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`
+}
+
 function demo(name: string): string {
   if (coverage[name] === "missing") return `<article class="muted-demo">${icon("circle-help")}<strong>Pico CSS 无此组件</strong><small>使用原生元素或组合实现。</small></article>`
   switch (name) {
@@ -47,7 +56,7 @@ function demo(name: string): string {
     case "Statistic": return `<div class="stats-grid mini-stats"><article><small>收入</small><strong>¥128,430</strong><span class="delta-up">${icon("trending-up")}12.4%</span></article><article><small>订单</small><strong>1,024</strong><span class="delta-up">${icon("trending-up")}8.2%</span></article><article><small>退款</small><strong>12</strong><span class="delta-down">${icon("trending-down")}2.1%</span></article></div>`
     case "Timeline": return `<ul class="timeline"><li><strong>创建项目</strong><small>刚刚</small></li><li><strong>邀请团队成员</strong><small>1 小时前</small></li><li><strong>完成部署</strong><small>昨天</small></li></ul>`
     case "Tree": return `<details open><summary>工作区</summary><ul><li><details><summary>订单</summary><ul><li>列表</li><li>分析</li></ul></details></li><li>设置</li></ul></details>`
-    case "Calendar": return `<table class="calendar-demo"><thead><tr>${["一", "二", "三", "四", "五", "六", "日"].map((x) => `<th>${x}</th>`).join("")}</tr></thead><tbody>${Array.from({ length: 5 }, (_, row) => `<tr>${Array.from({ length: 7 }, (_, col) => `<td>${row * 7 + col + 1}</td>`).join("")}</tr>`).join("")}</tbody></table>`
+    case "Calendar": return calendar(2026, 9, 15)
     case "Image": return `<figure><div class="image-placeholder" role="img" aria-label="产品预览">${icon("image", 32)}</div><figcaption>产品预览</figcaption></figure>`
     case "Empty": return `<article class="empty-state">${icon("inbox", 32)}<h3>暂无内容</h3><p>没有可展示的数据。</p>${button("创建第一条记录")}</article>`
     case "Tooltip": return `<div class="demo-row tooltip-demo">${["top", "right", "bottom", "left"].map((place) => button(place, "outline", `data-tooltip="${place} 提示" data-placement="${place}"`)).join("")}</div>`

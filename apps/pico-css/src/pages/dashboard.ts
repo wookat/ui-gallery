@@ -7,7 +7,8 @@ import tasks from "@ui-gallery/spec/mock/tasks.json"
 import { icon } from "../icons"
 
 const money = (value: number) => `¥${value.toLocaleString()}`
-const status = (value: string) => `<span class="status status-${value}">${value}</span>`
+const statusLabels: Record<string, string> = { paid: "已支付", pending: "待处理", shipped: "已发货", failed: "失败", refunded: "已退款" }
+const status = (value: string) => `<span class="status status-${value}">${statusLabels[value] ?? value}</span>`
 const sparkline = (values: number[]) => {
   const max = Math.max(...values), min = Math.min(...values)
   const points = values.map((value, index) => `${(index / (values.length - 1)) * 100},${38 - ((value - min) / ((max - min) || 1)) * 32}`).join(" ")
@@ -28,13 +29,14 @@ export function render(): string {
 export function mount(root: HTMLElement): void {
   const color = getComputedStyle(document.documentElement).getPropertyValue("--pico-color").trim()
   const grid = getComputedStyle(document.documentElement).getPropertyValue("--pico-muted-border-color").trim()
+  const primary = getComputedStyle(document.documentElement).getPropertyValue("--pico-primary").trim()
   let revenue: Chart | undefined
   let channel: Chart | undefined
   const draw = () => {
     revenue?.destroy(); channel?.destroy()
     const revenueCanvas = root.querySelector<HTMLCanvasElement>("#revenue-chart")
     const channelCanvas = root.querySelector<HTMLCanvasElement>("#channel-chart")
-    if (revenueCanvas) revenue = new Chart(revenueCanvas, { type: "line", data: { labels: series.months, datasets: [{ label: "收入", data: series.revenue, borderColor: color, backgroundColor: "transparent", tension: .35 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color }, grid: { color: grid } }, y: { ticks: { color }, grid: { color: grid } } } } })
+    if (revenueCanvas) revenue = new Chart(revenueCanvas, { type: "line", data: { labels: series.months, datasets: [{ label: "收入", data: series.revenue, borderColor: primary, backgroundColor: "transparent", pointBackgroundColor: primary, tension: .35 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color }, grid: { color: grid } }, y: { ticks: { color }, grid: { color: grid } } } } })
     if (channelCanvas) channel = new Chart(channelCanvas, { type: "doughnut", data: { labels: series.byChannel.map((item) => item.name), datasets: [{ data: series.byChannel.map((item) => item.value), backgroundColor: ["#0172ad", "#8a4baf", "#d81b60", "#5a9216"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color } } } } })
   }
   draw()

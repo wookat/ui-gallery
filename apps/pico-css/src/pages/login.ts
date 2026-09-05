@@ -14,7 +14,7 @@ export function render(): string {
     </form>
     <div class="login-divider"><hr /><span>或</span><hr /></div>
     <div class="grid"><button class="outline" type="button">${icon("globe")}Google</button><button class="outline" type="button">${icon("github")}GitHub</button><button class="outline" type="button">${icon("message-circle")}微信</button></div>
-    <footer style="text-align:center">还没有账户？ <a href="#register">立即注册</a></footer>
+    <footer class="login-footer">还没有账户？ <a href="#register">立即注册</a></footer>
   </article></main>`
 }
 

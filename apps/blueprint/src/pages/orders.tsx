@@ -110,7 +110,7 @@ export function OrdersPage() {
 
   const actionMenu = (o: Order) => (
     <Popover placement="bottom-end" content={<Menu><MenuItem icon={icon("eye")} text="查看详情" onClick={() => setActive(o)} /><MenuItem icon={icon("edit")} text="编辑" /><MenuItem icon={icon("trash")} intent="danger" text="删除" onClick={() => setPendingDelete(o)} /></Menu>}>
-      <Button minimal small icon={icon("more-horizontal")} aria-label="更多操作" onClick={(e) => e.stopPropagation()} />
+      <Button minimal icon={icon("more-horizontal")} aria-label="更多操作" className="row-action" onClick={(e) => e.stopPropagation()} />
     </Popover>
   )
 

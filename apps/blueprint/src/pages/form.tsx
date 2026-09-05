@@ -21,7 +21,7 @@ function Stepper({ current }: { current: number }) {
       {STEPS.map((label, i) => (
         <div key={label} className="step" style={{ flex: i < STEPS.length - 1 ? 1 : "none" }}>
           <Tag round large intent={i < current ? "success" : i === current ? "primary" : "none"} minimal={i > current} icon={i < current ? icon("check", 12) : undefined}>{i < current ? "" : i + 1}</Tag>
-          <span style={{ fontWeight: i === current ? 600 : 400 }} className={i > current ? Classes.TEXT_MUTED : ""}>{label}</span>
+          <span style={{ fontWeight: i === current ? 600 : 400 }} className={`step-label ${i > current ? Classes.TEXT_MUTED : ""}`}>{label}</span>
           {i < STEPS.length - 1 ? <span className="line" /> : null}
         </div>
       ))}

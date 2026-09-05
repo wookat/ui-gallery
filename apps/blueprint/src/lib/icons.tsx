@@ -78,9 +78,9 @@ const native: Record<string, IconName> = {
   zap: "lightning",
 }
 
-export function AppIcon({ name, size = 16 }: { name: string; size?: number }) {
-  if (iconFamily() === "native") return <BpIcon icon={native[name] ?? "help"} size={size} />
-  return <PackIcon name={name} size={size} />
+export function AppIcon({ name, size = 16, className }: { name: string; size?: number; className?: string }) {
+  if (iconFamily() === "native") return <BpIcon icon={native[name] ?? "help"} size={size} className={className} />
+  return <PackIcon name={name} size={size} className={className} />
 }
 
 /** Element form for Blueprint `icon` / `rightIcon` props. */

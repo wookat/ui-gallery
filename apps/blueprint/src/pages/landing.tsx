@@ -35,7 +35,10 @@ export function LandingPage() {
             {LINKS.map((l) => <Button key={l} minimal>{l}</Button>)}
             <Button intent="primary" style={{ marginLeft: 8 }} onClick={cta}>{landing.hero.primary}</Button>
           </NavbarGroup>
-          <Button className="mobile-only" minimal icon={icon("menu")} aria-label="菜单" onClick={() => setMenu(true)} />
+          <NavbarGroup align="right" className="mobile-only" style={{ float: "none" }}>
+            <Button className="mobile-only" intent="primary" onClick={cta} style={{ marginRight: 4 }}>{landing.hero.primary}</Button>
+            <Button className="mobile-only" minimal icon={icon("menu")} aria-label="菜单" onClick={() => setMenu(true)} />
+          </NavbarGroup>
         </div>
       </Navbar>
       <Drawer isOpen={menu} onClose={() => setMenu(false)} position="right" size="260px" title="菜单">

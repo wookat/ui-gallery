@@ -93,24 +93,27 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <div className="shell-main">
-        <Navbar className="shell-header">
-          <NavbarGroup align="left" style={{ minWidth: 0 }}>
-            <Button className="mobile-only" minimal icon={icon("menu")} aria-label="打开导航" onClick={() => setMobileOpen(true)} />
-            <NavbarHeading className="mobile-only" style={{ marginLeft: 4 }}>Acme</NavbarHeading>
-            <span className="desktop-only"><Breadcrumbs items={[{ text: "Acme Console", onClick: () => navigate(withParams("/")) }, { text: current, current: true }]} /></span>
-          </NavbarGroup>
-          <NavbarGroup align="right">
-            <span className="desktop-only"><InputGroup leftIcon={icon("search")} placeholder="搜索订单、客户…" round style={{ width: 240 }} rightElement={<Tag minimal>⌘K</Tag>} /></span>
-            <NavbarDivider className="desktop-only" />
-            <Popover content={notificationList} placement="bottom-end">
-              <Tooltip content="通知"><Button minimal icon={icon("bell")} aria-label="通知">{unread ? <Tag round intent="danger" style={{ marginLeft: 2 }}>{unread}</Tag> : null}</Button></Tooltip>
-            </Popover>
-            <Tooltip content={dark ? "切换到亮色" : "切换到暗色"}><Button minimal icon={icon(dark ? "sun" : "moon")} onClick={toggleTheme} aria-label="切换主题" /></Tooltip>
-            <Popover content={userMenu} placement="bottom-end">
-              <Button minimal style={{ paddingLeft: 4, paddingRight: 4 }} aria-label="账户菜单"><Avatar name="林晓" /></Button>
-            </Popover>
-          </NavbarGroup>
-        </Navbar>
+        <div className="shell-header">
+          <Navbar>
+            <NavbarGroup align="left" style={{ minWidth: 0 }}>
+              <Button className="mobile-only" minimal icon={icon("menu")} aria-label="打开导航" onClick={() => setMobileOpen(true)} />
+              <NavbarHeading className="mobile-only" style={{ marginLeft: 4 }}>Acme</NavbarHeading>
+              <span className="desktop-only"><Breadcrumbs items={[{ text: "Acme Console", onClick: () => navigate(withParams("/")) }, { text: current, current: true }]} /></span>
+            </NavbarGroup>
+            <NavbarGroup align="right">
+              <span className="desktop-only"><InputGroup leftIcon={icon("search")} placeholder="搜索订单、客户…" round style={{ width: 240 }} rightElement={<Tag minimal>⌘K</Tag>} /></span>
+              <NavbarDivider className="desktop-only" />
+              <Popover content={notificationList} placement="bottom-end">
+                <Tooltip content="通知"><Button minimal icon={icon("bell")} aria-label="通知">{unread ? <Tag round intent="danger" style={{ marginLeft: 2 }}>{unread}</Tag> : null}</Button></Tooltip>
+              </Popover>
+              <Tooltip content={dark ? "切换到亮色" : "切换到暗色"}><Button minimal icon={icon(dark ? "sun" : "moon")} onClick={toggleTheme} aria-label="切换主题" /></Tooltip>
+              <Popover content={userMenu} placement="bottom-end">
+                <Button minimal style={{ paddingLeft: 4, paddingRight: 4 }} aria-label="账户菜单"><Avatar name="林晓" /></Button>
+              </Popover>
+            </NavbarGroup>
+          </Navbar>
+          <div className="mobile-only shell-search-mobile" style={{ padding: "0 12px 8px" }}><InputGroup fill leftIcon={icon("search")} placeholder="搜索订单、客户…" round /></div>
+        </div>
         <main className="shell-content">{children}</main>
       </div>
       <Drawer isOpen={mobileOpen} onClose={() => setMobileOpen(false)} position="left" size="280px" title="Acme Console" icon={icon("menu")}>

@@ -140,7 +140,7 @@ function DangerZone() {
   return (
     <>
       <Card className="danger-card row-between">
-        <div><H4 style={{ margin: 0, color: "#cd4246" }}>危险区域</H4><div className={Classes.TEXT_MUTED}>删除账户将永久移除所有数据，无法恢复。</div></div>
+        <div><H4 className="danger-title" style={{ margin: 0 }}>危险区域</H4><div className={Classes.TEXT_MUTED}>删除账户将永久移除所有数据，无法恢复。</div></div>
         <Button intent="danger" icon={icon("trash")} onClick={() => setOpen(true)}>删除账户</Button>
       </Card>
       <Dialog isOpen={open} onClose={() => setOpen(false)} title="删除账户" icon={icon("alert-circle")}>
@@ -159,7 +159,7 @@ export function SettingsPage() {
   return (
     <>
       <PageHeader title="设置" description="管理个人资料、安全、通知、团队与计费。" />
-      <div className="scroll-x">
+      <div className="tabs-wrap">
         <Tabs id="settings" selectedTabId={tab} onChange={(id) => setTab(String(id))} animate={false} large renderActiveTabPanelOnly>
           <Tab id="profile" title="个人资料" icon={icon("user")} panel={<Profile />} />
           <Tab id="security" title="账户安全" icon={icon("shield")} panel={<Security />} />

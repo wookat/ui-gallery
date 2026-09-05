@@ -99,7 +99,7 @@ function Inputs() {
       <Demo name="Slider">
         <Slider min={0} max={100} value={slider} onChange={setSlider} labelStepSize={25} />
         <Slider min={0} max={10} stepSize={0.5} value={2.5} onChange={() => undefined} labelStepSize={2.5} intent="success" />
-        <Slider min={0} max={100} value={30} onChange={() => undefined} disabled />
+        <Slider min={0} max={100} value={30} onChange={() => undefined} disabled labelStepSize={25} />
         <RangeSlider min={0} max={100} value={range} onChange={setRange} labelStepSize={25} />
       </Demo>
       <Demo name="Rating" note="由 Button + star/star-empty 图标组合">

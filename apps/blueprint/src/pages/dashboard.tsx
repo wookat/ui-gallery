@@ -69,8 +69,8 @@ export function DashboardPage() {
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} width={36} />
                   <ChartTooltip />
-                  <Line type="monotone" dataKey="revenue" name="收入" stroke={BLUE} strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="orders" name="订单" stroke="#238551" strokeWidth={2} dot={false} yAxisId={0} />
+                  <Line type="monotone" dataKey="revenue" name="收入" stroke={BLUE} strokeWidth={2} dot={false} isAnimationActive={false} />
+                  <Line type="monotone" dataKey="orders" name="订单" stroke="#238551" strokeWidth={2} dot={false} yAxisId={0} isAnimationActive={false} />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -92,7 +92,7 @@ export function DashboardPage() {
                   <BarChart data={series.byChannel}>
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <ChartTooltip />
-                    <Bar dataKey="value" name="占比" fill={BLUE} radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="value" name="占比" fill={BLUE} radius={[3, 3, 0, 0]} isAnimationActive={false} />
                   </BarChart>
                 </ResponsiveContainer>
               </>
@@ -115,7 +115,7 @@ export function DashboardPage() {
                     <td className="text-right">{money(o.amount)}</td>
                     <td className="text-right">
                       <Popover content={<Menu><MenuItem icon={icon("eye")} text="查看" /><MenuItem icon={icon("edit")} text="编辑" /><MenuItem icon={icon("trash")} text="删除" intent="danger" /></Menu>} placement="bottom-end">
-                        <Button minimal small icon={icon("more-horizontal")} aria-label="操作" />
+                        <Button minimal icon={icon("more-horizontal")} aria-label="操作" className="row-action" />
                       </Popover>
                     </td>
                   </tr>

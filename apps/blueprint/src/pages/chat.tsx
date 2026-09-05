@@ -17,7 +17,7 @@ function CodeBlock({ children, className }: ComponentProps<"code">) {
     <div style={{ position: "relative" }}>
       <Pre style={{ margin: 0, paddingTop: 28 }}>{text.trimEnd()}</Pre>
       <Tag minimal style={{ position: "absolute", top: 6, left: 8 }}>{className?.replace("language-", "")}</Tag>
-      <Tooltip content="复制代码" placement="left"><Button minimal small icon={icon("copy")} aria-label="复制代码" style={{ position: "absolute", top: 4, right: 4 }} onClick={() => void toast("已复制", "primary")} /></Tooltip>
+      <Tooltip content="复制代码" placement="left"><Button minimal icon={icon("copy")} aria-label="复制代码" className="code-copy" style={{ position: "absolute", top: 4, right: 4 }} onClick={() => void toast("已复制", "primary")} /></Tooltip>
     </div>
   )
 }

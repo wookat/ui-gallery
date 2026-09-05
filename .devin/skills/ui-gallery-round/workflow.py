@@ -143,7 +143,7 @@ async def run_agent(prompt, **kw):
 
 
 async def build(lib):
-    return await run_agent(build_prompt(lib), phase="build", schema=BUILD_SCHEMA, label=f"build-{lib['slug']}", soft_time_limit_minutes=120)
+    return await run_agent(build_prompt(lib), phase="build", schema=BUILD_SCHEMA, label=f"build-{lib['slug']}", soft_time_limit_minutes=60)
 
 
 async def review(lib, built):
@@ -151,7 +151,7 @@ async def review(lib, built):
 
 
 async def fix(lib, built, rev):
-    return await run_agent(fix_prompt(lib, built, rev), phase="fix", schema=FIX_SCHEMA, label=f"fix-{lib['slug']}", soft_time_limit_minutes=75)
+    return await run_agent(fix_prompt(lib, built, rev), phase="fix", schema=FIX_SCHEMA, label=f"fix-{lib['slug']}", soft_time_limit_minutes=60)
 
 
 async def merge(lib, built):

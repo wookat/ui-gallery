@@ -20,6 +20,10 @@ body { min-width: 0; }
 .component-card .btn-group { display: flex; flex-wrap: wrap; max-width: 100%; }
 .sticky-sidebar { position: sticky; top: 1rem; }
 .table-responsive { max-width: 100%; }
+.ratio-demo .ratio { width: 160px; }
+.ratio-demo .ratio > span { display: flex; align-items: center; justify-content: center; }
+.settings-nav .nav-link { white-space: nowrap; }
+.chat-stream pre code { white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 991.98px) {
   .app-shell { display: block; }
   .app-sidebar { display: none; }

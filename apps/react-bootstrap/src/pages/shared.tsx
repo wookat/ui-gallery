@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
-import { Badge, Button, Card, Col, Container, Form, Modal, Row, Spinner, Toast, ToastContainer } from "react-bootstrap"
+import { Badge, Button, Card, Col, Container, Form, ListGroup, Modal, Row, Spinner, Toast, ToastContainer } from "react-bootstrap"
 import { Icon } from "@ui-gallery/icons-react"
 import orders from "@ui-gallery/spec/mock/orders.json"
 
@@ -42,6 +42,10 @@ export function OrderRows({ limit = 5 }: { limit?: number }) {
   return <>{orders.slice(0, limit).map((order) => <tr key={order.id}><td className="fw-semibold">{order.id}</td><td><div className="d-flex align-items-center gap-2"><Avatar name={order.customer} />{order.customer}</div></td><td>{order.product}</td><td><StatusBadge status={order.status} /></td><td className="text-end">¥{order.amount.toLocaleString()}</td></tr>)}</>
 }
 
+export function OrderCards({ limit = 5 }: { limit?: number }) {
+  return <ListGroup variant="flush">{orders.slice(0, limit).map((order) => <ListGroup.Item key={order.id} className="d-flex align-items-center gap-3"><Avatar name={order.customer} /><div className="flex-grow-1 min-w-0"><div className="d-flex justify-content-between gap-2"><span className="fw-semibold text-nowrap">{order.id}</span><span className="text-nowrap">¥{order.amount.toLocaleString()}</span></div><div className="small text-secondary text-truncate">{order.customer} · {order.product}</div></div><StatusBadge status={order.status} /></ListGroup.Item>)}</ListGroup>
+}
+
 export function ToastNotice({ show, onClose, title = "已完成", children = "操作已成功。" }: { show: boolean; onClose: () => void; title?: string; children?: ReactNode }) {
   return <ToastContainer position="top-end" className="p-3"><Toast show={show} onClose={onClose} autohide delay={2600}><Toast.Header><strong className="me-auto">{title}</strong><small>刚刚</small></Toast.Header><Toast.Body>{children}</Toast.Body></Toast></ToastContainer>
 }
@@ -55,8 +59,8 @@ export function FieldLabel({ children, required = false, info }: { children: Rea
   return <Form.Label>{children}{required && <span className="text-danger ms-1">*</span>}{info && <span className="ms-1" title={info}>ⓘ</span>}</Form.Label>
 }
 
-export function LoadingButton({ loading, children }: { loading: boolean; children: ReactNode }) {
-  return <Button disabled={loading}>{loading && <Spinner animation="border" size="sm" className="me-2" />}{children}</Button>
+export function LoadingButton({ loading, children, type = "button", className }: { loading: boolean; children: ReactNode; type?: "button" | "submit"; className?: string }) {
+  return <Button type={type} disabled={loading} className={className}>{loading && <Spinner animation="border" size="sm" className="me-2" />}{children}</Button>
 }
 
 export function ResponsivePage({ children }: { children: ReactNode }) {

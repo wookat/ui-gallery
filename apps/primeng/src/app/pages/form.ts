@@ -87,8 +87,31 @@ import { PageHeader, channelLabel } from '../shared';
                   </div>
                   <div class="field span-2">
                     <label for="desc">描述 <app-icon name="help-circle" [size]="14" pTooltip="用一两句话描述项目目标" class="muted" /></label>
-                    <textarea pTextarea id="desc" formControlName="description" rows="3" placeholder="描述你的项目目标..." [autoResize]="true" maxlength="200"></textarea>
+                    <textarea pTextarea id="desc" formControlName="description" rows="3" placeholder="描述你的项目目标..." maxlength="200"></textarea>
                     <span class="help right">{{ basic.controls.description.value.length }} / 200</span>
+                  </div>
+                  <div class="field span-2">
+                    <span class="label">计划<span class="req">*</span></span>
+                    <div class="grid grid-3">
+                      @for (p of plans; track p.name) {
+                        <label class="option" [class.checked]="basic.controls.plan.value === p.name">
+                          <p-radiobutton formControlName="plan" [value]="p.name" [inputId]="'plan-' + p.name" />
+                          <span class="col" style="gap:0"><span class="font-medium">{{ p.name }}</span><span class="text-xs muted">{{ p.price === null ? '定制报价' : '¥' + p.price + ' / 月' }} · {{ p.features[0] }}</span></span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                  <div class="field span-2">
+                    <span class="label">渠道</span>
+                    <div class="row wrap">
+                      @for (c of channels; track c.value) {
+                        <label class="row text-sm"><p-checkbox formControlName="channels" [value]="c.value" [inputId]="'ch-' + c.value" />{{ c.label }}</label>
+                      }
+                    </div>
+                  </div>
+                  <div class="option between span-2">
+                    <div><p class="font-medium">通知开关</p><p class="text-sm muted">接收项目活动提醒</p></div>
+                    <p-toggleswitch formControlName="notify" />
                   </div>
                 </form>
                 <div class="row" style="justify-content:flex-end; margin-top:1rem">
@@ -102,17 +125,6 @@ import { PageHeader, channelLabel } from '../shared';
             <ng-template #content>
               <p-card header="配置选项" subheader="选择计划、权限与通知。">
                 <form [formGroup]="config" class="stack" novalidate>
-                  <div class="field">
-                    <span class="label">计划<span class="req">*</span></span>
-                    <div class="grid grid-3">
-                      @for (p of plans; track p.name) {
-                        <label class="option" [class.checked]="config.controls.plan.value === p.name">
-                          <p-radiobutton formControlName="plan" [value]="p.name" [inputId]="'plan-' + p.name" />
-                          <span class="col" style="gap:0"><span class="font-medium">{{ p.name }}</span><span class="text-xs muted">{{ p.price === null ? '定制报价' : '¥' + p.price + ' / 月' }} · {{ p.features[0] }}</span></span>
-                        </label>
-                      }
-                    </div>
-                  </div>
                   <div class="grid grid-2">
                     <div class="field">
                       <label for="members">成员</label>
@@ -135,14 +147,6 @@ import { PageHeader, channelLabel } from '../shared';
                       <p-datepicker inputId="range" formControlName="range" selectionMode="range" [readonlyInput]="true" [showIcon]="true" dateFormat="yy-mm-dd" styleClass="w-full" />
                     </div>
                   </div>
-                  <div class="field">
-                    <span class="label">渠道</span>
-                    <div class="row wrap">
-                      @for (c of channels; track c.value) {
-                        <label class="row text-sm"><p-checkbox formControlName="channels" [value]="c.value" [inputId]="'ch-' + c.value" />{{ c.label }}</label>
-                      }
-                    </div>
-                  </div>
                   <div class="grid grid-2">
                     <div class="field">
                       <span class="label">采样比例 <span class="muted">{{ config.controls.sample.value }}%</span></span>
@@ -163,10 +167,6 @@ import { PageHeader, channelLabel } from '../shared';
                         <input pInputText pSize="small" placeholder="回车添加" (keydown.enter)="addTag($event)" style="width: 8rem" />
                       </div>
                     </div>
-                  </div>
-                  <div class="option between">
-                    <div><p class="font-medium">通知开关</p><p class="text-sm muted">接收项目活动提醒</p></div>
-                    <p-toggleswitch formControlName="notify" />
                   </div>
                   <div class="field">
                     <span class="label">附件</span>
@@ -191,9 +191,9 @@ import { PageHeader, channelLabel } from '../shared';
                     <dt>项目名称</dt><dd>{{ basic.controls.name.value }}</dd>
                     <dt>负责人</dt><dd>{{ basic.controls.email.value }}</dd>
                     <dt>预算</dt><dd>¥{{ basic.controls.budget.value | number }}</dd>
-                    <dt>计划</dt><dd>{{ config.controls.plan.value }}</dd>
+                    <dt>计划</dt><dd>{{ basic.controls.plan.value }}</dd>
                     <dt>成员</dt><dd>{{ config.controls.members.value.length }} 人</dd>
-                    <dt>渠道</dt><dd>{{ config.controls.channels.value.join(', ') || '—' }}</dd>
+                    <dt>渠道</dt><dd>{{ basic.controls.channels.value.join(', ') || '—' }}</dd>
                     <dt>采样比例</dt><dd>{{ config.controls.sample.value }}%</dd>
                     <dt>标签</dt><dd><div class="row wrap">@for (t of config.controls.tags.value; track t) { <p-chip [label]="t" /> }</div></dd>
                   </dl>
@@ -258,20 +258,20 @@ export class FormPage {
     country: ['cn'],
     phone: [''],
     description: [''],
+    plan: [plans.find((p) => p.recommended)?.name ?? plans[0].name, Validators.required],
+    channels: [['web', 'ios'] as string[]],
+    notify: [true],
   });
   readonly config = this.fb.nonNullable.group({
-    plan: [plans.find((p) => p.recommended)?.name ?? plans[0].name, Validators.required],
     members: [[team[0].email, team[1].email] as string[]],
     module: [null as { label: string; value: string } | null],
     start: [null as Date | null],
     time: [null as Date | null],
     range: [null as Date[] | null],
-    channels: [['web', 'ios'] as string[]],
     sample: [60],
     priority: [3],
     color: ['10b981'],
     tags: [['增长', 'Q3'] as string[]],
-    notify: [true],
   });
   readonly agree = this.fb.nonNullable.control(false);
 

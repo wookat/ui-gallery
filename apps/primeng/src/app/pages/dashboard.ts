@@ -51,7 +51,7 @@ interface Stat { key: string; label: string; value: number; unit?: string; delta
               <p-tag [value]="(s.delta > 0 ? '+' : '') + s.delta + '%'" [severity]="s.delta > 0 ? 'success' : 'danger'" [rounded]="true" />
             </div>
             <div class="stat-value">{{ format(s) }}</div>
-            <p-chart type="line" [data]="spark(s)" [options]="sparkOptions" height="3rem" width="100%" />
+            <div class="spark"><p-chart type="line" [data]="spark(s)" [options]="sparkOptions" height="3rem" width="100%" /></div>
           </p-card>
         }
       </div>
@@ -68,10 +68,10 @@ interface Stat { key: string; label: string; value: number; unit?: string; delta
 
     <div class="grid grid-2">
       <p-card header="最近订单" subheader="最新的业务交易">
-        <p-table [value]="recent" [tableStyle]="{ 'min-width': '28rem' }" size="small">
+        <p-table [value]="recent" [tableStyle]="{ 'min-width': '28rem' }" styleClass="stack-mobile" size="small">
           <ng-template #header><tr><th>订单</th><th>客户</th><th>状态</th><th class="right">金额</th></tr></ng-template>
           <ng-template #body let-o>
-            <tr><td class="font-medium">{{ o.id }}</td><td>{{ o.customer }}</td><td><app-status-tag [value]="o.status" /></td><td class="right">{{ money(o.amount) }}</td></tr>
+            <tr><td data-label="订单" class="font-medium">{{ o.id }}</td><td data-label="客户">{{ o.customer }}</td><td data-label="状态"><app-status-tag [value]="o.status" /></td><td data-label="金额" class="right">{{ money(o.amount) }}</td></tr>
           </ng-template>
         </p-table>
       </p-card>
@@ -103,6 +103,7 @@ interface Stat { key: string; label: string; value: number; unit?: string; delta
   `,
   styles: `
     .stat-value { font-size: 1.5rem; font-weight: 600; margin: 0.25rem 0 0.5rem; }
+    .spark { margin-top: 0.25rem; border-radius: 0.375rem; overflow: hidden; }
     .charts { grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); }
     :host ::ng-deep .compact .p-timeline-event-opposite { display: none; }
     :host ::ng-deep .compact .p-timeline-event-content { padding-bottom: 1rem; }

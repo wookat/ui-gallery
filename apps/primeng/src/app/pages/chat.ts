@@ -30,9 +30,6 @@ const seed: RawMessage[] = chat.messages;
   template: `
     <div class="chat">
       <aside class="list hide-mobile"><ng-container *ngTemplateOutlet="sidebar" /></aside>
-      <p-drawer [visible]="listOpen()" (visibleChange)="listOpen.set($event)" position="left" header="会话" styleClass="chat-drawer">
-        <ng-container *ngTemplateOutlet="sidebar" />
-      </p-drawer>
 
       <ng-template #sidebar>
         <div class="stack" style="gap:0.75rem">
@@ -130,6 +127,9 @@ const seed: RawMessage[] = chat.messages;
         </footer>
       </section>
     </div>
+    <p-drawer [visible]="listOpen()" (visibleChange)="listOpen.set($event)" position="left" header="会话" styleClass="chat-drawer">
+      <ng-container *ngTemplateOutlet="sidebar" />
+    </p-drawer>
   `,
   styles: `
     :host { display: block; margin: -1.5rem; }
@@ -153,9 +153,10 @@ const seed: RawMessage[] = chat.messages;
     .bubble { padding: 0.75rem 1rem; border-radius: 1rem; background: var(--p-content-hover-background); font-size: 0.9375rem; line-height: 1.6; max-width: 100%; overflow-x: auto; }
     .msg.user .bubble { background: var(--p-primary-color); color: var(--p-primary-contrast-color); }
     .md ::ng-deep p { margin: 0 0 0.5rem; } .md ::ng-deep p:last-child { margin: 0; }
-    .md ::ng-deep pre { background: var(--p-surface-900); color: var(--p-surface-0); padding: 0.75rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.8125rem; }
+    .md ::ng-deep pre { background: var(--p-surface-900); color: var(--p-surface-0); padding: 0.75rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.8125rem; white-space: pre-wrap; }
+    .md ::ng-deep pre code { white-space: pre-wrap; overflow-wrap: anywhere; }
     .md ::ng-deep code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.875em; }
-    .md ::ng-deep table { border-collapse: collapse; margin: 0.5rem 0; font-size: 0.875rem; }
+    .md ::ng-deep table { border-collapse: collapse; margin: 0.5rem 0; font-size: 0.875rem; width: 100%; table-layout: fixed; word-break: break-word; }
     .md ::ng-deep th, .md ::ng-deep td { border: 1px solid var(--p-content-border-color); padding: 0.375rem 0.625rem; text-align: left; }
     .md ::ng-deep blockquote { margin: 0; padding-left: 0.75rem; border-left: 3px solid var(--p-primary-color); color: var(--p-text-muted-color); }
     .tool { border: 1px solid var(--p-content-border-color); border-radius: 0.75rem; padding: 0.5rem 0.75rem; }

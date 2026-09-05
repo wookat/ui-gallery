@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MenuItem, MessageService, TreeNode } from 'primeng/api';
 import { Accordion, AccordionPanel, AccordionHeader, AccordionContent } from 'primeng/accordion';
@@ -389,12 +389,12 @@ type Coverage = 'implemented' | 'composed' | 'missing';
       <section class="demo" id="c-Table" [hidden]="hide('Table')">
         <h2>Table <span class="cov implemented">implemented</span></h2>
         <div class="stack">
-          <div class="x-scroll"><p-table [value]="orders.slice(0, 5)" [tableStyle]="{ 'min-width': '40rem' }" [showGridlines]="true" [stripedRows]="true" size="small">
+          <div class="x-scroll"><p-table [value]="orders.slice(0, 5)" [tableStyle]="{ 'min-width': '40rem' }" styleClass="stack-mobile" [showGridlines]="true" [stripedRows]="true" size="small">
             <ng-template #header><tr><th>订单号</th><th>客户</th><th>状态</th><th class="right">金额</th></tr></ng-template>
-            <ng-template #body let-o><tr><td>{{ o.id }}</td><td>{{ o.customer }}</td><td><app-status-tag [value]="o.status" /></td><td class="right">{{ money(o.amount) }}</td></tr></ng-template>
+            <ng-template #body let-o><tr><td data-label="订单号">{{ o.id }}</td><td data-label="客户">{{ o.customer }}</td><td data-label="状态"><app-status-tag [value]="o.status" /></td><td data-label="金额" class="right">{{ money(o.amount) }}</td></tr></ng-template>
           </p-table></div>
-          <div class="x-scroll"><p-table [value]="[]" [tableStyle]="{ 'min-width': '30rem' }"><ng-template #header><tr><th>空状态</th></tr></ng-template><ng-template #emptymessage><tr><td class="muted center">暂无数据</td></tr></ng-template></p-table></div>
-          <div class="x-scroll"><p-table [value]="[1, 2, 3]" [tableStyle]="{ 'min-width': '30rem' }"><ng-template #header><tr><th>加载中</th><th></th></tr></ng-template><ng-template #body><tr><td><p-skeleton /></td><td><p-skeleton /></td></tr></ng-template></p-table></div>
+          <div class="x-scroll"><p-table [value]="[]" [tableStyle]="{ 'min-width': '30rem' }" styleClass="stack-mobile"><ng-template #header><tr><th>空状态</th></tr></ng-template><ng-template #emptymessage><tr><td class="muted center">暂无数据</td></tr></ng-template></p-table></div>
+          <div class="x-scroll"><p-table [value]="[1, 2, 3]" [tableStyle]="{ 'min-width': '30rem' }" styleClass="stack-mobile"><ng-template #header><tr><th>加载中</th><th></th></tr></ng-template><ng-template #body><tr><td><p-skeleton /></td><td><p-skeleton /></td></tr></ng-template></p-table></div>
         </div>
       </section>
 
@@ -848,6 +848,8 @@ type Coverage = 'implemented' | 'composed' | 'missing';
     </div>
   `,
   styles: `
+    :host ::ng-deep .p-timeline-horizontal .p-timeline-event:last-child { flex-grow: 1; }
+    :host ::ng-deep .p-timeline-horizontal .p-timeline-event-content { white-space: nowrap; }
     .anchors { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 1.5rem; }
     .anchor { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 999px; border: 1px solid var(--p-content-border-color); text-decoration: none; color: var(--p-text-color); }
     .anchor.composed { border-style: dashed; }
@@ -901,10 +903,22 @@ type Coverage = 'implemented' | 'composed' | 'missing';
     :host ::ng-deep .static-dock .p-dock-list-container { position: static; }
     :host ::ng-deep .scroller { border: 1px solid var(--p-content-border-color); border-radius: var(--p-content-border-radius); }
     :host ::ng-deep .vstepper .p-step-panel { padding-left: 1rem; }
-    @media (max-width: 767px) { .span-2, .span-3 { grid-column: auto; } .layout-demo { grid-template-columns: 1fr; } .layout-demo .hdr, .layout-demo .ftr { grid-column: auto; } }
+    @media (max-width: 767px) {
+      .span-2, .span-3 { grid-column: auto; }
+      .layout-demo { grid-template-columns: 1fr; }
+      .layout-demo .hdr, .layout-demo .ftr { grid-column: auto; }
+      :host ::ng-deep #c-DataGrid .p-datatable-table { min-width: 0 !important; width: 100% !important; table-layout: fixed; }
+      :host ::ng-deep #c-DataGrid p-treetable table { min-width: 0 !important; width: 100% !important; table-layout: fixed; }
+      :host ::ng-deep #c-Tabs p-tabs:last-child .p-tablist-tab-list { flex-wrap: wrap; overflow-x: hidden; }
+      :host ::ng-deep #c-extra .p-organizationchart-table { width: 100% !important; max-width: 100% !important; table-layout: fixed; }
+    }
   `,
 })
 export class ComponentsPage {
+  private readonly carousel = viewChild(Carousel);
+  constructor() {
+    afterNextRender(() => this.carousel()?.cd.markForCheck());
+  }
   readonly settings = inject(SettingsService);
   private readonly messages = inject(MessageService);
   private readonly confirm = inject(ConfirmationService);

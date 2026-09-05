@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Accordion, AccordionPanel, AccordionHeader, AccordionContent } from 'primeng/accordion';
@@ -262,6 +262,10 @@ import { SettingsService } from '../settings.service';
   `,
 })
 export class LandingPage {
+  private readonly carousel = viewChild(Carousel);
+  constructor() {
+    afterNextRender(() => this.carousel()?.cd.markForCheck());
+  }
   readonly settings = inject(SettingsService);
   readonly hero = landing.hero;
   readonly landing = landing;

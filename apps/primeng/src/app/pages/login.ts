@@ -47,18 +47,18 @@ import { SettingsService } from '../settings.service';
           </div>
           <div class="row between">
             <label class="row text-sm"><p-checkbox formControlName="remember" [binary]="true" inputId="remember" />记住我</label>
-            <a class="text-sm" href="#forgot">忘记密码？</a>
+            <a class="link text-sm" href="#forgot">忘记密码？</a>
           </div>
           <p-button type="submit" label="登录" styleClass="w-full" [loading]="loading()" />
         </form>
         <p-divider align="center"><span class="text-xs muted">或</span></p-divider>
         <div class="oauth">
-          <p-button [outlined]="true" severity="secondary" label="Google"><app-icon name="google" /></p-button>
-          <p-button [outlined]="true" severity="secondary" label="GitHub"><app-icon name="github" /></p-button>
-          <p-button [outlined]="true" severity="secondary" label="微信"><app-icon name="wechat" /></p-button>
+          <p-button [outlined]="true" severity="secondary" label="Google" [fluid]="true"><app-icon name="google" /></p-button>
+          <p-button [outlined]="true" severity="secondary" label="GitHub" [fluid]="true"><app-icon name="github" /></p-button>
+          <p-button [outlined]="true" severity="secondary" label="微信" [fluid]="true"><app-icon name="wechat" /></p-button>
         </div>
         <ng-template #footer>
-          <p class="text-sm muted" style="text-align:center">还没有账户？ <a href="#register">立即注册</a></p>
+          <p class="text-sm muted" style="text-align:center">还没有账户？ <a class="link" href="#register">立即注册</a></p>
         </ng-template>
       </p-card>
     </div>
@@ -69,6 +69,7 @@ import { SettingsService } from '../settings.service';
     .login-head { padding: 1.25rem 1.25rem 0; display: flex; flex-direction: column; gap: 0.75rem; }
     .brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; text-decoration: none; color: inherit; }
     .brand-mark { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 0.5rem; background: var(--p-primary-color); color: var(--p-primary-contrast-color); }
+    .link { display: inline-flex; align-items: center; min-height: 2.5rem; }
     :host ::ng-deep .p-card-body { display: flex; flex-direction: column; gap: 1rem; }
     :host ::ng-deep .p-password { width: 100%; }
     .oauth { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }

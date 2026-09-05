@@ -111,12 +111,6 @@ import { PageHeader, StatusTag, money } from '../shared';
                 }
               </ul>
             </p-card>
-            <p-card header="危险区域" styleClass="danger">
-              <div class="row between wrap">
-                <div><p class="font-medium">删除账户</p><p class="text-sm muted">永久删除账户与所有数据，此操作不可撤销。</p></div>
-                <p-button label="删除账户" severity="danger" [outlined]="true" (onClick)="deleteOpen.set(true)" />
-              </div>
-            </p-card>
           </div>
         </p-tabpanel>
 
@@ -148,14 +142,14 @@ import { PageHeader, StatusTag, money } from '../shared';
                 <p-button label="邀请" (onClick)="doInvite()"><app-icon name="plus" /></p-button>
               </div>
             </div>
-            <p-table [value]="team" [tableStyle]="{ 'min-width': '40rem' }">
+            <p-table [value]="team" [tableStyle]="{ 'min-width': '40rem' }" styleClass="stack-mobile">
               <ng-template #header><tr><th>成员</th><th>角色</th><th>最近活跃</th><th></th></tr></ng-template>
               <ng-template #body let-m>
                 <tr>
-                  <td><div class="row"><p-avatar [label]="m.name.slice(0, 1)" shape="circle" /><div class="col" style="gap:0"><span class="font-medium">{{ m.name }}</span><span class="text-xs muted">{{ m.email }}</span></div></div></td>
-                  <td><p-select [ngModel]="m.role" [options]="roles" optionLabel="label" optionValue="value" size="small" [disabled]="m.role === 'owner'" /></td>
-                  <td class="muted">{{ m.lastActive }}</td>
-                  <td class="right">@if (m.role !== 'owner') { <p-button [text]="true" severity="danger" size="small" [rounded]="true" ariaLabel="移除"><app-icon name="trash" /></p-button> }</td>
+                  <td data-label="成员"><div class="row"><p-avatar [label]="m.name.slice(0, 1)" shape="circle" /><div class="col" style="gap:0"><span class="font-medium">{{ m.name }}</span><span class="text-xs muted">{{ m.email }}</span></div></div></td>
+                  <td data-label="角色"><p-select [ngModel]="m.role" [options]="roles" optionLabel="label" optionValue="value" size="small" [disabled]="m.role === 'owner'" /></td>
+                  <td data-label="最近活跃" class="muted">{{ m.lastActive }}</td>
+                  <td class="right stack-actions">@if (m.role !== 'owner') { <p-button [text]="true" severity="danger" size="small" [rounded]="true" ariaLabel="移除"><app-icon name="trash" /></p-button> }</td>
                 </tr>
               </ng-template>
             </p-table>
@@ -175,13 +169,13 @@ import { PageHeader, StatusTag, money } from '../shared';
               }
             </div>
             <p-card header="账单历史">
-              <p-table [value]="invoices" [tableStyle]="{ 'min-width': '32rem' }">
+              <p-table [value]="invoices" [tableStyle]="{ 'min-width': '32rem' }" styleClass="stack-mobile">
                 <ng-template #header><tr><th>编号</th><th>日期</th><th>状态</th><th class="right">金额</th><th></th></tr></ng-template>
                 <ng-template #body let-i>
                   <tr>
-                    <td class="font-medium">{{ i.id }}</td><td>{{ i.date }}</td><td><app-status-tag [value]="i.status" /></td>
-                    <td class="right">{{ money(i.amount) }}</td>
-                    <td class="right"><p-button [text]="true" severity="secondary" size="small" [rounded]="true" ariaLabel="下载"><app-icon name="download" /></p-button></td>
+                    <td data-label="编号" class="font-medium">{{ i.id }}</td><td data-label="日期">{{ i.date }}</td><td data-label="状态"><app-status-tag [value]="i.status" /></td>
+                    <td data-label="金额" class="right">{{ money(i.amount) }}</td>
+                    <td class="right stack-actions"><p-button [text]="true" severity="secondary" size="small" [rounded]="true" ariaLabel="下载"><app-icon name="download" /></p-button></td>
                   </tr>
                 </ng-template>
               </p-table>
@@ -190,6 +184,13 @@ import { PageHeader, StatusTag, money } from '../shared';
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
+
+    <p-card header="危险区域" styleClass="danger">
+      <div class="row between wrap">
+        <div><p class="font-medium">删除账户</p><p class="text-sm muted">永久删除账户与所有数据，此操作不可撤销。</p></div>
+        <p-button label="删除账户" severity="danger" [outlined]="true" (onClick)="deleteOpen.set(true)" />
+      </div>
+    </p-card>
 
     <p-dialog header="删除账户" [visible]="deleteOpen()" (visibleChange)="deleteOpen.set($event)" [modal]="true" [style]="{ width: '28rem', maxWidth: '95vw' }">
       <div class="stack">

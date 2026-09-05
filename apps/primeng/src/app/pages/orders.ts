@@ -77,7 +77,7 @@ interface Column { field: keyof Order; header: string }
             [value]="filtered()" [columns]="visibleColumns" dataKey="id" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 20, 50]"
             [showCurrentPageReport]="true" currentPageReportTemplate="第 {first} - {last} 条，共 {totalRecords} 条"
             [selection]="selected()" (selectionChange)="selected.set($event)" [rowHover]="true" sortField="date" [sortOrder]="-1"
-            [tableStyle]="{ 'min-width': '56rem' }" styleClass="orders-table">
+            [tableStyle]="{ 'min-width': '56rem' }" styleClass="orders-table stack-mobile">
             <ng-template #header let-columns>
               <tr>
                 <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
@@ -91,7 +91,7 @@ interface Column { field: keyof Order; header: string }
               <tr class="p-selectable-row">
                 <td><p-tableCheckbox [value]="o" /></td>
                 @for (c of columns; track c.field) {
-                  <td [class.right]="c.field === 'amount'" [class.font-medium]="c.field === 'id'">
+                  <td [attr.data-label]="c.header" [class.right]="c.field === 'amount'" [class.font-medium]="c.field === 'id'">
                     @switch (c.field) {
                       @case ('status') { <app-status-tag [value]="o.status" /> }
                       @case ('amount') { {{ money(o.amount, o.currency) }} }
@@ -101,7 +101,7 @@ interface Column { field: keyof Order; header: string }
                     }
                   </td>
                 }
-                <td>
+                <td class="stack-actions">
                   <p-button [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="openMenu($event, o)" ariaLabel="更多操作"><app-icon name="more-horizontal" /></p-button>
                 </td>
               </tr>

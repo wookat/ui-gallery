@@ -75,7 +75,7 @@ const table: Record<IconName, [string, string, string, string, string]> = {
   sparkles: ['pi-sparkles', L.lucideSparkles, T.tablerSparkles, P.phosphorSparkle, H.heroSparkles],
   github: ['pi-github', L.lucideCode, T.tablerBrandGithub, P.phosphorGithubLogo, H.heroCodeBracket],
   google: ['pi-google', L.lucideGlobe, T.tablerBrandGoogle, P.phosphorGoogleLogo, H.heroGlobeAlt],
-  wechat: ['pi-wechat', L.lucideMessageCircle, T.tablerBrandWechat, P.phosphorWechatLogo, H.heroChatBubbleLeftRight],
+  wechat: ['pi-comment', L.lucideMessageCircle, T.tablerBrandWechat, P.phosphorWechatLogo, H.heroChatBubbleLeftRight],
   columns: ['pi-table', L.lucideColumns, T.tablerColumns3, P.phosphorColumns, H.heroViewColumns],
   language: ['pi-language', L.lucideLanguages, T.tablerLanguage, P.phosphorTranslate, H.heroLanguage],
   smartphone: ['pi-mobile', L.lucideSmartphone, T.tablerDeviceMobile, P.phosphorDeviceMobile, H.heroDevicePhoneMobile],

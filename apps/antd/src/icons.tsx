@@ -152,7 +152,7 @@ const native: Record<
   zap: ThunderboltOutlined,
 }
 const family = () =>
-  new URLSearchParams(window.location.search).get("icons") ?? "native"
+  new URLSearchParams(window.location.search).get("icons") ?? "lucide"
 export function Icon({
   name,
   size = 16,

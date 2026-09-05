@@ -10,7 +10,10 @@ import {
   Drawer,
   Dropdown,
   Empty,
+  Flex,
+  Grid,
   Input,
+  List,
   Select,
   Space,
   Table,
@@ -44,6 +47,9 @@ export function OrdersPage() {
     action: true,
   })
   const { message, modal } = App.useApp()
+  const screens = Grid.useBreakpoint()
+  const mobile = screens.md === false
+  const [checked, setChecked] = useState<string[]>([])
   const filtered = useMemo(
     () =>
       orders.filter(
@@ -112,26 +118,106 @@ export function OrdersPage() {
     {
       title: "操作",
       key: "action",
+      fixed: "right",
+      width: 72,
       hidden: !visible.action,
-      render: (_, record) => (
-        <Dropdown
-          menu={{
-            items: [
-              { key: "edit", label: "编辑" },
-              {
-                key: "delete",
-                label: "删除",
-                danger: true,
-                onClick: () => remove(record),
-              },
-            ],
-          }}
-        >
-          <Button type="text" icon={<Icon name="more-horizontal" />} />
-        </Dropdown>
-      ),
+      render: (_, record) => actionMenu(record),
     },
   ]
+  function actionMenu(record: Order) {
+    return (
+      <Dropdown
+        menu={{
+          items: [
+            { key: "edit", label: "编辑" },
+            {
+              key: "delete",
+              label: "删除",
+              danger: true,
+              onClick: () => remove(record),
+            },
+          ],
+        }}
+      >
+        <Button
+          type="text"
+          icon={<Icon name="more-horizontal" />}
+          aria-label="更多操作"
+          onClick={(event) => event.stopPropagation()}
+        />
+      </Dropdown>
+    )
+  }
+  const mobileList = (
+    <>
+      <Checkbox
+        style={{ marginBottom: 8 }}
+        checked={checked.length > 0 && checked.length === filtered.length}
+        indeterminate={checked.length > 0 && checked.length < filtered.length}
+        onChange={(event) =>
+          setChecked(event.target.checked ? filtered.map((o) => o.id) : [])
+        }
+      >
+        全选（{checked.length}/{filtered.length}）
+      </Checkbox>
+      <List
+        loading={state === "loading"}
+        dataSource={filtered}
+        pagination={{
+          pageSize: 5,
+          simple: true,
+          showTotal: (total) => `共 ${total} 条`,
+        }}
+        renderItem={(order) => (
+          <List.Item style={{ paddingInline: 0 }}>
+            <Card
+              size="small"
+              hoverable
+              style={{ width: "100%" }}
+              onClick={() => setSelected(order)}
+            >
+              <Flex justify="space-between" align="start" gap={8}>
+                <Space align="start">
+                  <Checkbox
+                    checked={checked.includes(order.id)}
+                    onClick={(event) => event.stopPropagation()}
+                    onChange={(event) =>
+                      setChecked((current) =>
+                        event.target.checked
+                          ? [...current, order.id]
+                          : current.filter((id) => id !== order.id)
+                      )
+                    }
+                  />
+                  <div>
+                    <Typography.Text strong>{order.id}</Typography.Text>
+                    <div>
+                      <Space>
+                        {avatar(order.customer)}
+                        {order.customer}
+                      </Space>
+                    </div>
+                    <Typography.Text type="secondary">
+                      {order.date}
+                    </Typography.Text>
+                  </div>
+                </Space>
+                <Flex vertical align="end" gap={4}>
+                  <Tag color={statusColor[order.status]} style={{ margin: 0 }}>
+                    {statusLabel[order.status]}
+                  </Tag>
+                  <Typography.Text strong>
+                    ¥{order.amount.toLocaleString()}
+                  </Typography.Text>
+                  {actionMenu(order)}
+                </Flex>
+              </Flex>
+            </Card>
+          </List.Item>
+        )}
+      />
+    </>
+  )
   const columnItems = Object.keys(visible).map((key) => ({
     key,
     label: (
@@ -214,28 +300,28 @@ export function OrdersPage() {
           <Empty description="暂无订单">
             <Button onClick={() => setState("normal")}>返回正常</Button>
           </Empty>
+        ) : mobile ? (
+          mobileList
         ) : (
-          <div className="wide-table">
-            <Table
-              rowKey="id"
-              loading={state === "loading"}
-              rowSelection={rowSelection}
-              onRow={(record) => ({ onClick: () => setSelected(record) })}
-              dataSource={filtered}
-              columns={columns}
-              pagination={{
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 条`,
-              }}
-              scroll={{ x: 800 }}
-            />
-          </div>
+          <Table
+            rowKey="id"
+            loading={state === "loading"}
+            rowSelection={rowSelection}
+            onRow={(record) => ({ onClick: () => setSelected(record) })}
+            dataSource={filtered}
+            columns={columns}
+            pagination={{
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条`,
+            }}
+            scroll={{ x: "max-content" }}
+          />
         )}
       </Card>
       <Drawer
         title="订单详情"
         placement="right"
-        width={480}
+        size={mobile ? "100%" : 480}
         open={!!selected}
         onClose={() => setSelected(null)}
       >

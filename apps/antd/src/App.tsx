@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react"
-import { App as AntApp, ConfigProvider, theme } from "antd"
+import { App as AntApp, ConfigProvider, Grid, theme } from "antd"
 import zhCN from "antd/locale/zh_CN"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { AppShell } from "@/layouts/app-shell"
@@ -74,13 +74,25 @@ const router = createBrowserRouter(
 
 export default function App() {
   const { dark, setDark } = useUrlSettings()
+  const screens = Grid.useBreakpoint()
+  const mobile = screens.md === false
   return (
     <ThemeSettingsContext.Provider value={{ dark, setDark }}>
       <ConfigProvider
         locale={zhCN}
+        componentSize={mobile ? "large" : undefined}
         theme={{
           algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm,
-          token: { fontFamily: "var(--font-sans)" },
+          token: {
+            fontFamily: "var(--font-sans)",
+            ...(mobile ? { controlInteractiveSize: 24 } : {}),
+          },
+          components: mobile
+            ? {
+                Radio: { radioSize: 24, dotSize: 10 },
+                Switch: { trackHeight: 28, handleSize: 24, trackMinWidth: 52 },
+              }
+            : undefined,
           cssVar: true as never,
         }}
       >

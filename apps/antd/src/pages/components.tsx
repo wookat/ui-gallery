@@ -96,6 +96,122 @@ const treeData = [
   },
 ]
 const countdownValue = 1893456000000
+const categories: Array<{ label: string; names: string[] }> = [
+  {
+    label: "排版",
+    names: ["Typography", "Kbd", "Code", "Divider", "Link"],
+  },
+  {
+    label: "按钮",
+    names: ["Button", "ButtonGroup", "IconButton", "FloatButton"],
+  },
+  {
+    label: "表单控件",
+    names: [
+      "Input",
+      "Textarea",
+      "NumberInput",
+      "Select",
+      "MultiSelect",
+      "Combobox",
+      "Autocomplete",
+      "Checkbox",
+      "Radio",
+      "Switch",
+      "Slider",
+      "Rating",
+      "DatePicker",
+      "TimePicker",
+      "DateRangePicker",
+      "ColorPicker",
+      "Upload",
+      "Cascader",
+      "Transfer",
+      "Mention",
+      "PinInput",
+      "Form",
+    ],
+  },
+  {
+    label: "数据展示",
+    names: [
+      "Table",
+      "DataGrid",
+      "Descriptions",
+      "List",
+      "Card",
+      "Avatar",
+      "AvatarGroup",
+      "Badge",
+      "Tag",
+      "Statistic",
+      "Timeline",
+      "Tree",
+      "Calendar",
+      "Image",
+      "Carousel",
+      "Empty",
+      "Tooltip",
+      "Popover",
+      "QRCode",
+      "Segmented",
+    ],
+  },
+  {
+    label: "反馈",
+    names: [
+      "Alert",
+      "Toast",
+      "Notification",
+      "Dialog",
+      "Drawer",
+      "Progress",
+      "Skeleton",
+      "Spinner",
+      "Result",
+      "Popconfirm",
+    ],
+  },
+  {
+    label: "导航",
+    names: [
+      "Menu",
+      "Dropdown",
+      "Breadcrumb",
+      "Tabs",
+      "Pagination",
+      "Steps",
+      "Anchor",
+      "BackTop",
+      "Affix",
+      "Navbar",
+      "Sidebar",
+      "CommandPalette",
+    ],
+  },
+  {
+    label: "布局",
+    names: [
+      "Grid",
+      "Stack",
+      "Layout",
+      "Container",
+      "AspectRatio",
+      "Resizable",
+      "ScrollArea",
+      "Accordion",
+    ],
+  },
+  { label: "其他", names: ["ThemeProvider", "Watermark", "Tour"] },
+]
+const categorized = new Set(categories.flatMap((group) => group.names))
+const indexGroups = [
+  ...categories,
+  {
+    label: "未分类",
+    names: contract.components.filter((name) => !categorized.has(name)),
+  },
+].filter((group) => group.names.length > 0)
 
 export function ComponentsPage() {
   return (
@@ -104,13 +220,36 @@ export function ComponentsPage() {
         title="组件全集"
         description="Ant Design 组件、状态与组合模式参考。"
       />
-      <Flex gap={8} wrap style={{ marginBottom: 24 }}>
-        {contract.components.map((name) => (
-          <Typography.Link key={name} href={`#component-${name}`}>
-            #{name}
-          </Typography.Link>
-        ))}
-      </Flex>
+      <Card size="small" style={{ marginBottom: 24 }} title="组件索引">
+        <Anchor
+          affix={false}
+          direction="horizontal"
+          targetOffset={80}
+          items={indexGroups.map((group) => ({
+            key: group.label,
+            href: `#component-${group.names[0]}`,
+            title: group.label,
+          }))}
+        />
+        <Collapse
+          ghost
+          size="small"
+          style={{ marginTop: 8 }}
+          items={indexGroups.map((group) => ({
+            key: group.label,
+            label: `${group.label}（${group.names.length}）`,
+            children: (
+              <Flex gap={8} wrap>
+                {group.names.map((name) => (
+                  <Typography.Link key={name} href={`#component-${name}`}>
+                    {name}
+                  </Typography.Link>
+                ))}
+              </Flex>
+            ),
+          }))}
+        />
+      </Card>
       <div className="component-grid">
         {contract.components.map((name) => (
           <Card
@@ -512,12 +651,12 @@ function Demo({ name }: { name: string }) {
         rowKey="id"
         rowSelection={{}}
         dataSource={orders.slice(0, 4)}
-        scroll={name === "DataGrid" ? { x: 700 } : undefined}
+        scroll={{ x: "max-content" }}
         columns={[
           {
             title: "订单号",
             dataIndex: "id",
-            fixed: name === "DataGrid" ? "left" : undefined,
+            fixed: "left",
             sorter: (a, b) => a.id.localeCompare(b.id),
             filters: [{ text: "订单", value: "ORD" }],
             onFilter: (value, record) => record.id.includes(String(value)),
@@ -951,11 +1090,11 @@ function Demo({ name }: { name: string }) {
       <Anchor
         affix={false}
         direction="horizontal"
-        items={[
-          { key: "a", href: "#anchor-a", title: "第一项" },
-          { key: "b", href: "#anchor-b", title: "第二项" },
-          { key: "c", href: "#anchor-c", title: "第三项" },
-        ]}
+        items={categories.map((group) => ({
+          key: group.label,
+          href: `#component-${group.names[0]}`,
+          title: group.label,
+        }))}
       />
     )
   if (name === "BackTop") return <FloatButton.BackTop visibilityHeight={200} />

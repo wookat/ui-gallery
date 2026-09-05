@@ -36,14 +36,33 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const current =
     nav.find((item) => item.path === location.pathname)?.label ?? "仪表盘"
-  const menuItems: MenuProps["items"] = nav.map((item) => ({
-    key: item.path,
-    icon: <Icon name={item.icon} />,
-    label: item.label,
-    onClick: () => {
-      navigate(item.path)
-      setMobileOpen(false)
-    },
+  const navGroups: Array<{ label: string; keys: string[] }> = [
+    { label: "工作区", keys: ["dashboard", "orders", "form", "chat"] },
+    { label: "资源", keys: ["components", "landing"] },
+    { label: "系统", keys: ["settings", "login"] },
+  ]
+  const menuItems: MenuProps["items"] = navGroups.map((group) => ({
+    type: "group",
+    key: group.label,
+    label: group.label,
+    children: nav
+      .filter((item) => group.keys.includes(item.key))
+      .map((item) => ({
+        key: item.path,
+        icon: <Icon name={item.icon} />,
+        label: item.badge ? (
+          <Flex justify="space-between" align="center">
+            <span>{item.label}</span>
+            <Badge count={item.badge} size="small" />
+          </Flex>
+        ) : (
+          item.label
+        ),
+        onClick: () => {
+          navigate(item.path)
+          setMobileOpen(false)
+        },
+      })),
   }))
   const toggleTheme = () => {
     const next = !dark
@@ -58,8 +77,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     window.dispatchEvent(new Event("themechange"))
   }
   const navigation = (
-    <Flex vertical style={{ height: "100%" }}>
-      <Flex align="center" justify="space-between" style={{ padding: 20 }}>
+    <Flex vertical style={{ height: "100%", minHeight: 0 }}>
+      <Flex
+        align="center"
+        justify="space-between"
+        style={{ padding: "16px 20px", flexShrink: 0 }}
+      >
         <Link
           to="/"
           style={{ color: "inherit", fontWeight: 700, fontSize: 18 }}
@@ -67,23 +90,31 @@ export function AppShell({ children }: { children: ReactNode }) {
           Acme Console
         </Link>
         <Button
+          className="desktop-only"
           type="text"
-          size="small"
           icon={<Icon name="chevron-left" />}
           onClick={() => setCollapsed((value) => !value)}
           aria-label="折叠导航"
         />
       </Flex>
-      <Menu
-        mode="inline"
-        selectedKeys={[location.pathname]}
-        items={menuItems}
-      />
-      <div style={{ marginTop: "auto", padding: 16 }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+        <Menu
+          mode="inline"
+          selectedKeys={[location.pathname]}
+          items={menuItems}
+          style={{ borderInlineEnd: 0 }}
+        />
+      </div>
+      <div style={{ padding: 16, flexShrink: 0 }}>
         <Card size="small">
           <Space>
             {avatar(team[0].name)}
-            <span>{team[0].name}</span>
+            <div>
+              <div>{team[0].name}</div>
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                {team[0].role}
+              </Typography.Text>
+            </div>
           </Space>
         </Card>
       </div>
@@ -118,6 +149,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Layout.Sider
+        theme="light"
         breakpoint="md"
         collapsedWidth={0}
         collapsible
@@ -125,6 +157,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         onCollapse={setCollapsed}
         trigger={null}
         width={248}
+        style={{
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          borderInlineEnd: `1px solid ${token.colorBorderSecondary}`,
+        }}
       >
         {navigation}
       </Layout.Sider>
@@ -142,6 +180,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="mobile-only"
             icon={<Icon name="menu" />}
             onClick={() => setMobileOpen(true)}
+            aria-label="打开导航"
+          />
+          <Button
+            className="desktop-only"
+            type="text"
+            icon={<Icon name="menu" />}
+            onClick={() => setCollapsed((value) => !value)}
+            aria-label="折叠导航"
           />
           <Breadcrumb
             items={[
@@ -176,9 +222,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               aria-label="切换主题"
             />
             <Dropdown menu={{ items: accountItems }} trigger={["click"]}>
-              <Avatar style={{ cursor: "pointer" }}>
-                {team[0].name.slice(0, 1)}
-              </Avatar>
+              <Button
+                type="text"
+                shape="circle"
+                aria-label="账号菜单"
+                icon={<Avatar size="small">{team[0].name.slice(0, 1)}</Avatar>}
+              />
             </Dropdown>
           </Space>
         </Layout.Header>

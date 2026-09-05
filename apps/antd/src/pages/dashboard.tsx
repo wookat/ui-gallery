@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import {
+  Button,
   Card,
   Col,
   Dropdown,
@@ -7,9 +8,11 @@ import {
   List,
   Progress,
   Row,
+  Skeleton,
   Space,
   Statistic,
   Table,
+  Tabs,
   Tag,
   Timeline,
   Typography,
@@ -76,6 +79,8 @@ function orderColumns(): Array<Record<string, unknown>> {
     {
       title: "操作",
       key: "action",
+      fixed: "right",
+      width: 72,
       render: () => (
         <Dropdown
           menu={{
@@ -85,44 +90,95 @@ function orderColumns(): Array<Record<string, unknown>> {
             ],
           }}
         >
-          <ButtonIcon name="more-horizontal" />
+          <Button
+            type="text"
+            icon={<Icon name="more-horizontal" />}
+            aria-label="更多操作"
+          />
         </Dropdown>
       ),
     },
   ]
 }
 
-function ButtonIcon({ name }: { name: string }) {
-  return (
-    <button className="icon-button" aria-label={name}>
-      <Icon name={name} />
-    </button>
-  )
-}
-
 export function DashboardPage() {
   const [loading, setLoading] = useState(true)
+  const [period, setPeriod] = useState("month")
   const { token } = theme.useToken()
   useEffect(() => {
+    if (!loading) return
     const timer = window.setTimeout(() => setLoading(false), 600)
     return () => window.clearTimeout(timer)
-  }, [])
+  }, [loading])
+  const periodTabs = (
+    <Tabs
+      size="small"
+      activeKey={period}
+      onChange={setPeriod}
+      items={[
+        { key: "day", label: "日" },
+        { key: "week", label: "周" },
+        { key: "month", label: "月" },
+      ]}
+    />
+  )
+  const header = (
+    <PageHeader
+      title="仪表盘"
+      description="查看业务健康度与团队进展。"
+      extra={
+        <Space wrap>
+          {periodTabs}
+          <Button
+            icon={<Icon name="refresh" />}
+            loading={loading}
+            onClick={() => setLoading(true)}
+          >
+            刷新
+          </Button>
+        </Space>
+      }
+    />
+  )
   if (loading)
     return (
-      <Space direction="vertical" style={{ width: "100%" }} size="large">
-        <SkeletonBlock />
-        <SkeletonBlock />
-        <SkeletonBlock />
-      </Space>
+      <>
+        {header}
+        <Row gutter={[16, 16]}>
+          {stats.map((stat) => (
+            <Col xs={24} sm={12} xl={6} key={stat.key}>
+              <Card>
+                <Skeleton active paragraph={{ rows: 2 }} />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col xs={24} xl={16}>
+            <Card>
+              <Skeleton active paragraph={{ rows: 6 }} />
+            </Card>
+          </Col>
+          <Col xs={24} xl={8}>
+            <Card>
+              <Skeleton active paragraph={{ rows: 6 }} />
+            </Card>
+          </Col>
+        </Row>
+        <Card style={{ marginTop: 16 }}>
+          <Skeleton active paragraph={{ rows: 4 }} />
+        </Card>
+      </>
     )
+  const divisor = period === "day" ? 30 : period === "week" ? 4 : 1
   const lineData = series.months.map((month, index) => ({
     month,
-    revenue: series.revenue[index],
-    orders: series.orders[index],
+    revenue: Math.round(series.revenue[index] / divisor),
+    orders: Math.round(series.orders[index] / divisor),
   }))
   return (
     <>
-      <PageHeader title="仪表盘" description="查看业务健康度与团队进展。" />
+      {header}
       <Row gutter={[16, 16]}>
         {stats.map((stat) => (
           <Col xs={24} sm={12} xl={6} key={stat.key}>
@@ -241,7 +297,7 @@ export function DashboardPage() {
             <Table
               rowKey="id"
               pagination={false}
-              scroll={{ x: 700 }}
+              scroll={{ x: "max-content" }}
               dataSource={orders.slice(0, 5)}
               columns={orderColumns() as never}
             />
@@ -287,8 +343,4 @@ export function DashboardPage() {
       </Card>
     </>
   )
-}
-
-function SkeletonBlock() {
-  return <Card loading style={{ minHeight: 160 }} />
 }

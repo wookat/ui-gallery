@@ -10,6 +10,7 @@ import {
   Collapse,
   Drawer,
   Flex,
+  Grid,
   Input,
   Layout,
   List,
@@ -23,6 +24,7 @@ import {
 import chat from "@ui-gallery/spec/mock/chat.json"
 import { Icon } from "@/icons"
 import { ChatShellHeader } from "@/layouts/app-shell"
+import { userLabel } from "@/pages/shared"
 
 export function ChatPage() {
   const [empty, setEmpty] = useState(false)
@@ -30,6 +32,15 @@ export function ChatPage() {
   const [drawer, setDrawer] = useState(false)
   const { message } = App.useApp()
   const { token } = theme.useToken()
+  const mobile = Grid.useBreakpoint().md === false
+  const modelSelect = (
+    <Select
+      defaultValue={chat.models[0]}
+      options={chat.models.map((model) => ({ value: model }))}
+      style={{ width: mobile ? "100%" : 160 }}
+      aria-label="模型"
+    />
+  )
   const recentConversations = chat.conversations.filter(
     (item) => item.time === "刚刚" || item.time === "昨天"
   )
@@ -117,6 +128,7 @@ export function ChatPage() {
                 className="mobile-only"
                 icon={<Icon name="menu" />}
                 onClick={() => setDrawer(true)}
+                aria-label="会话列表"
               />
             </Space>
           </Flex>
@@ -156,7 +168,19 @@ export function ChatPage() {
                     justify={item.role === "user" ? "end" : "start"}
                   >
                     <Avatar>{item.role === "user" ? "我" : "A"}</Avatar>
-                    <div style={{ maxWidth: "80%" }}>
+                    <div style={{ maxWidth: mobile ? "88%" : "80%", minWidth: 0 }}>
+                      <Flex
+                        gap={8}
+                        justify={item.role === "user" ? "end" : "start"}
+                        style={{ marginBottom: 4 }}
+                      >
+                        <Typography.Text style={{ fontSize: 12 }}>
+                          {item.role === "user" ? userLabel() : "AI 助手"}
+                        </Typography.Text>
+                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                          {chat.conversations[0].time}
+                        </Typography.Text>
+                      </Flex>
                       <Card
                         size="small"
                         style={{
@@ -215,22 +239,20 @@ export function ChatPage() {
               </Tag>
             ))}
           </Space>
-          <Space.Compact block>
-            <Button icon={<Icon name="paperclip" />} />
+          {mobile ? modelSelect : null}
+          <Space.Compact block className="chat-input-bar">
+            <Button icon={<Icon name="paperclip" />} aria-label="附件" />
             <Input.TextArea
               value={text}
               onChange={(event) => setText(event.target.value)}
               autoSize={{ minRows: 1, maxRows: 4 }}
               placeholder="输入消息..."
             />
-            <Select
-              defaultValue={chat.models[0]}
-              options={chat.models.map((model) => ({ value: model }))}
-              style={{ width: 140 }}
-            />
+            {mobile ? null : modelSelect}
             <Button
               type="primary"
               icon={<Icon name="send" />}
+              aria-label="发送"
               onClick={() => {
                 if (text) {
                   message.success("已发送")
@@ -238,7 +260,7 @@ export function ChatPage() {
                 }
               }}
             >
-              发送
+              {mobile ? null : "发送"}
             </Button>
           </Space.Compact>
           <Flex justify="space-between">

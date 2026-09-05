@@ -22,7 +22,7 @@ import {
 import landing from "@ui-gallery/spec/mock/landing.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import { Icon } from "@/icons"
-import { avatar, placeholder } from "@/pages/shared"
+import { avatar } from "@/pages/shared"
 
 const links = ["产品", "方案", "定价", "文档", "关于"]
 
@@ -32,29 +32,33 @@ export function LandingPage() {
   return (
     <div className="public-page">
       <Layout.Header className="landing-header">
-        <Typography.Title level={4} style={{ margin: 0 }}>
-          Acme Console
-        </Typography.Title>
-        <Menu
-          className="desktop-only"
-          mode="horizontal"
-          style={{ flex: 1, border: 0, background: "transparent" }}
-          items={links.map((label) => ({
-            key: label,
-            label: <a href={`#${label}`}>{label}</a>,
-          }))}
-        />
-        <Button
-          className="mobile-only"
-          icon={<Icon name="menu" />}
-          onClick={() => setDrawer(true)}
-        />
-        <Button
-          type="primary"
-          onClick={() => (window.location.href = "/apps/antd/login")}
-        >
-          免费开始
-        </Button>
+        <div className="landing-container">
+          <Typography.Title level={4} style={{ margin: 0 }}>
+            Acme Console
+          </Typography.Title>
+          <Menu
+            className="desktop-only"
+            mode="horizontal"
+            style={{ flex: 1, border: 0, background: "transparent" }}
+            items={links.map((label) => ({
+              key: label,
+              label: <a href={`#${label}`}>{label}</a>,
+            }))}
+          />
+          <Button
+            className="mobile-only"
+            icon={<Icon name="menu" />}
+            onClick={() => setDrawer(true)}
+            aria-label="打开菜单"
+            style={{ marginLeft: "auto" }}
+          />
+          <Button
+            type="primary"
+            onClick={() => (window.location.href = "/apps/antd/login")}
+          >
+            免费开始
+          </Button>
+        </div>
       </Layout.Header>
       <Drawer
         title="Acme Console"
@@ -67,7 +71,7 @@ export function LandingPage() {
           items={links.map((label) => ({ key: label, label }))}
         />
       </Drawer>
-      <main className="page landing-main">
+      <main className="landing-container landing-main">
         <section className="landing-section">
           <Row gutter={[32, 32]} align="middle">
             <Col xs={24} lg={13}>
@@ -96,11 +100,9 @@ export function LandingPage() {
             </Col>
             <Col xs={24} lg={11}>
               <Card>
-                <img
-                  alt="Acme Console preview"
-                  src={placeholder(720, 420, "Product preview")}
-                  style={{ width: "100%", display: "block" }}
-                />
+                <div className="landing-preview" role="img" aria-label="产品截图占位">
+                  <Icon name="layout-dashboard" size={40} />
+                </div>
               </Card>
             </Col>
           </Row>
@@ -139,10 +141,13 @@ export function LandingPage() {
               </Col>
               <Col xs={24} md={12} order={index % 2 === 0 ? 2 : 1}>
                 <Card>
-                  <Skeleton.Node
-                    active
-                    style={{ width: "100%", height: 180 }}
-                  />
+                  <div
+                    className="landing-preview compact"
+                    role="img"
+                    aria-label="功能截图占位"
+                  >
+                    <Icon name={feature.icon} size={36} />
+                  </div>
                 </Card>
               </Col>
             </Row>
@@ -226,6 +231,7 @@ export function LandingPage() {
         </Card>
       </main>
       <Layout.Footer>
+        <div className="landing-container">
         <Row gutter={[16, 16]}>
           <Col xs={12} md={6}>
             <Typography.Title level={5}>产品</Typography.Title>
@@ -272,6 +278,7 @@ export function LandingPage() {
             options={[{ value: "中文" }, { value: "English" }]}
           />
         </Flex>
+        </div>
       </Layout.Footer>
     </div>
   )

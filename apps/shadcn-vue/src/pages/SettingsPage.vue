@@ -1,0 +1,39 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import sessions from '@ui-gallery/spec/mock/sessions.json'
+import team from '@ui-gallery/spec/mock/team.json'
+import plans from '@ui-gallery/spec/mock/plans.json'
+import invoices from '@ui-gallery/spec/mock/invoices.json'
+import Icon from '@/components/Icon.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+
+const tab = ref('profile')
+</script>
+
+<template>
+  <div class="space-y-6">
+    <PageHeader title="设置" description="管理你的账户、团队与订阅设置。" />
+    <Tabs v-model="tab" class="grid gap-6 lg:grid-cols-[180px_minmax(0,1fr)]">
+      <TabsList class="h-auto w-full justify-start overflow-x-auto lg:flex-col lg:items-stretch"><TabsTrigger value="profile">个人资料</TabsTrigger><TabsTrigger value="security">安全</TabsTrigger><TabsTrigger value="notifications">通知</TabsTrigger><TabsTrigger value="team">团队</TabsTrigger><TabsTrigger value="billing">账单</TabsTrigger></TabsList>
+      <div class="min-w-0">
+        <TabsContent value="profile"><Card><CardHeader><CardTitle>个人资料</CardTitle><CardDescription>更新你的公开账户信息。</CardDescription></CardHeader><CardContent class="space-y-6"><div class="flex items-center gap-4"><Avatar class="size-16"><AvatarFallback class="text-xl">林</AvatarFallback></Avatar><div><p class="font-medium">林晓</p><p class="text-sm text-muted-foreground">admin@acme.dev</p></div><Button variant="outline" class="ml-auto">更换头像</Button></div><Separator /><div class="grid gap-4 sm:grid-cols-2"><label class="space-y-2 text-sm font-medium">姓名<Input model-value="林晓" /></label><label class="space-y-2 text-sm font-medium">邮箱<Input model-value="admin@acme.dev" /></label><label class="space-y-2 text-sm font-medium">时区<Select default-value="china"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="china">中国时区</SelectItem><SelectItem value="utc">UTC</SelectItem></SelectContent></Select></label><label class="space-y-2 text-sm font-medium">职位<Input model-value="产品负责人" /></label></div><Button>保存更改</Button></CardContent></Card></TabsContent>
+        <TabsContent value="security"><div class="grid gap-4"><Card><CardHeader><CardTitle>安全设置</CardTitle><CardDescription>保护你的账户与登录会话。</CardDescription></CardHeader><CardContent class="space-y-5"><div class="flex items-center justify-between rounded-lg border p-4"><div><p class="font-medium">双因素认证</p><p class="text-sm text-muted-foreground">登录时要求额外的验证码</p></div><Switch default-checked /></div><div class="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">二维码占位 · 使用身份验证器扫描</div><Dialog><DialogTrigger as-child><Button variant="outline">修改密码</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>修改密码</DialogTitle><DialogDescription>设置一个新的账户密码。</DialogDescription></DialogHeader><div class="space-y-3"><Input type="password" placeholder="当前密码" /><Input type="password" placeholder="新密码" /></div><DialogFooter><DialogClose as-child><Button variant="outline">取消</Button></DialogClose><Button>保存</Button></DialogFooter></DialogContent></Dialog></CardContent></Card><Card><CardHeader><CardTitle>登录会话</CardTitle></CardHeader><CardContent class="overflow-x-auto"><Table><TableHeader><TableRow><TableHead>设备</TableHead><TableHead>位置</TableHead><TableHead>状态</TableHead></TableRow></TableHeader><TableBody><TableRow v-for="session in sessions" :key="session.device"><TableCell>{{ session.device }}</TableCell><TableCell>{{ session.location }}</TableCell><TableCell><Badge>{{ session.current ? '当前会话' : '已登录' }}</Badge></TableCell></TableRow></TableBody></Table></CardContent></Card></div></TabsContent>
+        <TabsContent value="notifications"><Card><CardHeader><CardTitle>通知偏好</CardTitle><CardDescription>选择你希望接收的通知。</CardDescription></CardHeader><CardContent class="space-y-4"><div v-for="(label, index) in ['项目更新', '账单提醒', '团队活动', '产品新闻']" :key="label" class="flex items-center justify-between border-b pb-4 last:border-0"><div><p class="font-medium">{{ label }}</p><p class="text-sm text-muted-foreground">通过邮件接收重要提醒</p></div><Switch :default-checked="index < 3" /></div></CardContent></Card></TabsContent>
+        <TabsContent value="team"><Card><CardHeader><CardTitle>团队成员</CardTitle><CardDescription>管理团队访问权限。</CardDescription></CardHeader><CardContent class="overflow-x-auto"><Table><TableHeader><TableRow><TableHead>成员</TableHead><TableHead>角色</TableHead><TableHead>最近活跃</TableHead><TableHead class="text-right">操作</TableHead></TableRow></TableHeader><TableBody><TableRow v-for="member in team" :key="member.email"><TableCell><div class="flex items-center gap-2"><Avatar class="size-8"><AvatarFallback>{{ member.name.slice(0, 1) }}</AvatarFallback></Avatar>{{ member.name }}</div></TableCell><TableCell><Badge variant="secondary">{{ member.role }}</Badge></TableCell><TableCell>{{ member.lastActive }}</TableCell><TableCell class="text-right"><Button variant="ghost" size="sm"><Icon name="edit" /></Button></TableCell></TableRow></TableBody></Table><Button class="mt-4"><Icon name="plus" />邀请成员</Button></CardContent></Card></TabsContent>
+        <TabsContent value="billing"><div class="grid gap-4"><Card><CardHeader><CardTitle>订阅方案</CardTitle><CardDescription>当前与可用方案。</CardDescription></CardHeader><CardContent class="grid gap-3 sm:grid-cols-3"><div v-for="plan in plans" :key="plan.name" class="rounded-lg border p-4"><div class="flex items-center justify-between"><p class="font-medium">{{ plan.name }}</p><Badge v-if="plan.recommended">推荐</Badge></div><p class="mt-2 text-2xl font-semibold">{{ plan.price === null ? '定制' : plan.price === 0 ? '免费' : `¥${plan.price}` }}</p><p class="mt-2 text-sm text-muted-foreground">{{ plan.features.join(' · ') }}</p></div></CardContent></Card><Card><CardHeader><CardTitle>发票记录</CardTitle></CardHeader><CardContent class="overflow-x-auto"><Table><TableHeader><TableRow><TableHead>编号</TableHead><TableHead>日期</TableHead><TableHead>金额</TableHead></TableRow></TableHeader><TableBody><TableRow v-for="invoice in invoices" :key="invoice.id"><TableCell>{{ invoice.id }}</TableCell><TableCell>{{ invoice.date }}</TableCell><TableCell>¥{{ invoice.amount }}</TableCell></TableRow></TableBody></Table></CardContent></Card><Card class="border-destructive/50"><CardHeader><CardTitle>危险区</CardTitle><CardDescription>删除账户将永久移除全部数据。</CardDescription></CardHeader><CardContent><AlertDialog><AlertDialogTrigger as-child><Button variant="destructive">删除账户</Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>确定删除账户？</AlertDialogTitle><AlertDialogDescription>所有数据将被永久删除。</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>取消</AlertDialogCancel><AlertDialogAction>确认删除</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog></CardContent></Card></div></TabsContent>
+      </div>
+    </Tabs>
+  </div>
+</template>

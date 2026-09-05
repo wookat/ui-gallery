@@ -1,0 +1,23 @@
+{
+  "name": "@ui-gallery/icons-react",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.tsx"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@phosphor-icons/react": "^2.1.10",
+    "@tabler/icons-react": "^3.46.0",
+    "lucide-react": "^1.41.0",
+    "react": "^19.2.6"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "typescript": "~6"
+  }
+}

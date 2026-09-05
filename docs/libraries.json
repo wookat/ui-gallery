@@ -18,7 +18,7 @@
     { "slug": "semi-design", "name": "Semi Design", "framework": "react", "repo": "DouyinFE/semi-design", "pkg": "@douyinfe/semi-ui", "round": 1 },
     { "slug": "arco-design", "name": "Arco Design", "framework": "react", "repo": "arco-design/arco-design", "pkg": "@arco-design/web-react", "round": 1 },
     { "slug": "tdesign-react", "name": "TDesign React", "framework": "react", "repo": "Tencent/tdesign-react", "pkg": "tdesign-react", "round": 1 },
-    { "slug": "rsuite", "name": "React Suite", "framework": "react", "repo": "rsuite/rsuite", "pkg": "rsuite", "round": 1 },
+    { "slug": "rsuite", "name": "React Suite", "framework": "react", "repo": "rsuite/rsuite", "pkg": "rsuite", "round": 1, "status": "built" },
     { "slug": "react-bootstrap", "name": "React Bootstrap", "framework": "react", "repo": "react-bootstrap/react-bootstrap", "pkg": "react-bootstrap", "round": 1 },
 
     { "slug": "element-plus", "name": "Element Plus", "framework": "vue", "repo": "element-plus/element-plus", "pkg": "element-plus", "round": 1 },

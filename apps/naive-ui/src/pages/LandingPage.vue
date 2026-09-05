@@ -111,10 +111,10 @@ const language = ref("zh-CN")
         <NCollapseItem v-for="(q, i) in landing.faq" :key="q.q" :title="q.q" :name="String(i)"><NText depth="2">{{ q.a }}</NText></NCollapseItem>
       </NCollapse>
 
-      <NCard :bordered="false" :style="{ borderColor: themeVars.primaryColor, textAlign: 'center' }" content-style="padding: 48px 24px">
-        <NH2 style="margin-top: 0">{{ landing.hero.title }}</NH2>
-        <NP>{{ landing.hero.social }}</NP>
-        <NButton size="large" type="primary" tag="a" href="/apps/naive-ui/">{{ landing.hero.primary }}</NButton>
+      <NCard :bordered="false" :style="{ background: themeVars.primaryColor, textAlign: 'center' }" content-style="padding: 48px 24px">
+        <NH2 :style="{ color: themeVars.baseColor, marginTop: 0 }">{{ landing.hero.title }}</NH2>
+        <NP :style="{ color: themeVars.baseColor, opacity: 0.85 }">{{ landing.hero.social }}</NP>
+        <NButton size="large" :color="themeVars.baseColor" :text-color="themeVars.primaryColor" tag="a" href="/apps/naive-ui/">{{ landing.hero.primary }}</NButton>
       </NCard>
     </div>
     <NLayoutFooter bordered style="padding: 32px 20px">

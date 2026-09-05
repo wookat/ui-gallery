@@ -48,7 +48,7 @@ function onUserMenu(key: string) {
 <template>
   <NLayout has-sider style="min-height: 100vh">
     <NLayoutSider v-if="!isMobile" bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed" :native-scrollbar="false" content-style="display:flex;flex-direction:column;height:100%">
-        <div style="padding: 16px 20px; display: flex; align-items: center; gap: 10px">
+      <div style="padding: 16px 20px; display: flex; align-items: center; gap: 10px">
         <NAvatar :size="28" :color="themeVars.primaryColor" style="flex-shrink: 0">A</NAvatar>
         <NText v-if="!collapsed" strong style="white-space: nowrap">Acme Console</NText>
       </div>

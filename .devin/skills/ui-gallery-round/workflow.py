@@ -122,23 +122,41 @@ def merge_prompt(lib, built):
 
 
 merge_lock = asyncio.Lock()
+# 组织并发会话上限 100，其他会话也在占用；限制本工作流同时在跑的子会话数，并对 429 退避重试
+MAX_CONCURRENT = int(os.environ.get("UI_GALLERY_MAX_CONCURRENT", "12"))
+agent_slots = asyncio.Semaphore(MAX_CONCURRENT)
+
+
+async def run_agent(prompt, **kw):
+    delay = 120
+    for attempt in range(8):
+        async with agent_slots:
+            try:
+                return await agent(prompt, repos=[REPO_SLUG], **kw)
+            except WorkflowAgentError as e:
+                if "429" not in str(e) and "concurrent session limit" not in str(e):
+                    raise
+                log(f"[{kw.get('label')}] 429 concurrent limit, retry #{attempt + 1} in {delay}s")
+        await asyncio.sleep(delay)
+        delay = min(delay * 2, 900)
+    raise WorkflowAgentError(f"{kw.get('label')}: gave up after repeated 429")
 
 
 async def build(lib):
-    return await agent(build_prompt(lib), phase="build", schema=BUILD_SCHEMA, label=f"build-{lib['slug']}", repos=[REPO_SLUG], soft_time_limit_minutes=60)
+    return await run_agent(build_prompt(lib), phase="build", schema=BUILD_SCHEMA, label=f"build-{lib['slug']}", soft_time_limit_minutes=120)
 
 
 async def review(lib, built):
-    return await agent(review_prompt(lib, built), phase="review", schema=REVIEW_SCHEMA, label=f"review-{lib['slug']}", repos=[REPO_SLUG], soft_time_limit_minutes=30)
+    return await run_agent(review_prompt(lib, built), phase="review", schema=REVIEW_SCHEMA, label=f"review-{lib['slug']}", soft_time_limit_minutes=40)
 
 
 async def fix(lib, built, rev):
-    return await agent(fix_prompt(lib, built, rev), phase="fix", schema=FIX_SCHEMA, label=f"fix-{lib['slug']}", repos=[REPO_SLUG], soft_time_limit_minutes=45)
+    return await run_agent(fix_prompt(lib, built, rev), phase="fix", schema=FIX_SCHEMA, label=f"fix-{lib['slug']}", soft_time_limit_minutes=75)
 
 
 async def merge(lib, built):
     async with merge_lock:
-        return await agent(merge_prompt(lib, built), phase="merge", schema=MERGE_SCHEMA, label=f"merge-{lib['slug']}", repos=[REPO_SLUG], soft_time_limit_minutes=25)
+        return await run_agent(merge_prompt(lib, built), phase="merge", schema=MERGE_SCHEMA, label=f"merge-{lib['slug']}", soft_time_limit_minutes=40)
 
 
 async def run_lib(lib):

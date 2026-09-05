@@ -1,5 +1,6 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, inject, signal } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -47,33 +48,51 @@ export class DeleteOrderDialog {
   standalone: true,
   imports: SHARED_IMPORTS,
   template: `
-    <main class="page orders-page">
-      <header class="page-header">
-        <div><p class="eyebrow">OPERATIONS</p><h1>订单</h1><p class="muted">搜索、筛选和管理所有订单。</p></div>
-        <div class="demo-row"><button mat-stroked-button><mat-icon svgIcon="download"></mat-icon>导出</button><button mat-flat-button color="primary"><mat-icon svgIcon="plus"></mat-icon>新建订单</button></div>
-      </header>
+    <mat-sidenav-container class="orders-container" hasBackdrop="true">
+      <mat-sidenav #drawer position="end" mode="over" fixedInViewport [opened]="!!selectedOrder" (closed)="selectedOrder = undefined" class="details-drawer">
+        @if (selectedOrder; as order) {
+          <div class="drawer-header"><h2>{{ order.id }}</h2><button mat-icon-button (click)="drawer.close()"><mat-icon svgIcon="close"></mat-icon></button></div>
+          <div class="stack drawer-content"><span class="status status-success">{{ statusLabel(order.status) }}</span><mat-list><mat-list-item><span matListItemTitle>客户</span><span matListItemLine>{{ order.customer }} · {{ order.email }}</span></mat-list-item><mat-list-item><span matListItemTitle>产品</span><span matListItemLine>{{ order.product }}</span></mat-list-item><mat-list-item><span matListItemTitle>金额</span><span matListItemLine>¥{{ order.amount.toLocaleString() }}</span></mat-list-item><mat-list-item><span matListItemTitle>日期 / 渠道</span><span matListItemLine>{{ order.date }} · {{ order.channel }}</span></mat-list-item></mat-list><mat-tab-group><mat-tab label="详情"><p class="muted">订单已通过风控检查，发票将于付款完成后发送。</p></mat-tab><mat-tab label="备注"><mat-form-field appearance="outline" class="full"><mat-label>添加备注</mat-label><textarea matInput rows="4"></textarea></mat-form-field></mat-tab></mat-tab-group></div>
+        }
+      </mat-sidenav>
+      <mat-sidenav-content>
+        <main class="page orders-page">
+          <header class="page-header">
+            <div><p class="eyebrow">OPERATIONS</p><h1>订单</h1><p class="muted">搜索、筛选和管理所有订单。</p></div>
+            <div class="demo-row"><button mat-stroked-button><mat-icon svgIcon="download"></mat-icon>导出</button><button mat-flat-button color="primary"><mat-icon svgIcon="plus"></mat-icon>新建订单</button></div>
+          </header>
 
-      <mat-card class="filter-card">
-        <mat-card-content class="filters">
-          <mat-form-field appearance="outline" class="filter-search"><mat-label>搜索订单</mat-label><mat-icon matPrefix svgIcon="search"></mat-icon><input matInput [formControl]="search" placeholder="订单号、客户或邮箱"></mat-form-field>
-          <mat-form-field appearance="outline"><mat-label>状态</mat-label><mat-select [formControl]="status"><mat-option value="all">全部状态</mat-option>@for (item of statusOptions; track item.value) {<mat-option [value]="item.value">{{ item.label }}</mat-option>}</mat-select></mat-form-field>
-          <mat-form-field appearance="outline" class="date-field"><mat-label>日期范围</mat-label><mat-date-range-input [rangePicker]="picker"><input matStartDate [formControl]="dateStart" placeholder="开始日期"><input matEndDate [formControl]="dateEnd" placeholder="结束日期"></mat-date-range-input><mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle><mat-date-range-picker #picker></mat-date-range-picker></mat-form-field>
-          <mat-form-field appearance="outline"><mat-label>渠道</mat-label><mat-select [formControl]="channels" multiple><mat-select-trigger>{{ channelSummary() }}</mat-select-trigger>@for (channel of channelOptions; track channel) {<mat-option [value]="channel">{{ channel }}</mat-option>}</mat-select></mat-form-field>
-          <button mat-icon-button [matMenuTriggerFor]="columnsMenu" matTooltip="显示列" aria-label="显示列"><mat-icon svgIcon="tune"></mat-icon></button>
-          <mat-menu #columnsMenu="matMenu"><div class="menu-title">显示列</div>@for (column of allColumns; track column.key) {<button mat-menu-item (click)="$event.stopPropagation()"><mat-checkbox [checked]="visibleColumns.includes(column.key)" (click)="$event.stopPropagation()" (change)="toggleColumn(column.key)">{{ column.label }}</mat-checkbox></button>}</mat-menu>
-        </mat-card-content>
-      </mat-card>
+          <mat-card class="filter-card">
+            <mat-card-content class="filters">
+              <mat-form-field appearance="outline" class="filter-search"><mat-label>搜索订单</mat-label><mat-icon matPrefix svgIcon="search"></mat-icon><input matInput [formControl]="search" placeholder="订单号、客户或邮箱"></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>状态</mat-label><mat-select [formControl]="status"><mat-option value="all">全部状态</mat-option>@for (item of statusOptions; track item.value) {<mat-option [value]="item.value">{{ item.label }}</mat-option>}</mat-select></mat-form-field>
+              <mat-form-field appearance="outline" class="date-field"><mat-label>日期范围</mat-label><mat-date-range-input [rangePicker]="picker"><input matStartDate [formControl]="dateStart" placeholder="开始日期"><input matEndDate [formControl]="dateEnd" placeholder="结束日期"></mat-date-range-input><mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle><mat-date-range-picker #picker></mat-date-range-picker></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>渠道</mat-label><mat-select [formControl]="channels" multiple><mat-select-trigger>{{ channelSummary() }}</mat-select-trigger>@for (channel of channelOptions; track channel) {<mat-option [value]="channel">{{ channel }}</mat-option>}</mat-select></mat-form-field>
+              <button mat-icon-button [matMenuTriggerFor]="columnsMenu" matTooltip="显示列" aria-label="显示列"><mat-icon svgIcon="tune"></mat-icon></button>
+              <mat-menu #columnsMenu="matMenu"><div class="menu-title">显示列</div>@for (column of allColumns; track column.key) {<button mat-menu-item (click)="$event.stopPropagation()"><mat-checkbox [checked]="visibleColumns.includes(column.key)" (click)="$event.stopPropagation()" (change)="toggleColumn(column.key)">{{ column.label }}</mat-checkbox></button>}</mat-menu>
+            </mat-card-content>
+          </mat-card>
 
-      @if (state === 'loading') {
-        <mat-card class="state-card"><mat-progress-spinner mode="indeterminate" diameter="44"></mat-progress-spinner><h2>正在加载订单</h2><p class="muted">请稍候，订单数据马上就绪。</p></mat-card>
-      } @else if (state === 'error') {
-        <mat-card class="state-card error-state"><mat-icon svgIcon="error"></mat-icon><h2>订单加载失败</h2><p class="muted">暂时无法获取订单数据。</p><button mat-stroked-button (click)="retry()">重试</button></mat-card>
-      } @else if (filteredRows.length === 0 || state === 'empty') {
-        <mat-card class="state-card"><mat-icon svgIcon="inbox"></mat-icon><h2>没有找到订单</h2><p class="muted">试试调整筛选条件，或创建一笔新订单。</p><button mat-flat-button color="primary" (click)="resetFilters()">清除筛选</button></mat-card>
-      } @else {
-        <mat-card class="table-card">
-          <mat-card-content class="table-wrap">
-            <table mat-table [dataSource]="dataSource" matSort>
+          @if (state === 'loading') {
+            <mat-card class="state-card"><mat-progress-spinner mode="indeterminate" diameter="44"></mat-progress-spinner><h2>正在加载订单</h2><p class="muted">请稍候，订单数据马上就绪。</p></mat-card>
+          } @else if (state === 'error') {
+            <mat-card class="state-card error-state"><mat-icon svgIcon="error"></mat-icon><h2>订单加载失败</h2><p class="muted">暂时无法获取订单数据。</p><button mat-stroked-button (click)="retry()">重试</button></mat-card>
+          } @else if (filteredRows.length === 0 || state === 'empty') {
+            <mat-card class="state-card"><mat-icon svgIcon="inbox"></mat-icon><h2>没有找到订单</h2><p class="muted">试试调整筛选条件，或创建一笔新订单。</p><button mat-flat-button color="primary" (click)="resetFilters()">清除筛选</button></mat-card>
+          } @else {
+            <mat-card class="table-card">
+              @if (mobile()) {
+                <mat-card-content class="order-cards">
+                  @for (row of pagedRows(); track row.id) {
+                    <mat-card class="order-card" (click)="openDetails(row)">
+                      <div class="order-card-top"><mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)" [attr.aria-label]="'选择 ' + row.id"></mat-checkbox><div><b>{{ row.id }}</b><small class="sub-info">{{ row.date }}</small></div><span class="amount">¥{{ row.amount.toLocaleString() }}</span><button mat-icon-button [matMenuTriggerFor]="mobileRowMenu" (click)="$event.stopPropagation()" aria-label="订单操作"><mat-icon svgIcon="more-vertical"></mat-icon></button><mat-menu #mobileRowMenu="matMenu"><button mat-menu-item (click)="edit(row)"><mat-icon svgIcon="edit"></mat-icon>编辑</button><button mat-menu-item (click)="remove(row)"><mat-icon svgIcon="trash"></mat-icon>删除</button></mat-menu></div>
+                      <div class="order-card-customer"><span class="avatar">{{ row.customer.slice(0, 1) }}</span><span>{{ row.customer }}</span><span class="status" [class.status-success]="row.status === 'paid'">{{ statusLabel(row.status) }}</span></div>
+                    </mat-card>
+                  }
+                </mat-card-content>
+              } @else {
+                <mat-card-content class="table-wrap">
+                  <table mat-table [dataSource]="dataSource" matSort>
               <ng-container matColumnDef="select"><th mat-header-cell *matHeaderCellDef><mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()" aria-label="全选订单"></mat-checkbox></th><td mat-cell *matCellDef="let row"><mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)" aria-label="选择订单"></mat-checkbox></td></ng-container>
               <ng-container matColumnDef="id"><th mat-header-cell *matHeaderCellDef mat-sort-header>订单号</th><td mat-cell *matCellDef="let row"><span class="cell-primary">{{ row.id }}</span><small class="sub-info">{{ row.date }}</small></td></ng-container>
               <ng-container matColumnDef="customer"><th mat-header-cell *matHeaderCellDef mat-sort-header>客户</th><td mat-cell *matCellDef="let row"><div class="row"><span class="avatar">{{ row.customer.slice(0, 1) }}</span><span><span class="cell-primary">{{ row.customer }}</span><small class="sub-info">{{ row.email }}</small></span></div></td></ng-container>
@@ -83,22 +102,15 @@ export class DeleteOrderDialog {
               <ng-container matColumnDef="channel"><th mat-header-cell *matHeaderCellDef>渠道</th><td mat-cell *matCellDef="let row">{{ row.channel }}</td></ng-container>
               <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef></th><td mat-cell *matCellDef="let row"><button mat-icon-button [matMenuTriggerFor]="rowMenu" (click)="$event.stopPropagation()" aria-label="订单操作"><mat-icon svgIcon="more-vertical"></mat-icon></button><mat-menu #rowMenu="matMenu"><button mat-menu-item (click)="edit(row)"><mat-icon svgIcon="edit"></mat-icon>编辑</button><button mat-menu-item (click)="remove(row)"><mat-icon svgIcon="trash"></mat-icon>删除</button></mat-menu></td></ng-container>
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr><tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="openDetails(row)"></tr>
-            </table>
-          </mat-card-content>
-          <mat-card-actions class="table-footer"><span class="muted">{{ selection.selected.length ? '已选择 ' + selection.selected.length + ' 项' : '共 ' + filteredRows.length + ' 条订单' }}</span><mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator></mat-card-actions>
-        </mat-card>
-      }
-
-      <mat-sidenav-container class="details-container">
-        <mat-sidenav #drawer position="end" mode="over" [opened]="!!selectedOrder" (closed)="selectedOrder = undefined" class="details-drawer">
-          @if (selectedOrder; as order) {
-            <div class="drawer-header"><h2>{{ order.id }}</h2><button mat-icon-button (click)="drawer.close()"><mat-icon svgIcon="close"></mat-icon></button></div>
-            <div class="stack drawer-content"><span class="status status-success">{{ statusLabel(order.status) }}</span><mat-list><mat-list-item><span matListItemTitle>客户</span><span matListItemLine>{{ order.customer }} · {{ order.email }}</span></mat-list-item><mat-list-item><span matListItemTitle>产品</span><span matListItemLine>{{ order.product }}</span></mat-list-item><mat-list-item><span matListItemTitle>金额</span><span matListItemLine>¥{{ order.amount.toLocaleString() }}</span></mat-list-item><mat-list-item><span matListItemTitle>日期 / 渠道</span><span matListItemLine>{{ order.date }} · {{ order.channel }}</span></mat-list-item></mat-list><mat-tab-group><mat-tab label="详情"><p class="muted">订单已通过风控检查，发票将于付款完成后发送。</p></mat-tab><mat-tab label="备注"><mat-form-field appearance="outline" class="full"><mat-label>添加备注</mat-label><textarea matInput rows="4"></textarea></mat-form-field></mat-tab></mat-tab-group></div>
+                  </table>
+                </mat-card-content>
+              }
+              <mat-card-actions class="table-footer"><span class="muted">{{ selection.selected.length ? '已选择 ' + selection.selected.length + ' 项' : '共 ' + filteredRows.length + ' 条订单' }}</span><mat-paginator [pageSizeOptions]="[10, 25, 50]" [showFirstLastButtons]="!mobile()"></mat-paginator></mat-card-actions>
+            </mat-card>
           }
-        </mat-sidenav>
-        <mat-sidenav-content></mat-sidenav-content>
-      </mat-sidenav-container>
-    </main>
+        </main>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
   `,
 })
 export class OrdersPage implements AfterViewInit {
@@ -106,6 +118,7 @@ export class OrdersPage implements AfterViewInit {
   @ViewChild(MatSort) sort?: MatSort;
 
   readonly dataSource = new MatTableDataSource<Order>(orders);
+  readonly mobile = signal(false);
   readonly selection = new SelectionModel<Order>(true, []);
   readonly search = new FormControl('');
   readonly status = new FormControl('all');
@@ -123,11 +136,14 @@ export class OrdersPage implements AfterViewInit {
   ] as const;
   visibleColumns: OrderColumnKey[] = this.allColumns.map((column) => column.key);
   selectedOrder?: Order;
+  private readonly pageChange = signal(0);
   readonly state = new URLSearchParams(window.location.search).get('state') as 'empty' | 'loading' | 'error' | null;
+  private readonly breakpoint = inject(BreakpointObserver);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
   constructor() {
+    this.breakpoint.observe('(max-width: 599px)').subscribe((state) => this.mobile.set(state.matches));
     this.search.valueChanges.subscribe(() => this.applyFilters());
     this.status.valueChanges.subscribe(() => this.applyFilters());
     this.channels.valueChanges.subscribe(() => this.applyFilters());
@@ -140,6 +156,13 @@ export class OrdersPage implements AfterViewInit {
     return this.dataSource.filteredData;
   }
 
+  pagedRows(): Order[] {
+    this.pageChange();
+    const pageIndex = this.paginator?.pageIndex ?? 0;
+    const pageSize = this.paginator?.pageSize ?? 10;
+    return this.filteredRows.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
+  }
+
   get displayedColumns(): string[] {
     return ['select', ...this.visibleColumns, 'actions'];
   }
@@ -147,6 +170,7 @@ export class OrdersPage implements AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator ?? null;
     this.dataSource.sort = this.sort ?? null;
+    this.paginator?.page.subscribe(() => this.pageChange.update((value) => value + 1));
   }
 
   isAllSelected(): boolean {

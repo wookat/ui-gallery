@@ -1,0 +1,79 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/noto-sans-sc';
+@import 'lxgw-wenkai-screen-webfont/style.css';
+
+:root {
+  --ui-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body,
+.ant-typography,
+.ant-btn,
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-menu,
+.ant-layout,
+.ant-card,
+.ant-table,
+.ant-form,
+.ant-dropdown-menu,
+.ant-popover {
+  font-family: var(--ui-font);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
+
+.page-content {
+  min-width: 0;
+}
+
+.chart {
+  width: 100%;
+  min-width: 0;
+  height: 280px;
+}
+
+.sparkline {
+  height: 48px;
+  width: 100%;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.dashboard-grid > * {
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .page-content {
+    padding: 16px !important;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart {
+    height: 230px;
+  }
+}

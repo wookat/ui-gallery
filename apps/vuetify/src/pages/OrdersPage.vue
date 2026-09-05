@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { useRoute } from "vue-router"
+import { useTheme } from "vuetify"
 import orders from "@ui-gallery/spec/mock/orders.json"
 import Icon from "@/components/Icon.vue"
 
 const route = useRoute()
+const theme = useTheme()
 const search = ref("")
 const status = ref("全部")
 const channel = ref<string[]>([])
@@ -13,6 +15,8 @@ const drawer = ref(false)
 const confirm = ref(false)
 const snackbar = ref(false)
 const selectedOrder = ref<(typeof orders)[number] | null>(null)
+const page = ref(1)
+const pageSize = 10
 const columns = ref({ id: true, customer: true, amount: true, status: true, date: true, actions: true })
 const states = ["全部", "paid", "pending", "refunded", "failed", "shipped"]
 const channels = ["web", "ios", "android", "api"]
@@ -25,9 +29,11 @@ const headers = computed(() => [
   { title: "", key: "actions", sortable: false, visible: columns.value.actions },
 ].filter((item) => item.visible))
 const filtered = computed(() => orders.filter((item) => (!search.value || `${item.id} ${item.customer} ${item.email}`.toLowerCase().includes(search.value.toLowerCase())) && (status.value === "全部" || item.status === status.value) && (!channel.value.length || channel.value.includes(item.channel))))
-const statusColor = (value: string) => ({ paid: "success", pending: "warning", refunded: "info", failed: "error", shipped: "primary" }[value] ?? "secondary")
+const paged = computed(() => filtered.value.slice((page.value - 1) * pageSize, page.value * pageSize))
+const statusColor = (value: string) => ({ paid: theme.global.current.value.dark ? "success" : "success-darken-2", pending: theme.global.current.value.dark ? "warning" : "warning-darken-3", refunded: theme.global.current.value.dark ? "info-lighten-1" : "info-darken-2", failed: "error", shipped: "primary" }[value] ?? "secondary")
 const statusLabel = (value: string) => ({ paid: "已支付", pending: "处理中", refunded: "已退款", failed: "失败", shipped: "已发货" }[value] ?? value)
 const money = (value: number) => new Intl.NumberFormat("zh-CN").format(value)
+watch(filtered, () => { page.value = 1 })
 function openOrder(_: Event, row: { item: (typeof orders)[number] }) {
   selectedOrder.value = row.item
   drawer.value = true
@@ -63,11 +69,12 @@ function removeOrder() {
         </div>
         <div class="d-sm-none">
           <v-list lines="two">
-            <v-list-item v-for="item in filtered" :key="item.id" :title="item.id" :subtitle="`${item.customer} · ${item.email}`" @click="openOrder($event, { item })">
+            <v-list-item v-for="item in paged" :key="item.id" :title="item.id" :subtitle="`${item.customer} · ${item.email}`" @click="openOrder($event, { item })">
               <template #prepend><v-avatar size="32" color="primary" variant="tonal">{{ item.customer.slice(0, 1) }}</v-avatar></template>
               <template #append><div class="text-right"><div class="font-weight-medium">¥{{ money(item.amount) }}</div><v-chip size="x-small" :color="statusColor(item.status)" variant="tonal">{{ statusLabel(item.status) }}</v-chip></div></template>
             </v-list-item>
           </v-list>
+          <div class="d-flex justify-center pa-2"><v-pagination v-model="page" :length="Math.ceil(filtered.length / pageSize)" density="comfortable" :total-visible="5" /></div>
         </div>
       </v-card>
     </template>

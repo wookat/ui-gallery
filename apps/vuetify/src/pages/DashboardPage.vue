@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { useRoute } from "vue-router"
+import { useTheme } from "vuetify"
 import stats from "@ui-gallery/spec/mock/stats.json"
 import series from "@ui-gallery/spec/mock/series.json"
 import orders from "@ui-gallery/spec/mock/orders.json"
@@ -9,9 +10,10 @@ import tasks from "@ui-gallery/spec/mock/tasks.json"
 import Icon from "@/components/Icon.vue"
 
 const route = useRoute()
+const theme = useTheme()
 const period = ref("月")
 const state = computed(() => route.query.state)
-const statusColor = (status: string) => ({ paid: "success", pending: "warning", refunded: "info", failed: "error", shipped: "primary" }[status] ?? "secondary")
+const statusColor = (status: string) => ({ paid: theme.global.current.value.dark ? "success" : "success-darken-2", pending: theme.global.current.value.dark ? "warning" : "warning-darken-3", refunded: theme.global.current.value.dark ? "info-lighten-1" : "info-darken-2", failed: "error", shipped: "primary" }[status] ?? "secondary")
 const statusLabel = (status: string) => ({ paid: "已支付", pending: "处理中", refunded: "已退款", failed: "失败", shipped: "已发货" }[status] ?? status)
 const money = (value: number) => new Intl.NumberFormat("zh-CN").format(value)
 </script>
@@ -30,14 +32,14 @@ const money = (value: number) => new Intl.NumberFormat("zh-CN").format(value)
     <template v-else>
       <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-6">
         <div><h1 class="text-h5 text-sm-h4">仪表盘</h1><p class="text-body-2 text-medium-emphasis mt-1">欢迎回来，查看团队今天的业务表现。</p></div>
-        <v-btn-toggle v-model="period" mandatory divided density="comfortable"><v-btn value="日">日</v-btn><v-btn value="周">周</v-btn><v-btn value="月">月</v-btn></v-btn-toggle>
+        <v-btn-toggle v-model="period" mandatory divided density="comfortable" color="primary"><v-btn value="日">日</v-btn><v-btn value="周">周</v-btn><v-btn value="月">月</v-btn></v-btn-toggle>
       </div>
       <v-row>
         <v-col v-for="item in stats" :key="item.key" cols="12" sm="6" lg="3">
           <v-card height="100%" class="pa-4">
             <div class="d-flex justify-space-between align-start">
               <span class="text-body-2 text-medium-emphasis">{{ item.label }}</span>
-              <v-chip size="small" :color="item.delta >= 0 ? 'success' : 'error'" variant="tonal">
+              <v-chip size="small" :color="item.delta >= 0 ? (theme.global.current.value.dark ? 'success' : 'success-darken-2') : 'error'" variant="tonal">
                 <Icon :name="item.delta >= 0 ? 'trending-up' : 'trending-down'" size="14" />{{ Math.abs(item.delta) }}%
               </v-chip>
             </div>

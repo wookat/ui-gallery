@@ -48,7 +48,7 @@ function go(key: string) {
             <template #icon><Icon :name="nav.find((item) => item.key === key)?.icon ?? 'circle-help'" /></template>
             <span class="between">
               {{ nav.find((item) => item.key === key)?.label }}
-              <a-badge v-if="nav.find((item) => item.key === key)?.badge" :count="nav.find((item) => item.key === key)?.badge" :offset="[0, 0]" />
+              <a-badge v-if="nav.find((item) => item.key === key)?.badge" :count="nav.find((item) => item.key === key)?.badge" :offset="[0, 0]" :color="'rgb(var(--red-7))'" />
             </span>
           </a-menu-item>
         </a-sub-menu>

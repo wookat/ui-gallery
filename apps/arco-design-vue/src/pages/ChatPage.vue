@@ -122,6 +122,7 @@ function send() {
           <div class="chat-bubble-wrap">
             <div class="chat-bubble">
               <template v-for="(block, blockIndex) in splitBlocks(message.content)" :key="blockIndex">
+                <!-- eslint-disable-next-line vue/no-v-html -->
                 <div v-if="block.type === 'markdown'" class="markdown" v-html="render(block.content)" />
                 <div v-else-if="block.type === 'table'" class="scroll-x" style="margin: 8px 0">
                   <a-table :columns="block.header!.map((title, i) => ({ title, dataIndex: String(i) }))" :data="block.rows!.map((row) => Object.fromEntries(row.map((cell, i) => [String(i), cell])))" :pagination="false" size="small" />

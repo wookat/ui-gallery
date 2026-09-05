@@ -13,6 +13,7 @@ import StatusTag from "@/components/StatusTag.vue"
 import { coverage } from "@/coverage"
 import { Icon } from "@/lib/icons"
 import { theme } from "@/lib/settings"
+import { useIsMobile } from "@/lib/useIsMobile"
 
 const names = contract.components
 const counts = computed(() => ({
@@ -39,6 +40,7 @@ const mention = ref("")
 const pin = ref("")
 const cascader = ref("")
 const autoValue = ref("")
+const isMobile = useIsMobile()
 
 const paletteItems = computed(() => nav.filter((item) => item.label.includes(paletteQuery.value) || item.key.includes(paletteQuery.value.toLowerCase())))
 
@@ -145,7 +147,7 @@ function notify() {
         </DemoBlock>
 
         <DemoBlock name="Input" arco="a-input">
-          <div class="block grid grid-2">
+          <div class="block grid grid-2 slider-demo">
             <a-input placeholder="默认" allow-clear />
             <a-input placeholder="带前后缀" allow-clear><template #prefix><Icon name="search" /></template><template #suffix><Icon name="info" /></template></a-input>
             <a-input placeholder="前置 / 后置标签"><template #prepend>https://</template><template #append>.acme.dev</template></a-input>
@@ -296,8 +298,8 @@ function notify() {
         </DemoBlock>
 
         <DemoBlock name="Transfer" arco="a-transfer">
-          <a-transfer v-model="transferValue" :data="transferData" :title="['候选成员', '已选成员']" show-search />
-          <a-transfer :data="transferData" :default-value="['0']" simple />
+          <a-transfer class="transfer-demo" v-model="transferValue" :data="transferData" :title="['候选成员', '已选成员']" show-search />
+          <a-transfer class="transfer-demo" :data="transferData" :default-value="['0']" simple />
         </DemoBlock>
 
         <DemoBlock name="Mention" arco="a-mention">
@@ -425,7 +427,7 @@ function notify() {
         </DemoBlock>
 
         <DemoBlock name="Calendar" arco="a-calendar">
-          <a-calendar class="block" :default-value="new Date(2026, 8, 5)" />
+          <a-calendar class="block calendar-demo" :default-value="new Date(2026, 8, 5)" />
           <a-calendar class="block" panel :default-value="new Date(2026, 8, 5)" style="max-width: 320px" />
         </DemoBlock>
 
@@ -511,7 +513,7 @@ function notify() {
 
         <DemoBlock name="Dialog" arco="a-modal">
           <a-button type="primary" @click="dialog = true">打开对话框</a-button>
-          <a-modal v-model:visible="dialog" title="确认发布" @ok="dialog = false">
+          <a-modal v-model:visible="dialog" title="确认发布" @ok="dialog = false" modal-class="demo-modal">
             <p>发布后所有成员都会收到通知，是否继续？</p>
             <a-alert type="warning" style="margin-top: 8px">该操作会触发 Webhook。</a-alert>
           </a-modal>
@@ -627,7 +629,7 @@ function notify() {
         </DemoBlock>
 
         <DemoBlock name="Pagination" arco="a-pagination">
-          <a-pagination class="block" :total="200" show-total show-jumper show-page-size />
+          <a-pagination class="block" :total="200" :simple="isMobile" :show-total="!isMobile" :show-jumper="!isMobile" :show-page-size="!isMobile" />
           <a-pagination class="block" :total="50" simple />
           <a-pagination class="block" :total="50" size="mini" />
           <a-pagination class="block" :total="50" size="small" />
@@ -636,11 +638,11 @@ function notify() {
         </DemoBlock>
 
         <DemoBlock name="Steps" arco="a-steps">
-          <a-steps class="block" :current="2"><a-step description="填写基础信息">基础信息</a-step><a-step description="配置成员与预算">详细配置</a-step><a-step description="确认并提交">确认</a-step></a-steps>
+          <a-steps class="block" :current="2" :direction="isMobile ? 'vertical' : 'horizontal'"><a-step description="填写基础信息">基础信息</a-step><a-step description="配置成员与预算">详细配置</a-step><a-step description="确认并提交">确认</a-step></a-steps>
           <a-steps class="block" :current="2" status="error" small><a-step>已完成</a-step><a-step>出错</a-step><a-step>等待</a-step></a-steps>
           <a-steps class="block" type="dot" :current="2"><a-step>Dot 一</a-step><a-step>Dot 二</a-step><a-step>Dot 三</a-step></a-steps>
           <a-steps class="block" type="arrow" :current="2" small><a-step>Arrow 一</a-step><a-step>Arrow 二</a-step><a-step>Arrow 三</a-step></a-steps>
-          <a-steps type="navigation" :current="1" style="max-width: 480px"><a-step>Nav 一</a-step><a-step>Nav 二</a-step><a-step>Nav 三</a-step></a-steps>
+          <a-steps type="navigation" :current="1" style="width: 100%; max-width: 480px"><a-step>Nav 一</a-step><a-step>Nav 二</a-step><a-step>Nav 三</a-step></a-steps>
           <a-steps direction="vertical" :current="2" style="height: 160px"><a-step description="垂直步骤">完成</a-step><a-step>进行中</a-step><a-step>等待</a-step></a-steps>
         </DemoBlock>
 
@@ -707,7 +709,7 @@ function notify() {
           <a-row class="block" :gutter="[12, 12]">
             <a-col v-for="span in [24, 12, 12, 8, 8, 8, 6, 6, 6, 6]" :key="`${span}-${Math.random()}`" :span="span"><div class="grid-cell">span {{ span }}</div></a-col>
           </a-row>
-          <a-row class="block" :gutter="12"><a-col :xs="24" :sm="12" :md="8" :lg="6"><div class="grid-cell">响应式</div></a-col><a-col :xs="24" :sm="12" :md="8" :lg="6"><div class="grid-cell">xs/sm/md/lg</div></a-col><a-col :xs="24" :sm="12" :md="8" :lg="6" :offset="6"><div class="grid-cell">offset 6</div></a-col></a-row>
+          <a-row class="block grid-offset-demo" :gutter="12"><a-col :xs="24" :sm="12" :md="8" :lg="6"><div class="grid-cell">响应式</div></a-col><a-col :xs="24" :sm="12" :md="8" :lg="6"><div class="grid-cell">xs/sm/md/lg</div></a-col><a-col :xs="24" :sm="12" :md="8" :lg="6" :offset="6"><div class="grid-cell">offset 6</div></a-col></a-row>
           <a-grid class="block" :cols="{ xs: 1, sm: 2, md: 3 }" :col-gap="12" :row-gap="12"><a-grid-item v-for="n in 3" :key="n"><div class="grid-cell">a-grid {{ n }}</div></a-grid-item></a-grid>
         </DemoBlock>
 
@@ -875,6 +877,25 @@ createApp(App).use(ArcoVue).mount("#app")</pre></a-typography-paragraph>
   font-size: 12px;
 }
 
+.slider-demo {
+  min-width: 0;
+}
+
+.calendar-demo {
+  width: 100%;
+  max-width: 100%;
+}
+
+#modal-static {
+  max-width: 100% !important;
+}
+
+#modal-static :deep(.arco-modal) {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 :global(.kbd) {
   display: inline-block;
   min-width: 20px;
@@ -893,6 +914,41 @@ createApp(App).use(ArcoVue).mount("#app")</pre></a-typography-paragraph>
 @media (max-width: 1023px) {
   .components-layout {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  :deep(.transfer-demo .arco-transfer-view) {
+    width: calc(50% - 22px);
+    min-width: 0;
+  }
+
+  :deep(.transfer-demo .arco-transfer-panel) {
+    min-width: 0;
+  }
+
+  :deep(.arco-slider-with-marks) {
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  :deep(.arco-steps-label-vertical .arco-steps-item-content) {
+    width: auto;
+    min-width: 0;
+  }
+
+  :deep(.arco-steps-label-vertical .arco-steps-item) {
+    min-width: 0;
+    flex: 1;
+  }
+
+  :deep(.grid-offset-demo .arco-col-offset-6) {
+    margin-left: 0;
+  }
+
+  :global(.demo-modal .arco-modal) {
+    width: calc(100vw - 32px) !important;
+    max-width: calc(100vw - 32px);
   }
 }
 </style>

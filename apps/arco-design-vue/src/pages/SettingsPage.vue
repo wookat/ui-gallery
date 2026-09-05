@@ -8,6 +8,7 @@ import team from "@ui-gallery/spec/mock/team.json"
 import PageHeader from "@/components/PageHeader.vue"
 import StatusTag from "@/components/StatusTag.vue"
 import { Icon } from "@/lib/icons"
+import { useIsMobile } from "@/lib/useIsMobile"
 
 const tab = ref("profile")
 const profile = reactive({ name: team[0]!.name, email: team[0]!.email, bio: "", timezone: "Asia/Shanghai", language: "zh-CN" })
@@ -17,6 +18,7 @@ const inviteEmail = ref("")
 const deleteVisible = ref(false)
 const deleteInput = ref("")
 const saving = ref(false)
+const isMobile = useIsMobile()
 
 function save() {
   saving.value = true
@@ -45,7 +47,7 @@ const invoiceColumns = [
   <div class="page">
     <PageHeader title="设置" description="管理个人资料、安全、通知、团队与账单。" />
 
-    <a-tabs v-model:active-key="tab" type="rounded" lazy-load class="settings-tabs">
+    <a-tabs v-model:active-key="tab" :position="isMobile ? 'top' : 'left'" :size="isMobile ? 'small' : 'medium'" type="rounded" lazy-load class="settings-tabs">
       <a-tab-pane key="profile" title="个人资料">
         <a-card :bordered="true" class="settings-card">
           <a-form :model="profile" layout="vertical">
@@ -235,6 +237,10 @@ const invoiceColumns = [
   max-width: 860px;
 }
 
+.danger-zone {
+  max-width: 860px;
+}
+
 .setting-row {
   padding: 12px 0;
   border-bottom: 1px solid var(--color-border-1);
@@ -250,5 +256,11 @@ const invoiceColumns = [
 
 .danger-zone {
   border-color: rgb(var(--red-3));
+}
+
+@media (max-width: 767px) {
+  .settings-tabs :deep(.arco-tabs-nav-tab) {
+    white-space: nowrap;
+  }
 }
 </style>

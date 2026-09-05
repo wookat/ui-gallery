@@ -14,6 +14,7 @@ const yearly = ref(false)
 const sections = [
   { key: "features", label: "功能" },
   { key: "pricing", label: "价格" },
+  { key: "numbers", label: "数据" },
   { key: "testimonials", label: "客户" },
   { key: "faq", label: "常见问题" },
 ]
@@ -116,9 +117,33 @@ function scrollTo(key: string) {
           <a-button type="outline" style="align-self: flex-start">了解更多<template #icon><Icon name="arrow-right" /></template></a-button>
         </div>
       </div>
+      <div class="grid grid-2 product">
+        <div class="stack">
+          <a-tag size="small" color="arcoblue">{{ landing.features[5]!.title }}</a-tag>
+          <h3 class="section-subtitle">{{ landing.features[5]!.title }}</h3>
+          <p class="muted">{{ landing.features[5]!.desc }}</p>
+          <a-space direction="vertical">
+            <div v-for="feature in landing.features.slice(4, 6)" :key="feature.title" class="row">
+              <Icon :name="feature.icon" :size="16" style="color: rgb(var(--primary-6))" />
+              <span>{{ feature.title }}</span>
+            </div>
+          </a-space>
+        </div>
+        <a-card :bordered="true">
+          <a-list :bordered="false">
+            <a-list-item v-for="feature in landing.features.slice(4, 6)" :key="feature.title">
+              <a-list-item-meta :title="feature.title" :description="feature.desc">
+                <template #avatar>
+                  <a-avatar shape="square" :style="{ backgroundColor: 'rgb(var(--primary-1))', color: 'rgb(var(--primary-6))' }"><Icon :name="feature.icon" /></a-avatar>
+                </template>
+              </a-list-item-meta>
+            </a-list-item>
+          </a-list>
+        </a-card>
+      </div>
     </section>
 
-    <section class="numbers">
+    <section id="numbers" class="numbers">
       <div class="landing-inner grid grid-4">
         <div v-for="item in landing.numbers" :key="item.label" class="stack" style="align-items: center; gap: 2px">
           <span class="number-value">{{ item.value }}</span>

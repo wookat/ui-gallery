@@ -1,0 +1,43 @@
+{
+  "name": "element-plus",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "lint": "eslint .",
+    "typecheck": "vue-tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/noto-sans-sc": "^5.3.0",
+    "@heroicons/vue": "^2.2.0",
+    "@phosphor-icons/vue": "^2.2.1",
+    "@tabler/icons-vue": "^3.46.0",
+    "@ui-gallery/spec": "workspace:*",
+    "echarts": "^6.1.0",
+    "element-plus": "^2.14.5",
+    "less": "^4.4.0",
+    "lucide-vue-next": "^0.468.0",
+    "lxgw-wenkai-screen-webfont": "^1.7.0",
+    "marked": "^15.0.12",
+    "vue": "^3.5.42",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10",
+    "@types/node": "^24",
+    "@vitejs/plugin-vue": "^6",
+    "eslint": "^10",
+    "eslint-plugin-vue": "^10",
+    "globals": "^17",
+    "typescript": "~5.9",
+    "typescript-eslint": "^8",
+    "vite": "^7",
+    "vue-tsc": "^3.3.1"
+  }
+}

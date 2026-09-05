@@ -52,7 +52,7 @@ type PageState = 'normal' | 'loading' | 'empty' | 'error';
         <nz-card><nz-empty nzNotFoundContent="暂无订单"><button nz-button nzType="primary">新建订单</button></nz-empty></nz-card>
       } @else if (state === 'error') {
         <nz-alert nzType="error" nzShowIcon nzMessage="订单加载失败">
-          <ng-template #nzAlertAction><button nz-button nzType="primary" nzSize="small" (click)="state = 'normal'">重试</button></ng-template>
+          <ng-template #nzAlertAction><button nz-button nzType="primary" (click)="state = 'normal'">重试</button></ng-template>
         </nz-alert>
       } @else {
         <nz-space nzWrap class="toolbar">
@@ -69,7 +69,7 @@ type PageState = 'normal' | 'loading' | 'empty' | 'error';
         </nz-space>
         <ng-template #columnsTpl>@for (column of columns; track column.key) { <label nz-checkbox [(ngModel)]="column.visible">{{ column.label }}</label><br /> }</ng-template>
         <nz-card class="table-card">
-          <nz-table #orderTable nzShowSorterTooltip [nzData]="pagedRows()" [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="{ x: '980px' }">
+          <div class="table-desktop"><nz-table #orderTable nzShowSorterTooltip [nzData]="pagedRows()" [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="{ x: '980px' }">
             <thead><tr>
               <th nzWidth="48px" [nzChecked]="allChecked" [nzIndeterminate]="indeterminate" (nzCheckedChange)="checkAll($event)"></th>
               @if (columnVisible('id')) { <th nzShowSort [nzSortFn]="sortBy('id')">订单</th> }
@@ -82,13 +82,14 @@ type PageState = 'normal' | 'loading' | 'empty' | 'error';
               <tr (click)="openDetails(row)">
                 <td (click)="$event.stopPropagation()"><label nz-checkbox [(ngModel)]="row.checked" (ngModelChange)="refreshChecked()"></label></td>
                 @if (columnVisible('id')) { <td>{{ row.id }}</td> }
-                @if (columnVisible('customer')) { <td><span class="customer"><nz-avatar nzSize="small">{{ row.customer.slice(0, 1) }}</nz-avatar>{{ row.customer }}</span></td> }
+                @if (columnVisible('customer')) { <td><span class="customer"><nz-avatar nzSize="small" [nzText]="row.customer.slice(0, 1)" />{{ row.customer }}</span></td> }
                 @if (columnVisible('product')) { <td>{{ row.product }}</td> } @if (columnVisible('status')) { <td><nz-tag [nzColor]="statusColor(row.status)">{{ statusLabel(row.status) }}</nz-tag></td> }
                 @if (columnVisible('amount')) { <td nzAlign="right">¥ {{ row.amount | number:'1.2-2' }}</td> } @if (columnVisible('date')) { <td>{{ row.date }}</td> } @if (columnVisible('channel')) { <td>{{ row.channel }}</td> }
-                <td nzRight (click)="$event.stopPropagation()"><a nz-dropdown [nzDropdownMenu]="rowMenu">更多 <ui-icon name="chevron-down" /></a></td>
+                <td nzRight (click)="$event.stopPropagation()"><a nz-dropdown [nzDropdownMenu]="rowMenu" class="row-action">更多 <ui-icon name="chevron-down" /></a></td>
               </tr>
             }</tbody>
-          </nz-table>
+          </nz-table></div>
+          <div class="table-mobile">@for (row of pagedRows(); track row.id) { <nz-card nzSize="small" (click)="openDetails(row)"><div class="mobile-card-heading"><label nz-checkbox [(ngModel)]="row.checked" (ngModelChange)="refreshChecked()" (click)="$event.stopPropagation()"></label><strong>{{ row.id }}</strong><nz-tag [nzColor]="statusColor(row.status)">{{ statusLabel(row.status) }}</nz-tag></div><div class="mobile-customer"><nz-avatar nzSize="small" [nzText]="row.customer.slice(0, 1)" />{{ row.customer }}</div><div class="mobile-product">{{ row.product }}<strong>¥ {{ row.amount | number:'1.2-2' }}</strong></div><div class="mobile-meta">{{ row.date }} · {{ row.channel }}<a nz-dropdown [nzDropdownMenu]="rowMenu" class="row-action" (click)="$event.stopPropagation()">更多 <ui-icon name="chevron-down" /></a></div></nz-card> }</div>
           <ng-template #totalTpl let-total>共 {{ total }} 条</ng-template><div class="table-footer"><span>共 {{ filteredRows().length }} 条</span><nz-pagination [nzPageIndex]="page" [nzTotal]="filteredRows().length" [nzPageSize]="pageSize" nzShowSizeChanger [nzShowTotal]="totalTpl" (nzPageIndexChange)="page = $event" (nzPageSizeChange)="pageSize = $event; page = 1" /></div>
         </nz-card>
       }
@@ -109,8 +110,8 @@ type PageState = 'normal' | 'loading' | 'empty' | 'error';
   styles: `
     .orders-page { display: grid; gap: 16px; }.page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
     .page-heading h1 { margin: 0 0 4px; }.page-heading p { margin: 0; }.toolbar { width: 100%; }.search { width: 260px; }.filter { min-width: 130px; }
-    .table-card { min-width: 0; }.customer { display: inline-flex; gap: 8px; align-items: center; white-space: nowrap; }.table-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; }
-    nz-checkbox { display: inline-block; margin-bottom: 8px; } @media (max-width: 767px) { .page-heading { flex-direction: column; }.search { width: 100%; }.table-footer { align-items: flex-start; flex-direction: column; } }
+    .table-card { min-width: 0; }.customer { display: inline-flex; gap: 8px; align-items: center; white-space: nowrap; }.table-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; }.table-mobile{display:none;gap:12px}.mobile-card-heading,.mobile-product,.mobile-meta{display:flex;align-items:center;gap:8px}.mobile-card-heading strong{margin-right:auto}.mobile-customer{display:flex;align-items:center;gap:8px;margin-top:12px}.mobile-product{justify-content:space-between;margin-top:10px}.mobile-meta{justify-content:space-between;color:rgba(0,0,0,.45);margin-top:10px}.row-action{display:inline-flex;align-items:center;min-height:40px}
+    nz-checkbox { display: inline-block; margin-bottom: 8px; } @media (max-width: 767px) { .page-heading { flex-direction: column; }.search { width: 100%; }.table-desktop{display:none}.table-mobile{display:grid}.table-footer { align-items: flex-start; flex-direction: column; } }
   `,
 })
 export class OrdersPage implements OnDestroy {

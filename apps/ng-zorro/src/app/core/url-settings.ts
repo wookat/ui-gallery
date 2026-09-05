@@ -72,6 +72,9 @@ export class UrlSettings {
     };
     if (this.font !== 'default') {
       this.document.documentElement.style.setProperty('--ui-font', fonts[this.font]);
+      if ('fonts' in this.document) {
+        void this.document.fonts?.load(`16px "${fonts[this.font]}"`);
+      }
     }
   }
 

@@ -97,7 +97,7 @@ type Order = (typeof orders)[number];
                 @for (order of ordersTable.data; track order.id) {
                   <tr>
                     <td>{{ order.id }}</td>
-                    <td><span class="customer"><nz-avatar nzSize="small">{{ order.customer.slice(0, 1) }}</nz-avatar>{{ order.customer }}</span></td>
+                    <td><span class="customer"><nz-avatar nzSize="small" [nzText]="order.customer.slice(0, 1)" />{{ order.customer }}</span></td>
                     <td><nz-tag [nzColor]="statusColor(order.status)">{{ order.status }}</nz-tag></td>
                     <td nzAlign="right">¥{{ order.amount | number: '1.2-2' }}</td>
                     <td><a nz-dropdown [nzDropdownMenu]="rowMenu">更多 <ui-icon name="chevron-down" /></a></td>

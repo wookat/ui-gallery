@@ -48,15 +48,17 @@ import { IconComponent } from '../../core/icon.component';
             <nz-form-item>
               <nz-form-label nzRequired nzFor="email">邮箱</nz-form-label>
               <nz-form-control nzErrorTip="请输入有效的邮箱">
-                <nz-input-group nzPrefixIcon="mail">
+                <nz-input-wrapper>
+                  <nz-icon nzInputPrefix nzType="mail" />
                   <input nz-input id="email" type="email" formControlName="email" />
-                </nz-input-group>
+                </nz-input-wrapper>
               </nz-form-control>
             </nz-form-item>
             <nz-form-item>
               <nz-form-label nzRequired nzFor="password">密码</nz-form-label>
               <nz-form-control nzErrorTip="请输入密码">
-                <nz-input-wrapper nzPrefix="lock">
+                <nz-input-wrapper>
+                  <nz-icon nzInputPrefix nzType="lock" />
                   <input nz-input id="password" [type]="passwordVisible() ? 'text' : 'password'" formControlName="password" />
                   <button nz-button nzType="text" type="button" nzInputSuffix (click)="passwordVisible.set(!passwordVisible())">
                     <ui-icon [name]="passwordVisible() ? 'eye-off' : 'eye'" />
@@ -66,7 +68,7 @@ import { IconComponent } from '../../core/icon.component';
             </nz-form-item>
             <div class="login-options">
               <label nz-checkbox formControlName="remember">记住我</label>
-              <a routerLink="/login" [queryParams]="{ state: 'error' }" queryParamsHandling="merge">忘记密码</a>
+              <a class="link-target" routerLink="/login" [queryParams]="{ state: 'error' }" queryParamsHandling="merge">忘记密码</a>
             </div>
             <button nz-button nzType="primary" nzBlock [nzLoading]="loading()" type="submit">登录</button>
           </form>
@@ -76,20 +78,23 @@ import { IconComponent } from '../../core/icon.component';
             <button nz-button nzBlock>GitHub</button>
             <button nz-button nzBlock>微信</button>
           </div>
-          <div class="register">还没有账号？<a routerLink="/landing" queryParamsHandling="preserve">注册</a></div>
+          <div class="register">还没有账号？<a class="link-target" routerLink="/landing" queryParamsHandling="preserve">注册</a></div>
         </div>
       </nz-card>
     </main>
   `,
   styles: `
-    .login-page { display: grid; min-height: 100dvh; place-items: center; padding: 16px; background: #fafafa; }
+    .login-page { display: grid; min-height: 100dvh; place-items: center; padding: 16px; background: #f5f5f5; }
+    :host-context(.dark) .login-page { background: #000; }
     .login-card { width: min(100%, 400px); }
     .login-grid { display: grid; gap: 20px; padding: 8px; }
     .heading h1 { margin: 0 0 4px; font-size: 24px; }
     .heading p { margin: 0; }
     .login-options { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
     .oauth-buttons { display: grid; gap: 8px; grid-template-columns: repeat(3, 1fr); }
-    .register { color: #8c8c8c; text-align: center; }
+    .register { color: rgba(0,0,0,.45); text-align: center; }
+    :host-context(.dark) .register { color: rgba(255,255,255,.45); }
+    .link-target { display: inline-flex; align-items: center; min-width: 40px; min-height: 40px; }
     .register a { color: #1677ff; }
     @media (max-width: 430px) { .oauth-buttons { grid-template-columns: 1fr; } }
   `,

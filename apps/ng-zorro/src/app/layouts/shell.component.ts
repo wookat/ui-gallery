@@ -51,6 +51,7 @@ import { UrlSettings } from '../core/url-settings';
     <nz-layout class="shell">
       <nz-sider
         nzCollapsible
+        nzTheme="light"
         [nzCollapsed]="collapsed()"
         [nzBreakpoint]="'lg'"
         [nzCollapsedWidth]="0"
@@ -64,7 +65,7 @@ import { UrlSettings } from '../core/url-settings';
             <span>{{ collapsed() ? '展开' : '收起' }}</span>
           </button>
           <a class="user-card" routerLink="/settings" queryParamsHandling="preserve">
-            <nz-avatar nzSize="small">林</nz-avatar>
+            <nz-avatar nzSize="small" nzText="林" />
             <span>林晓</span>
           </a>
         </div>
@@ -89,7 +90,7 @@ import { UrlSettings } from '../core/url-settings';
               <ui-icon [name]="settings.theme === 'dark' ? 'sun' : 'moon'" />
             </button>
             <button nz-button nzType="text" nz-dropdown [nzDropdownMenu]="accountMenu">
-              <nz-avatar nzSize="small">林</nz-avatar>
+              <nz-avatar nzSize="small" nzText="林" />
             </button>
             <nz-dropdown-menu #accountMenu="nzDropdownMenu">
               <ul nz-menu>
@@ -145,9 +146,11 @@ import { UrlSettings } from '../core/url-settings';
     .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .global-search { width: 220px; }
     .mobile-menu { display: none; }
-    .collapse-button { margin-top: auto; text-align: left; }
-    .user-card { display: flex; align-items: center; gap: 8px; padding: 12px 8px 0; text-decoration: none; }
+    .collapse-button { margin-top: auto; min-height: 40px; text-align: left; }
+    .user-card { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 12px 8px 0; text-decoration: none; }
     .page-content { padding: 24px; min-width: 0; }
+    :host-context(.dark) .user-card { color: rgba(255,255,255,.85); }
+    :host-context(.dark) .collapse-button { color: rgba(255,255,255,.85); }
     @media (max-width: 991px) {
       .mobile-menu { display: inline-flex; }
       .global-search { display: none; }

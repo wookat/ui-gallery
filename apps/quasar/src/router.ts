@@ -1,11 +1,15 @@
 import { createRouter, createWebHistory } from "vue-router"
 import AppShell from "./layouts/AppShell.vue"
 import DashboardPage from "./pages/DashboardPage.vue"
+import FormPage from "./pages/FormPage.vue"
+import SettingsPage from "./pages/SettingsPage.vue"
+import LandingPage from "./pages/LandingPage.vue"
+import ChatPage from "./pages/ChatPage.vue"
 import LoginPage from "./pages/LoginPage.vue"
 import OrdersPage from "./pages/OrdersPage.vue"
 import StubPage from "./pages/StubPage.vue"
 
-const shell = (component: typeof DashboardPage | typeof OrdersPage | typeof StubPage, props?: Record<string, string>) => ({ component: AppShell, children: [{ path: "", component, props }] })
+const shell = (component: typeof DashboardPage | typeof OrdersPage | typeof FormPage | typeof SettingsPage | typeof ChatPage | typeof StubPage) => ({ component: AppShell, children: [{ path: "", component }] })
 
 export default createRouter({
   history: createWebHistory("/apps/quasar"),
@@ -13,10 +17,10 @@ export default createRouter({
     { path: "/login", component: LoginPage },
     { path: "/", ...shell(DashboardPage) },
     { path: "/orders", ...shell(OrdersPage) },
-    { path: "/form", ...shell(StubPage, { title: "新建项目" }) },
-    { path: "/settings", ...shell(StubPage, { title: "设置" }) },
-    { path: "/components", ...shell(StubPage, { title: "组件全集" }) },
-    { path: "/landing", component: StubPage, props: { title: "落地页" } },
-    { path: "/chat", ...shell(StubPage, { title: "AI 助手" }) },
+    { path: "/form", ...shell(FormPage) },
+    { path: "/settings", ...shell(SettingsPage) },
+    { path: "/components", ...shell(StubPage) },
+    { path: "/landing", component: LandingPage },
+    { path: "/chat", ...shell(ChatPage) },
   ],
 })

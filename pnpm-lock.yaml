@@ -45,11 +45,14 @@ importers:
         specifier: ^6.0.0
         version: 6.1.0
       lucide-vue-next:
-        specifier: ^0.468.0
-        version: 0.468.0(vue@3.5.42(typescript@6.0.3))
+        specifier: ^1.0.0
+        version: 1.0.0(vue@3.5.42(typescript@6.0.3))
       lxgw-wenkai-screen-webfont:
         specifier: ^1.7.0
         version: 1.7.0
+      marked:
+        specifier: ^15.0.0
+        version: 15.0.12
       quasar-lib:
         specifier: npm:quasar@2.30.0
         version: quasar@2.30.0
@@ -4289,8 +4292,8 @@ packages:
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  lucide-vue-next@0.468.0:
-    resolution: {integrity: sha512-quV/6T8YB1XK0VOEnebg3Byd8Rsan5/m95cvjnuHV4vcS3qEnLAybkrSh0hk3ppavx+V7R1PjNW+mGDvcBdz4A==}
+  lucide-vue-next@1.0.0:
+    resolution: {integrity: sha512-V6SPvx1IHTj/UY+FrIYWV5faISsPSb8BnWSFDxAtezWKvWc9ZZ40PDrdu1/Qb5vg4lHWr1hs1BAMGVGm6V1Xdg==}
     deprecated: Package deprecated. Please use @lucide/vue instead.
     peerDependencies:
       vue: '>=3.0.1'
@@ -4309,6 +4312,11 @@ packages:
 
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
+
+  marked@15.0.12:
+    resolution: {integrity: sha512-8dD6FusOQSrpv9Z1rdNMdlSgQOIP880DHqnohobOmYLElGEqAL/JvxvuxZO16r4HtjTlfPRDC1hbvxC9dPN2nA==}
+    engines: {node: '>= 18'}
+    hasBin: true
 
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
@@ -9820,7 +9828,7 @@ snapshots:
     dependencies:
       react: 19.2.8
 
-  lucide-vue-next@0.468.0(vue@3.5.42(typescript@6.0.3)):
+  lucide-vue-next@1.0.0(vue@3.5.42(typescript@6.0.3)):
     dependencies:
       vue: 3.5.42(typescript@6.0.3)
 
@@ -9841,6 +9849,8 @@ snapshots:
       source-map-js: 1.2.1
 
   markdown-table@3.0.4: {}
+
+  marked@15.0.12: {}
 
   math-intrinsics@1.1.0: {}
 

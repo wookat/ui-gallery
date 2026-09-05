@@ -6,6 +6,9 @@ import App from "./App.vue"
 import router from "./router"
 import "./styles.css"
 
+const theme = new URLSearchParams(window.location.search).get("theme")
+Dark.set(theme === "dark" ? true : theme === "light" ? false : "auto")
+
 createApp(App)
   .use(Quasar, { plugins: { Dialog, Dark, Loading, Notify } })
   .use(router)

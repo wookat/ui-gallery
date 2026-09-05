@@ -41,7 +41,7 @@ function navigate(path: string) {
     >
       <q-scroll-area class="fit">
         <div class="q-pa-md">
-          <router-link to="/" class="row items-center q-gutter-sm text-weight-bold text-no-wrap text-dark">
+          <router-link to="/" class="row items-center q-gutter-sm text-weight-bold text-no-wrap" style="text-decoration: none; color: inherit">
             <q-avatar color="primary" text-color="white" size="32px">A</q-avatar>
             <span v-if="!mini || $q.screen.lt.md">Acme Console</span>
           </router-link>
@@ -53,7 +53,7 @@ function navigate(path: string) {
             :key="item.key"
             clickable
             :active="route.path === item.path"
-            active-class="text-primary bg-primary-1"
+            active-class="text-primary"
             @click="navigate(item.path)"
           >
             <q-item-section avatar><AppIcon :name="item.icon" /></q-item-section>
@@ -67,22 +67,20 @@ function navigate(path: string) {
         <q-item-section v-if="!mini || $q.screen.lt.md"><q-item-label>林晓</q-item-label><q-item-label caption>管理员</q-item-label></q-item-section>
       </q-item>
       <q-btn
-        class="absolute-right"
-        style="right: -14px; top: 48%"
+        style="position: absolute; right: -12px; top: 72px; z-index: 1"
         round
         dense
         size="sm"
         color="primary"
-        :icon="mini ? 'chevron_right' : 'chevron_left'"
         @click="mini = !mini"
-      />
+      ><AppIcon :name="mini ? 'chevron-right' : 'chevron-left'" /></q-btn>
     </q-drawer>
 
-    <q-header bordered class="bg-background">
+    <q-header bordered>
       <q-toolbar>
         <q-btn v-if="$q.screen.lt.md" flat round dense aria-label="打开导航" @click="drawer = !drawer"><AppIcon name="menu" /></q-btn>
         <q-breadcrumbs class="gt-sm">
-          <q-breadcrumbs-el label="Acme Console" icon="home" to="/" />
+          <q-breadcrumbs-el label="Acme Console" to="/" />
           <q-breadcrumbs-el :label="current" />
         </q-breadcrumbs>
         <q-space />

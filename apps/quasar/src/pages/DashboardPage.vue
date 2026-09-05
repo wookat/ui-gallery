@@ -49,7 +49,7 @@ function sparkline(values: number[]) {
 <template>
   <div class="q-gutter-y-lg">
     <PageHeader title="仪表盘" description="欢迎回来，林晓。这里是今天的业务概况。">
-      <template #action><q-btn color="primary" label="新建项目"><template #default><AppIcon name="plus" :size="18" class="q-mr-sm" />新建项目</template></q-btn></template>
+      <template #action><q-btn color="primary"><AppIcon name="plus" :size="18" class="q-mr-sm" />新建项目</q-btn></template>
     </PageHeader>
 
     <template v-if="loading">

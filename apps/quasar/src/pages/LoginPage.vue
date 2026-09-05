@@ -27,7 +27,7 @@ async function submit() {
 </script>
 
 <template>
-  <div class="login-page bg-grey-2">
+  <div class="login-page">
     <q-card class="login-card" bordered>
       <q-card-section class="q-gutter-y-lg">
         <router-link to="/" class="row items-center q-gutter-sm text-weight-bold text-no-wrap text-dark">
@@ -55,7 +55,11 @@ async function submit() {
           </div>
           <q-btn class="full-width" color="primary" type="submit" label="登录" :loading="loading" />
         </q-form>
-        <q-separator><span class="q-px-sm text-caption text-grey-7">或</span></q-separator>
+        <div class="row items-center no-wrap">
+          <q-separator class="col" />
+          <span class="q-px-md text-caption text-grey-7">或</span>
+          <q-separator class="col" />
+        </div>
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-sm-4"><q-btn outline class="full-width" label="Google" /></div>
           <div class="col-12 col-sm-4"><q-btn outline class="full-width" label="GitHub" /></div>

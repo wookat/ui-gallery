@@ -44,7 +44,7 @@
       data: {
         labels: series.months,
         datasets: [
-          { label: "收入（千元）", data: series.revenue, borderColor: c.primary, backgroundColor: c.primary + "33", fill: true, tension: 0.4 },
+          { label: "收入（千元）", data: series.revenue, borderColor: c.primary, backgroundColor: c.primaryFill, fill: true, tension: 0.4 },
           { label: "订单", data: series.orders.map((v) => v / 10), borderColor: c.secondary, tension: 0.4 },
         ],
       },

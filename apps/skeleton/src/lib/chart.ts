@@ -4,15 +4,20 @@ function cssVar(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
 
+function fade(color: string, percent: number): string {
+  return `color-mix(in oklab, ${color} ${percent}%, transparent)`
+}
+
 export function palette() {
   return {
     primary: cssVar("--color-primary-500"),
+    primaryFill: fade(cssVar("--color-primary-500"), 20),
     secondary: cssVar("--color-secondary-500"),
     tertiary: cssVar("--color-tertiary-500"),
     success: cssVar("--color-success-500"),
     warning: cssVar("--color-warning-500"),
     text: cssVar("--color-surface-500"),
-    grid: "color-mix(in oklab, " + cssVar("--color-surface-500") + " 20%, transparent)",
+    grid: fade(cssVar("--color-surface-500"), 20),
   }
 }
 

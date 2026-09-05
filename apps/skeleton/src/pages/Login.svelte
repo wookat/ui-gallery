@@ -71,18 +71,18 @@
       <label class="label">
         <span class="label-text flex items-center justify-between">
           <span>密码</span>
-          <a class="anchor text-xs" href={router.href("/login")} use:link>忘记密码？</a>
+          <a class="anchor text-xs inline-flex items-center min-h-10 px-2 -mr-2" href={router.href("/login")} use:link>忘记密码？</a>
         </span>
         <div class="field-group grid-cols-[1fr_auto]">
           <input class="input" class:!border-error-500={errors.password} type={showPassword ? "text" : "password"} placeholder="••••••••" bind:value={password} autocomplete="current-password" aria-invalid={!!errors.password} />
-          <button type="button" class="btn preset-tonal" aria-label={showPassword ? "隐藏密码" : "显示密码"} onclick={() => (showPassword = !showPassword)}>
+          <button type="button" class="btn preset-tonal min-w-10 min-h-10" aria-label={showPassword ? "隐藏密码" : "显示密码"} onclick={() => (showPassword = !showPassword)}>
             <Icon name={showPassword ? "eye-off" : "eye"} />
           </button>
         </div>
         {#if errors.password}<p class="text-error-500 text-xs">{errors.password}</p>{/if}
       </label>
 
-      <label class="flex items-center gap-2 text-sm">
+      <label class="inline-flex items-center gap-2 text-sm min-h-10 cursor-pointer">
         <input class="checkbox" type="checkbox" bind:checked={remember} />
         <span>记住我</span>
       </label>
@@ -107,7 +107,7 @@
       </div>
 
       <p class="text-center text-sm opacity-70">
-        还没有账户？<a class="anchor" href={router.href("/login")} use:link>注册</a>
+        还没有账户？<a class="anchor inline-flex items-center min-h-10 px-2" href={router.href("/login")} use:link>注册</a>
       </p>
     </form>
   </div>

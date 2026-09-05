@@ -125,6 +125,11 @@
     toaster.info({ title: "备注已保存", description: detail?.id })
     note = ""
   }
+  function rowClick(event: MouseEvent, o: Order) {
+    const target = event.target as HTMLElement
+    if (target.closest("button, a, input, label, [role='menu']")) return
+    detail = o
+  }
   function channelLabel(v: string) {
     return channels.find((c) => c.value === v)?.label ?? v
   }
@@ -254,7 +259,7 @@
         </thead>
         <tbody class="[&>tr]:hover:preset-tonal-primary">
           {#each rows as o (o.id)}
-            <tr class={selected.includes(o.id) ? "preset-tonal-primary" : ""}>
+            <tr class="cursor-pointer {selected.includes(o.id) ? 'preset-tonal-primary' : ''}" onclick={(e) => rowClick(e, o)}>
               <td><input class="checkbox" type="checkbox" checked={selected.includes(o.id)} onchange={() => toggle(o.id)} aria-label={`选择 ${o.id}`} /></td>
               <td><button type="button" class="anchor font-mono text-xs" onclick={() => (detail = o)}>{o.id}</button></td>
               {#each visible as c (c.key)}

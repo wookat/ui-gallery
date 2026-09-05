@@ -20,6 +20,7 @@
   import { initials, money, number } from "../lib/format"
   import { toaster } from "../lib/toaster"
   import { isDark, setDark } from "../lib/settings"
+  import { link, router } from "../lib/router.svelte"
 
   const groups = [
     { id: "general", label: "通用", items: ["typography", "button", "button-group", "icon-button", "link", "kbd", "code", "divider"] },
@@ -800,8 +801,8 @@
     </div>
   </Demo>
   <Demo id="breadcrumb" title="Breadcrumb" status="composed" note="ol + 分隔符">
-    <ol class="flex flex-wrap items-center gap-2 text-sm"><li><a class="anchor flex items-center gap-1" href="#breadcrumb"><Icon name="home" class="size-3.5" />首页</a></li><li class="opacity-40"><Icon name="chevron-right" class="size-3" /></li><li><a class="anchor" href="#breadcrumb">订单</a></li><li class="opacity-40"><Icon name="chevron-right" class="size-3" /></li><li aria-current="page" class="font-medium">{orders[0].id}</li></ol>
-    <ol class="flex items-center gap-2 text-sm"><li><a class="anchor" href="#breadcrumb">设置</a></li><li class="opacity-40">/</li><li><a class="anchor" href="#breadcrumb">团队</a></li><li class="opacity-40">/</li><li class="opacity-60">成员</li></ol>
+    <ol class="flex flex-wrap items-center gap-2 text-sm"><li><a class="anchor flex items-center gap-1" href={router.href("/")} use:link><Icon name="home" class="size-3.5" />首页</a></li><li class="opacity-40"><Icon name="chevron-right" class="size-3" /></li><li><a class="anchor" href={router.href("/orders")} use:link>订单</a></li><li class="opacity-40"><Icon name="chevron-right" class="size-3" /></li><li aria-current="page" class="font-medium">{orders[0].id}</li></ol>
+    <ol class="flex items-center gap-2 text-sm"><li><a class="anchor" href={router.href("/settings")} use:link>设置</a></li><li class="opacity-40">/</li><li><a class="anchor" href={router.href("/settings")} use:link>团队</a></li><li class="opacity-40">/</li><li class="opacity-60">成员</li></ol>
   </Demo>
   <Demo id="tabs" title="Tabs" status="implemented" note="默认 / 带图标 / 垂直 / 禁用">
     <Tabs defaultValue="a"><Tabs.List><Tabs.Trigger value="a">概览</Tabs.Trigger><Tabs.Trigger value="b" class="gap-1"><Icon name="bar-chart" />分析</Tabs.Trigger><Tabs.Trigger value="c" disabled>禁用</Tabs.Trigger><Tabs.Indicator /></Tabs.List><Tabs.Content value="a" class="text-sm opacity-70 pt-2">概览内容</Tabs.Content><Tabs.Content value="b" class="text-sm opacity-70 pt-2">分析内容</Tabs.Content></Tabs>
@@ -850,7 +851,7 @@
   <Demo id="sidebar" title="Sidebar" status="implemented" note="Navigation layout=sidebar / bar（rail）">
     <div class="grid grid-cols-[auto_1fr] gap-4 min-h-56">
       <Navigation layout="sidebar" class="card border border-surface-200-800 p-2! w-40! h-auto!">
-        <Navigation.Content><Navigation.Group><Navigation.Label class="px-2 text-xs opacity-60">导航</Navigation.Label><Navigation.Menu>{#each nav.slice(0, 4) as n, i (n.key)}<Navigation.TriggerAnchor href={`#${n.key}`} class="gap-2 {i === 0 ? 'preset-filled-primary-500' : ''}"><Icon name={n.icon as IconName} /><Navigation.TriggerText>{n.label}</Navigation.TriggerText></Navigation.TriggerAnchor>{/each}</Navigation.Menu></Navigation.Group></Navigation.Content>
+        <Navigation.Content><Navigation.Group><Navigation.Label class="px-2 text-xs opacity-60">导航</Navigation.Label><Navigation.Menu>{#each nav.slice(0, 4) as n, i (n.key)}<Navigation.TriggerAnchor href={router.href(n.path)} class="gap-2 {i === 0 ? 'preset-filled-primary-500' : ''}"><Icon name={n.icon as IconName} /><Navigation.TriggerText>{n.label}</Navigation.TriggerText></Navigation.TriggerAnchor>{/each}</Navigation.Menu></Navigation.Group></Navigation.Content>
       </Navigation>
       <Navigation layout="bar" class="card border border-surface-200-800 self-end">
         <Navigation.Menu class="flex justify-around">{#each nav.slice(0, 4) as n, i (n.key)}<Navigation.Trigger class="text-xs {i === 0 ? 'text-primary-500' : ''}"><Icon name={n.icon as IconName} class="size-5" /><Navigation.TriggerText>{n.label}</Navigation.TriggerText></Navigation.Trigger>{/each}</Navigation.Menu>

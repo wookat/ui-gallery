@@ -16,7 +16,6 @@
     "strict": true,
     "noEmit": true,
     "moduleResolution": "bundler",
-    "baseUrl": ".",
     "paths": {
       "$lib": ["./src/lib"],
       "$lib/*": ["./src/lib/*"]

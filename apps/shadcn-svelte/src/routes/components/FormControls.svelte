@@ -17,7 +17,6 @@
   import * as Item from "$lib/components/ui/item"
   import * as RangeCalendar from "$lib/components/ui/range-calendar"
   import { Button } from "$lib/components/ui/button"
-  import { Separator } from "$lib/components/ui/separator"
   import { Input } from "$lib/components/ui/input"
 
   let { name }: { name: string } = $props()
@@ -249,21 +248,24 @@
     {/snippet}
   </InputOTP.Root>
 {:else if name === "Form"}
-  <Field.Set class="space-y-4"
-    ><Field.Group
-      ><Field.Label>项目名称 <span class="text-destructive">*</span></Field.Label><Field.Content
-        ><Input placeholder="必填字段" /></Field.Content
-      ><Field.Description>垂直布局的帮助文案。</Field.Description></Field.Group
-    ><Separator /><Field.Group class="sm:flex sm:items-center"
-      ><Field.Label class="sm:w-28">负责人</Field.Label><Field.Content
-        ><Input placeholder="水平布局" /></Field.Content
-      ></Field.Group
-    ><Field.Group class="sm:flex sm:items-center"
-      ><Field.Label class="sm:w-28">状态</Field.Label><Field.Content
-        ><Button variant="outline">内联布局</Button></Field.Content
-      ></Field.Group
-    ></Field.Set
-  >
+  <Field.Set>
+    <Field.Group>
+      <Field.Field>
+        <Field.Label>项目名称 <span class="text-destructive">*</span></Field.Label>
+        <Input placeholder="必填字段" />
+        <Field.Description>垂直布局的帮助文案。</Field.Description>
+      </Field.Field>
+      <Field.Separator />
+      <Field.Field orientation="horizontal">
+        <Field.Label class="sm:w-28">负责人</Field.Label>
+        <Input placeholder="水平布局" />
+      </Field.Field>
+      <Field.Field orientation="horizontal">
+        <Field.Label class="sm:w-28">状态</Field.Label>
+        <Button variant="outline">内联布局</Button>
+      </Field.Field>
+    </Field.Group>
+  </Field.Set>
 {:else}
   <div class="rounded-lg border p-4 text-sm">
     <Tooltip.Root

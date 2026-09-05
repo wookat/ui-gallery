@@ -1,0 +1,34 @@
+import { useState } from "react"
+import { Link } from "react-router-dom"
+import landing from "@ui-gallery/spec/mock/landing.json"
+import plans from "@ui-gallery/spec/mock/plans.json"
+import { Accordion, AccordionTab } from "primereact/accordion"
+import { Avatar } from "primereact/avatar"
+import { AvatarGroup } from "primereact/avatargroup"
+import { Button } from "primereact/button"
+import { Card } from "primereact/card"
+import { Carousel } from "primereact/carousel"
+import { Dropdown } from "primereact/dropdown"
+import { InputSwitch } from "primereact/inputswitch"
+import { Skeleton } from "primereact/skeleton"
+import { Tag } from "primereact/tag"
+import { Icon } from "@/components/icon"
+
+export function LandingPage() {
+  const [annual, setAnnual] = useState(false)
+  return <div>
+    <header className="surface-card border-bottom-1 surface-border sticky top-0 z-5"><div className="max-w-screen-xl mx-auto p-3 flex align-items-center justify-content-between gap-3"><Link to="/" className="flex align-items-center gap-2 no-underline text-color font-semibold"><Avatar label="A" shape="circle" />Acme Console</Link><nav className="hidden md:flex gap-4"><a href="#features">产品</a><a href="#pricing">价格</a><a href="#faq">FAQ</a><a href="#stories">客户</a><a href="#about">关于</a></nav><div className="flex gap-2"><Link to="/login"><Button text label="登录" /></Link><Link to="/login"><Button label="开始使用" /></Link></div></div></header>
+    <main>
+      <section className="marketing-section grid align-items-center"><div className="col-12 lg:col-6"><Tag value="ACME CONSOLE · 2026" /><h1 className="hero-title mt-4">{landing.hero.title}</h1><p className="text-xl muted line-height-3">{landing.hero.subtitle}</p><div className="flex flex-wrap gap-2"><Link to="/login"><Button size="large" label={landing.hero.primary} icon={<Icon name="arrow-right" />} /></Link><Button size="large" outlined label={landing.hero.secondary} /></div><div className="flex align-items-center gap-3 mt-5 muted"><AvatarGroup><Avatar label="林" shape="circle" /><Avatar label="王" shape="circle" /><Avatar label="A" shape="circle" /><Avatar label="M" shape="circle" /></AvatarGroup>{landing.hero.social}</div></div><div className="col-12 lg:col-6"><Card><div className="surface-ground border-round p-3" style={{ height: 360 }}><div className="grid h-full"><div className="col-3"><Skeleton height="100%" /></div><div className="col-9 flex flex-column gap-3"><Skeleton height="45%" /><div className="grid flex-1"><Skeleton className="col mr-2" /><Skeleton className="col mr-2" /><Skeleton className="col" /></div></div></div></div></Card></div></section>
+      <section className="surface-ground py-5"><div className="max-w-screen-lg mx-auto grid text-center muted">{["Northwind", "Contoso", "Globex", "Fabrikam", "Initech", "Umbrella"].map((x) => <strong className="col-6 md:col-2" key={x}>{x}</strong>)}</div></section>
+      <section id="features" className="marketing-section"><div className="text-center mb-6"><h2>一个地方，完成所有工作</h2><p className="muted">从数据到决策，让每一步都更清晰。</p></div><div className="grid">{landing.features.map((item) => <div className="col-12 md:col-4" key={item.title}><Card title={<span className="flex align-items-center gap-2"><Icon name={item.icon} />{item.title}</span>}><p className="muted m-0">{item.desc}</p></Card></div>)}</div></section>
+      <section id="about" className="marketing-section flex flex-column gap-6">{["看见全局", "自动化协作", "AI 就在身边"].map((title, index) => <div className="grid align-items-center" key={title}><div className={`col-12 md:col-6 ${index % 2 ? "md:order-2" : ""}`}><Tag value={`0${index + 1} / WORKSPACE`} /><h2>{title}</h2><p className="muted text-lg">把分散的信息汇聚为有用的洞察，让团队快速行动并持续交付。</p><Button link label="了解更多" icon={<Icon name="arrow-right" />} /></div><div className={`col-12 md:col-6 ${index % 2 ? "md:order-1" : ""}`}><Card><div className="surface-ground flex align-items-center justify-content-center" style={{ height: 240 }}><Icon name={landing.features[index + 1].icon} size={58} /></div></Card></div></div>)}</section>
+      <section className="surface-ground py-6"><div className="marketing-section py-0 grid text-center">{landing.numbers.map((item) => <div className="col-6 md:col-3" key={item.label}><div className="text-4xl font-bold">{item.value}</div><div className="muted">{item.label}</div></div>)}</div></section>
+      <section id="pricing" className="marketing-section"><div className="text-center mb-5"><h2>选择适合你的方案</h2><div className="flex align-items-center justify-content-center gap-2">按年计费 <InputSwitch checked={annual} onChange={(e) => setAnnual(Boolean(e.value))} /></div></div><div className="grid">{plans.map((plan) => <div className="col-12 md:col-4" key={plan.name}><Card className={plan.recommended ? "border-primary" : ""} title={<span className="flex justify-content-between">{plan.name}{plan.recommended ? <Tag value="推荐" severity="success" /> : null}</span>}><div className="text-3xl font-bold">{plan.price === null ? "定制" : plan.price === 0 ? "免费" : `¥${annual ? plan.price * 10 : plan.price}`}<small className="text-sm muted"> / 月</small></div><ul className="pl-3">{plan.features.map((feature) => <li className="mb-2" key={feature}><Icon name="check" className="mr-2 text-green-500" />{feature}</li>)}</ul><Button className="w-full" label="开始使用" outlined={!plan.recommended} /></Card></div>)}</div></section>
+      <section id="stories" className="marketing-section"><h2 className="text-center">他们已经在改变工作方式</h2><Carousel value={landing.testimonials} numVisible={2} numScroll={1} responsiveOptions={[{ breakpoint: "768px", numVisible: 1, numScroll: 1 }]} itemTemplate={(item) => <Card className="m-2"><p className="text-lg">“{item.quote}”</p><div className="flex align-items-center gap-2"><Avatar label={item.name.slice(0, 1)} shape="circle" /><div><strong>{item.name}</strong><small className="block muted">{item.company}</small></div></div></Card>} /></section>
+      <section id="faq" className="marketing-section"><h2 className="text-center">常见问题</h2><Accordion>{landing.faq.map((item) => <AccordionTab header={item.q} key={item.q}><p>{item.a}</p></AccordionTab>)}</Accordion></section>
+      <section className="marketing-section"><Card className="text-center surface-primary"><h2>准备好让团队更高效了吗？</h2><p>从今天开始，把工作放进一个控制台。</p><Link to="/login"><Button label="免费开始" /></Link></Card></section>
+    </main>
+    <footer className="surface-ground p-5"><div className="max-w-screen-xl mx-auto grid"><div className="col-12 md:col-3"><strong>Acme Console</strong><p className="muted">© 2026 Acme Console</p></div>{["产品", "资源", "公司"].map((title) => <div className="col-12 md:col-3" key={title}><strong>{title}</strong><div className="flex flex-column gap-2 mt-3"><a href="#features">功能</a><a href="#pricing">价格</a><a href="#faq">帮助中心</a></div></div>)}<div className="col-12 md:col-3"><Dropdown options={["简体中文", "English"]} value="简体中文" /></div></div></footer>
+  </div>
+}

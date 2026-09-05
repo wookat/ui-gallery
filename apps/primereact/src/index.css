@@ -1,0 +1,23 @@
+@import "primeicons/primeicons.css";
+@import "primeflex/primeflex.css";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-sc";
+@import "lxgw-wenkai-screen-webfont/style.css";
+
+:root { color-scheme: light; }
+html, body, #root { min-height: 100%; }
+body { margin: 0; background: var(--surface-ground); color: var(--text-color); font-family: var(--font-family); }
+a { color: var(--primary-color); }
+.page-main { min-width: 0; padding: 1.5rem; }
+.page-title { margin: 0; font-size: 1.8rem; }
+.page-subtitle { margin: .35rem 0 0; color: var(--text-color-secondary); }
+.surface-card { border: 1px solid var(--surface-border); }
+.muted { color: var(--text-color-secondary); }
+.demo-card { scroll-margin-top: 5rem; }
+.table-scroll { overflow-x: auto; }
+.table-scroll .p-datatable { min-width: 680px; }
+.chat-bubble { max-width: 72ch; }
+.marketing-section { max-width: 1180px; margin: 0 auto; padding: 5rem 1.25rem; }
+.hero-title { font-size: clamp(2.5rem, 7vw, 5rem); line-height: 1.05; margin: 0; }
+@media (max-width: 767px) { .page-main { padding: 1rem; } .marketing-section { padding: 3.5rem 1rem; } .chat-bubble { max-width: 100%; } }

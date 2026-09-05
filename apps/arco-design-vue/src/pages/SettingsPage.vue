@@ -262,5 +262,10 @@ const invoiceColumns = [
   .settings-tabs :deep(.arco-tabs-nav-tab) {
     white-space: nowrap;
   }
+
+  .settings-tabs :deep(.arco-tabs-nav-type-rounded .arco-tabs-tab) {
+    padding: 3px 12px;
+    margin: 0 3px;
+  }
 }
 </style>

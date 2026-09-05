@@ -17,6 +17,8 @@
   import * as Pagination from "$lib/components/ui/pagination"
   import * as Popover from "$lib/components/ui/popover"
   import * as RangeCalendar from "$lib/components/ui/range-calendar"
+  import * as Tabs from "$lib/components/ui/tabs"
+  import activity from "@ui-gallery/spec/mock/activity.json"
   import { toast } from "svelte-sonner"
 
   let query = $state("")
@@ -28,6 +30,13 @@
   let detail = $state<(typeof orders)[number] | null>(null)
   let deleteTarget = $state<(typeof orders)[number] | null>(null)
   let sortAsc = $state(false)
+  const statusLabels: Record<string, string> = {
+    paid: "已支付",
+    pending: "待处理",
+    shipped: "已发货",
+    refunded: "已退款",
+    failed: "失败",
+  }
   let loading = $state(new URLSearchParams(window.location.search).get("state") === "loading")
   let error = $state(new URLSearchParams(window.location.search).get("state") === "error")
   onMount(() => {
@@ -148,7 +157,7 @@
                     ? "default"
                     : order.status === "failed"
                       ? "destructive"
-                      : "secondary"}>{order.status}</Badge.Root
+                      : "secondary"}>{statusLabels[order.status]}</Badge.Root
                 >
               </div>
               <div class="mt-3 flex justify-between text-sm">
@@ -202,14 +211,18 @@
                         ? "default"
                         : order.status === "failed"
                           ? "destructive"
-                          : "secondary"}>{order.status}</Badge.Root
+                          : "secondary"}>{statusLabels[order.status]}</Badge.Root
                     ></td
                   ><td class="px-4 py-3 text-right">{order.currency}{order.amount.toFixed(2)}</td
                   ><td class="px-4 py-3 text-right" onclick={(event) => event.stopPropagation()}
                     ><Dropdown.Root
                       ><Dropdown.Trigger
-                        ><button class="rounded p-1 hover:bg-muted" aria-label="订单操作"
-                          ><Icon name="more-horizontal" size={16} /></button
+                        ><Button
+                          variant="ghost"
+                          size="icon"
+                          class="size-10"
+                          data-qa="hit"
+                          aria-label="订单操作"><Icon name="more-horizontal" size={16} /></Button
                         ></Dropdown.Trigger
                       ><Dropdown.Content
                         ><Dropdown.Item onclick={() => showOrder(order)}>编辑</Dropdown.Item
@@ -243,31 +256,50 @@
         ></Sheet.Header
       >
       <div class="space-y-6 p-4">
-        <dl class="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <dt class="text-muted-foreground">客户</dt>
-            <dd class="font-medium">{detail.customer}</dd>
-          </div>
-          <div>
-            <dt class="text-muted-foreground">日期</dt>
-            <dd>{detail.date}</dd>
-          </div>
-          <div>
-            <dt class="text-muted-foreground">产品</dt>
-            <dd>{detail.product}</dd>
-          </div>
-          <div>
-            <dt class="text-muted-foreground">渠道</dt>
-            <dd>{detail.channel}</dd>
-          </div>
-        </dl>
-        <div>
-          <label for="note" class="text-sm font-medium">备注</label><textarea
-            id="note"
-            class="mt-2 min-h-24 w-full rounded-md border bg-background p-3 text-sm"
-            placeholder="添加订单备注..."
-          ></textarea>
-        </div>
+        <Tabs.Root value="detail">
+          <Tabs.List
+            ><Tabs.Trigger value="detail">详情</Tabs.Trigger><Tabs.Trigger value="activity"
+              >处理记录</Tabs.Trigger
+            ><Tabs.Trigger value="notes">备注</Tabs.Trigger></Tabs.List
+          >
+          <Tabs.Content value="detail">
+            <dl class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <dt class="text-muted-foreground">客户</dt>
+                <dd class="font-medium">{detail.customer}</dd>
+              </div>
+              <div>
+                <dt class="text-muted-foreground">日期</dt>
+                <dd>{detail.date}</dd>
+              </div>
+              <div>
+                <dt class="text-muted-foreground">产品</dt>
+                <dd>{detail.product}</dd>
+              </div>
+              <div>
+                <dt class="text-muted-foreground">渠道</dt>
+                <dd>{detail.channel}</dd>
+              </div>
+            </dl>
+          </Tabs.Content>
+          <Tabs.Content value="activity">
+            <ul class="space-y-3 text-sm">
+              {#each activity.slice(0, 3) as item}<li class="border-b pb-3 last:border-0">
+                  {item.user}
+                  {item.action}<span class="block text-xs text-muted-foreground">{item.time}</span>
+                </li>{/each}
+            </ul>
+          </Tabs.Content>
+          <Tabs.Content value="notes">
+            <div>
+              <label for="note" class="text-sm font-medium">备注</label><textarea
+                id="note"
+                class="mt-2 min-h-24 w-full rounded-md border bg-background p-3 text-sm"
+                placeholder="添加订单备注..."
+              ></textarea>
+            </div>
+          </Tabs.Content>
+        </Tabs.Root>
         <Button
           variant="destructive"
           onclick={() => {

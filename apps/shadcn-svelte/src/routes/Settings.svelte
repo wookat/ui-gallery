@@ -11,6 +11,7 @@
   import * as Switch from "$lib/components/ui/switch"
   import * as Dialog from "$lib/components/ui/alert-dialog"
   import * as Badge from "$lib/components/ui/badge"
+  import * as Select from "$lib/components/ui/select"
   let tab = $state("profile"),
     dangerOpen = $state(false),
     confirmText = $state("")
@@ -58,12 +59,22 @@
             >
             <div class="grid gap-4 sm:grid-cols-2">
               <label class="space-y-2 text-sm font-medium"
-                >语言<select class="h-9 w-full rounded-md border bg-background px-3"
-                  ><option>简体中文</option><option>English</option></select
+                >语言<Select.Root type="single" value="简体中文"
+                  ><Select.Trigger class="h-9 w-full"><span>简体中文</span></Select.Trigger
+                  ><Select.Content
+                    ><Select.Item value="简体中文">简体中文</Select.Item><Select.Item
+                      value="English">English</Select.Item
+                    ></Select.Content
+                  ></Select.Root
                 ></label
               ><label class="space-y-2 text-sm font-medium"
-                >时区<select class="h-9 w-full rounded-md border bg-background px-3"
-                  ><option>Asia/Shanghai</option><option>America/Los_Angeles</option></select
+                >时区<Select.Root type="single" value="Asia/Shanghai"
+                  ><Select.Trigger class="h-9 w-full"><span>Asia/Shanghai</span></Select.Trigger
+                  ><Select.Content
+                    ><Select.Item value="Asia/Shanghai">Asia/Shanghai</Select.Item><Select.Item
+                      value="America/Los_Angeles">America/Los_Angeles</Select.Item
+                    ></Select.Content
+                  ></Select.Root
                 ></label
               >
             </div></Card.Content
@@ -152,8 +163,15 @@
                           >{member.name}
                         </div></td
                       ><td>{member.email}</td><td
-                        ><select class="rounded border bg-background px-2 py-1"
-                          ><option>{member.role}</option><option>成员</option></select
+                        ><Select.Root type="single" value={member.role}
+                          ><Select.Trigger class="h-9 w-28"
+                            ><span>{member.role}</span></Select.Trigger
+                          ><Select.Content
+                            ><Select.Item value={member.role}>{member.role}</Select.Item
+                            ><Select.Item value="成员">成员</Select.Item><Select.Item value="管理员"
+                              >管理员</Select.Item
+                            ></Select.Content
+                          ></Select.Root
                         ></td
                       ><td class="text-right"><Button variant="ghost" size="sm">移除</Button></td
                       ></tr
@@ -216,7 +234,7 @@
       >
     </div></Tabs.Root
   >
-  <Card.Root class="border-destructive"
+  <Card.Root class="border-destructive/60 ring-1 ring-destructive/20"
     ><Card.Header
       ><Card.Title class="text-destructive">危险区域</Card.Title><Card.Description
         >删除账号后所有数据无法恢复。</Card.Description

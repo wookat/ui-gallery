@@ -8,19 +8,37 @@
 
   let { name }: { name: string } = $props()
   const variants = ["default", "secondary", "outline", "ghost", "destructive", "link"] as const
+  const iconVariants = ["default", "outline", "ghost", "destructive"] as const
+  const iconSizes = ["icon-xs", "icon-sm", "icon", "icon-lg"] as const
 </script>
 
-{#if name === "Button" || name === "IconButton"}
+{#if name === "Button"}
   <div class="space-y-4">
     <div class="flex flex-wrap gap-2">
       {#each variants as variant}<Button {variant}>{variant}</Button>{/each}
     </div>
     <div class="flex flex-wrap items-center gap-2">
       <Button size="sm">小</Button><Button>默认</Button><Button size="lg">大</Button>
-      <Button size="icon" aria-label="新增"><Icon name="plus" size={16} /></Button>
-      <Button size="icon-sm" aria-label="搜索"><Icon name="search" size={16} /></Button>
       <Button disabled>禁用</Button>
       <Button disabled><Icon name="loader" size={16} class="animate-spin" />加载中</Button>
+    </div>
+  </div>
+{:else if name === "IconButton"}
+  <div class="space-y-4">
+    {#each iconVariants as variant}
+      <div class="flex flex-wrap items-center gap-2">
+        {#each iconSizes as size}
+          <Button {variant} {size} aria-label={`${variant} ${size}`}
+            ><Icon name="plus" size={16} /></Button
+          >
+        {/each}
+      </div>
+    {/each}
+    <div class="flex gap-2">
+      <Button size="icon" disabled aria-label="禁用图标按钮"><Icon name="plus" size={16} /></Button>
+      <Button size="icon" aria-label="加载图标按钮" disabled
+        ><Icon name="loader" size={16} class="animate-spin" /></Button
+      >
     </div>
   </div>
 {:else if name === "ButtonGroup"}

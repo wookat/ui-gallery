@@ -87,7 +87,8 @@
             aria-invalid={!!passwordError}
             placeholder="请输入密码"
           /><InputGroup.Button
-            class="h-10 min-w-10"
+            class="!size-10 !min-w-10 !p-0"
+            data-qa="hit"
             aria-label="显示密码"
             onclick={() => (showPassword = !showPassword)}
             >{#if showPassword}<Icon name="eye-off" size={16} />{:else}<Icon
@@ -101,7 +102,7 @@
       <div class="flex items-center justify-between text-sm">
         <label class="flex items-center gap-2"
           ><Checkbox.Root bind:checked={remember} />记住我</label
-        ><a href="#forgot" class="text-primary hover:underline">忘记密码？</a>
+        ><Button variant="link" class="h-10 px-2" href="#forgot" data-qa="hit">忘记密码？</Button>
       </div>
       <Button size="lg" class="h-10 w-full" disabled={loading} onclick={submit}
         >{#if loading}<Icon
@@ -121,7 +122,10 @@
       </div>
     </Card.Content>
     <Card.Footer class="justify-center text-sm text-muted-foreground"
-      >还没有账号？ <Link to="/form" class="ml-1 text-primary hover:underline">立即注册</Link
+      >还没有账号？ <Link
+        to="/form"
+        class="ml-1 inline-flex h-10 items-center px-2 text-primary hover:underline"
+        data-qa="hit">立即注册</Link
       ></Card.Footer
     >
   </Card.Root>

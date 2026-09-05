@@ -27,9 +27,10 @@
   let tags = $state(["设计", "重要"])
   let selectedMembers = $state(["设计"])
   let autocomplete = $state("")
+  let qty = $state(1)
 </script>
 
-{#if name === "Input" || name === "NumberInput"}
+{#if name === "Input"}
   <div class="grid gap-3 sm:grid-cols-2">
     <InputGroup.Root
       ><InputGroup.Text><Icon name="search" size={16} /></InputGroup.Text><InputGroup.Input
@@ -38,18 +39,39 @@
       ></InputGroup.Root
     >
     <InputGroup.Root
-      ><InputGroup.Text>¥</InputGroup.Text><InputGroup.Input
-        type="number"
-        value="128"
-      /><InputGroup.Button aria-label="增加"><Icon name="plus" size={16} /></InputGroup.Button
-      ></InputGroup.Root
-    >
-    <InputGroup.Root
       ><InputGroup.Input type="password" value="secret" /><InputGroup.Button aria-label="显示密码"
         ><Icon name="eye" size={16} /></InputGroup.Button
       ></InputGroup.Root
     >
     <Input aria-invalid="true" placeholder="错误状态" />
+  </div>
+{:else if name === "NumberInput"}
+  <div class="grid gap-3 sm:grid-cols-2">
+    <InputGroup.Root>
+      <InputGroup.Button aria-label="减少" onclick={() => (qty = Math.max(0, qty - 1))}
+        ><Icon name="minus" size={16} /></InputGroup.Button
+      ><InputGroup.Input type="number" bind:value={qty} aria-label="数量" /><InputGroup.Button
+        aria-label="增加"
+        onclick={() => (qty += 1)}><Icon name="plus" size={16} /></InputGroup.Button
+      >
+    </InputGroup.Root>
+    <InputGroup.Root>
+      <InputGroup.Button aria-label="减少" disabled
+        ><Icon name="minus" size={16} /></InputGroup.Button
+      ><InputGroup.Input type="number" value="0" disabled aria-label="禁用数量" /><InputGroup.Button
+        aria-label="增加"
+        disabled><Icon name="plus" size={16} /></InputGroup.Button
+      >
+    </InputGroup.Root>
+    <InputGroup.Root>
+      <InputGroup.Button aria-label="减少"><Icon name="minus" size={16} /></InputGroup.Button
+      ><InputGroup.Input
+        type="number"
+        value="0"
+        aria-invalid="true"
+        aria-label="错误数量"
+      /><InputGroup.Button aria-label="增加"><Icon name="plus" size={16} /></InputGroup.Button>
+    </InputGroup.Root>
   </div>
 {:else if name === "Textarea"}
   <textarea
@@ -131,9 +153,7 @@
 {:else if name === "Checkbox"}
   <div class="flex flex-wrap items-center gap-4">
     <label class="flex items-center gap-2 text-sm"><Checkbox.Root bind:checked />接受通知</label>
-    <label class="flex items-center gap-2 text-sm"
-      ><Checkbox.Root checked indeterminate />半选状态</label
-    >
+    <label class="flex items-center gap-2 text-sm"><Checkbox.Root indeterminate />半选状态</label>
     <label class="flex items-center gap-2 text-sm"><Checkbox.Root disabled />禁用</label>
   </div>
 {:else if name === "Radio"}

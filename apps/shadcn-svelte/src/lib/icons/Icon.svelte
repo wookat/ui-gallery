@@ -540,7 +540,8 @@
     class: className = "",
   }: { name: string; size?: number; class?: string } = $props()
   const family = $derived.by<Family>(() => {
-    const value = new URLSearchParams(window.location.search).get("icons")
+    const params = new URLSearchParams(window.location.search)
+    const value = params.get("icons") ?? params.get("icon")
     return value === "tabler" || value === "phosphor" || value === "heroicons" ? value : "lucide"
   })
   const selected = $derived(

@@ -29,12 +29,12 @@
         >需要检查输入内容。</Alert.Description
       ></Alert.Root
     >
-    <Alert.Root class="border-green-500 text-green-700"
+    <Alert.Root
       ><Icon name="check-circle" size={18} /><Alert.Title>成功提示</Alert.Title><Alert.Description
         >操作已经完成。</Alert.Description
       ></Alert.Root
     >
-    <Alert.Root class="border-amber-500 text-amber-700"
+    <Alert.Root
       ><Icon name="alert-circle" size={18} /><Alert.Title>注意提示</Alert.Title><Alert.Description
         >请确认下一步操作。</Alert.Description
       ></Alert.Root

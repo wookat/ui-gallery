@@ -16,8 +16,8 @@
   let commandOpen = $state(false)
 </script>
 
-{#if name === "Menu" || name === "Dropdown"}
-  <div class="flex flex-wrap items-center gap-3">
+{#if name === "Menu"}
+  <div class="space-y-4">
     <Menubar.Root
       ><Menubar.Menu
         ><Menubar.Trigger>项目</Menubar.Trigger><Menubar.Content
@@ -37,6 +37,43 @@
         ></Menubar.Menu
       ></Menubar.Root
     >
+    <Sidebar.Provider class="min-h-48 rounded-lg border">
+      <Sidebar.Root collapsible="none" class="relative w-56">
+        <Sidebar.Header><div class="px-2 font-semibold">项目导航</div></Sidebar.Header>
+        <Sidebar.Content>
+          <Sidebar.Group>
+            <Sidebar.GroupLabel>工作区</Sidebar.GroupLabel>
+            <Sidebar.Menu>
+              <Sidebar.MenuItem
+                ><Sidebar.MenuButton isActive><Icon name="home" size={16} />概览</Sidebar.MenuButton
+                ></Sidebar.MenuItem
+              ><Sidebar.MenuItem
+                ><Sidebar.MenuButton><Icon name="list" size={16} />项目</Sidebar.MenuButton
+                ><Sidebar.MenuSub
+                  ><Sidebar.MenuSubItem
+                    ><Sidebar.MenuSubButton>进行中</Sidebar.MenuSubButton></Sidebar.MenuSubItem
+                  ><Sidebar.MenuSubItem
+                    ><Sidebar.MenuSubButton>已归档</Sidebar.MenuSubButton></Sidebar.MenuSubItem
+                  ></Sidebar.MenuSub
+                ></Sidebar.MenuItem
+              ><Sidebar.MenuItem
+                ><Sidebar.MenuButton><Icon name="settings" size={16} />设置</Sidebar.MenuButton
+                ></Sidebar.MenuItem
+              ><Sidebar.MenuItem
+                ><Sidebar.MenuButton><Icon name="boxes" size={16} />资源</Sidebar.MenuButton
+                ></Sidebar.MenuItem
+              >
+            </Sidebar.Menu>
+          </Sidebar.Group>
+        </Sidebar.Content>
+        <Sidebar.Footer
+          ><div class="bg-sidebar-accent rounded-md p-2 text-xs">Acme Team</div></Sidebar.Footer
+        >
+      </Sidebar.Root>
+    </Sidebar.Provider>
+  </div>
+{:else if name === "Dropdown"}
+  <div class="flex flex-wrap items-center gap-3">
     <Dropdown.Root
       ><Dropdown.Trigger
         ><Button variant="outline">更多 <Icon name="chevron-down" size={16} /></Button

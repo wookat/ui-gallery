@@ -13,9 +13,17 @@
   import * as Skeleton from "$lib/components/ui/skeleton"
   import * as Tabs from "$lib/components/ui/tabs"
   import * as Dropdown from "$lib/components/ui/dropdown-menu"
+  import { Button } from "$lib/components/ui/button"
 
   let loading = $state(new URLSearchParams(window.location.search).get("state") === "loading")
   let period = $state("周")
+  const statusLabels: Record<string, string> = {
+    paid: "已支付",
+    pending: "待处理",
+    shipped: "已发货",
+    refunded: "已退款",
+    failed: "失败",
+  }
   const statsMap = Object.fromEntries(stats.map((stat) => [stat.key, stat])) as Record<
     string,
     { value: number; delta: number; trend: number[] }
@@ -87,9 +95,11 @@
       {/each}
     </div>
     <Tabs.Root bind:value={period} class="space-y-4">
-      <Tabs.List
-        ><Tabs.Trigger value="日">日</Tabs.Trigger><Tabs.Trigger value="周">周</Tabs.Trigger
-        ><Tabs.Trigger value="月">月</Tabs.Trigger></Tabs.List
+      <Tabs.List class="h-10"
+        ><Tabs.Trigger class="h-10 min-h-9 px-4" data-qa="hit" value="日">日</Tabs.Trigger
+        ><Tabs.Trigger class="h-10 min-h-9 px-4" data-qa="hit" value="周">周</Tabs.Trigger
+        ><Tabs.Trigger class="h-10 min-h-9 px-4" data-qa="hit" value="月">月</Tabs.Trigger
+        ></Tabs.List
       >
       <Tabs.Content value={period}
         ><div class="grid gap-4 lg:grid-cols-3">
@@ -251,14 +261,18 @@
                       </div></td
                     ><td>{order.product}</td><td
                       ><Badge.Root variant={order.status === "paid" ? "default" : "secondary"}
-                        >{order.status}</Badge.Root
+                        >{statusLabels[order.status]}</Badge.Root
                       ></td
                     ><td class="text-right">{order.currency}{order.amount}</td><td
                       class="text-right"
                       ><Dropdown.Root
                         ><Dropdown.Trigger
-                          ><button class="rounded p-1 hover:bg-muted" aria-label="订单操作"
-                            ><Icon name="more-horizontal" size={16} /></button
+                          ><Button
+                            variant="ghost"
+                            size="icon"
+                            class="size-10"
+                            data-qa="hit"
+                            aria-label="订单操作"><Icon name="more-horizontal" size={16} /></Button
                           ></Dropdown.Trigger
                         ><Dropdown.Content
                           ><Dropdown.Item>查看详情</Dropdown.Item><Dropdown.Item

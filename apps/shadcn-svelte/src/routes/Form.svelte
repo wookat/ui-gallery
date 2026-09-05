@@ -26,6 +26,8 @@
     accepted = $state(false),
     done = $state(false)
   let tags = $state(["设计", "产品"])
+  let projectType = $state("internal")
+  let color = $state("bg-blue-500")
   let error = $state("")
   let nameError = $state("")
   let emailError = $state("")
@@ -92,11 +94,19 @@
               placeholder="team@example.com"
             />{#if emailError}<p class="text-sm text-destructive">{emailError}</p>{/if}</label
           ><label class="space-y-2 text-sm font-medium"
-            >联系电话<input
-              type="tel"
-              class="h-9 w-full rounded-md border px-3"
-              placeholder="+86 138..."
-            /></label
+            >联系电话
+            <div class="flex gap-2">
+              <Select.Root type="single" value="+86"
+                ><Select.Trigger class="h-9 w-20"><span>+86</span></Select.Trigger><Select.Content
+                  ><Select.Item value="+86">+86</Select.Item><Select.Item value="+1">+1</Select.Item
+                  ><Select.Item value="+81">+81</Select.Item></Select.Content
+                ></Select.Root
+              ><input
+                type="tel"
+                class="h-9 min-w-0 flex-1 rounded-md border px-3"
+                placeholder="138..."
+              />
+            </div></label
           >
         </div>
         <label class="space-y-2 text-sm font-medium"
@@ -111,10 +121,12 @@
         >
         <div class="space-y-3">
           <p class="text-sm font-medium">项目类型</p>
-          <Radio.Root value="internal" class="flex items-center gap-2 whitespace-nowrap"
-            ><Radio.Item value="internal" />内部项目</Radio.Root
-          ><Radio.Root value="client" class="flex items-center gap-2 whitespace-nowrap"
-            ><Radio.Item value="client" />客户项目</Radio.Root
+          <Radio.Root bind:value={projectType} class="flex flex-wrap gap-4" data-qa="project-type"
+            ><label class="inline-flex items-center gap-2"
+              ><Radio.Item value="internal" />内部项目</label
+            ><label class="inline-flex items-center gap-2"
+              ><Radio.Item value="client" />客户项目</label
+            ></Radio.Root
           >
         </div>
         <div class="flex flex-wrap gap-4 text-sm">
@@ -124,6 +136,14 @@
           <label class="inline-flex items-center gap-2 whitespace-nowrap"
             ><Switch.Root />启用通知</label
           >
+        </div>
+        <div class="space-y-2">
+          <p class="text-sm font-medium">通知方式</p>
+          <div class="flex flex-wrap gap-4 text-sm">
+            <label class="inline-flex items-center gap-2"><Checkbox.Root />邮件</label>
+            <label class="inline-flex items-center gap-2"><Checkbox.Root />短信</label>
+            <label class="inline-flex items-center gap-2"><Checkbox.Root />站内</label>
+          </div>
         </div>
       {:else if step === 2}
         <div class="grid gap-5 sm:grid-cols-2">
@@ -240,9 +260,9 @@
         </div>
         <div class="space-y-2">
           <p class="text-sm font-medium">颜色</p>
-          <Radio.Root value="blue" class="flex gap-2">
-            {#each ["bg-blue-500", "bg-green-500", "bg-amber-500", "bg-red-500"] as color}
-              <Radio.Item value={color} class={`size-7 rounded-full border-2 ${color}`} />
+          <Radio.Root bind:value={color} class="flex gap-2">
+            {#each ["bg-blue-500", "bg-green-500", "bg-amber-500", "bg-red-500"] as colorName}
+              <Radio.Item value={colorName} class={`size-7 rounded-full border-2 ${colorName}`} />
             {/each}
           </Radio.Root>
         </div>
@@ -264,6 +284,10 @@
           <div>
             <dt class="text-muted-foreground">项目名称</dt>
             <dd>{name || "未填写"}</dd>
+          </div>
+          <div>
+            <dt class="text-muted-foreground">项目类型</dt>
+            <dd>{projectType === "internal" ? "内部项目" : "客户项目"}</dd>
           </div>
           <div>
             <dt class="text-muted-foreground">邮箱</dt>

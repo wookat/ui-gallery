@@ -40,10 +40,10 @@
   >
 {:else if name === "Resizable"}
   <div class="overflow-x-auto">
-    <Resizable.PaneGroup direction="horizontal" class="min-w-[420px] rounded-lg border"
+    <Resizable.PaneGroup direction="horizontal" class="min-h-48 min-w-[420px] rounded-lg border"
       ><Resizable.Pane defaultSize={50} class="p-4 text-sm">左侧面板</Resizable.Pane
       ><Resizable.Handle /><Resizable.Pane defaultSize={50}
-        ><Resizable.PaneGroup direction="vertical"
+        ><Resizable.PaneGroup direction="vertical" class="h-full"
           ><Resizable.Pane class="p-4 text-sm">右上嵌套</Resizable.Pane><Resizable.Handle
           /><Resizable.Pane class="p-4 text-sm">右下嵌套</Resizable.Pane></Resizable.PaneGroup
         ></Resizable.Pane

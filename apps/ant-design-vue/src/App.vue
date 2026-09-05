@@ -3,6 +3,7 @@ import { computed, ref, watchEffect } from "vue"
 import { RouterView, useRoute } from "vue-router"
 import { ConfigProvider, App as AntApp, theme } from "ant-design-vue"
 import AppShell from "./layouts/app-shell.vue"
+import ThemeBody from "./theme-body.vue"
 import router from "./router"
 
 const route = useRoute()
@@ -21,7 +22,6 @@ watchEffect(() => {
   document.documentElement.classList.toggle("dark", dark.value)
   document.documentElement.style.colorScheme = dark.value ? "dark" : "light"
   document.documentElement.style.setProperty("--font-sans", fontMap[font] ?? "inherit")
-  document.body.style.background = dark.value ? "#141414" : "#f5f5f5"
 })
 function toggleTheme() {
   dark.value = !dark.value
@@ -33,13 +33,15 @@ function toggleTheme() {
 
 <template>
   <ConfigProvider :theme="configTheme">
-    <AntApp>
-      <template v-if="isPublic">
-        <RouterView />
-      </template>
-      <AppShell v-else :dark="dark" @toggle-theme="toggleTheme">
-        <RouterView />
-      </AppShell>
-    </AntApp>
+    <ThemeBody>
+      <AntApp>
+        <template v-if="isPublic">
+          <RouterView />
+        </template>
+        <AppShell v-else :dark="dark" @toggle-theme="toggleTheme">
+          <RouterView />
+        </AppShell>
+      </AntApp>
+    </ThemeBody>
   </ConfigProvider>
 </template>

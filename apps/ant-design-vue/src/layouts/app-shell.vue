@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
+import { theme } from "ant-design-vue"
 import { RouterLink, useRoute } from "vue-router"
 import nav from "@ui-gallery/spec/mock/nav.json"
 import notifications from "@ui-gallery/spec/mock/notifications.json"
@@ -10,6 +11,11 @@ const emit = defineEmits<{ "toggle-theme": [] }>()
 const route = useRoute()
 const collapsed = ref(false)
 const mobileOpen = ref(false)
+const { token } = theme.useToken()
+const headerStyle = computed(() => ({
+  background: token.value.colorBgContainer,
+  borderBottom: `1px solid ${token.value.colorBorderSecondary}`,
+}))
 const current = computed(() => nav.find((item) => item.path === route.path)?.label ?? "仪表盘")
 const selected = computed(() => [nav.find((item) => item.path === route.path)?.key ?? "dashboard"])
 function navigate() { mobileOpen.value = false }
@@ -30,7 +36,7 @@ function navigate() { mobileOpen.value = false }
       </a-menu>
     </a-drawer>
     <a-layout>
-      <a-layout-header class="app-header">
+      <a-layout-header class="app-header" :style="headerStyle">
         <a-button class="mobile-menu" type="text" @click="mobileOpen = true"><Icon name="menu" :size="20" /></a-button>
         <a-breadcrumb><a-breadcrumb-item><RouterLink to="/">Acme Console</RouterLink></a-breadcrumb-item><a-breadcrumb-item>{{ current }}</a-breadcrumb-item></a-breadcrumb>
         <div class="header-actions">
@@ -41,7 +47,7 @@ function navigate() { mobileOpen.value = false }
           </a-popover>
           <a-button type="text" shape="circle" @click="emit('toggle-theme')"><Icon :name="dark ? 'sun' : 'moon'" /></a-button>
           <a-dropdown>
-            <a-button type="text" class="user-trigger"><a-avatar size="small">林</a-avatar> 林晓</a-button>
+            <a-button type="text" class="user-trigger"><a-space size="small"><a-avatar size="small">林</a-avatar><span>林晓</span></a-space></a-button>
             <template #overlay><a-menu><a-menu-item key="profile">个人资料</a-menu-item><a-menu-item key="settings"><RouterLink to="/settings">账户设置</RouterLink></a-menu-item><a-menu-item key="billing">计费信息</a-menu-item><a-menu-divider /><a-menu-item key="logout">退出登录</a-menu-item></a-menu></template>
           </a-dropdown>
         </div>

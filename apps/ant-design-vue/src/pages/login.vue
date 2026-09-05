@@ -32,7 +32,7 @@ async function submit() {
   </div>
 </template>
 <style scoped>
-.login-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--ant-color-bg-layout); }
+.login-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--app-color-bg-layout); }
 .login-card { width: min(100%, 420px); }
 .login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
 .login-card h1 { margin-bottom: 4px; }

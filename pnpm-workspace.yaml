@@ -11,5 +11,5 @@ allowBuilds:
   sharp: true
   "@parcel/watcher": true
   workerd: true
-  core-js: true
-  vue-demi: true
+  core-js: false
+  vue-demi: false

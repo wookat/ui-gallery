@@ -1,0 +1,9 @@
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-sc";
+@import "lxgw-wenkai-screen-webfont/lxgwwenkaiscreen.css";
+
+html[data-font="inter"] { --ug-font: "Inter Variable", sans-serif; }
+html[data-font="geist"] { --ug-font: "Geist Variable", sans-serif; }
+html[data-font="noto-sans-sc"] { --ug-font: "Noto Sans SC Variable", sans-serif; }
+html[data-font="lxgw-wenkai"] { --ug-font: "LXGW WenKai Screen", serif; }

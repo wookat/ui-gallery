@@ -250,7 +250,7 @@ dialog.drawer .tab-buttons button { width: auto; margin: 0; }
 .message.user > div:last-child { text-align: right; }
 .message header { display: flex; gap: .6rem; }
 .bubble { max-width: 100%; margin-top: .35rem; padding: .8rem 1rem; overflow-wrap: anywhere; border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); background: var(--pico-card-sectioning-background-color); text-align: left; }
-.message.user .bubble { background: var(--pico-primary-background); color: var(--pico-primary-inverse); }
+.message.user .bubble { --pico-color: var(--pico-primary-inverse); background: var(--pico-primary-background); color: var(--pico-primary-inverse); }
 .message.user .bubble :is(a, code) { color: inherit; }
 .bubble table { display: block; max-width: 100%; overflow-x: auto; }
 .page-content .bubble table { min-width: 0; }

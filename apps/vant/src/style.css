@@ -69,6 +69,12 @@ button, input, textarea { font: inherit; }
 .component-index { min-width: 0; }
 .component-index .inline { flex-wrap: wrap; }
 .component-demo { min-height: 130px; min-width: 0; overflow: hidden; }
+.component-demo .van-action-bar { position: static; }
+.component-demo .van-contact-list { height: auto; padding-bottom: 0; }
+.component-demo .van-contact-list__group { height: auto; overflow: visible; }
+.component-demo .van-contact-list__bottom { position: static; }
+.component-demo .van-address-list { height: auto; padding-bottom: 0; }
+.component-demo .van-address-list__bottom { position: static; }
 .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(300px, 1fr); gap: 40px; align-items: center; padding: 72px 24px; max-width: 1200px; margin: auto; }
 .hero h1 { margin: 0; font-size: clamp(38px, 6vw, 72px); line-height: 1.05; }
 .hero-shot { min-height: 320px; border: 1px solid var(--van-border-color); border-radius: 16px; padding: 14px; }

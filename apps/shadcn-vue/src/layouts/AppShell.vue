@@ -71,7 +71,7 @@ function toggleTheme() {
       </Sidebar>
       <SidebarInset class="min-w-0">
         <header class="sticky top-0 z-10 flex h-16 min-w-0 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
-          <SidebarTrigger />
+          <SidebarTrigger class="min-h-10 min-w-10" />
           <Breadcrumb class="hidden min-w-0 sm:flex">
             <BreadcrumbList>
               <BreadcrumbItem><BreadcrumbLink as-child><RouterLink to="/">Acme Console</RouterLink></BreadcrumbLink></BreadcrumbItem>
@@ -84,9 +84,9 @@ function toggleTheme() {
               <InputGroupAddon><Icon name="search" :size="15" /></InputGroupAddon>
               <InputGroupInput placeholder="搜索..." />
             </InputGroup>
-            <Tooltip><TooltipTrigger as-child><Button size="icon" variant="ghost" aria-label="切换主题" @click="toggleTheme"><Icon :name="theme === 'dark' ? 'sun' : 'moon'" /></Button></TooltipTrigger><TooltipContent>切换主题</TooltipContent></Tooltip>
+            <Tooltip><TooltipTrigger as-child><Button size="icon" variant="ghost" class="min-h-10 min-w-10" aria-label="切换主题" @click="toggleTheme"><Icon :name="theme === 'dark' ? 'sun' : 'moon'" /></Button></TooltipTrigger><TooltipContent>切换主题</TooltipContent></Tooltip>
             <DropdownMenu>
-              <DropdownMenuTrigger as-child><Button size="icon" variant="ghost" class="relative" aria-label="通知"><Icon name="bell" /><span v-if="notifications.some(item => item.unread)" class="absolute right-1 top-1 size-1.5 rounded-full bg-destructive" /></Button></DropdownMenuTrigger>
+              <DropdownMenuTrigger as-child><Button size="icon" variant="ghost" class="relative min-h-10 min-w-10" aria-label="通知"><Icon name="bell" /><span v-if="notifications.some(item => item.unread)" class="absolute right-1 top-1 size-1.5 rounded-full bg-destructive" /></Button></DropdownMenuTrigger>
               <DropdownMenuContent align="end" class="w-80">
                 <DropdownMenuLabel>通知</DropdownMenuLabel><DropdownMenuSeparator />
                 <DropdownMenuItem v-for="item in notifications" :key="item.title" class="items-start gap-3 py-3">
@@ -96,7 +96,7 @@ function toggleTheme() {
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
-              <DropdownMenuTrigger as-child><Button variant="ghost" size="icon" class="rounded-full"><Avatar class="size-8"><AvatarFallback>林</AvatarFallback></Avatar></Button></DropdownMenuTrigger>
+              <DropdownMenuTrigger as-child><Button variant="ghost" size="icon" class="min-h-10 min-w-10 rounded-full"><Avatar class="size-8"><AvatarFallback>林</AvatarFallback></Avatar></Button></DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>林晓</DropdownMenuLabel><DropdownMenuSeparator />
                 <DropdownMenuItem as-child><RouterLink to="/settings">账户设置</RouterLink></DropdownMenuItem>

@@ -32,9 +32,9 @@ export function useGalleryParams() {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     document.documentElement.classList.toggle('light', theme !== 'dark')
     if (font === 'default') {
-      document.documentElement.style.removeProperty('--font-sans')
+      document.documentElement.style.removeProperty('--app-font-sans')
     } else {
-      document.documentElement.style.setProperty('--font-sans', fonts[font])
+      document.documentElement.style.setProperty('--app-font-sans', fonts[font])
     }
     iconFamily.value = icon
   }

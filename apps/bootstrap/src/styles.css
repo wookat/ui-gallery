@@ -34,5 +34,7 @@ body { overflow-x: hidden; }
 .chat-cursor { display: inline-block; width: .5em; height: 1em; margin-left: 2px; background: currentColor; vertical-align: text-bottom; animation: chat-blink 1s steps(2) infinite; }
 @keyframes chat-blink { to { visibility: hidden; } }
 .min-h-0 { min-height: 0; }
-.app-icon { vertical-align: -0.125em; }
 .table-responsive { position: relative; }
+@media (max-width: 575.98px) {
+  .chat-bubble pre code { white-space: pre-wrap; word-break: break-word; }
+}

@@ -26,7 +26,7 @@ function filtered(state: State) {
 
 function th(state: State, key: SortKey, label: string, cls = "") {
   const active = state.sort === key
-  return `<th scope="col" class="${cls}"><button type="button" class="btn btn-link btn-sm p-0 text-decoration-none link-body-emphasis fw-semibold d-inline-flex align-items-center gap-1" data-sort="${key}" aria-sort="${active ? (state.dir === 1 ? "ascending" : "descending") : "none"}">${label}${active ? icon(state.dir === 1 ? "chevron-up" : "chevron-down") : `<span class="text-body-tertiary">${icon("chevron-down")}</span>`}</button></th>`
+  return `<th scope="col" class="${cls}"><button type="button" class="btn btn-link px-0 py-2 text-decoration-none link-body-emphasis fw-semibold d-inline-flex align-items-center gap-1" data-sort="${key}" aria-sort="${active ? (state.dir === 1 ? "ascending" : "descending") : "none"}">${label}${active ? icon(state.dir === 1 ? "chevron-up" : "chevron-down") : `<span class="text-body-tertiary">${icon("chevron-down")}</span>`}</button></th>`
 }
 
 function tableBody(state: State) {
@@ -40,20 +40,20 @@ function tableBody(state: State) {
   const someSelected = pageRows.some((o) => state.selected.has(o.id))
   const col = (k: string) => state.columns.has(k)
   return `<div class="table-responsive"><table class="table table-hover align-middle mb-0">
-    <thead class="table-light"><tr>
+    <thead><tr>
       <th scope="col" style="width:40px"><input class="form-check-input" type="checkbox" id="selectAll" aria-label="全选" ${allSelected ? "checked" : ""} data-indeterminate="${!allSelected && someSelected}"></th>
-      ${th(state, "id", "订单号")}${col("customer") ? th(state, "customer", "客户") : ""}${col("product") ? `<th scope="col">商品</th>` : ""}${th(state, "status", "状态")}${col("channel") ? `<th scope="col">渠道</th>` : ""}${col("date") ? th(state, "date", "日期") : ""}${th(state, "amount", "金额", "text-end")}<th scope="col" class="text-end"><span class="visually-hidden">操作</span></th>
+      ${th(state, "id", "订单号")}${col("customer") ? th(state, "customer", "客户", "d-none d-md-table-cell") : ""}${col("product") ? `<th scope="col" class="d-none d-md-table-cell">商品</th>` : ""}${th(state, "status", "状态")}${col("channel") ? `<th scope="col" class="d-none d-md-table-cell">渠道</th>` : ""}${col("date") ? th(state, "date", "日期", "d-none d-md-table-cell") : ""}${th(state, "amount", "金额", "text-end")}<th scope="col" class="text-end"><span class="visually-hidden">操作</span></th>
     </tr></thead>
     <tbody>${each(pageRows, (o) => `<tr class="cursor-pointer ${state.selected.has(o.id) ? "table-active" : ""}" data-row="${o.id}">
       <td><input class="form-check-input" type="checkbox" data-select="${o.id}" aria-label="选择 ${o.id}" ${state.selected.has(o.id) ? "checked" : ""}></td>
       <td class="text-nowrap"><code>${o.id}</code></td>
-      ${col("customer") ? `<td><div class="d-flex align-items-center gap-2">${avatar(o.customer, 28)}<div class="min-w-0"><div class="text-nowrap">${esc(o.customer)}</div><small class="text-body-secondary">${esc(o.email)}</small></div></div></td>` : ""}
-      ${col("product") ? `<td class="text-nowrap">${esc(o.product)}</td>` : ""}
+      ${col("customer") ? `<td class="d-none d-md-table-cell"><div class="d-flex align-items-center gap-2"><span class="d-none d-sm-inline-flex">${avatar(o.customer, 28)}</span><div class="min-w-0"><div class="text-nowrap">${esc(o.customer)}</div><small class="text-body-secondary d-none d-md-inline">${esc(o.email)}</small></div></div></td>` : ""}
+      ${col("product") ? `<td class="text-nowrap d-none d-md-table-cell">${esc(o.product)}</td>` : ""}
       <td><span class="badge rounded-pill text-bg-${STATUS_COLOR[o.status]}">${STATUS_LABEL[o.status]}</span></td>
-      ${col("channel") ? `<td class="text-uppercase small text-body-secondary">${o.channel}</td>` : ""}
-      ${col("date") ? `<td class="text-nowrap">${o.date}</td>` : ""}
+      ${col("channel") ? `<td class="text-uppercase small text-body-secondary d-none d-md-table-cell">${o.channel}</td>` : ""}
+      ${col("date") ? `<td class="text-nowrap d-none d-md-table-cell">${o.date}</td>` : ""}
       <td class="text-end text-nowrap fw-medium">${money(o.amount, o.currency)}</td>
-      <td class="text-end"><div class="dropdown" data-stop><button class="btn btn-sm btn-link link-body-emphasis" data-bs-toggle="dropdown" aria-expanded="false" aria-label="操作 ${o.id}">${icon("more-horizontal")}</button>
+      <td class="text-end"><div class="dropdown" data-stop><button class="btn btn-link link-body-emphasis px-2" data-bs-toggle="dropdown" aria-expanded="false" aria-label="操作 ${o.id}">${icon("more-horizontal")}</button>
         <ul class="dropdown-menu dropdown-menu-end"><li><button class="dropdown-item" type="button" data-action="open" data-id="${o.id}">${icon("pencil")} 编辑</button></li><li><button class="dropdown-item" type="button" data-action="copy" data-id="${o.id}">${icon("copy")} 复制订单号</button></li><li><hr class="dropdown-divider"></li><li><button class="dropdown-item text-danger" type="button" data-action="delete" data-id="${o.id}">${icon("trash")} 删除</button></li></ul></div></td>
     </tr>`)}</tbody></table></div>
     <div class="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -101,7 +101,7 @@ export function renderOrders(): PageResult {
 
   const html = `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
     <div><h1 class="h3 mb-0">订单</h1><p class="text-body-secondary mb-0">共 ${orders.length} 条订单，支持筛选、排序与批量操作。</p></div>
-    <div class="btn-group" role="group" aria-label="演示状态"><button type="button" class="btn btn-outline-secondary btn-sm" data-mode="ready">正常</button><button type="button" class="btn btn-outline-secondary btn-sm" data-mode="loading">加载</button><button type="button" class="btn btn-outline-secondary btn-sm" data-mode="empty">空态</button><button type="button" class="btn btn-outline-secondary btn-sm" data-mode="error">错误</button></div>
+    <div class="btn-group" role="group" aria-label="演示状态"><button type="button" class="btn btn-outline-secondary" data-mode="ready">正常</button><button type="button" class="btn btn-outline-secondary" data-mode="loading">加载</button><button type="button" class="btn btn-outline-secondary" data-mode="empty">空态</button><button type="button" class="btn btn-outline-secondary" data-mode="error">错误</button></div>
   </div>
   <div class="card">
     <div class="card-header bg-body">

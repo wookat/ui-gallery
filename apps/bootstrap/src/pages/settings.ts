@@ -53,7 +53,7 @@ export function renderSettings(): PageResult {
   const html = `<div class="mb-3"><h1 class="h3 mb-0">设置</h1><p class="text-body-secondary mb-0">管理个人资料、安全、通知、团队与计费。</p></div>
   <div class="row g-3">
     <div class="col-lg-3">
-      <ul class="nav nav-pills flex-lg-column nav-fill flex-nowrap overflow-auto gap-1" role="tablist" aria-label="设置分区">${each(TABS, ([key, label, ic], i) => `<li class="nav-item" role="presentation"><button class="nav-link text-nowrap text-lg-start d-flex align-items-center gap-2 ${i === 0 ? "active" : ""}" data-bs-toggle="pill" data-bs-target="#tab-${key}" type="button" role="tab" aria-controls="tab-${key}" aria-selected="${i === 0}">${icon(ic)}${label}</button></li>`)}</ul>
+      <ul class="nav nav-pills flex-lg-column flex-wrap gap-1" role="tablist" aria-label="设置分区">${each(TABS, ([key, label, ic], i) => `<li class="nav-item" role="presentation"><button class="nav-link text-nowrap text-lg-start d-flex align-items-center gap-2 ${i === 0 ? "active" : ""}" data-bs-toggle="pill" data-bs-target="#tab-${key}" type="button" role="tab" aria-controls="tab-${key}" aria-selected="${i === 0}">${icon(ic)}${label}</button></li>`)}</ul>
     </div>
     <div class="col-lg-9">
       <div class="tab-content">${each(TABS, ([key], i) => `<div class="tab-pane fade ${i === 0 ? "show active" : ""}" id="tab-${key}" role="tabpanel">${panels[key]}</div>`)}</div>

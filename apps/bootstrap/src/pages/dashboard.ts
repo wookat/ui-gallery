@@ -51,13 +51,13 @@ function recentOrders() {
   return `<div class="card h-100">
     <div class="card-header d-flex justify-content-between align-items-center"><span class="fw-semibold">最近订单</span><a href="${href("/orders")}" data-link="/orders" class="small text-decoration-none">查看全部 ${icon("arrow-right")}</a></div>
     <div class="table-responsive"><table class="table table-hover align-middle mb-0">
-      <thead><tr><th>订单</th><th>客户</th><th>状态</th><th class="text-end">金额</th><th class="text-end"><span class="visually-hidden">操作</span></th></tr></thead>
+      <thead><tr><th>订单</th><th>客户</th><th class="d-none d-sm-table-cell">状态</th><th class="text-end">金额</th><th class="text-end"><span class="visually-hidden">操作</span></th></tr></thead>
       <tbody>${each(orders.slice(0, 5), (o) => `<tr>
         <td class="text-nowrap"><code>${o.id}</code></td>
-        <td><div class="d-flex align-items-center gap-2">${avatar(o.customer, 28)}<span class="text-nowrap">${esc(o.customer)}</span></div></td>
-        <td><span class="badge rounded-pill text-bg-${STATUS_COLOR[o.status]}">${STATUS_LABEL[o.status]}</span></td>
+        <td><div class="d-flex align-items-center gap-2"><span class="d-none d-md-inline-flex">${avatar(o.customer, 28)}</span><span class="text-nowrap">${esc(o.customer)}</span></div></td>
+        <td class="d-none d-sm-table-cell"><span class="badge rounded-pill text-bg-${STATUS_COLOR[o.status]}">${STATUS_LABEL[o.status]}</span></td>
         <td class="text-end text-nowrap">${money(o.amount, o.currency)}</td>
-        <td class="text-end"><div class="dropdown"><button class="btn btn-sm btn-link link-body-emphasis" data-bs-toggle="dropdown" aria-label="操作">${icon("more-horizontal")}</button>
+        <td class="text-end"><div class="dropdown"><button class="btn btn-link px-2" data-bs-toggle="dropdown" aria-label="操作">${icon("more-horizontal")}</button>
           <ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="${href("/orders")}" data-link="/orders">查看</a></li><li><button class="dropdown-item" type="button">复制订单号</button></li><li><hr class="dropdown-divider"></li><li><button class="dropdown-item text-danger" type="button">删除</button></li></ul></div></td>
       </tr>`)}</tbody></table></div></div>`
 }

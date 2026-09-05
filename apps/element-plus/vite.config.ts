@@ -6,4 +6,5 @@ export default defineConfig({
   base: "/apps/element-plus/",
   plugins: [vue()],
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
+  build: { rollupOptions: { output: { manualChunks: { echarts: ["echarts"], "element-plus": ["element-plus"] } } } },
 })

@@ -11,6 +11,16 @@ a { color: var(--el-color-primary); text-decoration: none; }
 .scroll-x { overflow-x: auto; }
 .muted { color: var(--el-text-color-secondary); }
 .full-width { width: 100%; }
+/* WCAG AA (>=4.5:1) contrast tokens for light mode only; hue and components unchanged */
+html:not(.dark) {
+  --el-color-primary: #2b6bc4; --el-color-primary-light-3: #6b97d6; --el-color-primary-light-5: #95b5e2; --el-color-primary-light-7: #bfd3ed; --el-color-primary-light-8: #d5e1f3; --el-color-primary-light-9: #eaf0f9; --el-color-primary-dark-2: #22569d;
+  --el-color-success: #357a1c; --el-color-success-light-3: #72a260; --el-color-success-light-5: #9abd8e; --el-color-success-light-7: #c2d7bb; --el-color-success-light-8: #d7e4d2; --el-color-success-light-9: #ebf2e8; --el-color-success-dark-2: #2a6216;
+  --el-color-warning: #9a6400; --el-color-warning-light-3: #b8934d; --el-color-warning-light-5: #cdb280; --el-color-warning-light-7: #e1d1b3; --el-color-warning-light-8: #ebe0cc; --el-color-warning-light-9: #f8f4ed; --el-color-warning-dark-2: #7b5000;
+  --el-color-danger: #c73535; --el-color-danger-light-3: #d87272; --el-color-danger-light-5: #e39a9a; --el-color-danger-light-7: #eec2c2; --el-color-danger-light-8: #f4d7d7; --el-color-danger-light-9: #f9ebeb; --el-color-danger-dark-2: #9f2a2a;
+  --el-color-error: #c73535; --el-color-error-light-3: #d87272; --el-color-error-light-5: #e39a9a; --el-color-error-light-7: #eec2c2; --el-color-error-light-8: #f4d7d7; --el-color-error-light-9: #f9ebeb; --el-color-error-dark-2: #9f2a2a;
+  --el-color-info: #6b6e76; --el-color-info-light-3: #979a9f; --el-color-info-light-5: #b5b7bb; --el-color-info-light-7: #d3d4d6; --el-color-info-light-8: #e1e2e4; --el-color-info-light-9: #f3f3f4; --el-color-info-dark-2: #56585e;
+  --el-text-color-secondary: #6b6e76;
+}
 @media (max-width: 767px) {
   .page { padding: 0; }
   .page-header { flex-direction: column; }

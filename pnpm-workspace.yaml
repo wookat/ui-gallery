@@ -10,3 +10,4 @@ allowBuilds:
   playwright-core: true
   sharp: true
   "@parcel/watcher": true
+  workerd: true

@@ -9,5 +9,8 @@
     "shoot": "node tools/shoot/shoot.mjs",
     "assemble": "node tools/assemble.mjs"
   },
-  "devDependencies": { "turbo": "^2.10.12" }
+  "devDependencies": {
+    "turbo": "^2.10.12",
+    "wrangler": "4.127.1"
+  }
 }

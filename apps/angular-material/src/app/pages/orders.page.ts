@@ -59,7 +59,7 @@ export class DeleteOrderDialog {
         <main class="page orders-page">
           <header class="page-header">
             <div><p class="eyebrow">OPERATIONS</p><h1>订单</h1><p class="muted">搜索、筛选和管理所有订单。</p></div>
-            <div class="demo-row"><button mat-stroked-button><mat-icon svgIcon="download"></mat-icon>导出</button><button mat-flat-button color="primary"><mat-icon svgIcon="plus"></mat-icon>新建订单</button></div>
+            <div class="demo-row"><button mat-stroked-button><mat-icon svgIcon="download"></mat-icon>导出</button><button mat-flat-button color="primary" (click)="openCreate()"><mat-icon svgIcon="plus"></mat-icon>新建订单</button></div>
           </header>
 
           <mat-card class="filter-card">
@@ -74,11 +74,11 @@ export class DeleteOrderDialog {
           </mat-card>
 
           @if (state === 'loading') {
-            <mat-card class="state-card"><mat-progress-spinner mode="indeterminate" diameter="44"></mat-progress-spinner><h2>正在加载订单</h2><p class="muted">请稍候，订单数据马上就绪。</p></mat-card>
+            <mat-card class="state-card skeleton-card" aria-busy="true" aria-label="正在加载订单"><div class="skeleton-toolbar"><span class="skeleton line short"></span><span class="skeleton line short"></span><span class="skeleton line short"></span></div><div class="skeleton-table">@for (row of skeletonRows; track row) {<div class="skeleton-row"><span class="skeleton circle"></span><span class="skeleton line"></span><span class="skeleton line short"></span><span class="skeleton line short"></span></div>}</div><div class="skeleton-footer"><mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner><span class="muted">正在加载订单…</span></div></mat-card>
           } @else if (state === 'error') {
-            <mat-card class="state-card error-state"><mat-icon svgIcon="error"></mat-icon><h2>订单加载失败</h2><p class="muted">暂时无法获取订单数据。</p><button mat-stroked-button (click)="retry()">重试</button></mat-card>
+            <mat-card class="state-card error-state"><div class="empty-state"><span class="empty-icon error"><mat-icon svgIcon="error"></mat-icon></span><h2>订单加载失败</h2><p class="muted">暂时无法获取订单数据。</p><button mat-stroked-button (click)="retry()"><mat-icon svgIcon="refresh"></mat-icon>重试</button></div></mat-card>
           } @else if (filteredRows.length === 0 || state === 'empty') {
-            <mat-card class="state-card"><mat-icon svgIcon="inbox"></mat-icon><h2>没有找到订单</h2><p class="muted">试试调整筛选条件，或创建一笔新订单。</p><button mat-flat-button color="primary" (click)="resetFilters()">清除筛选</button></mat-card>
+            <mat-card class="state-card"><div class="empty-state"><span class="empty-icon"><mat-icon svgIcon="inbox"></mat-icon></span><h2>没有找到订单</h2><p class="muted">试试调整筛选条件，或创建一笔新订单。</p><div class="demo-row"><button mat-stroked-button (click)="resetFilters()"><mat-icon svgIcon="filter"></mat-icon>清除筛选</button><button mat-flat-button color="primary" (click)="openCreate()"><mat-icon svgIcon="plus"></mat-icon>新建订单</button></div></div></mat-card>
           } @else {
             <mat-card class="table-card">
               @if (mobile()) {
@@ -203,6 +203,12 @@ export class OrdersPage implements AfterViewInit {
 
   openDetails(order: Order): void {
     this.selectedOrder = order;
+  }
+
+  readonly skeletonRows = [1, 2, 3, 4, 5, 6];
+
+  openCreate(): void {
+    this.snackBar.open('已打开新建订单', '知道了', { duration: 2400 });
   }
 
   edit(order: Order): void {

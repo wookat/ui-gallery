@@ -52,7 +52,7 @@ export class DeleteAccountDialog {
         </nav>
         <section class="settings-content">
           @if (mobile()) {
-            <mat-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="activeTab.set(tabs[$event].key)">
+            <mat-tab-group animationDuration="0ms" [selectedIndex]="tabIndex()" (selectedIndexChange)="activeTab.set(tabs[$event].key)">
               @for (item of tabs; track item.key) {<mat-tab [label]="item.label"></mat-tab>}
             </mat-tab-group>
           }

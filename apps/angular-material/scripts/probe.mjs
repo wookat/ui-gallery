@@ -50,7 +50,7 @@ async function checkOverflow(page, width) {
       const r = el.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
       const cs = getComputedStyle(el);
-      if (cs.position === "fixed" || cs.visibility === "hidden" || el.closest(".mdc-linear-progress")) continue;
+      if (cs.position === "fixed" || cs.visibility === "hidden") continue;
       if (r.right > viewportWidth + 1 || r.left < -1) {
         out.push(`${el.tagName.toLowerCase()}${typeof el.className === "string" && el.className.trim() ? "." + el.className.trim().split(/\s+/).slice(0, 2).join(".") : ""} right=${Math.round(r.right)}`);
       }

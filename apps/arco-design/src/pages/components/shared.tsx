@@ -14,7 +14,7 @@ export function DemoSection({ title, children }: { title?: string; children: Rea
 }
 
 export function SizeRow({ children }: { children: (size: typeof sizes[number]) => ReactNode }) {
-  return <Space wrap>{sizes.map((size) => <div key={size}><Typography.Text type="secondary">{size}</Typography.Text>{children(size)}</div>)}</Space>
+  return <Space wrap align="start">{sizes.map((size) => <div key={size} className="size-row-item"><Typography.Text type="secondary">{size}</Typography.Text>{children(size)}</div>)}</Space>
 }
 
 export function ToggleDemo({ children }: { children: (visible: boolean, setVisible: (visible: boolean) => void) => ReactNode }) {

@@ -280,7 +280,90 @@ html.gallery-font [class^="arco-"] {
 }
 
 .chat-empty {
-  display: none;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+
+.chat-suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: min(100%, 560px);
+  margin-top: 16px;
+}
+
+.chat-suggestion-grid .arco-card {
+  cursor: pointer;
+}
+
+.chat-code {
+  position: relative;
+}
+
+.chat-suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.nav-badge .arco-badge-number {
+  font-weight: 600;
+}
+
+.arco-form-item-control-wrapper .arco-textarea-word-limit,
+.arco-input-word-limit {
+  color: var(--color-text-2);
+}
+
+.chat-code .chat-code-copy {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+.chat-bubble pre {
+  padding-right: 48px;
+}
+
+.size-row-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.orders-table .arco-pagination-item,
+.orders-table .arco-pagination-jumper-input {
+  min-width: 40px;
+  height: 40px;
+  line-height: 40px;
+}
+
+.orders-table .arco-pagination-option .arco-select-view {
+  min-height: 40px;
+}
+
+.orders-table .arco-pagination-item-simple-pager .arco-pagination-jumper-input {
+  height: 40px;
+}
+
+@media (max-width: 767px) {
+  .orders-table .arco-pagination {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+}
+
+.component-card .arco-pagination {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.component-card .arco-pagination-total-text {
+  white-space: nowrap;
 }
 
 .components-layout {
@@ -384,8 +467,56 @@ html.gallery-font [class^="arco-"] {
 }
 
 .app-sider {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   background: var(--color-bg-2);
   border-right: 1px solid var(--color-border-2);
+}
+
+.app-sider > .arco-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.arco-layout-sider-collapsed .nav-label,
+.arco-layout-sider-collapsed .nav-badge {
+  display: none;
+}
+
+/* Contract hit-area floor (>= 40px) for icon-only / compact controls; visuals stay Arco defaults. */
+.hit-area,
+.hit-area.arco-btn {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.notification-list {
+  width: 300px;
+  max-width: calc(100vw - 32px);
+}
+
+.recent-orders .arco-table-td,
+.recent-orders .arco-table-th {
+  white-space: nowrap;
 }
 
 .sider-brand {
@@ -418,7 +549,9 @@ html.gallery-font [class^="arco-"] {
 }
 
 .nav-badge {
+  flex: none;
   margin-left: auto;
+  line-height: 1;
 }
 
 .sider-user {

@@ -63,7 +63,8 @@ export function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.currentTarget.value)}
                     error={passwordError}
-                    visibilityToggleButtonProps={{ size: "md" }}
+                    rightSectionWidth={44}
+                    vars={() => ({ root: { "--psi-button-size": "36px" } })}
                   />
                   <Group justify="space-between">
                     <Checkbox label="记住我" size="sm" />

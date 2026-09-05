@@ -24,6 +24,12 @@ body { min-width: 0; }
 .ratio-demo .ratio > span { display: flex; align-items: center; justify-content: center; }
 .settings-nav .nav-link { white-space: nowrap; }
 .chat-stream pre code { white-space: pre-wrap; overflow-wrap: anywhere; }
+.btn, .form-control, .form-select, .page-link, .btn-close { min-height: 40px; }
+.btn-close { min-width: 40px; background-position: center; }
+.btn { display: inline-flex; align-items: center; justify-content: center; }
+.component-card .btn-sm, .component-card .form-control-sm, .component-card .btn-lg { min-height: 0; }
+.anchor-index .nav-link { min-height: 40px; display: inline-flex; align-items: center; }
+.footer-links a, .footer-links .nav-link { min-height: 40px; display: inline-flex; align-items: center; }
 @media (max-width: 991.98px) {
   .app-shell { display: block; }
   .app-sidebar { display: none; }

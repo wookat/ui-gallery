@@ -49,7 +49,7 @@ export const coverage: Record<string, CoverageStatus> = {
   Alert: "implemented",
   Toast: "implemented",
   Notification: "composed",
-  Dialog: "composed",
+  Dialog: "implemented",
   Drawer: "implemented",
   Progress: "implemented",
   Skeleton: "implemented",

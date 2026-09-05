@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
-import { Badge, Button, Card, Col, Container, Form, ListGroup, Modal, Row, Spinner, Toast, ToastContainer } from "react-bootstrap"
+import { Badge, Button, Card, Col, Container, Dropdown, Form, ListGroup, Modal, Row, Spinner, Toast, ToastContainer } from "react-bootstrap"
 import { Icon } from "@ui-gallery/icons-react"
 import orders from "@ui-gallery/spec/mock/orders.json"
 
@@ -30,6 +30,14 @@ export function StatusBadge({ status }: { status: string }) {
   return <Badge bg={variant}>{labels[status] ?? status}</Badge>
 }
 
+export function placeholderImage(width: number, height: number) {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#dee2e6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#6c757d">${width}×${height}</text></svg>`)}`
+}
+
+function RowActions() {
+  return <Dropdown align="end"><Dropdown.Toggle variant="outline-secondary" className="px-2" aria-label="更多操作"><Icon name="more-horizontal" /></Dropdown.Toggle><Dropdown.Menu><Dropdown.Item>查看详情</Dropdown.Item><Dropdown.Item>编辑</Dropdown.Item><Dropdown.Item className="text-danger">删除</Dropdown.Item></Dropdown.Menu></Dropdown>
+}
+
 export function ResultView({ onPrimary, onSecondary }: { onPrimary: () => void; onSecondary: () => void }) {
   return <Card className="text-center border-0"><Card.Body className="py-5"><div className="display-5 text-success mb-3">✓</div><h2 className="h4">操作成功</h2><p className="text-secondary">你的内容已经保存。</p><div className="d-flex justify-content-center gap-2"><Button onClick={onPrimary}>返回工作台</Button><Button variant="outline-secondary" onClick={onSecondary}>继续创建</Button></div></Card.Body></Card>
 }
@@ -39,11 +47,11 @@ export function EmptyState({ title = "暂无数据", action }: { title?: string;
 }
 
 export function OrderRows({ limit = 5 }: { limit?: number }) {
-  return <>{orders.slice(0, limit).map((order) => <tr key={order.id}><td className="fw-semibold">{order.id}</td><td><div className="d-flex align-items-center gap-2"><Avatar name={order.customer} />{order.customer}</div></td><td>{order.product}</td><td><StatusBadge status={order.status} /></td><td className="text-end">¥{order.amount.toLocaleString()}</td></tr>)}</>
+  return <>{orders.slice(0, limit).map((order) => <tr key={order.id}><td className="fw-semibold">{order.id}</td><td><div className="d-flex align-items-center gap-2"><Avatar name={order.customer} />{order.customer}</div></td><td>{order.product}</td><td><StatusBadge status={order.status} /></td><td className="text-end">¥{order.amount.toLocaleString()}</td><td className="text-end"><RowActions /></td></tr>)}</>
 }
 
 export function OrderCards({ limit = 5 }: { limit?: number }) {
-  return <ListGroup variant="flush">{orders.slice(0, limit).map((order) => <ListGroup.Item key={order.id} className="d-flex align-items-center gap-3"><Avatar name={order.customer} /><div className="flex-grow-1 min-w-0"><div className="d-flex justify-content-between gap-2"><span className="fw-semibold text-nowrap">{order.id}</span><span className="text-nowrap">¥{order.amount.toLocaleString()}</span></div><div className="small text-secondary text-truncate">{order.customer} · {order.product}</div></div><StatusBadge status={order.status} /></ListGroup.Item>)}</ListGroup>
+  return <ListGroup variant="flush">{orders.slice(0, limit).map((order) => <ListGroup.Item key={order.id} className="d-flex align-items-center gap-2"><Avatar name={order.customer} /><div className="flex-grow-1 min-w-0"><div className="d-flex justify-content-between gap-2"><span className="fw-semibold text-nowrap">{order.id}</span><span className="text-nowrap">¥{order.amount.toLocaleString()}</span></div><div className="small text-secondary text-truncate">{order.customer} · {order.product}</div></div><StatusBadge status={order.status} /><RowActions /></ListGroup.Item>)}</ListGroup>
 }
 
 export function ToastNotice({ show, onClose, title = "已完成", children = "操作已成功。" }: { show: boolean; onClose: () => void; title?: string; children?: ReactNode }) {

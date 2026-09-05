@@ -95,6 +95,7 @@ export function LandingPage() {
             {
               type: "button",
               ...iconProps(dark ? "sun" : "moon"),
+              text: dark ? "亮色" : "暗色",
               ariaLabel: "切换主题",
               onClick: () => {
                 toggleThemeInUrl()
@@ -144,13 +145,13 @@ export function LandingPage() {
       </div>
 
       <Section id="logos">
-        <ColumnLayout columns={4} minColumnWidth={120}>
+        <Grid gridDefinition={landing.testimonials.map(() => ({ colspan: { default: 6, xs: 4, s: 2 } }))}>
           {landing.testimonials.map((t) => (
             <Box key={t.company} textAlign="center" color="text-body-secondary" fontWeight="bold" fontSize="heading-s">
               {t.company}
             </Box>
           ))}
-        </ColumnLayout>
+        </Grid>
       </Section>
 
       <Section id="features" title="一个地方，完成所有工作" subtitle="从数据到决策，让每一步都更清晰">
@@ -264,12 +265,12 @@ export function LandingPage() {
                 content: (t) => (
                   <SpaceBetween direction="horizontal" size="xs" alignItems="center">
                     <PersonAvatar name={t.name} />
-                    <div>
+                    <SpaceBetween size="xxs">
                       <Box variant="strong">{t.name}</Box>
                       <Box variant="small" color="text-body-secondary">
                         {t.company}
                       </Box>
-                    </div>
+                    </SpaceBetween>
                   </SpaceBetween>
                 ),
               },

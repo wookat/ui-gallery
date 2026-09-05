@@ -11,12 +11,14 @@ import Container from "@cloudscape-design/components/container"
 import ContentLayout from "@cloudscape-design/components/content-layout"
 import FileUpload from "@cloudscape-design/components/file-upload"
 import FormField from "@cloudscape-design/components/form-field"
+import Grid from "@cloudscape-design/components/grid"
 import Header from "@cloudscape-design/components/header"
 import Input from "@cloudscape-design/components/input"
 import KeyValuePairs from "@cloudscape-design/components/key-value-pairs"
 import Modal from "@cloudscape-design/components/modal"
 import SegmentedControl from "@cloudscape-design/components/segmented-control"
 import Select, { type SelectProps } from "@cloudscape-design/components/select"
+import SideNavigation from "@cloudscape-design/components/side-navigation"
 import SpaceBetween from "@cloudscape-design/components/space-between"
 import StatusIndicator from "@cloudscape-design/components/status-indicator"
 import Table from "@cloudscape-design/components/table"
@@ -31,6 +33,7 @@ import sessions from "@ui-gallery/spec/mock/sessions.json"
 import team from "@ui-gallery/spec/mock/team.json"
 
 import { AppIcon, iconProps } from "@/lib/icons"
+import { useIsMobile } from "@/lib/use-mobile"
 import { label, money, OrderStatus, PageHeader, PersonAvatar } from "./shared"
 
 type Member = (typeof team)[number]
@@ -334,16 +337,19 @@ function DangerZone() {
   const [ack, setAck] = useState(false)
   return (
     <>
-      <div className="gallery-danger">
-        <Container header={<Header variant="h2" description="以下操作不可撤销，请谨慎处理">危险区</Header>}>
-          <SpaceBetween direction="horizontal" size="m" alignItems="center">
-            <Box>删除账号将永久移除所有数据、订单与团队成员关系。</Box>
+      <Container header={<Header variant="h2" description="以下操作不可撤销，请谨慎处理">危险区</Header>}>
+        <Alert
+          type="error"
+          header="删除账号"
+          action={
             <Button onClick={() => setOpen(true)} {...iconProps("trash")}>
               删除账号
             </Button>
-          </SpaceBetween>
-        </Container>
-      </div>
+          }
+        >
+          删除账号将永久移除所有数据、订单与团队成员关系。
+        </Alert>
+      </Container>
       <Modal
         visible={open}
         onDismiss={() => setOpen(false)}
@@ -375,20 +381,38 @@ function DangerZone() {
   )
 }
 
+const SETTINGS_TABS = [
+  { id: "profile", label: "个人资料", content: <Profile /> },
+  { id: "security", label: "账号安全", content: <Security /> },
+  { id: "notifications", label: "通知", content: <Notifications /> },
+  { id: "team", label: "团队", content: <Team /> },
+  { id: "billing", label: "计费", content: <Billing /> },
+]
+
 export function SettingsPage() {
+  const mobile = useIsMobile()
+  const [active, setActive] = useState(SETTINGS_TABS[0].id)
+  const current = SETTINGS_TABS.find((t) => t.id === active) ?? SETTINGS_TABS[0]
   return (
     <ContentLayout header={<PageHeader title="设置" description="管理个人资料、安全、通知、团队与计费" />}>
       <SpaceBetween size="xl">
-        <Tabs
-          variant="container"
-          tabs={[
-            { id: "profile", label: "个人资料", content: <Profile /> },
-            { id: "security", label: "账号安全", content: <Security /> },
-            { id: "notifications", label: "通知", content: <Notifications /> },
-            { id: "team", label: "团队", content: <Team /> },
-            { id: "billing", label: "计费", content: <Billing /> },
-          ]}
-        />
+        {mobile ? (
+          <Tabs variant="container" activeTabId={active} onChange={({ detail }) => setActive(detail.activeTabId)} tabs={SETTINGS_TABS} />
+        ) : (
+          <Grid gridDefinition={[{ colspan: 3 }, { colspan: 9 }]}>
+            <Container disableContentPaddings>
+              <SideNavigation
+                activeHref={`#${active}`}
+                items={SETTINGS_TABS.map((t) => ({ type: "link", text: t.label, href: `#${t.id}` }))}
+                onFollow={(e) => {
+                  e.preventDefault()
+                  setActive(e.detail.href.slice(1))
+                }}
+              />
+            </Container>
+            <div>{current.content}</div>
+          </Grid>
+        )}
         <DangerZone />
       </SpaceBetween>
     </ContentLayout>

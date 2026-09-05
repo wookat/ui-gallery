@@ -121,7 +121,7 @@ const SECTIONS = [
   {
     id: "inputs",
     title: "表单控件",
-    items: ["Input", "Textarea", "PromptInput", "Select", "Multiselect", "Autosuggest", "Checkbox", "RadioGroup", "RadioButton", "Tiles", "Toggle", "Slider", "DatePicker", "DateInput", "Calendar", "TimeInput", "DateRangePicker", "FileUpload", "FileInput", "FileDropzone", "FileTokenGroup", "TokenGroup", "Token", "TagEditor", "AttributeEditor", "PropertyFilter", "TextFilter", "S3ResourceSelector", "Form", "FormField"],
+    items: ["Input", "Textarea", "PromptInput", "Select", "Multiselect", "Autosuggest", "Checkbox", "RadioGroup", "RadioButton", "Tiles", "Toggle", "Slider", "Rating", "ColorPicker", "DatePicker", "DateInput", "Calendar", "TimeInput", "DateRangePicker", "FileUpload", "FileInput", "FileDropzone", "FileTokenGroup", "TokenGroup", "Token", "TagEditor", "AttributeEditor", "PropertyFilter", "TextFilter", "S3ResourceSelector", "Form", "FormField"],
   },
   {
     id: "data",
@@ -129,9 +129,9 @@ const SECTIONS = [
     items: ["Table", "Cards", "ItemCard", "KeyValuePairs", "List", "TreeView", "Badge", "StatusIndicator", "Icon", "Popover", "Tooltip", "Avatar", "ChatBubble", "SupportPromptGroup", "LoadingBar", "LineChart", "BarChart", "AreaChart", "MixedLineBarChart", "PieChart"],
   },
   { id: "feedback", title: "反馈", items: ["Alert", "Flashbar", "Modal", "Drawer", "ProgressBar", "Skeleton", "Spinner", "Steps", "ErrorBoundary"] },
-  { id: "navigation", title: "导航", items: ["TopNavigation", "SideNavigation", "BreadcrumbGroup", "Tabs", "SegmentedControl", "Pagination", "Wizard", "AnchorNavigation", "CollectionPreferences", "NavigableGroup"] },
-  { id: "layout", title: "布局", items: ["AppLayout", "AppLayoutToolbar", "ContentLayout", "Container", "ExpandableSection", "Grid", "ColumnLayout", "SpaceBetween", "PanelLayout", "SplitPanel", "HelpPanel"] },
-  { id: "misc", title: "其他", items: ["Hotspot", "AnnotationContext", "TutorialPanel", "IconProvider", "I18nProvider", "CodeEditor"] },
+  { id: "navigation", title: "导航", items: ["TopNavigation", "SideNavigation", "BreadcrumbGroup", "Tabs", "SegmentedControl", "Pagination", "Wizard", "AnchorNavigation", "BackTop", "CollectionPreferences", "NavigableGroup"] },
+  { id: "layout", title: "布局", items: ["AppLayout", "AppLayoutToolbar", "ContentLayout", "Container", "ExpandableSection", "Grid", "ColumnLayout", "SpaceBetween", "PanelLayout", "SplitPanel", "HelpPanel", "ScrollArea"] },
+  { id: "misc", title: "其他", items: ["Hotspot", "AnnotationContext", "TutorialPanel", "IconProvider", "I18nProvider", "FloatButton"] },
 ]
 
 function Demo({ name, children, note }: { name: string; children?: ReactNode; note?: string }) {
@@ -194,6 +194,9 @@ export function ComponentsPage() {
   const [display, setDisplay] = useState<"all" | "panel-only" | "main-only">("all")
   const [boom, setBoom] = useState(false)
   const [tutorial, setTutorial] = useState<null | { started: boolean }>(null)
+  const [rating, setRating] = useState(3)
+  const [color, setColor] = useState("#0972d3")
+  const [floatOpen, setFloatOpen] = useState(false)
 
   const tutorialDef = {
     title: "快速上手",
@@ -574,6 +577,37 @@ export function ComponentsPage() {
                 <Slider value={slider} onChange={({ detail }) => setSlider(detail.value)} min={0} max={100} step={10} tickMarks referenceValues={[25, 50, 75]} />
                 <Slider value={30} min={0} max={100} invalid />
                 <Slider value={60} min={0} max={100} disabled hideFillLine />
+              </Demo>
+              <Demo name="Rating" note="Rating（composed）：ToggleButton 星组，pressed = 已评分；含 disabled / readOnly 态">
+                <Row>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <ToggleButton key={n} variant="icon" ariaLabel={`${n} 星`} pressed={n <= rating} onChange={() => setRating(n)} iconName="star" pressedIconName="star-filled" />
+                  ))}
+                  <Box color="text-body-secondary">{rating} / 5</Box>
+                </Row>
+                <Row>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <ToggleButton key={n} variant="icon" ariaLabel={`${n} 星（禁用）`} pressed={n <= 4} disabled iconName="star" pressedIconName="star-filled" />
+                  ))}
+                  <Box color="text-body-secondary">disabled</Box>
+                </Row>
+              </Demo>
+              <Demo name="ColorPicker" note="ColorPicker（composed）：FormField + 原生 input[type=color] + 预设色板 Button；含 disabled 态">
+                <ColumnLayout columns={2}>
+                  <FormField label="主题色" description="预设或自定义" constraintText={color}>
+                    <Row>
+                      {["#0972d3", "#037f0c", "#d91515", "#8d6605"].map((c) => (
+                        <Button key={c} variant={c === color ? "primary" : "normal"} onClick={() => setColor(c)} ariaLabel={c}>
+                          <span className="gallery-swatch" style={{ background: c, display: "inline-block" }} />
+                        </Button>
+                      ))}
+                      <input className="gallery-color-input" type="color" value={color} onChange={(e) => setColor(e.target.value)} aria-label="自定义颜色" />
+                    </Row>
+                  </FormField>
+                  <FormField label="禁用">
+                    <input className="gallery-color-input" type="color" value="#9ba7b6" disabled readOnly aria-label="禁用颜色" />
+                  </FormField>
+                </ColumnLayout>
               </Demo>
               <Demo name="DatePicker" note="day / month 粒度；invalid / disabled">
                 <ColumnLayout columns={3}>
@@ -1247,6 +1281,14 @@ export function ComponentsPage() {
               <Demo name="AnchorNavigation" note="Anchor 对应：见页面顶部索引；此处为二级示例">
                 <AnchorNavigation anchors={SECTIONS.map((s) => ({ text: s.title, href: `#${s.id}`, level: 1 }))} />
               </Demo>
+              <Demo name="BackTop" note="BackTop（composed）：固定定位 Button（页面右下角上方常驻，点击平滑回到顶部）；此处为同一按钮的内联展示">
+                <Row>
+                  <Button {...iconProps("arrow-up")} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+                    回到顶部
+                  </Button>
+                  <Box color="text-body-secondary">右下角常驻同款按钮</Box>
+                </Row>
+              </Demo>
               <Demo name="CollectionPreferences" note="表格偏好（分页 / 换行 / 斑马纹 / 列显示 / 粘性列 / 内容密度）">
                 <CollectionPreferences
                   title="偏好"
@@ -1371,6 +1413,19 @@ export function ComponentsPage() {
                   </TextContent>
                 </HelpPanel>
               </Demo>
+              <Demo name="ScrollArea" note="ScrollArea（composed）：CSS overflow 容器，固定高度内滚动">
+                <div className="gallery-scroll-area">
+                  <SpaceBetween size="xs">
+                    {orders.map((o) => (
+                      <Row key={o.id}>
+                        <Box variant="code">{o.id}</Box>
+                        <span>{o.customer}</span>
+                        <OrderStatus status={o.status} />
+                      </Row>
+                    ))}
+                  </SpaceBetween>
+                </div>
+              </Demo>
             </SpaceBetween>
           </Container>
         </div>
@@ -1436,13 +1491,26 @@ export function ComponentsPage() {
                 </Row>
               </Demo>
               <Demo name="I18nProvider" note="全局 zh-CN 内置文案（Pagination / Table / DateRangePicker 等）；应用根已挂载。" />
-              <Demo name="CodeEditor" note="CodeEditor 依赖 Ace 运行时（需额外加载 ace-builds，禁网构建下不引入）；本画廊以 CodeView 展示只读代码，故 CodeEditor 标记为 missing。">
-                <CodeView content={JSON.stringify({ language: "json", theme: "dawn", wrapLines: true }, null, 2)} />
+              <Demo name="FloatButton" note="FloatButton（composed）：固定定位 primary icon Button（页面右下角常驻），点击展开 Popover 快捷操作；此处为同一按钮的内联展示">
+                <Row>
+                  <Button variant="primary" {...iconProps("message-square")} ariaLabel="联系客服" />
+                  <Box color="text-body-secondary">右下角常驻同款按钮</Box>
+                </Row>
               </Demo>
             </SpaceBetween>
           </Container>
         </div>
       </SpaceBetween>
+
+      <div className="gallery-back-top">
+        <Button {...iconProps("arrow-up")} ariaLabel="回到顶部" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
+      </div>
+      <div className="gallery-float-button">
+        <Popover triggerType="custom" position="left" size="medium" dismissButton={false} content={<SpaceBetween size="xs"><Box variant="strong">快捷操作</Box>{chat.suggestions.slice(0, 2).map((s) => <Link key={s}>{s}</Link>)}</SpaceBetween>}>
+          <Button variant="primary" {...iconProps("message-square")} ariaLabel="联系客服" onClick={() => setFloatOpen((o) => !o)} />
+        </Popover>
+        <LiveRegion>{floatOpen ? "已打开快捷操作" : ""}</LiveRegion>
+      </div>
     </ContentLayout>
   )
 }

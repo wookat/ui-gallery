@@ -150,6 +150,7 @@ export function OrdersPage() {
     ])
     setPendingDelete(null)
     if (selected?.id === pendingDelete.id) setSelected(null)
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   const actionItems = [

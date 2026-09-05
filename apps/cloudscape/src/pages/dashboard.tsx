@@ -251,8 +251,8 @@ export function DashboardPage() {
             ) : (
               <Steps
                 ariaLabel="团队动态"
-                steps={activity.map((a, i) => ({
-                  status: i === 0 ? "in-progress" : "success",
+                steps={activity.map((a) => ({
+                  status: "success",
                   header: (
                     <SpaceBetween direction="horizontal" size="xs" alignItems="center">
                       <PersonAvatar name={a.user} size="small" />

@@ -23,9 +23,9 @@ export function isDarkFromUrl() {
 
 export function iconFamilyFromUrl(): IconFamily {
   const params = readParams()
-  const raw = params.get("icons") ?? params.get("icon") ?? "native"
-  if (raw === "lucide" || raw === "tabler" || raw === "phosphor" || raw === "heroicons") return raw
-  return "native"
+  const raw = params.get("icons") ?? params.get("icon") ?? "lucide"
+  if (raw === "native" || raw === "tabler" || raw === "phosphor" || raw === "heroicons") return raw
+  return "lucide"
 }
 
 export function applyUrlSettings() {

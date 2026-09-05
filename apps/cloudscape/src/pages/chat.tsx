@@ -35,12 +35,12 @@ const mdComponents: ComponentProps<typeof Markdown>["components"] = {
     const text = String(children).replace(/\n$/, "")
     if (!className && !text.includes("\n")) return <Box variant="code" display="inline">{text}</Box>
     return (
-      <CodeView
-        content={text}
-        lineNumbers
-        wrapLines
-        actions={<CopyToClipboard copyButtonAriaLabel="复制代码" copyErrorText="复制失败" copySuccessText="已复制" textToCopy={text} variant="icon" />}
-      />
+      <SpaceBetween size="xxs">
+        <Box textAlign="right">
+          <CopyToClipboard copyButtonAriaLabel="复制代码" copyErrorText="复制失败" copySuccessText="已复制" textToCopy={text} variant="icon" />
+        </Box>
+        <CodeView content={text} lineNumbers wrapLines />
+      </SpaceBetween>
     )
   },
   pre({ children }) {

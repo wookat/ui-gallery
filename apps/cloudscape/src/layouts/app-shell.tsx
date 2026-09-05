@@ -17,6 +17,7 @@ import teamData from "@ui-gallery/spec/mock/team.json"
 import { AppIcon, iconProps } from "@/lib/icons"
 import { useAppNav } from "@/lib/nav"
 import { isDarkFromUrl, toggleThemeInUrl } from "@/lib/settings"
+import { label } from "@/pages/shared"
 
 type NavItem = { key: string; label: string; path: string; icon: string; badge?: number }
 const nav = navData as NavItem[]
@@ -160,12 +161,12 @@ export function AppShell({ children, breadcrumb }: { children: ReactNode; breadc
             <Box padding={{ horizontal: "l", vertical: "s" }}>
               <SpaceBetween direction="horizontal" size="xs" alignItems="center">
                 <Avatar ariaLabel={me.name} initials={me.name.slice(0, 1)} tooltipText={me.email} />
-                <div>
+                <SpaceBetween size="xxs">
                   <Box variant="strong">{me.name}</Box>
                   <Box variant="small" color="text-body-secondary">
-                    {me.role}
+                    {label(me.role)}
                   </Box>
-                </div>
+                </SpaceBetween>
               </SpaceBetween>
             </Box>
           </>

@@ -20,7 +20,11 @@ import { APP_TITLE } from "@/layouts/app-shell"
 import { AppIcon, iconProps } from "@/lib/icons"
 import { useAppNav } from "@/lib/nav"
 
-const OAUTH = ["Google", "GitHub", "微信"]
+const OAUTH: { name: string; icon: string }[] = [
+  { name: "Google", icon: "globe" },
+  { name: "GitHub", icon: "plug" },
+  { name: "微信", icon: "message-circle" },
+]
 
 export function LoginPage() {
   const { go, href, follow } = useAppNav()
@@ -128,8 +132,8 @@ export function LoginPage() {
           </Box>
           <SpaceBetween size="xs">
             {OAUTH.map((provider) => (
-              <Button key={provider} fullWidth {...iconProps("globe")}>
-                使用 {provider} 继续
+              <Button key={provider.name} fullWidth {...iconProps(provider.icon)}>
+                使用 {provider.name} 继续
               </Button>
             ))}
           </SpaceBetween>

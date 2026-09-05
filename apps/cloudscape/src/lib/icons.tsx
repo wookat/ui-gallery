@@ -142,7 +142,7 @@ export function toNative(name: string): CloudIconProps.Name {
   return NATIVE[name] ?? "status-info"
 }
 
-/** Icon rendered by gallery name; native Cloudscape icon by default, external family when ?icons= is set. */
+/** Icon rendered by gallery name; lucide by default, Cloudscape built-in when ?icons=native. */
 export function AppIcon({ name, size = "normal" }: { name: string; size?: CloudIconProps.Size }) {
   if (useNativeIcons) return <CloudIcon name={toNative(name)} size={size} />
   return <CloudIcon svg={<GalleryIcon name={name} />} size={size} />

@@ -1,0 +1,19 @@
+import { useState } from "react"
+import { Button, Checkbox, FormControl, Heading, ProgressBar, Radio, RadioGroup, Select, Text, TextInput, Textarea, ToggleSwitch } from "@primer/react"
+import { Icon, iconFor } from "@/lib/icon"
+import { PageHeader, Placeholder } from "./shared"
+
+export function FormPage() {
+  const [step, setStep] = useState("details")
+  const [date, setDate] = useState("")
+  return (
+    <div className="page-stack">
+      <PageHeader title="新建项目" description="通过分步表单创建一个新的工作区项目。" />
+      <div className="flex wrap gap-2">{["details", "config", "review", "success"].map((value, index) => <Button key={value} variant={step === value ? "primary" : "default"} onClick={() => setStep(value)}>{index + 1} {value === "details" ? "基础信息" : value === "config" ? "配置" : value === "review" ? "确认" : "完成"}</Button>)}</div>
+      {step === "details" ? <section className="card stack-4"><div className="card-header"><Heading as="h2" className="card-title">基础信息</Heading><Text className="muted">告诉我们项目的基础信息。</Text></div><div className="grid grid-2"><FormControl required><FormControl.Label>项目名称</FormControl.Label><TextInput placeholder="例如：增长分析" block /></FormControl><FormControl><FormControl.Label>项目类型</FormControl.Label><Select defaultValue="analytics" block><Select.Option value="analytics">数据分析</Select.Option><Select.Option value="marketing">市场营销</Select.Option></Select></FormControl></div><FormControl><FormControl.Label>项目描述</FormControl.Label><Textarea placeholder="描述这个项目..." block /></FormControl><div className="flex justify-between"><span /><Button variant="primary" onClick={() => setStep("config")}>下一步</Button></div></section> : null}
+      {step === "config" ? <section className="card stack-4"><div className="card-header"><Heading as="h2" className="card-title">配置选项</Heading><Text className="muted">选择计划、权限与通知。</Text></div><FormControl><FormControl.Label>计划</FormControl.Label><RadioGroup name="plan"><label className="flex items-center gap-2"><Radio value="pro" />Pro<Text className="muted">适合小型团队</Text></label><label className="flex items-center gap-2"><Radio value="team" defaultChecked />Team<Text className="muted">适合协作团队</Text></label></RadioGroup></FormControl><div className="grid grid-2"><FormControl><FormControl.Label>通知频率</FormControl.Label><Select defaultValue="daily" block><Select.Option value="daily">每日</Select.Option><Select.Option value="weekly">每周</Select.Option></Select></FormControl><FormControl><FormControl.Label>提醒时间</FormControl.Label><TextInput type="date" value={date} onChange={(event) => setDate(event.target.value)} block /></FormControl></div><div className="flex items-center justify-between card"><div><Text>通知开关</Text><Text as="p" className="muted" style={{ margin: 0 }}>接收项目活动提醒</Text></div><ToggleSwitch defaultChecked aria-labelledby="notifications-toggle-label" /><span id="notifications-toggle-label" hidden>通知开关</span></div><FormControl><FormControl.Label>采样比例</FormControl.Label><input type="range" defaultValue="60" max="100" /></FormControl><div className="flex justify-between"><Button onClick={() => setStep("details")}>上一步</Button><Button variant="primary" onClick={() => setStep("review")}>下一步</Button></div></section> : null}
+      {step === "review" ? <section className="card stack-4"><Heading as="h2">确认提交</Heading><Text className="muted">检查配置后提交。</Text><TextInput value="项目配置已准备完成" readOnly block leadingVisual={iconFor("check")} /><ProgressBar progress={82} aria-label="配置进度" /><label className="flex items-center gap-2"><Checkbox defaultChecked />我同意服务条款与隐私政策</label><div className="flex justify-between"><Button onClick={() => setStep("config")}>上一步</Button><Button variant="primary" onClick={() => setStep("success")}>提交项目</Button></div></section> : null}
+      {step === "success" ? <Placeholder><Icon name="check" size={32} /><Heading as="h2">项目创建成功</Heading><Text as="p">你的工作区已经准备就绪。</Text><Button variant="primary">进入项目</Button></Placeholder> : null}
+    </div>
+  )
+}

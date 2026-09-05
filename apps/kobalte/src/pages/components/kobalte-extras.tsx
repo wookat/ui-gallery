@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For } from "solid-js"
 import { AlertDialog } from "@kobalte/core/alert-dialog"
 import { Collapsible } from "@kobalte/core/collapsible"
 import { ContextMenu } from "@kobalte/core/context-menu"

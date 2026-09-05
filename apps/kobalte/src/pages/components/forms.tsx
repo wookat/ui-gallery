@@ -18,7 +18,7 @@ const options = [{ value: "a", label: "选项 A" }, { value: "b", label: "选项
 
 function PinInput() {
   const inputs: HTMLInputElement[] = []
-  return <div class="flex gap-2">{Array.from({ length: 6 }, (_, index) => <TextField class="w-10" ariaLabel={`验证码第 ${index + 1} 位`} maxLength={1} inputMode="numeric" onInput={(event) => { if (event.currentTarget.value && inputs[index + 1]) inputs[index + 1].focus() }} ref={(element) => { inputs[index] = element }} />)}</div>
+  return <div class="flex gap-2">{Array.from({ length: 6 }, (_, index) => <TextField class="w-10 shrink-0 [&_input]:text-center" ariaLabel={`验证码第 ${index + 1} 位`} maxLength={1} inputMode="numeric" onInput={(event) => { if (event.currentTarget.value && inputs[index + 1]) inputs[index + 1].focus() }} ref={(element) => { inputs[index] = element }} />)}</div>
 }
 
 function renderForms(name: string, status: string) {

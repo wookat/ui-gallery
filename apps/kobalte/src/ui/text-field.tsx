@@ -35,7 +35,7 @@ export function TextField(props: TextFieldProps) {
       required={props.required}
       disabled={props.disabled}
       validationState={props.error ? "invalid" : "valid"}
-      class={`grid gap-1.5 ${local.class ?? ""}`}
+      class={`${props.label ? "grid gap-1.5" : ""} ${local.class ?? ""}`}
     >
       {props.label ? <KobalteTextField.Label class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{props.label}{props.required ? <span class="ml-1 text-red-600">*</span> : null}</KobalteTextField.Label> : null}
       <div class="flex min-h-9 items-center rounded-md border border-zinc-300 bg-white px-3 shadow-sm focus-within:ring-2 focus-within:ring-blue-500 data-[invalid]:border-red-500 dark:border-zinc-700 dark:bg-zinc-900">

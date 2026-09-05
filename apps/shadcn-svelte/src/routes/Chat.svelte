@@ -105,7 +105,6 @@
                 ><span>{message.role === "user" ? "你" : "助手"}</span><span
                   class="text-xs text-muted-foreground">· 刚刚</span
                 ></Message.Header
-              >
               ><Bubble.Root
                 variant={message.role === "user" ? "default" : "ghost"}
                 align={message.role === "user" ? "end" : "start"}

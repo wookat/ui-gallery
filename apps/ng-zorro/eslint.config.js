@@ -1,12 +1,20 @@
-const tseslint = require('typescript-eslint');
+const angular = require('angular-eslint');
 
-module.exports = tseslint.config(
+module.exports = [
   {
     ignores: ['dist/**', '.angular/**', 'node_modules/**'],
   },
-  ...tseslint.configs.recommended,
   {
-    files: ['eslint.config.js'],
-    rules: { '@typescript-eslint/no-require-imports': 'off' },
+    files: ['**/*.ts'],
+    processor: angular.processInlineTemplates,
+    ...angular.configs.tsRecommended[0],
   },
-);
+  {
+    files: ['**/*.html'],
+    ...angular.configs.templateRecommended[0],
+  },
+  {
+    files: ['**/*.html'],
+    ...angular.configs.templateAccessibility[0],
+  },
+];

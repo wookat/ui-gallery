@@ -113,5 +113,5 @@
     "icons": "@ng-icons/core",
     "markdown": "marked"
   },
-  "notes": ""
+  "notes": "危险区边框使用官方 Ant Design 错误色 token #ff4d4f；Phase 3 的 /components 页面仍为后续阶段。"
 }

@@ -2,6 +2,7 @@
   import type { Component } from "svelte"
   import { onMount } from "svelte"
   import { ModeWatcher, setMode } from "mode-watcher"
+  import { Toaster } from "$lib/components/ui/sonner"
   import { currentPath } from "$lib/router.svelte"
   import AppShell from "$lib/layouts/AppShell.svelte"
   import Login from "./routes/Login.svelte"
@@ -32,6 +33,7 @@
 </script>
 
 <ModeWatcher />
+<Toaster />
 {#if currentPath.value === "/login"}
   <Login />
 {:else if currentPath.value === "/landing"}

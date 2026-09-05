@@ -1,16 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte"
-  import {
-    ChevronDown,
-    ChevronUp,
-    Download,
-    MoreHorizontal,
-    RefreshCw,
-    Search,
-    Trash2,
-  } from "@lucide/svelte"
   import orders from "@ui-gallery/spec/mock/orders.json"
+  import Icon from "$lib/icons/Icon.svelte"
   import { Button } from "$lib/components/ui/button"
+  import { Input } from "$lib/components/ui/input"
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import * as Card from "$lib/components/ui/card"
   import * as Badge from "$lib/components/ui/badge"
   import * as Checkbox from "$lib/components/ui/checkbox"
@@ -28,9 +22,11 @@
   let query = $state("")
   let status = $state("all")
   let selected = $state<string[]>([])
+  let rows = $state([...orders])
   let open = $state(false)
   let deleteOpen = $state(false)
   let detail = $state<(typeof orders)[number] | null>(null)
+  let deleteTarget = $state<(typeof orders)[number] | null>(null)
   let sortAsc = $state(false)
   let loading = $state(new URLSearchParams(window.location.search).get("state") === "loading")
   let error = $state(new URLSearchParams(window.location.search).get("state") === "error")
@@ -38,7 +34,7 @@
     if (!loading) loading = false
   })
   const filtered = $derived(
-    orders
+    rows
       .filter(
         (order) =>
           (!query ||
@@ -61,6 +57,9 @@
   function remove() {
     deleteOpen = false
     open = false
+    const detailId = deleteTarget?.id
+    if (detailId) rows = rows.filter((order) => order.id !== detailId)
+    if (detailId) selected = selected.filter((id) => id !== detailId)
     toast.success("订单已删除")
   }
 </script>
@@ -71,48 +70,51 @@
       <h1 class="text-2xl font-semibold">订单</h1>
       <p class="text-sm text-muted-foreground">管理和追踪所有订单。</p>
     </div>
-    <Button variant="outline"><Download class="mr-2 size-4" />导出</Button>
+    <Button variant="outline" class="h-10"
+      ><Icon name="download" size={16} class="mr-2" />导出</Button
+    >
   </div>
   {#if error}<Alert.Root variant="destructive"
       ><Alert.Title>订单加载失败</Alert.Title><Alert.Description
         class="flex items-center justify-between"
         >暂时无法读取订单列表。<Button variant="outline" size="sm" onclick={() => (error = false)}
-          ><RefreshCw class="mr-2 size-4" />重试</Button
+          ><Icon name="refresh" size={16} class="mr-2" />重试</Button
         ></Alert.Description
       ></Alert.Root
     >{/if}
   <Card.Root
     ><Card.Content class="flex flex-wrap gap-3 p-4"
       ><div class="relative min-w-48 flex-1">
-        <Search class="absolute top-2.5 left-3 size-4 text-muted-foreground" /><input
+        <Icon name="search" size={16} class="absolute top-3 left-3 text-muted-foreground" /><Input
           bind:value={query}
-          class="h-9 w-full rounded-md border bg-background pr-3 pl-9 text-sm outline-none focus:ring-2 focus:ring-ring"
+          class="h-10 w-full pr-3 pl-9"
           placeholder="搜索订单、客户或产品"
         />
       </div>
-      <select bind:value={status} class="h-9 rounded-md border bg-background px-3 text-sm"
+      <NativeSelect bind:value={status} class="[&>select]:h-10"
         ><option value="all">全部状态</option><option value="paid">已支付</option><option
           value="pending">待处理</option
         ><option value="shipped">已发货</option><option value="refunded">已退款</option><option
           value="failed">失败</option
-        ></select
+        ></NativeSelect
       ><Popover.Root
-        ><Popover.Trigger><Button variant="outline">日期范围</Button></Popover.Trigger
+        ><Popover.Trigger><Button variant="outline" class="h-10">日期范围</Button></Popover.Trigger
         ><Popover.Content class="w-auto p-0"><RangeCalendar.RangeCalendar /></Popover.Content
         ></Popover.Root
       ><Dropdown.Root
         ><Dropdown.Trigger
-          ><Button variant="outline">渠道 <ChevronDown class="ml-2 size-4" /></Button
+          ><Button variant="outline" class="h-10"
+            >渠道 <Icon name="chevron-down" size={16} class="ml-2" /></Button
           ></Dropdown.Trigger
         ><Dropdown.Content
           ><Dropdown.CheckboxItem checked>Web</Dropdown.CheckboxItem><Dropdown.CheckboxItem
             >iOS</Dropdown.CheckboxItem
           ><Dropdown.CheckboxItem>Android</Dropdown.CheckboxItem></Dropdown.Content
         ></Dropdown.Root
-      ><select class="h-9 rounded-md border bg-background px-3 text-sm" aria-label="每页条数"
-        ><option>10 条/页</option><option>20 条/页</option><option>50 条/页</option></select
+      ><NativeSelect class="[&>select]:h-10" aria-label="每页条数"
+        ><option>10 条/页</option><option>20 条/页</option><option>50 条/页</option></NativeSelect
       ><Dropdown.Root
-        ><Dropdown.Trigger><Button variant="outline">列显示</Button></Dropdown.Trigger
+        ><Dropdown.Trigger><Button variant="outline" class="h-10">列显示</Button></Dropdown.Trigger
         ><Dropdown.Content
           ><Dropdown.CheckboxItem checked>客户</Dropdown.CheckboxItem><Dropdown.CheckboxItem checked
             >产品</Dropdown.CheckboxItem
@@ -126,14 +128,36 @@
     >{:else if filtered.length === 0}<Card.Root
       ><Empty.Root
         ><Empty.Header
-          ><Empty.Media variant="icon"><Search /></Empty.Media><Empty.Title
+          ><Empty.Media variant="icon"><Icon name="search" size={18} /></Empty.Media><Empty.Title
             >没有找到订单</Empty.Title
           ><Empty.Description>尝试调整搜索关键词或筛选条件。</Empty.Description></Empty.Header
         ></Empty.Root
       ></Card.Root
     >{:else}<Card.Root
       ><Card.Content class="p-0"
-        ><div class="overflow-x-auto">
+        ><div class="space-y-3 sm:hidden">
+          {#each filtered as order (order.id)}
+            <button class="w-full rounded-lg border p-4 text-left" onclick={() => showOrder(order)}>
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="font-medium">{order.id}</p>
+                  <p class="text-sm text-muted-foreground">{order.customer}</p>
+                </div>
+                <Badge.Root
+                  variant={order.status === "paid"
+                    ? "default"
+                    : order.status === "failed"
+                      ? "destructive"
+                      : "secondary"}>{order.status}</Badge.Root
+                >
+              </div>
+              <div class="mt-3 flex justify-between text-sm">
+                <span>{order.product}</span><span>{order.currency}{order.amount.toFixed(2)}</span>
+              </div>
+            </button>
+          {/each}
+        </div>
+        <div class="hidden overflow-x-auto sm:block">
           <table class="w-full min-w-[720px] text-sm">
             <thead
               ><tr class="border-b text-left text-muted-foreground"
@@ -144,9 +168,11 @@
                     onchange={toggleAll}
                   /></th
                 ><th class="cursor-pointer px-4 py-3" onclick={() => (sortAsc = !sortAsc)}
-                  >订单号 {#if sortAsc}<ChevronUp class="inline size-3" />{:else}<ChevronDown
-                      class="inline size-3"
-                    />{/if}</th
+                  >订单号 {#if sortAsc}<Icon
+                      name="chevron-up"
+                      size={12}
+                      class="inline"
+                    />{:else}<Icon name="chevron-down" size={12} class="inline" />{/if}</th
                 ><th class="px-4 py-3">客户</th><th class="px-4 py-3">产品</th><th class="px-4 py-3"
                   >渠道</th
                 ><th class="px-4 py-3">状态</th><th class="px-4 py-3 text-right">金额</th><th
@@ -183,12 +209,16 @@
                     ><Dropdown.Root
                       ><Dropdown.Trigger
                         ><button class="rounded p-1 hover:bg-muted" aria-label="订单操作"
-                          ><MoreHorizontal class="size-4" /></button
+                          ><Icon name="more-horizontal" size={16} /></button
                         ></Dropdown.Trigger
                       ><Dropdown.Content
                         ><Dropdown.Item onclick={() => showOrder(order)}>编辑</Dropdown.Item
-                        ><Dropdown.Item class="text-destructive" onclick={() => (deleteOpen = true)}
-                          >删除</Dropdown.Item
+                        ><Dropdown.Item
+                          class="text-destructive"
+                          onclick={() => {
+                            deleteTarget = order
+                            deleteOpen = true
+                          }}>删除</Dropdown.Item
                         ></Dropdown.Content
                       ></Dropdown.Root
                     ></td
@@ -198,8 +228,8 @@
           </table>
         </div></Card.Content
       ><Card.Footer class="flex items-center justify-between border-t"
-        ><span class="text-xs text-muted-foreground">显示 {filtered.length} 条订单</span
-        ><Pagination.Root count={orders.length} perPage={10} /></Card.Footer
+        ><span class="text-xs text-muted-foreground">显示 {rows.length} 条订单</span
+        ><Pagination.Root count={rows.length} perPage={10} /></Card.Footer
       ></Card.Root
     >{/if}
 </div>
@@ -238,8 +268,12 @@
             placeholder="添加订单备注..."
           ></textarea>
         </div>
-        <Button variant="destructive" onclick={() => (deleteOpen = true)}
-          ><Trash2 class="mr-2 size-4" />删除订单</Button
+        <Button
+          variant="destructive"
+          onclick={() => {
+            deleteTarget = detail
+            deleteOpen = true
+          }}><Icon name="trash" size={16} class="mr-2" />删除订单</Button
         >
       </div></Sheet.Content
     ></Sheet.Root

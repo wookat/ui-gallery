@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Paperclip, Send, Sparkles } from "@lucide/svelte"
+  import Icon from "$lib/icons/Icon.svelte"
   import * as Attachment from "$lib/components/ui/attachment"
   import * as Bubble from "$lib/components/ui/bubble"
   import * as Collapsible from "$lib/components/ui/collapsible"
@@ -13,15 +13,30 @@
   import * as HoverCard from "$lib/components/ui/hover-card"
   import * as ContextMenu from "$lib/components/ui/context-menu"
   import * as Label from "$lib/components/ui/label"
+  import * as Toggle from "$lib/components/ui/toggle"
+  import * as ToggleGroup from "$lib/components/ui/toggle-group"
   import { Button } from "$lib/components/ui/button"
+  import { Input } from "$lib/components/ui/input"
   import { Badge } from "$lib/components/ui/badge"
   import { Spinner } from "$lib/components/ui/spinner"
+  import { toast } from "svelte-sonner"
 
   let { name }: { name: string } = $props()
   let expanded = $state(false)
 </script>
 
-{#if name === "Collapsible"}
+{#if name === "Toggle"}
+  <div class="flex gap-2">
+    <Toggle.Root variant="outline">收藏</Toggle.Root><Toggle.Root size="sm">紧凑</Toggle.Root
+    ><Toggle.Root disabled>禁用</Toggle.Root>
+  </div>
+{:else if name === "ToggleGroup"}
+  <ToggleGroup.Root type="multiple" variant="outline"
+    ><ToggleGroup.Item value="one">日</ToggleGroup.Item><ToggleGroup.Item value="two"
+      >周</ToggleGroup.Item
+    ><ToggleGroup.Item value="three">月</ToggleGroup.Item></ToggleGroup.Root
+  >
+{:else if name === "Collapsible"}
   <Collapsible.Root bind:open={expanded} class="rounded-lg border p-3"
     ><Collapsible.Trigger class="text-sm font-medium"
       >工具调用 {expanded ? "（收起）" : "（展开）"}</Collapsible.Trigger
@@ -38,19 +53,19 @@
 {:else if name === "Field"}
   <Field.Group
     ><Field.Label>工作邮箱</Field.Label><Field.Content
-      ><InputGroup.Input placeholder="name@example.com" /></Field.Content
+      ><Input placeholder="name@example.com" /></Field.Content
     ><Field.Description>仅用于发送通知。</Field.Description></Field.Group
   >
 {:else if name === "Item"}
   <Item.Root variant="outline"
-    ><Item.Media variant="icon"><Paperclip /></Item.Media><Item.Content
+    ><Item.Media variant="icon"><Icon name="paperclip" size={18} /></Item.Media><Item.Content
       ><Item.Title>附件文件</Item.Title><Item.Description>刚刚上传 · 2.4 MB</Item.Description
       ></Item.Content
     ><Item.Actions><Button size="icon-sm" variant="ghost">×</Button></Item.Actions></Item.Root
   >
 {:else if name === "Marker"}
   <Marker.Root
-    ><Marker.Icon><Sparkles /></Marker.Icon><Marker.Content
+    ><Marker.Icon><Icon name="sparkles" size={18} /></Marker.Icon><Marker.Content
       ><p class="font-medium">关键节点</p>
       <p class="text-xs text-muted-foreground">标记重要信息。</p></Marker.Content
     ></Marker.Root
@@ -61,7 +76,7 @@
       ><div
         class="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground"
       >
-        <Sparkles class="size-4" />
+        <Icon name="sparkles" size={16} />
       </div></Message.Avatar
     ><Message.Content
       ><Message.Header>助手 · 刚刚</Message.Header><Bubble.Root
@@ -71,7 +86,7 @@
   >
 {:else if name === "Attachment"}
   <Attachment.Root
-    ><Attachment.Media><Paperclip /></Attachment.Media><Attachment.Content
+    ><Attachment.Media><Icon name="paperclip" size={18} /></Attachment.Media><Attachment.Content
       ><Attachment.Title>需求文档.pdf</Attachment.Title><Attachment.Description
         >上传完成</Attachment.Description
       ></Attachment.Content
@@ -79,7 +94,7 @@
     ></Attachment.Root
   >
 {:else if name === "Sonner"}
-  <Button onclick={() => alert("Sonner 已由应用壳接入")}>触发通知</Button>
+  <Button onclick={() => toast("新的消息")}>触发通知</Button>
 {:else if name === "Menubar"}
   <Menubar.Root
     ><Menubar.Menu
@@ -115,7 +130,7 @@
   <div class="flex items-center gap-2 rounded-lg border p-4 text-sm">
     <Badge variant="secondary">registry</Badge><Spinner /><span>额外组件演示</span><Button
       size="icon-sm"
-      variant="ghost"><Send /></Button
+      variant="ghost"><Icon name="send" size={16} /></Button
     >
   </div>
 {/if}

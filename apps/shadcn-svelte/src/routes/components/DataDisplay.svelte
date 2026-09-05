@@ -1,18 +1,11 @@
 <script lang="ts">
-  import {
-    ArrowDown,
-    ArrowUp,
-    Check,
-    ChevronLeft,
-    ChevronRight,
-    Image as ImageIcon,
-    MoreHorizontal,
-    Star,
-  } from "@lucide/svelte"
+  import Icon from "$lib/icons/Icon.svelte"
+  import { today, getLocalTimeZone } from "@internationalized/date"
   import * as AspectRatio from "$lib/components/ui/aspect-ratio"
   import * as Avatar from "$lib/components/ui/avatar"
   import * as Badge from "$lib/components/ui/badge"
   import * as Card from "$lib/components/ui/card"
+  import * as Calendar from "$lib/components/ui/calendar"
   import * as Carousel from "$lib/components/ui/carousel"
   import * as Dialog from "$lib/components/ui/dialog"
   import * as Empty from "$lib/components/ui/empty"
@@ -34,7 +27,7 @@
       <Table.Header
         ><Table.Row
           ><Table.Head>项目</Table.Head><Table.Head>负责人</Table.Head><Table.Head
-            class="text-right">进度 <ArrowDown class="inline size-3" /></Table.Head
+            class="text-right">进度 <Icon name="arrow-down" size={12} class="inline" /></Table.Head
           ><Table.Head></Table.Head></Table.Row
         ></Table.Header
       >
@@ -43,13 +36,17 @@
           ><Table.Cell>网站重构</Table.Cell><Table.Cell>林然</Table.Cell><Table.Cell
             class="text-right">82%</Table.Cell
           ><Table.Cell
-            ><Button size="icon-sm" variant="ghost"><MoreHorizontal /></Button></Table.Cell
+            ><Button size="icon-sm" variant="ghost"
+              ><Icon name="more-horizontal" size={16} /></Button
+            ></Table.Cell
           ></Table.Row
         ><Table.Row
           ><Table.Cell>数据清理</Table.Cell><Table.Cell>周宁</Table.Cell><Table.Cell
             class="text-right">64%</Table.Cell
           ><Table.Cell
-            ><Button size="icon-sm" variant="ghost"><MoreHorizontal /></Button></Table.Cell
+            ><Button size="icon-sm" variant="ghost"
+              ><Icon name="more-horizontal" size={16} /></Button
+            ></Table.Cell
           ></Table.Row
         ></Table.Body
       >
@@ -98,13 +95,13 @@
     <Card.Root class="overflow-hidden"
       ><AspectRatio.Root ratio={16 / 9}
         ><div class="flex size-full items-center justify-center bg-muted">
-          <ImageIcon />
+          <Icon name="image" size={20} />
         </div></AspectRatio.Root
       ><Card.Content class="flex flex-1 items-center p-4">带比例媒体</Card.Content></Card.Root
     >
     <Card.Root class="flex flex-row items-center gap-3 p-4"
       ><div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-muted">
-        <ImageIcon class="size-5" />
+        <Icon name="image" size={20} />
       </div>
       <div class="min-w-0 flex-1">
         <Card.Title>横向卡片</Card.Title><Card.Description>紧凑的横向内容布局。</Card.Description>
@@ -136,7 +133,8 @@
         <p class="text-sm text-muted-foreground">本月收入</p>
         <p class="mt-1 text-3xl font-bold">¥128,420</p>
       </div>
-      <Badge.Root variant="secondary"><ArrowUp class="size-3" />12.8%</Badge.Root></Card.Content
+      <Badge.Root variant="secondary"><Icon name="arrow-up" size={12} />12.8%</Badge.Root
+      ></Card.Content
     ></Card.Root
   >
 {:else if name === "Timeline"}
@@ -154,27 +152,22 @@
     <p class="pl-10 text-muted-foreground">按钮规范</p>
   </div>
 {:else if name === "Calendar"}
-  <div class="rounded-lg border p-3">
-    <p class="mb-3 text-sm font-medium">六月 2025</p>
-    <div class="grid grid-cols-7 gap-1 text-center text-xs">
-      {#each Array(30) as _, i}<span
-          class={`rounded p-1 ${i === 19 ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-          >{i + 1}</span
-        >{/each}
-    </div>
-  </div>
+  {@const calendarValue = today(getLocalTimeZone())}
+  <Calendar.Calendar type="single" value={calendarValue} class="rounded-md border" />
 {:else if name === "Image"}
   <Dialog.Root
     ><Dialog.Trigger
-      ><button class="block overflow-hidden rounded-lg border"
-        ><AspectRatio.Root ratio={16 / 9}
-          ><div
-            class="flex size-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/60"
-          >
-            <ImageIcon />
-          </div></AspectRatio.Root
-        ></button
-      ></Dialog.Trigger
+      >{#snippet child({ props })}<button
+          {...props}
+          class="block w-full max-w-sm overflow-hidden rounded-lg border"
+          ><AspectRatio.Root ratio={16 / 9}
+            ><div
+              class="flex size-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/60"
+            >
+              <Icon name="image" size={20} />
+            </div></AspectRatio.Root
+          ></button
+        >{/snippet}</Dialog.Trigger
     ><Dialog.Content
       ><Dialog.Header
         ><Dialog.Title>图片预览</Dialog.Title><Dialog.Description
@@ -182,7 +175,7 @@
         ></Dialog.Header
       >
       <div class="flex h-56 items-center justify-center rounded-lg bg-muted">
-        <ImageIcon class="size-12" />
+        <Icon name="image" size={48} />
       </div></Dialog.Content
     ></Dialog.Root
   >
@@ -207,7 +200,8 @@
 {:else if name === "Empty"}
   <Empty.Root
     ><Empty.Header
-      ><Empty.Media variant="icon"><Star /></Empty.Media><Empty.Title>暂无内容</Empty.Title
+      ><Empty.Media variant="icon"><Icon name="star" size={18} /></Empty.Media><Empty.Title
+        >暂无内容</Empty.Title
       ><Empty.Description>完成第一个任务后，结果会显示在这里。</Empty.Description></Empty.Header
     ><Button>创建任务</Button></Empty.Root
   >

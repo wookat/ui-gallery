@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AlertCircle, CheckCircle2, Info, LoaderCircle, XCircle } from "@lucide/svelte"
+  import Icon from "$lib/icons/Icon.svelte"
   import { toast } from "svelte-sonner"
   import * as Alert from "$lib/components/ui/alert"
   import * as AlertDialog from "$lib/components/ui/alert-dialog"
@@ -20,22 +20,22 @@
 {#if name === "Alert"}
   <div class="space-y-2">
     <Alert.Root
-      ><Info /><Alert.Title>信息提示</Alert.Title><Alert.Description
+      ><Icon name="info" size={18} /><Alert.Title>信息提示</Alert.Title><Alert.Description
         >这是一条普通说明。</Alert.Description
       ></Alert.Root
     >
     <Alert.Root variant="destructive"
-      ><AlertCircle /><Alert.Title>错误提示</Alert.Title><Alert.Description
+      ><Icon name="alert-circle" size={18} /><Alert.Title>错误提示</Alert.Title><Alert.Description
         >需要检查输入内容。</Alert.Description
       ></Alert.Root
     >
     <Alert.Root class="border-green-500 text-green-700"
-      ><CheckCircle2 /><Alert.Title>成功提示</Alert.Title><Alert.Description
+      ><Icon name="check-circle" size={18} /><Alert.Title>成功提示</Alert.Title><Alert.Description
         >操作已经完成。</Alert.Description
       ></Alert.Root
     >
     <Alert.Root class="border-amber-500 text-amber-700"
-      ><AlertCircle /><Alert.Title>注意提示</Alert.Title><Alert.Description
+      ><Icon name="alert-circle" size={18} /><Alert.Title>注意提示</Alert.Title><Alert.Description
         >请确认下一步操作。</Alert.Description
       ></Alert.Root
     >
@@ -144,7 +144,8 @@
 {:else if name === "Result"}
   <Empty.Root
     ><Empty.Header
-      ><Empty.Media variant="icon"><CheckCircle2 /></Empty.Media><Empty.Title>提交成功</Empty.Title
+      ><Empty.Media variant="icon"><Icon name="check-circle" size={18} /></Empty.Media><Empty.Title
+        >提交成功</Empty.Title
       ><Empty.Description>结果页可以承载后续操作。</Empty.Description></Empty.Header
     ><Button>返回列表</Button></Empty.Root
   >
@@ -162,6 +163,6 @@
   >
 {:else}
   <div class="rounded-lg border p-4 text-sm text-muted-foreground">
-    <XCircle class="mr-2 inline size-4" />反馈组件状态示例
+    <Icon name="alert-circle" size={16} class="mr-2 inline" />反馈组件状态示例
   </div>
 {/if}

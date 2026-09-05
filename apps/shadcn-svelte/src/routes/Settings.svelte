@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Camera, Lock, Trash2 } from "@lucide/svelte"
+  import Icon from "$lib/icons/Icon.svelte"
   import sessions from "@ui-gallery/spec/mock/sessions.json"
   import team from "@ui-gallery/spec/mock/team.json"
   import plans from "@ui-gallery/spec/mock/plans.json"
@@ -21,16 +21,21 @@
     <h1 class="text-2xl font-semibold">设置</h1>
     <p class="text-sm text-muted-foreground">管理个人资料、团队和账单。</p>
   </div>
-  <Tabs.Root bind:value={tab} class="items-start md:flex-row"
-    ><Tabs.List
-      class="h-auto w-full shrink-0 justify-start overflow-x-auto md:h-fit md:w-44 md:flex-col md:items-stretch [&>[data-slot=tabs-trigger]]:shrink-0 md:[&>[data-slot=tabs-trigger]]:w-full"
-      ><Tabs.Trigger value="profile">个人资料</Tabs.Trigger><Tabs.Trigger value="security"
-        >账号安全</Tabs.Trigger
-      ><Tabs.Trigger value="notifications">通知</Tabs.Trigger><Tabs.Trigger value="team"
-        >团队</Tabs.Trigger
-      ><Tabs.Trigger value="billing">计费</Tabs.Trigger></Tabs.List
-    >
-    <div class="min-w-0 flex-1">
+  <Tabs.Root
+    bind:value={tab}
+    orientation="vertical"
+    class="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]"
+    ><div class="w-full overflow-x-auto lg:overflow-visible">
+      <Tabs.List
+        class="h-auto w-max min-w-full justify-start lg:w-auto lg:min-w-0 lg:flex-col lg:items-stretch [&_[data-slot=tabs-trigger]]:min-h-10 lg:[&_[data-slot=tabs-trigger]]:w-full"
+        ><Tabs.Trigger value="profile">个人资料</Tabs.Trigger><Tabs.Trigger value="security"
+          >账号安全</Tabs.Trigger
+        ><Tabs.Trigger value="notifications">通知</Tabs.Trigger><Tabs.Trigger value="team"
+          >团队</Tabs.Trigger
+        ><Tabs.Trigger value="billing">计费</Tabs.Trigger></Tabs.List
+      >
+    </div>
+    <div class="min-w-0">
       <Tabs.Content value="profile"
         ><Card.Root
           ><Card.Header
@@ -40,7 +45,9 @@
           ><Card.Content class="space-y-5"
             ><div class="flex items-center gap-4">
               <Avatar.Root class="size-16"><Avatar.Fallback>AC</Avatar.Fallback></Avatar.Root
-              ><Button variant="outline"><Camera class="mr-2 size-4" />上传头像</Button>
+              ><Button variant="outline"
+                ><Icon name="image" size={16} class="mr-2" />上传头像</Button
+              >
             </div>
             <label class="block space-y-2 text-sm font-medium"
               >姓名<input class="h-9 w-full rounded-md border px-3" value="Acme Team" /></label
@@ -216,7 +223,7 @@
       ></Card.Header
     ><Card.Footer
       ><Button variant="destructive" onclick={() => (dangerOpen = true)}
-        ><Trash2 class="mr-2 size-4" />删除账号</Button
+        ><Icon name="trash" size={16} class="mr-2" />删除账号</Button
       ></Card.Footer
     ></Card.Root
   >

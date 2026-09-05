@@ -1,13 +1,5 @@
 <script lang="ts">
-  import {
-    ChevronDown,
-    Command as CommandIcon,
-    Ellipsis,
-    Home,
-    LayoutDashboard,
-    Menu,
-    Settings,
-  } from "@lucide/svelte"
+  import Icon from "$lib/icons/Icon.svelte"
   import * as Breadcrumb from "$lib/components/ui/breadcrumb"
   import * as Command from "$lib/components/ui/command"
   import * as ContextMenu from "$lib/components/ui/context-menu"
@@ -46,7 +38,9 @@
       ></Menubar.Root
     >
     <Dropdown.Root
-      ><Dropdown.Trigger><Button variant="outline">更多 <ChevronDown /></Button></Dropdown.Trigger
+      ><Dropdown.Trigger
+        ><Button variant="outline">更多 <Icon name="chevron-down" size={16} /></Button
+        ></Dropdown.Trigger
       ><Dropdown.Content
         ><Dropdown.Item>编辑 <Dropdown.Shortcut>⌘E</Dropdown.Shortcut></Dropdown.Item><Dropdown.Sub
           ><Dropdown.SubTrigger>移动到</Dropdown.SubTrigger><Dropdown.SubContent
@@ -70,8 +64,8 @@
 {:else if name === "Tabs"}
   <Tabs.Root value="overview" class="flex gap-5 sm:flex-row"
     ><Tabs.List class="sm:flex-col"
-      ><Tabs.Trigger value="overview"><Home />概览</Tabs.Trigger><Tabs.Trigger value="details"
-        ><Settings />详情</Tabs.Trigger
+      ><Tabs.Trigger value="overview"><Icon name="home" size={16} />概览</Tabs.Trigger><Tabs.Trigger
+        value="details"><Icon name="settings" size={16} />详情</Tabs.Trigger
       ><Tabs.Trigger value="disabled" disabled>禁用</Tabs.Trigger></Tabs.List
     ><Tabs.Content value="overview">默认内容区域</Tabs.Content><Tabs.Content value="details"
       >带图标的详情区域</Tabs.Content
@@ -134,16 +128,18 @@
     ><Sidebar.Root collapsible="none" class="relative h-56 w-56"
       ><Sidebar.Header
         ><div class="flex items-center gap-2 px-2 font-semibold">
-          <LayoutDashboard />工作台
+          <Icon name="layout-dashboard" size={16} />工作台
         </div></Sidebar.Header
       ><Sidebar.Content
         ><Sidebar.Group
           ><Sidebar.GroupLabel>导航</Sidebar.GroupLabel><Sidebar.Menu
             ><Sidebar.MenuItem
-              ><Sidebar.MenuButton isActive><Home /><span>概览</span></Sidebar.MenuButton
+              ><Sidebar.MenuButton isActive
+                ><Icon name="home" size={16} /><span>概览</span></Sidebar.MenuButton
               ></Sidebar.MenuItem
             ><Sidebar.MenuItem
-              ><Sidebar.MenuButton><Settings /><span>设置</span></Sidebar.MenuButton
+              ><Sidebar.MenuButton
+                ><Icon name="settings" size={16} /><span>设置</span></Sidebar.MenuButton
               ></Sidebar.MenuItem
             ></Sidebar.Menu
           ></Sidebar.Group
@@ -154,7 +150,7 @@
 {:else if name === "CommandPalette"}
   <div class="space-y-3">
     <Button variant="outline" onclick={() => (commandOpen = true)}
-      ><CommandIcon />打开命令面板 <Kbd>⌘K</Kbd></Button
+      ><Icon name="command" size={16} />打开命令面板 <Kbd>⌘K</Kbd></Button
     ><Command.Dialog bind:open={commandOpen}
       ><Command.Input placeholder="搜索命令" /><Command.List
         ><Command.Empty>没有匹配命令</Command.Empty><Command.Group heading="常用命令"
@@ -175,6 +171,10 @@
   >
 {:else}
   <div class="flex items-center gap-2 rounded-lg border p-4 text-sm">
-    <Menu class="size-4" />导航组件组合示例 <Ellipsis class="ml-auto size-4" />
+    <Icon name="menu" size={16} />导航组件组合示例 <Icon
+      name="ellipsis-horizontal"
+      size={16}
+      class="ml-auto"
+    />
   </div>
 {/if}

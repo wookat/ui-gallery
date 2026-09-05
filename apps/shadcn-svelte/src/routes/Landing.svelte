@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { ArrowRight, Check, Menu, Sparkles } from "@lucide/svelte"
   import landing from "@ui-gallery/spec/mock/landing.json"
   import plans from "@ui-gallery/spec/mock/plans.json"
   import Icon from "$lib/icons/Icon.svelte"
@@ -19,7 +18,7 @@
     <a href="/" class="flex items-center gap-2 font-semibold"
       ><span
         class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-        ><Sparkles class="size-4" /></span
+        ><Icon name="sparkles" size={16} /></span
       >Acme Console</a
     >
     <div class="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
@@ -35,7 +34,7 @@
         size="icon"
         class="md:hidden"
         aria-label="菜单"
-        onclick={() => (mobileOpen = true)}><Menu /></Button
+        onclick={() => (mobileOpen = true)}><Icon name="menu" size={16} /></Button
       >
     </div>
   </nav>
@@ -48,10 +47,9 @@
         <h1 class="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">{landing.hero.title}</h1>
         <p class="mt-5 text-lg text-muted-foreground">{landing.hero.subtitle}</p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <Button size="lg">{landing.hero.primary}<ArrowRight class="ml-2 size-4" /></Button><Button
-            size="lg"
-            variant="outline">{landing.hero.secondary}</Button
-          >
+          <Button size="lg"
+            >{landing.hero.primary}<Icon name="arrow-right" size={16} class="ml-2" /></Button
+          ><Button size="lg" variant="outline">{landing.hero.secondary}</Button>
         </div>
         <div class="mt-8 flex items-center gap-3">
           <div class="flex -space-x-2">
@@ -188,7 +186,7 @@
                 </p>
                 <ul class="mt-6 space-y-3 text-sm">
                   {#each plan.features as feature}<li class="flex gap-2">
-                      <Check class="size-4 text-primary" />{feature}
+                      <Icon name="check" size={16} class="text-primary" />{feature}
                     </li>{/each}
                 </ul>
                 <Button class="mt-8 w-full" variant={plan.recommended ? "default" : "outline"}

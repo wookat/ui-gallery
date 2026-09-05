@@ -3,23 +3,35 @@
   import * as AspectRatio from "$lib/components/ui/aspect-ratio"
   import * as Resizable from "$lib/components/ui/resizable"
   import * as ScrollArea from "$lib/components/ui/scroll-area"
+  import { Separator } from "$lib/components/ui/separator"
 
   let { name }: { name: string } = $props()
 </script>
 
-{#if name === "Grid" || name === "Stack" || name === "Layout" || name === "Container"}
-  <div class="space-y-3 rounded-lg border p-4">
-    <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-      {#each Array(4) as _, i}<div class="rounded bg-primary/15 p-4 text-center text-xs">
-          Grid {i + 1}
-        </div>{/each}
-    </div>
-    <div class="flex flex-wrap gap-2">
-      <div class="rounded bg-muted px-4 py-2">Stack A</div>
-      <div class="rounded bg-muted px-4 py-2">Stack B</div>
-      <div class="rounded bg-muted px-4 py-2">Stack C</div>
-    </div>
+{#if name === "Grid"}
+  <div class="grid gap-3 sm:grid-cols-3">
+    {#each ["一", "二", "三"] as item}<div class="rounded-lg border p-4 text-center">
+        {item}号卡片
+      </div>{/each}
   </div>
+{:else if name === "Stack"}
+  <div class="flex flex-col gap-3 rounded-lg border p-4">
+    <div class="rounded bg-muted p-3">第一项</div>
+    <Separator />
+    <div class="rounded bg-muted p-3">第二项</div>
+    <Separator />
+    <div class="rounded bg-muted p-3">第三项</div>
+  </div>
+{:else if name === "Layout"}
+  <div
+    class="grid min-h-40 grid-cols-[96px_1fr] grid-rows-[40px_1fr] overflow-hidden rounded-lg border"
+  >
+    <div class="col-span-2 border-b bg-muted p-3 text-sm">页头</div>
+    <div class="border-r bg-muted/50 p-3 text-xs">侧栏</div>
+    <div class="p-4 text-sm">内容区域</div>
+  </div>
+{:else if name === "Container"}
+  <div class="mx-auto max-w-3xl rounded-lg border p-6 text-center text-sm">居中的内容容器</div>
 {:else if name === "AspectRatio"}
   <AspectRatio.Root ratio={16 / 9}
     ><div class="flex size-full items-center justify-center rounded-lg bg-primary/15 text-sm">

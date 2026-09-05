@@ -1,7 +1,7 @@
 <script lang="ts">
   import { marked } from "marked"
   import { onMount } from "svelte"
-  import { Copy, Menu, Paperclip, Plus, Send, Sparkles } from "@lucide/svelte"
+  import Icon from "$lib/icons/Icon.svelte"
   import chat from "@ui-gallery/spec/mock/chat.json"
   import { Button } from "$lib/components/ui/button"
   import * as Avatar from "$lib/components/ui/avatar"
@@ -35,7 +35,9 @@
   <aside class="hidden w-72 shrink-0 border-r md:flex md:flex-col">
     <div class="flex items-center justify-between border-b p-4">
       <h2 class="font-semibold">会话</h2>
-      <Button size="icon" variant="ghost" aria-label="新建会话"><Plus class="size-4" /></Button>
+      <Button size="icon" variant="ghost" aria-label="新建会话"
+        ><Icon name="plus" size={16} /></Button
+      >
     </div>
     <div class="p-3">
       <input
@@ -66,9 +68,9 @@
         size="icon"
         variant="ghost"
         aria-label="打开会话"
-        onclick={() => (mobileOpen = true)}><Menu /></Button
+        onclick={() => (mobileOpen = true)}><Icon name="menu" size={16} /></Button
       ><Avatar.Root class="size-8"
-        ><Avatar.Fallback><Sparkles class="size-4" /></Avatar.Fallback></Avatar.Root
+        ><Avatar.Fallback><Icon name="sparkles" size={16} /></Avatar.Fallback></Avatar.Root
       >
       <div>
         <h1 class="font-semibold">{empty ? "开始一段新对话" : "AI 助手"}</h1>
@@ -77,7 +79,7 @@
     </header>
     {#if empty}<Empty.Root class="flex-1 border-0"
         ><Empty.Header
-          ><Empty.Media variant="icon"><Sparkles /></Empty.Media><Empty.Title
+          ><Empty.Media variant="icon"><Icon name="sparkles" size={18} /></Empty.Media><Empty.Title
             >你想了解什么？</Empty.Title
           ><Empty.Description>选择一个建议开始探索你的业务数据。</Empty.Description></Empty.Header
         >
@@ -112,7 +114,7 @@
                 variant="ghost"
                 class="mt-2"
                 aria-label="复制内容"
-                onclick={() => copyMessage(message.content)}><Copy class="size-4" /></Button
+                onclick={() => copyMessage(message.content)}><Icon name="copy" size={16} /></Button
               >
               {#if message.sources}<div class="mt-3 flex flex-wrap gap-1">
                   {#each message.sources as source}<Badge.Root variant="outline"
@@ -147,7 +149,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Button variant="ghost" size="icon" aria-label="添加附件"
-              ><Paperclip class="size-4" /></Button
+              ><Icon name="paperclip" size={16} /></Button
             ><select
               class="h-8 w-36 rounded-md border bg-background px-2 text-xs"
               aria-label="选择模型"
@@ -156,7 +158,9 @@
               >Enter 发送 · Shift+Enter 换行</span
             >
           </div>
-          <Button size="icon" aria-label="发送" onclick={send}><Send class="size-4" /></Button>
+          <Button size="icon" aria-label="发送" onclick={send}
+            ><Icon name="send" size={16} /></Button
+          >
         </div>
       </div>
       <div class="mt-2 flex flex-wrap justify-center gap-2">

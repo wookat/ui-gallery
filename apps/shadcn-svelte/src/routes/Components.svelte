@@ -18,6 +18,7 @@
     "Button",
     "ButtonGroup",
     "IconButton",
+    "FloatButton",
     "Toggle",
     "ToggleGroup",
     "Segmented",
@@ -155,7 +156,10 @@
 
   <nav class="flex max-h-48 flex-wrap gap-2 overflow-y-auto rounded-xl border bg-card p-4">
     {#each sections as [name, status]}
-      <a href={`#${name}`} class="rounded-md bg-muted px-2 py-1 text-xs hover:bg-accent">
+      <a
+        href={`#${name}`}
+        class="inline-flex min-h-10 items-center rounded-md bg-muted px-3 text-xs hover:bg-accent"
+      >
         {name}<span class="ml-1 text-muted-foreground">·{status}</span>
       </a>
     {/each}

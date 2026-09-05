@@ -1,6 +1,5 @@
 <script lang="ts">
   import { setMode } from "mode-watcher"
-  import { Bell, ChevronsUpDown, LogOut, Moon, Search, Settings, Sun, User } from "@lucide/svelte"
   import { currentPath } from "$lib/router.svelte"
   import { currentTheme } from "$lib/settings"
   import Link from "$lib/Link.svelte"
@@ -92,7 +91,7 @@
                   <span class="truncate font-semibold">Acme Team</span>
                   <span class="truncate text-xs text-muted-foreground">admin@example.com</span>
                 </span>
-                <ChevronsUpDown class="ml-auto size-4" />
+                <Icon name="chevrons-up-down" size={16} class="ml-auto" />
               </button>
             {/snippet}
           </Sidebar.MenuButton>
@@ -104,7 +103,7 @@
 
   <Sidebar.Inset>
     <header class="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-      <Sidebar.Trigger class="-ml-1" />
+      <Sidebar.Trigger class="-ml-1 size-10" />
       <Breadcrumb.Root class="hidden sm:block">
         <Breadcrumb.List>
           <Breadcrumb.Item><Breadcrumb.Link href="/">工作台</Breadcrumb.Link></Breadcrumb.Item>
@@ -113,7 +112,7 @@
         </Breadcrumb.List>
       </Breadcrumb.Root>
       <InputGroup.Root class="ml-auto hidden w-64 md:flex">
-        <InputGroup.Addon><Search class="size-4" /></InputGroup.Addon>
+        <InputGroup.Addon><Icon name="search" size={16} /></InputGroup.Addon>
         <InputGroup.Input placeholder="搜索..." aria-label="搜索" />
         <InputGroup.Addon align="inline-end"
           ><kbd class="rounded border px-1.5 text-[10px] text-muted-foreground">⌘K</kbd
@@ -123,8 +122,14 @@
       <Popover.Root>
         <Popover.Trigger>
           {#snippet child({ props })}
-            <Button {...props} variant="ghost" size="icon" aria-label="通知">
-              <Bell class="size-4" />
+            <Button
+              {...props}
+              variant="ghost"
+              size="icon"
+              class="relative size-10"
+              aria-label="通知"
+            >
+              <Icon name="bell" size={16} />
               <Badge.Badge class="absolute top-1 right-1 size-1.5 rounded-full p-0"></Badge.Badge>
             </Button>
           {/snippet}
@@ -155,11 +160,13 @@
               {...props}
               variant="ghost"
               size="icon"
+              class="size-10"
               aria-label="切换主题"
               onclick={changeTheme}
             >
-              {#if currentTheme() === "dark"}<Sun class="size-4" />{:else}<Moon
-                  class="size-4"
+              {#if currentTheme() === "dark"}<Icon name="sun" size={16} />{:else}<Icon
+                  name="moon"
+                  size={16}
                 />{/if}
             </Button>
           {/snippet}
@@ -172,7 +179,7 @@
             <Button
               {...props}
               variant="ghost"
-              class="relative size-8 rounded-full p-0"
+              class="relative size-10 rounded-full p-0"
               aria-label="账户"
             >
               <Avatar.Root class="size-8"><Avatar.Fallback>AC</Avatar.Fallback></Avatar.Root>
@@ -188,10 +195,12 @@
             </div></DropdownMenu.Label
           >
           <DropdownMenu.Separator />
-          <DropdownMenu.Item><User class="mr-2 size-4" />个人资料</DropdownMenu.Item>
-          <DropdownMenu.Item><Settings class="mr-2 size-4" />设置</DropdownMenu.Item>
-          <DropdownMenu.Item><Bell class="mr-2 size-4" />通知偏好</DropdownMenu.Item>
-          <DropdownMenu.Item><LogOut class="mr-2 size-4" />退出登录</DropdownMenu.Item>
+          <DropdownMenu.Item><Icon name="user" size={16} class="mr-2" />个人资料</DropdownMenu.Item>
+          <DropdownMenu.Item><Icon name="settings" size={16} class="mr-2" />设置</DropdownMenu.Item>
+          <DropdownMenu.Item><Icon name="bell" size={16} class="mr-2" />通知偏好</DropdownMenu.Item>
+          <DropdownMenu.Item
+            ><Icon name="log-out" size={16} class="mr-2" />退出登录</DropdownMenu.Item
+          >
         </DropdownMenu.Content>
       </DropdownMenu.Root>
     </header>

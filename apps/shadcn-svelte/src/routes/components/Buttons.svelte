@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { LoaderCircle, Plus, Search } from "@lucide/svelte"
+  import Icon from "$lib/icons/Icon.svelte"
   import { Button } from "$lib/components/ui/button"
   import * as ButtonGroup from "$lib/components/ui/button-group"
   import * as InputGroup from "$lib/components/ui/input-group"
@@ -17,10 +17,10 @@
     </div>
     <div class="flex flex-wrap items-center gap-2">
       <Button size="sm">小</Button><Button>默认</Button><Button size="lg">大</Button>
-      <Button size="icon" aria-label="新增"><Plus /></Button>
-      <Button size="icon-sm" aria-label="搜索"><Search /></Button>
+      <Button size="icon" aria-label="新增"><Icon name="plus" size={16} /></Button>
+      <Button size="icon-sm" aria-label="搜索"><Icon name="search" size={16} /></Button>
       <Button disabled>禁用</Button>
-      <Button disabled><LoaderCircle class="animate-spin" />加载中</Button>
+      <Button disabled><Icon name="loader" size={16} class="animate-spin" />加载中</Button>
     </div>
   </div>
 {:else if name === "ButtonGroup"}
@@ -45,6 +45,14 @@
       >周</ToggleGroup.Item
     ><ToggleGroup.Item value="month">月</ToggleGroup.Item>
   </ToggleGroup.Root>
+{:else if name === "FloatButton"}
+  <div class="relative h-40 rounded-lg border">
+    <Button
+      size="icon-lg"
+      class="absolute right-4 bottom-4 rounded-full shadow-lg"
+      aria-label="快捷操作"><Icon name="plus" size={18} /></Button
+    >
+  </div>
 {:else}
   <div class="flex flex-wrap gap-2">
     <Button>操作按钮</Button><Button variant="outline">次要操作</Button>

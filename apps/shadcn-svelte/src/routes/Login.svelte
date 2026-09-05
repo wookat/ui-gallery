@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Mail, Eye, EyeOff, GitBranch, LoaderCircle, Lock, Sparkles } from "@lucide/svelte"
+  import Icon from "$lib/icons/Icon.svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
   import * as Checkbox from "$lib/components/ui/checkbox"
@@ -12,8 +12,23 @@
     remember = true,
     showPassword = false,
     loading = false,
-    submitted = false
+    submitted = false,
+    emailError = "",
+    passwordError = ""
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const initialError = new URLSearchParams(window.location.search).get("state") === "error"
+  if (initialError) {
+    submitted = true
+    emailError = "请输入有效的邮箱地址"
+    passwordError = "密码长度至少为 6 位"
+  }
   async function submit() {
+    emailError = emailPattern.test(email) ? "" : "请输入有效的邮箱地址"
+    passwordError = password.length >= 6 ? "" : "密码长度至少为 6 位"
+    if (emailError || passwordError) {
+      submitted = false
+      return
+    }
     loading = true
     submitted = false
     await new Promise((resolve) => setTimeout(resolve, 1200))
@@ -28,7 +43,7 @@
       <div
         class="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground"
       >
-        <Sparkles />
+        <Icon name="sparkles" size={24} />
       </div>
       <div>
         <Card.Title class="text-2xl">欢迎回来</Card.Title><Card.Description
@@ -37,44 +52,62 @@
       </div>
     </Card.Header>
     <Card.Content class="space-y-4">
-      {#if submitted}<Alert.Root variant="destructive"
+      {#if emailError || passwordError}
+        <Alert.Root variant="destructive"
+          ><Alert.Title>请修正表单中的错误</Alert.Title><Alert.Description
+            >请检查邮箱和密码后重试。</Alert.Description
+          ></Alert.Root
+        >
+      {:else if submitted}
+        <Alert.Root variant="destructive"
           ><Alert.Title>登录失败</Alert.Title><Alert.Description
             >邮箱或密码不正确，请检查后重试。</Alert.Description
           ></Alert.Root
-        >{/if}
+        >
+      {/if}
       <div class="space-y-2">
         <label for="login-email" class="text-sm font-medium">邮箱</label><InputGroup.Root
-          ><InputGroup.Addon><Mail class="size-4" /></InputGroup.Addon><InputGroup.Input
+          ><InputGroup.Addon><Icon name="mail" size={16} /></InputGroup.Addon><InputGroup.Input
             id="login-email"
             type="email"
             bind:value={email}
-            aria-invalid={submitted}
+            class="h-10"
+            aria-invalid={!!emailError}
             placeholder="you@example.com"
           /></InputGroup.Root
-        >{#if submitted}<p class="text-xs text-destructive">请输入有效的邮箱地址</p>{/if}
+        >{#if emailError}<p class="text-sm text-destructive">{emailError}</p>{/if}
       </div>
       <div class="space-y-2">
         <label for="login-password" class="text-sm font-medium">密码</label><InputGroup.Root
-          ><InputGroup.Addon><Lock class="size-4" /></InputGroup.Addon><InputGroup.Input
+          ><InputGroup.Addon><Icon name="lock" size={16} /></InputGroup.Addon><InputGroup.Input
             id="login-password"
             type={showPassword ? "text" : "password"}
             bind:value={password}
+            class="h-10"
+            aria-invalid={!!passwordError}
             placeholder="请输入密码"
-          /><InputGroup.Button aria-label="显示密码" onclick={() => (showPassword = !showPassword)}
-            >{#if showPassword}<EyeOff class="size-4" />{:else}<Eye
-                class="size-4"
+          /><InputGroup.Button
+            class="h-10 min-w-10"
+            aria-label="显示密码"
+            onclick={() => (showPassword = !showPassword)}
+            >{#if showPassword}<Icon name="eye-off" size={16} />{:else}<Icon
+                name="eye"
+                size={16}
               />{/if}</InputGroup.Button
           ></InputGroup.Root
         >
+        {#if passwordError}<p class="text-sm text-destructive">{passwordError}</p>{/if}
       </div>
       <div class="flex items-center justify-between text-sm">
         <label class="flex items-center gap-2"
           ><Checkbox.Root bind:checked={remember} />记住我</label
         ><a href="#forgot" class="text-primary hover:underline">忘记密码？</a>
       </div>
-      <Button class="w-full" disabled={loading} onclick={submit}
-        >{#if loading}<LoaderCircle
-            class="mr-2 size-4 animate-spin"
+      <Button size="lg" class="h-10 w-full" disabled={loading} onclick={submit}
+        >{#if loading}<Icon
+            name="loader"
+            size={16}
+            class="mr-2 animate-spin"
           />登录中...{:else}登录{/if}</Button
       >
       <div class="flex items-center gap-3">
@@ -82,9 +115,9 @@
         ><Separator.Root class="flex-1" />
       </div>
       <div class="grid grid-cols-3 gap-2">
-        <Button variant="outline">Google</Button><Button variant="outline"
-          ><GitBranch class="mr-1 size-4" />GitHub</Button
-        ><Button variant="outline">微信</Button>
+        <Button variant="outline" class="h-10">Google</Button><Button variant="outline" class="h-10"
+          ><Icon name="git-branch" size={16} class="mr-1" />GitHub</Button
+        ><Button variant="outline" class="h-10">微信</Button>
       </div>
     </Card.Content>
     <Card.Footer class="justify-center text-sm text-muted-foreground"

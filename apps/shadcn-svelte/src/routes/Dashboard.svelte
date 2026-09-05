@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte"
-  import { ArrowDownRight, ArrowUpRight, MoreHorizontal } from "@lucide/svelte"
+  import Icon from "$lib/icons/Icon.svelte"
   import stats from "@ui-gallery/spec/mock/stats.json"
   import series from "@ui-gallery/spec/mock/series.json"
   import orders from "@ui-gallery/spec/mock/orders.json"
@@ -60,8 +60,9 @@
                 ? 'text-emerald-600'
                 : 'text-destructive'}"
             >
-              {#if value.delta >= 0}<ArrowUpRight class="size-3" />{:else}<ArrowDownRight
-                  class="size-3"
+              {#if value.delta >= 0}<Icon name="arrow-up" size={12} />{:else}<Icon
+                  name="arrow-down"
+                  size={12}
                 />{/if}{Math.abs(value.delta)}% <span class="text-muted-foreground">较上期</span>
             </div>
             <svg
@@ -257,7 +258,7 @@
                       ><Dropdown.Root
                         ><Dropdown.Trigger
                           ><button class="rounded p-1 hover:bg-muted" aria-label="订单操作"
-                            ><MoreHorizontal class="size-4" /></button
+                            ><Icon name="more-horizontal" size={16} /></button
                           ></Dropdown.Trigger
                         ><Dropdown.Content
                           ><Dropdown.Item>查看详情</Dropdown.Item><Dropdown.Item

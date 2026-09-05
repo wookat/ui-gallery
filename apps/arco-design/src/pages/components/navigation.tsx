@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { Anchor, Affix, BackTop, Breadcrumb, Button, Dropdown, Menu, Pagination, Space, Steps, Tabs, Tooltip } from "@arco-design/web-react"
+import { Anchor, Affix, BackTop, Breadcrumb, Button, Dropdown, Menu, Pagination, Space, Steps, Tabs, Tooltip, Typography } from "@arco-design/web-react"
 import { Icon } from "@/components/icon"
 import type { DemoProps } from "./shared"
 import { DemoSection, sizes } from "./shared"
@@ -11,7 +11,7 @@ export function NavigationDemo({ name }: DemoProps) {
     case "Dropdown": return <DropdownDemo />
     case "Breadcrumb": return <BreadcrumbDemo />
     case "Tabs": return <TabsDemo />
-    case "Pagination": return <Space wrap>{sizes.map((size) => <Pagination key={size} size={size} total={80} showTotal showJumper sizeCanChange />)}<Pagination total={1} hideOnSinglePage disabled simple /></Space>
+    case "Pagination": return <Space direction="vertical" style={{ width: "100%" }}>{sizes.map((size) => <Pagination key={size} size={size} total={80} showTotal showJumper sizeCanChange />)}<Pagination total={1} hideOnSinglePage disabled simple /></Space>
     case "Steps": return <StepsDemo />
     case "Anchor": return <AnchorDemo />
     case "BackTop": return <AnchorDemo backTop />
@@ -45,7 +45,7 @@ function TabsDemo() {
 
 function StepsDemo() {
   const [current, setCurrent] = useState(1)
-  return <DemoSection><Space wrap>{(["default", "arrow", "dot", "navigation"] as const).map((type) => <Steps key={type} type={type} current={current} status={type === "navigation" ? "error" : undefined} direction={type === "dot" ? "vertical" : "horizontal"} size="small" labelPlacement="vertical" lineless><Steps.Step title={`步骤 ${type}`} /><Steps.Step title="处理中" /><Steps.Step title="完成" /></Steps>)}<Button onClick={() => setCurrent((value) => (value + 1) % 3)}>下一步</Button></Space></DemoSection>
+  return <DemoSection><Space direction="vertical" style={{ width: "100%" }}>{(["default", "arrow", "dot", "navigation"] as const).map((type) => <div key={type}><Typography.Text type="secondary">{type}</Typography.Text><Steps type={type} current={current} status={type === "navigation" ? "error" : undefined} direction={type === "dot" ? "vertical" : "horizontal"} size="small" labelPlacement="vertical"><Steps.Step title="步骤一" /><Steps.Step title="处理中" /><Steps.Step title="完成" /></Steps></div>)}<Button onClick={() => setCurrent((value) => (value + 1) % 3)}>下一步</Button></Space></DemoSection>
 }
 
 function AnchorDemo({ backTop = false }: { backTop?: boolean }) {

@@ -12,6 +12,7 @@ import { ChatPage } from "@/pages/chat"
 import { OrdersPage } from "@/pages/orders"
 import { SettingsPage } from "@/pages/settings"
 import { ThemeContext, useTheme } from "@/theme"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 const shell = (element: ReactNode) => <AppShell>{element}</AppShell>
 const router = createBrowserRouter([
@@ -27,9 +28,10 @@ const router = createBrowserRouter([
 
 export default function App() {
   const themeState = useTheme()
+  const isMobile = useIsMobile()
   return (
     <ThemeContext.Provider value={themeState}>
-      <ConfigProvider locale={zhCN}>
+      <ConfigProvider locale={zhCN} size={isMobile ? "large" : "default"}>
         <RouterProvider router={router} />
       </ConfigProvider>
     </ThemeContext.Provider>

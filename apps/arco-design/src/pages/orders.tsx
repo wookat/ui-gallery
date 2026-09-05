@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react"
-import { Alert, Button, Card, DatePicker, Drawer, Dropdown, Empty, Input, Menu, Message, Pagination, Popconfirm, Result, Select, Skeleton, Space, Table, Tabs, Typography } from "@arco-design/web-react"
+import { Alert, Button, Card, DatePicker, Descriptions, Drawer, Dropdown, Empty, Input, Menu, Message, Popconfirm, Result, Select, Skeleton, Space, Table, Tabs, Timeline } from "@arco-design/web-react"
 import orders from "@ui-gallery/spec/mock/orders.json"
 import { Icon } from "@/components/icon"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { PageHeader, StatusBadge } from "./shared"
 
 type Order = (typeof orders)[number]
 
 export function OrdersPage() {
+  const isMobile = useIsMobile()
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState("all")
   const [selected, setSelected] = useState<Order | null>(null)
@@ -20,7 +22,7 @@ export function OrdersPage() {
     { title: "金额", dataIndex: "amount", align: "right" as const, render: (value: unknown) => `¥${Number(value).toLocaleString()}` },
     { title: "操作", render: () => <Dropdown droplist={<Menu><Menu.Item key="edit">编辑</Menu.Item><Menu.Item key="copy">复制订单</Menu.Item><Menu.Item key="delete">删除</Menu.Item></Menu>}><Button type="text" icon={<Icon name="more-horizontal" />} /></Dropdown> },
   ]
-  const stateContent = mode === "loading" ? <Skeleton text={{ rows: 5 }} /> : mode === "empty" ? <Empty description="暂无订单" /> : mode === "error" ? <Result status="error" title="加载失败" subTitle="请稍后重试" /> : <div className="scroll-x"><Table rowKey="id" columns={columns} data={filtered} rowSelection={{}} pagination={{ pageSize: 8, showTotal: true, showJumper: true }} onRow={(record) => ({ onClick: () => setSelected(record) })} /></div>
+  const stateContent = mode === "loading" ? <Skeleton text={{ rows: 5 }} /> : mode === "empty" ? <Empty description="暂无订单" /> : mode === "error" ? <Result status="error" title="加载失败" subTitle="请稍后重试" /> : <div className="scroll-x"><Table rowKey="id" columns={columns} data={filtered} rowSelection={{}} scroll={{ x: 760 }} pagination={{ pageSize: 8, showTotal: true, showJumper: true }} onRow={(record) => ({ onClick: () => setSelected(record) })} /></div>
   return (
     <>
       <PageHeader title="订单管理" description="搜索、筛选并查看全部订单。" action={<Button icon={<Icon name="download" />}>导出</Button>} />
@@ -41,9 +43,8 @@ export function OrdersPage() {
         <Tabs.TabPane key="error" title="错误" />
       </Tabs>
       <Card>{stateContent}</Card>
-      <Pagination total={filtered.length} showTotal showJumper pageSize={8} />
-      <Drawer title="订单详情" visible={Boolean(selected)} onCancel={() => setSelected(null)} footer={null} width={420}>
-        {selected ? <div className="stack"><Typography.Title heading={4}>{selected.id}</Typography.Title><Typography.Text>{selected.customer} · {selected.email}</Typography.Text><Typography.Text>{selected.product}</Typography.Text><StatusBadge value={selected.status} /><Typography.Title heading={5}>备注</Typography.Title><Input.TextArea placeholder="添加备注..." /><Button type="primary" onClick={() => Message.success("备注已保存")}>保存备注</Button><Popconfirm title="确定删除订单吗？" onOk={() => { setSelected(null); Message.success("订单已删除") }}><Button status="danger">删除订单</Button></Popconfirm></div> : null}
+      <Drawer title="订单详情" visible={Boolean(selected)} onCancel={() => setSelected(null)} footer={null} width={isMobile ? "100%" : 420}>
+        {selected ? <div className="stack"><Tabs defaultActiveTab="detail"><Tabs.TabPane key="detail" title="详情"><Descriptions column={1} data={[{ label: "订单号", value: selected.id }, { label: "客户", value: selected.customer }, { label: "邮箱", value: selected.email }, { label: "产品", value: selected.product }, { label: "金额", value: `¥${Number(selected.amount).toLocaleString()}` }, { label: "渠道", value: selected.channel }, { label: "状态", value: <StatusBadge value={selected.status} /> }]} /></Tabs.TabPane><Tabs.TabPane key="timeline" title="时间线"><Timeline><Timeline.Item>{`${selected.date} 创建订单`}</Timeline.Item><Timeline.Item>支付确认</Timeline.Item><Timeline.Item>{`状态：${selected.status}`}</Timeline.Item></Timeline></Tabs.TabPane><Tabs.TabPane key="notes" title="备注"><div className="stack"><Input.TextArea placeholder="添加备注..." /><Button type="primary" onClick={() => Message.success("备注已保存")}>保存备注</Button></div></Tabs.TabPane></Tabs><Popconfirm title="确定删除订单吗？" onOk={() => { setSelected(null); Message.success("订单已删除") }}><Button status="danger">删除订单</Button></Popconfirm></div> : null}
       </Drawer>
     </>
   )

@@ -11,7 +11,7 @@ import { NavigationDemo } from "./components/navigation"
 import { LayoutDemo } from "./components/layout"
 import { ComposedDemo } from "./components/composed"
 
-const largeDemos = new Set(["Table", "DataGrid", "Form", "Menu", "Layout", "Steps", "Tabs", "Calendar", "Transfer", "Descriptions"])
+const largeDemos = new Set(["Table", "DataGrid", "Form", "Menu", "Layout", "Steps", "Tabs", "Calendar", "Transfer", "Descriptions", "Pagination"])
 
 function Demo({ name }: { name: string }) {
   if (coverage[name] === "missing") return <Empty description="Arco Design 未提供该组件" />

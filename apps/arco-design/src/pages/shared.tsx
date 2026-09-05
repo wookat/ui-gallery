@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { Card, Typography, Tag } from "@arco-design/web-react"
+import { Badge, Card, Tag, Typography } from "@arco-design/web-react"
 
 export function PageHeader({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
   return (
@@ -19,6 +19,6 @@ export function SectionCard({ title, description, children }: { title: string; d
 }
 
 export function StatusBadge({ value }: { value: string }) {
-  const color = ["paid", "shipped", "active"].includes(value) ? "green" : ["pending", "due"].includes(value) ? "orange" : "red"
-  return <Tag color={color}>{value}</Tag>
+  const status: "success" | "warning" | "error" = ["paid", "shipped", "active"].includes(value) ? "success" : ["pending", "due"].includes(value) ? "warning" : "error"
+  return <Tag icon={<Badge status={status} />}>{value}</Tag>
 }

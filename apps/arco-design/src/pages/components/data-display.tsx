@@ -81,11 +81,11 @@ function CalendarDemo() {
 }
 
 function ImageDemo() {
-  return <Image.PreviewGroup infinite><Image width={180} height={100} src={demoImage} alt="预览图" loader error={<Empty description="图片加载失败" />} /><Image width={180} height={100} src={demoImage} alt="第二张" style={{ marginLeft: 12 }} lazyload /></Image.PreviewGroup>
+  return <Image.PreviewGroup infinite><Image width={180} height={100} src={demoImage} alt="预览图" loader error={<Empty description="图片加载失败" />} /><Image width={180} height={100} src={demoImage} alt="占位图 2" style={{ marginLeft: 12 }} error={<Empty description="图片加载失败" />} /></Image.PreviewGroup>
 }
 
 function CarouselDemo() {
-  return <DemoSection><Carousel animation="slide" indicatorType="dot" showArrow="always" autoPlay><div className="carousel-demo">slide / dot</div><div className="carousel-demo">第二张</div></Carousel><Carousel animation="card" indicatorType="line" indicatorPosition="outer" style={{ marginTop: 16 }}><div className="carousel-demo">card / line</div><div className="carousel-demo">第二张</div></Carousel><Carousel animation="fade" indicatorType="slider" style={{ marginTop: 16 }}><div className="carousel-demo">fade / slider</div><div className="carousel-demo">第二张</div></Carousel></DemoSection>
+  return <DemoSection><Carousel animation="slide" indicatorType="dot" showArrow="always" autoPlay style={{ height: 140 }}><div className="carousel-demo">slide / dot</div><div className="carousel-demo">第二张</div></Carousel><Carousel animation="card" indicatorType="line" indicatorPosition="outer" style={{ height: 140, marginTop: 16 }}><div className="carousel-demo">card / line</div><div className="carousel-demo">第二张</div></Carousel><Carousel animation="fade" indicatorType="slider" style={{ height: 140, marginTop: 16 }}><div className="carousel-demo">fade / slider</div><div className="carousel-demo">第二张</div></Carousel></DemoSection>
 }
 
 function EmptyDemo() {

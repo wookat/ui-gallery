@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react"
 import orders from "@ui-gallery/spec/mock/orders.json"
 import nav from "@ui-gallery/spec/mock/nav.json"
-import { Button, Card, Space, Tag, Typography } from "@arco-design/web-react"
+import { Badge, Button, Card, Space, Tag, Typography } from "@arco-design/web-react"
 
 export type DemoProps = { name: string }
 export const sizes = ["mini", "small", "default", "large"] as const
@@ -31,5 +31,6 @@ export function ActionButtons({ labels = ["操作一", "操作二"] }: { labels?
 }
 
 export function StatusTag({ value }: { value: string }) {
-  return <Tag color={value === "paid" ? "green" : value === "pending" ? "orange" : "red"}>{value}</Tag>
+  const status: "success" | "warning" | "error" = ["paid", "shipped", "active"].includes(value) ? "success" : ["pending", "due"].includes(value) ? "warning" : "error"
+  return <Tag icon={<Badge status={status} />}>{value}</Tag>
 }

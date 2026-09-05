@@ -75,7 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Layout>
         <Header className="app-header">
           <div className="header-left">
-            {isMobile ? <Button className="mobile-only" type="text" icon={<Icon name="menu" />} onClick={() => setDrawerOpen(true)} aria-label="打开导航" /> : null}
+            {isMobile ? <Button size="large" className="mobile-only" type="text" icon={<Icon name="menu" />} onClick={() => setDrawerOpen(true)} aria-label="打开导航" /> : null}
             <Breadcrumb>
               <Breadcrumb.Item><Link to="/">Acme Console</Link></Breadcrumb.Item>
               <Breadcrumb.Item>{current}</Breadcrumb.Item>
@@ -83,12 +83,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div className="header-actions">
             <Input.Search className="header-search" placeholder="搜索..." allowClear />
-            <Button type="text" icon={<Icon name={theme === "dark" ? "sun" : "moon"} />} onClick={themeToggle} aria-label="切换主题" />
+            <Button size="large" type="text" icon={<Icon name={theme === "dark" ? "sun" : "moon"} />} onClick={themeToggle} aria-label="切换主题" />
             <Badge count={3} dot>
-              <Button type="text" icon={<Icon name="bell" />} aria-label="通知" />
+              <Button size="large" type="text" icon={<Icon name="bell" />} aria-label="通知" />
             </Badge>
             <Dropdown droplist={userMenu} position="br">
-              <Button type="text" className="user-trigger"><Avatar size={30}>林</Avatar></Button>
+              <Button size="large" type="text" className="user-trigger"><Avatar size={30}>林</Avatar></Button>
             </Dropdown>
           </div>
         </Header>

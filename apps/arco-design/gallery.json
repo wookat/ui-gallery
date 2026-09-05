@@ -111,5 +111,5 @@
   "externals": {
     "chart": "recharts"
   },
-  "notes": ""
+  "notes": "默认使用 Lucide 图标；可通过 ?icons=native 切换 Arco 原生图标。"
 }

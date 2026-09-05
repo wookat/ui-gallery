@@ -66,13 +66,13 @@ import {
 
 export type IconFamily = "native" | "lucide" | "tabler" | "phosphor" | "heroicons"
 
-const shared: IconFamily[] = ["lucide", "tabler", "phosphor", "heroicons"]
+const shared: IconFamily[] = ["native", "lucide", "tabler", "phosphor", "heroicons"]
 
 export function iconFamily(): IconFamily {
-  if (typeof window === "undefined") return "native"
+  if (typeof window === "undefined") return "lucide"
   const params = new URLSearchParams(window.location.search)
   const value = params.get("icons") ?? params.get("icon")
-  return shared.includes(value as IconFamily) ? (value as IconFamily) : "native"
+  return shared.includes(value as IconFamily) ? (value as IconFamily) : "lucide"
 }
 
 const native: Record<string, ComponentType<{ style?: CSSProperties; className?: string; spin?: boolean }>> = {

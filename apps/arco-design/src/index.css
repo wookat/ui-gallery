@@ -158,6 +158,14 @@ html.gallery-font [class^="arco-"] {
   gap: 16px;
 }
 
+.carousel-demo {
+  display: grid;
+  height: 140px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--color-fill-2);
+}
+
 .landing-cta {
   width: min(100% - 32px, 1200px);
   margin: 24px auto 80px;
@@ -203,6 +211,7 @@ html.gallery-font [class^="arco-"] {
 
 .chat-thread-header,
 .chat-composer {
+  flex-wrap: wrap;
   padding: 16px;
   border-bottom: 1px solid var(--color-border-2);
 }
@@ -229,6 +238,7 @@ html.gallery-font [class^="arco-"] {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  min-width: 0;
   max-width: 80%;
 }
 
@@ -238,7 +248,11 @@ html.gallery-font [class^="arco-"] {
 }
 
 .chat-bubble {
+  min-width: 0;
+  flex: 1 1 auto;
+  max-width: 100%;
   padding: 12px;
+  overflow-wrap: anywhere;
   border-radius: 10px;
   background: var(--color-fill-2);
 }
@@ -247,9 +261,22 @@ html.gallery-font [class^="arco-"] {
   background: rgb(var(--primary-1));
 }
 
-.chat-bubble pre {
+.chat-bubble pre,
+.chat-bubble table {
+  display: block;
   max-width: 100%;
-  overflow: auto;
+  overflow-x: auto;
+}
+
+.qr-placeholder {
+  display: grid;
+  width: 160px;
+  height: 160px;
+  place-items: center;
+  margin-top: 16px;
+  border: 1px dashed var(--color-border-3);
+  border-radius: 8px;
+  background: var(--color-fill-1);
 }
 
 .chat-empty {

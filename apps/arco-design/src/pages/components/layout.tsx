@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button, Card, Collapse, ConfigProvider, Divider, Grid, Layout, ResizeBox, Space, Watermark } from "@arco-design/web-react"
+import { Button, Card, Collapse, ConfigProvider, Divider, Grid, Input, Layout, ResizeBox, Select, Space, Watermark } from "@arco-design/web-react"
 import { Icon } from "@/components/icon"
 import { useThemeContext } from "@/theme"
 import type { DemoProps } from "./shared"
@@ -41,5 +41,5 @@ function ResizeBoxDemo() {
 
 function ThemeProviderDemo() {
   const { theme, toggleTheme } = useThemeContext()
-  return <ConfigProvider size="small"><Space wrap><Button onClick={toggleTheme}>当前主题：{theme}</Button><Button>按钮</Button><input placeholder="Input" /><select defaultValue="one"><option value="one">Select</option></select></Space></ConfigProvider>
+  return <ConfigProvider size="small"><Space wrap><Button onClick={toggleTheme}>当前主题：{theme}</Button><Button>按钮</Button><Input placeholder="Input" style={{ width: 120 }} /><Select defaultValue="one" options={[{ label: "Select", value: "one" }]} style={{ width: 120 }} /></Space></ConfigProvider>
 }

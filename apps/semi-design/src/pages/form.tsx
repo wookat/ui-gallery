@@ -1,5 +1,6 @@
 import { useRef, useState } from "react"
-import { Button, Card, Checkbox, Descriptions, Form, Steps, Tooltip, Typography } from "@douyinfe/semi-ui"
+import { Button, Card, Checkbox, ColorPicker, Descriptions, Form, Steps, Tooltip, Typography } from "@douyinfe/semi-ui"
+import type { ColorValue } from "@douyinfe/semi-ui/lib/es/colorPicker"
 import type { FormApi } from "@douyinfe/semi-ui/lib/es/form/interface"
 import { Icon } from "@/icons"
 import { PageHeader } from "./shared"
@@ -27,6 +28,7 @@ export function FormPage() {
   const [values, setValues] = useState<Values>({})
   const [agreed, setAgreed] = useState(false)
   const [done, setDone] = useState(false)
+  const [color, setColor] = useState<ColorValue>(ColorPicker.colorStringToValue("#0064fa"))
   const api = useRef<FormApi<Values>>(null)
 
   const next = async () => {
@@ -96,7 +98,7 @@ export function FormPage() {
             <Form.Slider field="budget" label="月预算（¥）" min={0} max={5000} step={100} initValue={1000} marks={{ 0: "0", 2500: "2.5k", 5000: "5k" }} />
             <div className="acme-grid-2 acme-grid">
               <Form.Rating field="rating" label="对现有工具的满意度" initValue={3} allowHalf />
-              <Form.Select field="color" label="品牌色" initValue="blue" optionList={["blue", "green", "orange", "purple"].map((value) => ({ value, label: value }))} />
+              <Form.Slot label={{ text: "品牌色", required: false }}><ColorPicker alpha={false} value={color} onChange={setColor} usePopover /></Form.Slot>
             </div>
             <Form.Upload field="logo" label="团队 Logo" action="" draggable uploadTrigger="custom" accept="image/*" dragMainText="点击或拖拽上传" dragSubText="PNG / SVG，不超过 2MB" />
           </Form>
@@ -106,7 +108,7 @@ export function FormPage() {
             <Descriptions align="left" data={[
               { key: "姓名", value: show(values.name) }, { key: "邮箱", value: show(values.email) }, { key: "手机", value: `${show(values.country)} ${show(values.phone)}` },
               { key: "团队规模", value: show(values.teamSize) }, { key: "角色", value: show(values.role) }, { key: "计划", value: show(values.plan) },
-              { key: "渠道", value: show(values.channels) }, { key: "开始日期", value: show(values.startDate) }, { key: "标签", value: show(values.tags) }, { key: "月预算", value: `¥${show(values.budget)}` },
+              { key: "渠道", value: show(values.channels) }, { key: "开始日期", value: show(values.startDate) }, { key: "标签", value: show(values.tags) }, { key: "品牌色", value: color.hex }, { key: "月预算", value: `¥${show(values.budget)}` },
             ]} />
             <Checkbox checked={agreed} onChange={(event) => setAgreed(Boolean(event.target.checked))}>我已阅读并同意服务条款与隐私政策</Checkbox>
           </div>

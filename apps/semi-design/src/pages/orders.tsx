@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Banner, Button, Checkbox, DatePicker, Descriptions, Dropdown, Empty, Input, Modal, Popover, Select, SideSheet, Table, Toast, Typography } from "@douyinfe/semi-ui"
+import { Banner, Button, Checkbox, DatePicker, Descriptions, Dropdown, Empty, Input, Modal, Popover, Select, SideSheet, Table, Tabs, TextArea, Toast, Typography } from "@douyinfe/semi-ui"
 import { IllustrationNoResult, IllustrationNoResultDark } from "@douyinfe/semi-illustrations"
 import ordersData from "@ui-gallery/spec/mock/orders.json"
 import { Icon } from "@/icons"
@@ -22,6 +22,13 @@ export function OrdersPage() {
   const [detail, setDetail] = useState<Order | null>(null)
   const [pending, setPending] = useState<Order | null>(null)
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(8)
+  const [note, setNote] = useState("")
+
+  const openDetail = (record: Order) => {
+    setDetail(record)
+    setNote("")
+  }
 
   const filtered = useMemo(() => rows.filter((row) => {
     const text = `${row.id} ${row.customer} ${row.email} ${row.product}`.toLowerCase()
@@ -45,9 +52,9 @@ export function OrdersPage() {
     { title: "金额", dataIndex: "amount", align: "right" as const, sorter: (a?: Order, b?: Order) => (a?.amount ?? 0) - (b?.amount ?? 0), render: (value: number) => <Text style={{ fontVariantNumeric: "tabular-nums" }}>{money(value)}</Text> },
     {
       title: "", dataIndex: "actions", width: 56, render: (_: unknown, record: Order) => (
-        <Dropdown trigger="click" position="bottomRight" render={<Dropdown.Menu><Dropdown.Item onClick={() => setDetail(record)}>查看详情</Dropdown.Item><Dropdown.Item onClick={() => { void navigator.clipboard?.writeText(record.id); Toast.success("已复制订单号") }}>复制订单号</Dropdown.Item><Dropdown.Divider /><Dropdown.Item type="danger" onClick={() => setPending(record)}>删除</Dropdown.Item></Dropdown.Menu>}>
+        <span onClick={(event) => event.stopPropagation()}><Dropdown trigger="click" position="bottomRight" render={<Dropdown.Menu><Dropdown.Item onClick={() => openDetail(record)}>查看详情</Dropdown.Item><Dropdown.Item onClick={() => { void navigator.clipboard?.writeText(record.id); Toast.success("已复制订单号") }}>复制订单号</Dropdown.Item><Dropdown.Divider /><Dropdown.Item type="danger" onClick={() => setPending(record)}>删除</Dropdown.Item></Dropdown.Menu>}>
           <Button theme="borderless" type="tertiary" size="small" icon={<Icon name="ellipsis" />} aria-label="更多操作" />
-        </Dropdown>
+        </Dropdown></span>
       ),
     },
   ].filter((column) => column.dataIndex === "id" || column.dataIndex === "actions" || visible.includes(column.dataIndex))
@@ -85,23 +92,26 @@ export function OrdersPage() {
               dataSource={mode === "error" ? [] : filtered}
               columns={columns}
               rowSelection={{ selectedRowKeys: selected, onChange: (keys) => setSelected((keys ?? []).map(String)) }}
-              pagination={{ currentPage: page, pageSize: 8, total: filtered.length, onPageChange: (p) => setPage(p ?? 1), showSizeChanger: false }}
+              pagination={{ currentPage: page, pageSize, total: filtered.length, onPageChange: (p) => setPage(p ?? 1), showSizeChanger: true, pageSizeOpts: [8, 16, 32], onPageSizeChange: (size) => { setPageSize(size); setPage(1) } }}
               empty={mode === "error" ? <Empty title="加载失败" description="服务暂时不可用。"><Button onClick={() => setMode("ready")}>重试</Button></Empty> : undefined}
-              onRow={(record) => ({ onDoubleClick: () => record && setDetail(record) })}
+              onRow={(record) => ({ onClick: (event) => { if ((event.target as HTMLElement).closest(".semi-checkbox, .semi-table-column-selection")) return; if (record) openDetail(record) }, style: { cursor: "pointer" } })}
             />
           </div>
         )}
       </SectionCard>
       <SideSheet title={detail ? `订单 ${detail.id}` : ""} visible={Boolean(detail)} onCancel={() => setDetail(null)} width="min(480px, 100vw)" footer={<div className="acme-row" style={{ justifyContent: "flex-end" }}><Button onClick={() => setDetail(null)}>关闭</Button><Button theme="solid" onClick={() => Toast.success("已重新发送收据")}>重发收据</Button></div>}>
         {detail ? (
-          <Descriptions align="left" data={[
-            { key: "客户", value: `${detail.customer} · ${detail.email}` },
-            { key: "商品", value: detail.product },
-            { key: "金额", value: money(detail.amount) },
-            { key: "状态", value: <StatusTag value={detail.status} /> },
-            { key: "渠道", value: detail.channel },
-            { key: "日期", value: detail.date },
-          ]} />
+          <Tabs type="line">
+            <Tabs.TabPane tab="详情" itemKey="detail"><Descriptions align="left" data={[
+              { key: "客户", value: `${detail.customer} · ${detail.email}` },
+              { key: "商品", value: detail.product },
+              { key: "金额", value: money(detail.amount) },
+              { key: "状态", value: <StatusTag value={detail.status} /> },
+              { key: "渠道", value: detail.channel },
+              { key: "日期", value: detail.date },
+            ]} /></Tabs.TabPane>
+            <Tabs.TabPane tab="备注" itemKey="note"><TextArea autosize={{ minRows: 4 }} maxCount={200} placeholder="添加内部备注…" value={note} onChange={setNote} /><div className="acme-row" style={{ justifyContent: "flex-end", marginTop: 12 }}><Button theme="solid" onClick={() => Toast.success("备注已保存")}>保存备注</Button></div></Tabs.TabPane>
+          </Tabs>
         ) : null}
       </SideSheet>
       <Modal title="删除订单" visible={Boolean(pending)} onCancel={() => setPending(null)} onOk={remove} okText="删除" okType="danger" cancelText="取消" centered>

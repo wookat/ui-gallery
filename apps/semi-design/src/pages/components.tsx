@@ -61,7 +61,7 @@ export function ComponentsPage() {
       <PageHeader title="组件总览" description={`Semi Design 2.103 · contract.json ${contract.components.length} 个组件`} action={<div className="acme-row">{counts.map((item) => <Tag key={item.status} color={statusMeta[item.status].color} type="light">{item.status} {item.count}</Tag>)}</div>} />
       <div className="acme-components-grid">
         <div className="acme-anchor-index acme-desktop-only">
-          <Anchor maxHeight="calc(100vh - 120px)" showTooltip>{contract.components.map((name) => <Anchor.Link key={name} href={`#c-${name}`} title={name} />)}</Anchor>
+          <Anchor maxHeight="calc(100vh - 100px)" size="small" showTooltip>{contract.components.map((name) => <Anchor.Link key={name} href={`#c-${name}`} title={name} />)}</Anchor>
         </div>
         <div className="acme-page" style={{ gap: 16, minWidth: 0 }}>
           <Section name="Typography"><Space vertical align="start"><Title heading={1}>标题 H1</Title><Title heading={3}>标题 H3</Title><Paragraph>正文段落 Paragraph，<Text strong>加粗</Text>、<Text underline>下划线</Text>、<Text delete>删除线</Text>、<Text mark>高亮</Text>、<Text code>code</Text>、<Text link>链接</Text>。</Paragraph><Text type="secondary">secondary</Text><Text type="tertiary">tertiary</Text><Text type="success">success</Text><Text type="warning">warning</Text><Text type="danger">danger</Text><Numeral precision={2} rule="numbers">¥128430.5</Numeral></Space></Section>

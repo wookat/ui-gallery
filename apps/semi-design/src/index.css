@@ -251,8 +251,6 @@ body[theme-mode="dark"] .acme-bubble.user {
   position: sticky;
   top: 76px;
   align-self: start;
-  max-height: calc(100vh - 92px);
-  overflow-y: auto;
 }
 
 .acme-demo-block {
@@ -273,7 +271,7 @@ body[theme-mode="dark"] .acme-bubble.user {
 }
 
 .acme-mobile-only {
-  display: none;
+  display: none !important;
 }
 
 .acme-login {
@@ -305,7 +303,7 @@ body[theme-mode="dark"] .acme-bubble.user {
   }
 
   .acme-mobile-only {
-    display: initial;
+    display: inline-flex !important;
   }
 
   .acme-chat-layout {

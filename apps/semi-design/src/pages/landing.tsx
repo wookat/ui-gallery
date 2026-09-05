@@ -85,8 +85,8 @@ export function LandingPage() {
         <section id="testimonials" className="acme-landing-section" style={{ paddingTop: 0 }}>
           <div className="acme-landing-inner acme-page" style={{ maxWidth: 800 }}>
             <Title heading={2} style={{ textAlign: "center" }}>他们已经在改变工作方式</Title>
-            <Carousel style={{ height: 200, borderRadius: 12 }} theme="dark" autoPlay={{ interval: 4000 }} showIndicator arrowType="hover" indicatorType="dot">
-              {landing.testimonials.map((item) => <div key={item.name} style={{ height: "100%", display: "grid", placeItems: "center", padding: "24px 56px", background: "var(--semi-color-primary)", color: "var(--semi-color-white)", textAlign: "center" }}><div><Text style={{ fontSize: 18, color: "inherit" }}>“{item.quote}”</Text><div className="acme-row" style={{ justifyContent: "center", marginTop: 16 }}><Avatar size="small" color="light-blue">{item.name.slice(0, 1)}</Avatar><Text style={{ color: "inherit" }}>{item.name} · {item.company}</Text></div></div></div>)}
+            <Carousel style={{ height: 200, borderRadius: 12 }} theme="primary" autoPlay={{ interval: 4000 }} showIndicator arrowType="hover" indicatorType="dot">
+              {landing.testimonials.map((item) => <div key={item.name} style={{ height: "100%", display: "grid", placeItems: "center", padding: "24px 56px", background: "var(--semi-color-bg-1)", border: "1px solid var(--semi-color-border)", textAlign: "center" }}><div><Text style={{ fontSize: 18 }}>“{item.quote}”</Text><div className="acme-row" style={{ justifyContent: "center", marginTop: 16 }}><Avatar size="small" color="light-blue">{item.name.slice(0, 1)}</Avatar><Text type="secondary">{item.name} · {item.company}</Text></div></div></div>)}
             </Carousel>
           </div>
         </section>
@@ -97,7 +97,7 @@ export function LandingPage() {
           </div>
         </section>
         <section className="acme-landing-section" style={{ paddingTop: 0 }}>
-          <div className="acme-landing-inner"><Card bodyStyle={{ padding: 40, textAlign: "center", background: "var(--semi-color-primary)", color: "var(--semi-color-white)", borderRadius: 12 }}><Title heading={2} style={{ color: "inherit", marginTop: 0 }}>准备好开始了吗？</Title><Text style={{ color: "inherit", opacity: 0.85 }}>{landing.hero.social}</Text><div className="acme-row" style={{ justifyContent: "center", marginTop: 20 }}><Link to="/login"><Button theme="solid" type="tertiary" size="large" style={{ background: "var(--semi-color-white)", color: "var(--semi-color-primary)" }}>{landing.hero.primary}</Button></Link><Button theme="outline" type="tertiary" size="large" style={{ color: "inherit", borderColor: "currentColor" }}>{landing.hero.secondary}</Button></div></Card></div>
+          <div className="acme-landing-inner"><Card bodyStyle={{ padding: 40, textAlign: "center" }}><Title heading={2}>准备好开始了吗？</Title><Text type="secondary">{landing.hero.social}</Text><div className="acme-row" style={{ justifyContent: "center", marginTop: 20 }}><Link to="/login"><Button theme="solid" size="large">{landing.hero.primary}</Button></Link><Button theme="light" size="large">{landing.hero.secondary}</Button></div></Card></div>
         </section>
       </main>
       <footer style={{ borderTop: "1px solid var(--semi-color-border)", padding: "24px 16px" }}>

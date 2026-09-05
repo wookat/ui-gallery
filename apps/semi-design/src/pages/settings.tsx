@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Avatar, Badge, Button, Card, Form, Input, List, Modal, Progress, Select, Switch, Table, Tabs, Tag, Toast, Typography } from "@douyinfe/semi-ui"
+import { Avatar, Badge, Button, Card, Form, Input, List, Modal, Progress, RadioGroup, Select, Switch, Table, Tabs, Tag, Toast, Typography, Upload } from "@douyinfe/semi-ui"
 import invoices from "@ui-gallery/spec/mock/invoices.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import sessions from "@ui-gallery/spec/mock/sessions.json"
@@ -19,6 +19,7 @@ const notifyRows = [
 export function SettingsPage() {
   const [confirm, setConfirm] = useState("")
   const [danger, setDanger] = useState(false)
+  const [channel, setChannel] = useState("email")
   const pro = plans.find((plan) => plan.recommended) ?? plans[0]
 
   return (
@@ -27,7 +28,7 @@ export function SettingsPage() {
       <Tabs type="line" collapsible tabPosition="top">
         <Tabs.TabPane tab="个人资料" itemKey="profile">
           <SectionCard title="个人资料" description="这些信息会展示给团队成员。">
-            <div className="acme-row" style={{ marginBottom: 16 }}><Avatar size="large" color="light-blue">林</Avatar><div><Button theme="light" size="small">更换头像</Button><Text type="tertiary" size="small" style={{ display: "block", marginTop: 4 }}>PNG/JPG，2MB 以内</Text></div></div>
+            <div className="acme-row" style={{ marginBottom: 16 }}><Avatar size="large" color="light-blue">林</Avatar><div><Upload action="" accept="image/*" limit={1} showUploadList={false} uploadTrigger="custom" customRequest={({ onSuccess }) => onSuccess({})} onChange={() => Toast.success("头像已更新（演示）")}><Button theme="light" size="small" icon={<Icon name="upload" />}>更换头像</Button></Upload><Text type="tertiary" size="small" style={{ display: "block", marginTop: 4 }}>PNG/JPG，2MB 以内</Text></div></div>
             <Form labelPosition="top" initValues={{ name: team[0].name, email: team[0].email, bio: "热爱把复杂的数据变成简单的决策。", timezone: "Asia/Shanghai" }} onSubmit={() => Toast.success("资料已保存")}>
               <div className="acme-grid-2 acme-grid"><Form.Input field="name" label="姓名" /><Form.Input field="email" label="邮箱" disabled /></div>
               <Form.TextArea field="bio" label="简介" rows={3} maxCount={120} />
@@ -45,7 +46,7 @@ export function SettingsPage() {
                 <Button htmlType="submit" theme="solid">更新密码</Button>
               </Form>
             </SectionCard>
-            <SectionCard title="两步验证" extra={<Switch defaultChecked aria-label="两步验证" />}><Text type="secondary">已通过验证器应用开启，登录新设备时需要输入动态验证码。</Text></SectionCard>
+            <SectionCard title="两步验证" extra={<Switch defaultChecked aria-label="两步验证" />}><Text type="secondary">已通过验证器应用开启，登录新设备时需要输入动态验证码。</Text><div className="acme-row" style={{ marginTop: 12, alignItems: "flex-start" }}><div style={{ width: 120, height: 120, borderRadius: 8, border: "1px dashed var(--semi-color-border)", background: "var(--semi-color-fill-0)", display: "grid", placeItems: "center" }}><Icon name="grid" size={40} /></div><div><Text type="secondary">使用验证器应用扫描二维码</Text><br /><Text type="tertiary" size="small" code>ACME-XXXX-XXXX</Text></div></div></SectionCard>
             <SectionCard title="登录会话" description="当前登录的设备与位置。">
               <List dataSource={sessions} renderItem={(item) => <List.Item main={<div><Text strong>{item.device}</Text>{item.current ? <Tag color="green" size="small" style={{ marginLeft: 8 }}>当前设备</Tag> : null}<br /><Text type="tertiary" size="small">{item.location} · {item.time}</Text></div>} extra={item.current ? null : <Button theme="borderless" type="danger" size="small" onClick={() => Toast.success("已登出该设备")}>登出</Button>} />} />
             </SectionCard>
@@ -53,12 +54,11 @@ export function SettingsPage() {
         </Tabs.TabPane>
         <Tabs.TabPane tab="通知" itemKey="notifications">
           <SectionCard title="通知偏好" description="按渠道选择接收方式。">
+            <RadioGroup type="button" value={channel} onChange={(event) => setChannel(String(event.target.value))} options={[{ value: "email", label: "邮件" }, { value: "push", label: "推送" }, { value: "internal", label: "站内" }]} aria-label="通知渠道" />
             <div className="acme-scroll-x">
               <Table size="small" pagination={false} rowKey="key" dataSource={notifyRows} columns={[
                 { title: "事件", dataIndex: "label", render: (value: string, record: (typeof notifyRows)[number]) => <div><Text>{value}</Text><br /><Text type="tertiary" size="small">{record.desc}</Text></div> },
-                { title: "邮件", dataIndex: "email", width: 80, render: () => <Switch defaultChecked size="small" aria-label="邮件" /> },
-                { title: "推送", dataIndex: "push", width: 80, render: (_: unknown, record: (typeof notifyRows)[number]) => <Switch defaultChecked={record.key !== "digest"} size="small" aria-label="推送" /> },
-                { title: "短信", dataIndex: "sms", width: 80, render: (_: unknown, record: (typeof notifyRows)[number]) => <Switch defaultChecked={record.key === "security"} size="small" aria-label="短信" /> },
+                { title: channel === "email" ? "邮件" : channel === "push" ? "推送" : "站内", dataIndex: channel, width: 80, render: (_: unknown, record: (typeof notifyRows)[number]) => <Switch defaultChecked={channel === "email" || (channel === "push" && record.key !== "digest") || (channel === "internal" && record.key === "security")} size="small" aria-label={channel === "email" ? "邮件" : channel === "push" ? "推送" : "站内"} /> },
               ]} />
             </div>
           </SectionCard>

@@ -199,3 +199,5 @@ export function Icon({ name, size = 16, className, spin }: { name: string; size?
   const Component = native[name] ?? IconHelpCircle
   return <Component className={className} spin={spin} style={{ fontSize: px }} />
 }
+
+Icon.elementType = "Icon" as const

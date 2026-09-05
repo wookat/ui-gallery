@@ -42,8 +42,8 @@ const footerCols = [
         </nav>
         <div class="ug-row ug-lnav-actions">
           <t-button variant="text" shape="square" size="large" :aria-label="settings.theme === 'dark' ? '切换亮色' : '切换暗色'" @click="toggleTheme"><Icon :name="settings.theme === 'dark' ? 'sun' : 'moon'" :size="18" /></t-button>
-          <RouterLink to="/login" class="ug-desktop-only"><t-button variant="text">登录</t-button></RouterLink>
-          <t-button theme="primary" class="ug-desktop-only">{{ landing.hero.primary }}</t-button>
+          <RouterLink to="/login" class="ug-desktop-only"><t-button variant="text" size="large">登录</t-button></RouterLink>
+          <t-button theme="primary" size="large" class="ug-desktop-only">{{ landing.hero.primary }}</t-button>
           <t-button variant="text" shape="square" size="large" class="ug-mobile-only" aria-label="菜单" @click="drawer = true"><Icon name="menu" :size="20" /></t-button>
         </div>
       </div>
@@ -52,8 +52,8 @@ const footerCols = [
       <div class="ug-stack">
         <t-link v-for="l in navLinks" :key="l.href" :href="l.href" theme="default" size="large" @click="drawer = false">{{ l.label }}</t-link>
         <t-divider />
-        <RouterLink to="/login"><t-button block variant="outline">登录</t-button></RouterLink>
-        <t-button block theme="primary">{{ landing.hero.primary }}</t-button>
+        <RouterLink to="/login"><t-button block variant="outline" size="large">登录</t-button></RouterLink>
+        <t-button block theme="primary" size="large">{{ landing.hero.primary }}</t-button>
       </div>
     </t-drawer>
 
@@ -68,8 +68,8 @@ const footerCols = [
             <RouterLink to="/"><t-button variant="outline" size="large">{{ landing.hero.secondary }}</t-button></RouterLink>
           </div>
           <div class="ug-row ug-social">
-            <t-avatar-group :max="5" size="small" cascading="left-up">
-              <t-avatar v-for="m in team" :key="m.email">{{ initials(m.name) }}</t-avatar>
+            <t-avatar-group :max="4" size="small" cascading="left-up">
+              <t-avatar v-for="m in team" :key="m.email">{{ initials(m.name).slice(0, 1) }}</t-avatar>
             </t-avatar-group>
             <span class="ug-muted">{{ landing.hero.social }}</span>
           </div>
@@ -85,7 +85,7 @@ const footerCols = [
       <div class="ug-lwrap">
         <p class="ug-muted ug-center">受到各类团队信赖</p>
         <div class="ug-logo-grid">
-          <div v-for="t in landing.testimonials" :key="t.company" class="ug-logo"><Icon name="boxes" :size="18" />{{ t.company }}</div>
+          <div v-for="t in landing.testimonials" :key="t.company" class="ug-cloud-logo"><Icon name="boxes" :size="18" />{{ t.company }}</div>
         </div>
       </div>
     </section>
@@ -131,13 +131,13 @@ const footerCols = [
     <section id="pricing" class="ug-section">
       <div class="ug-lwrap">
         <h2 class="ug-h2 ug-center">简单透明的定价</h2>
-        <div class="ug-center ug-row ug-pricing-toggle"><span :class="{ 'ug-muted': yearly }">月付</span><t-switch v-model="yearly" /><span :class="{ 'ug-muted': !yearly }">年付 <t-tag size="small" theme="success" variant="light">省 2 个月</t-tag></span></div>
+        <div class="ug-center ug-row ug-pricing-toggle"><t-radio-group v-model="yearly" variant="default-filled" size="large"><t-radio-button :value="false">月付</t-radio-button><t-radio-button :value="true">年付</t-radio-button></t-radio-group><t-tag size="small" theme="success" variant="light">年付省 2 个月</t-tag></div>
         <div class="ug-grid-3">
           <t-card v-for="p in plans" :key="p.name" :bordered="true" :class="{ 'ug-plan--rec': p.recommended }" :title="p.name">
             <template v-if="p.recommended" #actions><t-tag theme="primary" size="small">推荐</t-tag></template>
             <div class="ug-price">{{ priceOf(p) }}<span v-if="p.price !== null" class="ug-muted ug-small">{{ unit }}</span></div>
             <ul class="ug-features"><li v-for="f in p.features" :key="f" class="ug-row"><Icon name="check" class="ug-check" />{{ f }}</li></ul>
-            <t-button block :theme="p.recommended ? 'primary' : 'default'" :variant="p.recommended ? 'base' : 'outline'">{{ p.price === null ? "联系我们" : p.price === 0 ? "免费开始" : "立即订阅" }}</t-button>
+            <t-button block size="large" :theme="p.recommended ? 'primary' : 'default'" :variant="p.recommended ? 'base' : 'outline'">{{ p.price === null ? "联系我们" : p.price === 0 ? "免费开始" : "立即订阅" }}</t-button>
           </t-card>
         </div>
       </div>
@@ -206,8 +206,8 @@ const footerCols = [
 .ug-lwrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
 .ug-lnav { position: sticky; top: 0; z-index: 20; height: 60px; display: flex; align-items: center; background: color-mix(in srgb, var(--td-bg-color-container) 85%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--td-component-stroke); }
 .ug-lnav > .ug-lwrap { width: 100%; flex-wrap: nowrap; }
-.ug-lnav-links { display: flex; gap: 24px; }
-.ug-lnav-links .t-link { min-height: 40px; display: inline-flex; align-items: center; }
+.ug-lnav-links { display: flex; gap: 12px; }
+.ug-lnav-links .t-link { min-height: 40px; min-width: 40px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; }
 .ug-lnav-actions { flex-wrap: nowrap; }
 .ug-brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: inherit; }
 .ug-brand-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--td-brand-color); color: #fff; display: inline-grid; place-items: center; font-weight: 700; }
@@ -224,7 +224,7 @@ const footerCols = [
 .ug-shot-bar span { width: 10px; height: 10px; border-radius: 50%; background: var(--td-component-stroke); }
 .ug-logos { padding: 24px 0 8px; }
 .ug-logo-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
-.ug-logo { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 8px; color: var(--td-text-color-placeholder); font-weight: 600; filter: grayscale(1); }
+.ug-cloud-logo { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 8px; color: var(--td-text-color-placeholder); font-weight: 600; filter: grayscale(1); }
 .ug-section { padding: 64px 0; }
 .ug-section--alt { background: var(--td-bg-color-page); }
 .ug-section .ug-lead.ug-center { margin-bottom: 32px; }
@@ -241,6 +241,7 @@ const footerCols = [
 .ug-number-stat .t-statistic-content { display: none; }
 .ug-number-value { font-size: 36px; font-weight: 700; }
 .ug-pricing-toggle { margin: 8px 0 32px; }
+.ug-pricing-toggle .t-radio-button { min-height: 40px; align-items: center; }
 .ug-quote-icon { color: var(--td-brand-color); margin-bottom: 8px; }
 .ug-quote { margin: 0 0 16px; line-height: 1.6; }
 .ug-faq { max-width: 760px; }

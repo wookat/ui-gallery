@@ -157,7 +157,7 @@ function reset() {
         </t-form-item>
         <div class="ug-form-actions">
           <span />
-          <t-button theme="primary" @click="next">下一步<template #suffix><Icon name="arrow-right" /></template></t-button>
+          <t-button theme="primary" size="large" @click="next">下一步<template #suffix><Icon name="arrow-right" /></template></t-button>
         </div>
       </t-form>
     </t-card>
@@ -201,8 +201,8 @@ function reset() {
           <t-upload v-model="advanced.files" theme="file-flow" draggable multiple :auto-upload="false" :size-limit="{ size: 5, unit: 'MB' }" placeholder="拖拽文件到此处或点击上传" />
         </t-form-item>
         <div class="ug-form-actions">
-          <t-button variant="outline" @click="step = 0"><template #icon><Icon name="arrow-left" /></template>上一步</t-button>
-          <t-button theme="primary" @click="next">下一步<template #suffix><Icon name="arrow-right" /></template></t-button>
+          <t-button variant="outline" size="large" @click="step = 0"><template #icon><Icon name="arrow-left" /></template>上一步</t-button>
+          <t-button theme="primary" size="large" @click="next">下一步<template #suffix><Icon name="arrow-right" /></template></t-button>
         </div>
       </t-form>
     </t-card>
@@ -228,8 +228,8 @@ function reset() {
         <div v-if="agreedError" class="ug-error-text">提交前请先同意条款</div>
       </div>
       <div class="ug-form-actions">
-        <t-button variant="outline" @click="step = 1"><template #icon><Icon name="arrow-left" /></template>上一步</t-button>
-        <t-button theme="primary" :loading="submitting" @click="submit"><template #icon><Icon name="check" /></template>提交项目</t-button>
+        <t-button variant="outline" size="large" @click="step = 1"><template #icon><Icon name="arrow-left" /></template>上一步</t-button>
+        <t-button theme="primary" size="large" :loading="submitting" @click="submit"><template #icon><Icon name="check" /></template>提交项目</t-button>
       </div>
     </t-card>
 
@@ -239,8 +239,8 @@ function reset() {
         <t-typography-title level="h5" class="ug-title">项目创建成功</t-typography-title>
         <p class="ug-muted">工作区已准备就绪，可以邀请成员开始协作。</p>
         <t-space>
-          <t-button theme="primary">进入项目</t-button>
-          <t-button variant="outline" @click="reset">再创建一个</t-button>
+          <t-button theme="primary" size="large">进入项目</t-button>
+          <t-button variant="outline" size="large" @click="reset">再创建一个</t-button>
         </t-space>
       </div>
     </t-card>

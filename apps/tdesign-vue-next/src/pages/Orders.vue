@@ -71,7 +71,7 @@ const allColumns: PrimaryTableCol<TableRowData>[] = [
   { colKey: "amount", title: "金额", align: "right", width: 140, sorter: true },
   { colKey: "date", title: "日期", width: 130, sorter: true },
   { colKey: "channel", title: "渠道", width: 100 },
-  { colKey: "op", title: "操作", width: 110, fixed: "right" },
+  { colKey: "op", title: "操作", width: 120, fixed: "right" },
 ]
 const columns = computed(() =>
   allColumns
@@ -104,8 +104,8 @@ function exportCsv() {
     <div class="ug-between">
       <div><t-typography-title level="h4" class="ug-title">订单</t-typography-title><span class="ug-muted">共 {{ filtered.length }} 条，已选 {{ selected.length }} 条。</span></div>
       <t-space size="small">
-        <t-button variant="outline" @click="exportCsv"><template #icon><Icon name="download" /></template>导出</t-button>
-        <t-button theme="primary"><template #icon><Icon name="plus" /></template>新建订单</t-button>
+        <t-button variant="outline" size="large" @click="exportCsv"><template #icon><Icon name="download" /></template>导出</t-button>
+        <t-button theme="primary" size="large"><template #icon><Icon name="plus" /></template>新建订单</t-button>
       </t-space>
     </div>
 
@@ -116,7 +116,7 @@ function exportCsv() {
         <t-date-range-picker v-model="range" clearable placeholder="日期范围" class="ug-tb-item" />
         <t-select v-model="channels" :options="channelOptions" placeholder="渠道（多选）" multiple clearable class="ug-tb-item" :min-collapsed-num="2" />
         <t-popup trigger="click" placement="bottom-right">
-          <t-button variant="outline"><template #icon><Icon name="filter" /></template>列设置</t-button>
+          <t-button variant="outline" size="large"><template #icon><Icon name="filter" /></template>列设置</t-button>
           <template #content>
             <t-checkbox-group v-model="visibleCols" :options="columnOptions" class="ug-col-picker" />
           </template>
@@ -128,10 +128,10 @@ function exportCsv() {
       </div>
 
       <t-alert v-if="state === 'error'" theme="error" title="加载失败" message="订单服务暂时不可用，请稍后重试。" class="ug-alert">
-        <template #operation><t-button size="small" variant="outline" @click="retry"><template #icon><Icon name="refresh" /></template>重试</t-button></template>
+        <template #operation><t-button size="large" variant="outline" @click="retry"><template #icon><Icon name="refresh" /></template>重试</t-button></template>
       </t-alert>
       <t-empty v-else-if="state === 'empty' || (state === 'ready' && filtered.length === 0)" title="暂无订单" description="没有匹配的订单。调整筛选条件或创建一个新订单。" class="ug-empty">
-        <template #action><t-button theme="primary" @click="keyword = ''; status = []; channels = []; range = []"><template #icon><Icon name="refresh" /></template>清空筛选</t-button></template>
+        <template #action><t-button theme="primary" size="large" @click="keyword = ''; status = []; channels = []; range = []"><template #icon><Icon name="refresh" /></template>清空筛选</t-button></template>
       </t-empty>
       <t-table
         v-else
@@ -156,9 +156,9 @@ function exportCsv() {
         <template #channel="{ row }"><t-tag variant="outline" size="small">{{ row.channel.toUpperCase() }}</t-tag></template>
         <template #op="{ row }">
           <t-space size="4px" @click.stop>
-            <t-button variant="text" size="small" shape="square" aria-label="编辑" @click="detail = row as Order"><Icon name="pencil" /></t-button>
+            <t-button variant="text" size="large" shape="square" aria-label="编辑" @click="detail = row as Order"><Icon name="pencil" /></t-button>
             <t-dropdown :options="[{ content: '查看详情', value: 'view' }, { content: '删除', value: 'delete', theme: 'error' }]" @click="(o: DropdownOption) => onRowMenu(o, row as Order)">
-              <t-button variant="text" size="small" shape="square" aria-label="更多"><Icon name="more-horizontal" /></t-button>
+              <t-button variant="text" size="large" shape="square" aria-label="更多"><Icon name="more-horizontal" /></t-button>
             </t-dropdown>
           </t-space>
         </template>
@@ -188,7 +188,7 @@ function exportCsv() {
           </t-tab-panel>
           <t-tab-panel value="note" label="备注">
             <t-textarea v-model="note" placeholder="记录订单备注…" :autosize="{ minRows: 4 }" :maxlength="200" class="ug-desc" />
-            <t-button theme="primary" size="small" @click="MessagePlugin.success('备注已保存')">保存备注</t-button>
+            <t-button theme="primary" size="large" @click="MessagePlugin.success('备注已保存')">保存备注</t-button>
           </t-tab-panel>
         </t-tabs>
       </template>

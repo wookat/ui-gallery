@@ -567,7 +567,12 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
           <t-anchor :bounds="8">
             <t-anchor-item href="#component-Typography" title="Typography" />
             <t-anchor-item href="#component-Button" title="Button" />
+            <t-anchor-item href="#component-Input" title="Input" />
+            <t-anchor-item href="#component-Select" title="Select" />
             <t-anchor-item href="#component-Table" title="Table" />
+            <t-anchor-item href="#component-Dialog" title="Dialog" />
+            <t-anchor-item href="#component-Menu" title="Menu" />
+            <t-anchor-item href="#component-Tabs" title="Tabs" />
           </t-anchor>
         </div>
 
@@ -755,7 +760,7 @@ app.use(TDesign)</code></pre>
 <style scoped>
 .ug-index { display: flex; flex-wrap: wrap; gap: 6px; }
 .ug-index-item {
-  font-size: 12px; padding: 2px 10px; border-radius: 999px; text-decoration: none;
+  font-size: 12px; min-height: 40px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; text-decoration: none;
   color: var(--td-text-color-secondary); border: 1px solid var(--td-component-stroke); background: var(--td-bg-color-container);
 }
 .ug-index-item:hover { color: var(--td-brand-color); border-color: var(--td-brand-color); }

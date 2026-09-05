@@ -118,7 +118,7 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
                     <div class="ug-row">
                       <template v-if="'sources' in m && m.sources"><span class="ug-muted ug-small">来源</span><t-tag v-for="s in m.sources" :key="s" size="small" variant="outline" shape="round">{{ s }}</t-tag></template>
                     </div>
-                    <t-button v-if="codeOf(m.content)" size="small" variant="text" @click="copy(codeOf(m.content)!, i)"><template #icon><Icon :name="copiedIndex === i ? 'check' : 'copy'" :size="14" /></template>{{ copiedIndex === i ? "已复制" : "复制代码" }}</t-button>
+                    <t-button v-if="codeOf(m.content)" size="large" variant="text" @click="copy(codeOf(m.content)!, i)"><template #icon><Icon :name="copiedIndex === i ? 'check' : 'copy'" :size="14" /></template>{{ copiedIndex === i ? "已复制" : "复制代码" }}</t-button>
                   </div>
                 </div>
                 <div v-if="m.role === 'assistant'" class="ug-row ug-msg-actions">
@@ -164,7 +164,7 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
 </template>
 
 <style>
-.ug-chat { display: grid; grid-template-columns: 260px minmax(0, 1fr); border: 1px solid var(--td-component-stroke); border-radius: var(--td-radius-large); overflow: hidden; background: var(--td-bg-color-container); min-height: 640px; }
+.ug-chat { display: grid; grid-template-columns: 260px minmax(0, 1fr); border: 1px solid var(--td-component-stroke); border-radius: var(--td-radius-large); overflow: hidden; background: var(--td-bg-color-container); min-height: 0; height: calc(100dvh - 56px - 48px - 64px); max-height: 760px; }
 .ug-chat-side { border-right: 1px solid var(--td-component-stroke); padding: 12px; background: var(--td-bg-color-secondarycontainer); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .ug-chat-side-title { font-weight: 600; }
 .ug-chat-group { display: flex; flex-direction: column; gap: 2px; }
@@ -174,12 +174,12 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
 .ug-conv--active { background: var(--td-brand-color-light); color: var(--td-brand-color); }
 .ug-conv-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ug-conv-badge .t-badge--dot, .ug-conv-badge .t-badge--circle { position: static; transform: none; }
-.ug-chat-main { display: flex; flex-direction: column; min-width: 0; }
+.ug-chat-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .ug-chat-head { padding: 12px 16px; border-bottom: 1px solid var(--td-component-stroke); flex-wrap: nowrap; }
 .ug-chat-head-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 .ug-chat-head-title { font-weight: 600; }
 .ug-chat-head-model { flex: 0 0 auto; max-width: 50%; }
-.ug-chat-stream { flex: 1; padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; max-height: 520px; }
+.ug-chat-stream { flex: 1; min-height: 0; padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; max-height: none; }
 .ug-chat-empty { margin: auto; text-align: center; max-width: 560px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .ug-chat-empty-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--td-brand-color-light); color: var(--td-brand-color); display: grid; place-items: center; }
 .ug-suggest-grid { width: 100%; gap: 12px; margin-top: 8px; }
@@ -207,7 +207,7 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
 .ug-cursor { display: inline-block; width: 8px; height: 14px; background: var(--td-brand-color); vertical-align: -2px; margin-left: 2px; animation: ug-blink 1s steps(2) infinite; }
 @keyframes ug-blink { to { opacity: 0; } }
 .ug-chat-input { border-top: 1px solid var(--td-component-stroke); padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
-.ug-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.ug-chips { flex-wrap: wrap; }
 .ug-chip { cursor: pointer; flex-shrink: 0; }
 .ug-composer { border: 1px solid var(--td-component-stroke); border-radius: var(--td-radius-large); padding: 6px 8px; }
 .ug-composer .t-textarea__inner { border: 0; box-shadow: none; background: transparent; resize: none; }
@@ -216,6 +216,9 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
   .ug-chat { grid-template-columns: minmax(0, 1fr); }
   .ug-chat-side { display: none; }
   .ug-chat-page .ug-mobile-only { display: inline-flex; }
+}
+@media (min-width: 768px) {
+  .ug-chat { min-height: 420px; }
 }
 @media (max-width: 767px) {
   .ug-chat { min-height: 0; }

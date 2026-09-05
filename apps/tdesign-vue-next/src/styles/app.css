@@ -7,6 +7,9 @@ body { background: var(--td-bg-color-page); color: var(--td-text-color-primary);
 * { box-sizing: border-box; }
 a { color: var(--td-brand-color); text-decoration: none; }
 img, svg, video { max-width: 100%; }
+.ug-logo { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--td-radius-medium); background: var(--td-brand-color); color: var(--td-text-color-anti); font-weight: 700; }
+.t-checkbox { min-height: 40px; align-items: center; }
+.ug-components .t-checkbox { min-height: 0; }
 .ug-page { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
 .ug-grid { display: grid; gap: 16px; }
 .ug-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -94,8 +94,8 @@ function deleteAccount() {
               <t-form-item label="头像">
                 <div class="ug-row">
                   <t-avatar size="64px" shape="round">{{ initials(profile.name) }}</t-avatar>
-                  <t-upload theme="custom" accept="image/*" :auto-upload="false"><t-button variant="outline" size="small"><template #icon><Icon name="upload" /></template>上传头像</t-button></t-upload>
-                  <t-button variant="text" size="small" theme="danger">移除</t-button>
+                  <t-upload theme="custom" accept="image/*" :auto-upload="false"><t-button variant="outline" size="large"><template #icon><Icon name="upload" /></template>上传头像</t-button></t-upload>
+                  <t-button variant="text" size="large" theme="danger">移除</t-button>
                 </div>
               </t-form-item>
               <div class="ug-grid-2">
@@ -107,7 +107,7 @@ function deleteAccount() {
                 <t-form-item label="语言" name="language"><t-select v-model="profile.language" :options="languageOptions" /></t-form-item>
                 <t-form-item label="时区" name="timezone"><t-select v-model="profile.timezone" :options="timezoneOptions" filterable /></t-form-item>
               </div>
-              <t-space><t-button theme="primary" @click="MessagePlugin.success('资料已保存')">保存更改</t-button><t-button variant="outline">取消</t-button></t-space>
+              <t-space><t-button theme="primary" size="large" @click="MessagePlugin.success('资料已保存')">保存更改</t-button><t-button variant="outline" size="large">取消</t-button></t-space>
             </t-form>
           </t-card>
         </template>
@@ -120,11 +120,11 @@ function deleteAccount() {
                 <t-form-item label="新密码" name="next" help="至少 8 位，含字母与数字"><t-input v-model="password.next" type="password" /></t-form-item>
                 <t-form-item label="确认新密码" name="confirm" :status="password.confirm && password.confirm !== password.next ? 'error' : undefined" :tips="password.confirm && password.confirm !== password.next ? '两次输入不一致' : ''"><t-input v-model="password.confirm" type="password" /></t-form-item>
               </div>
-              <t-button theme="primary">更新密码</t-button>
+              <t-button theme="primary" size="large">更新密码</t-button>
             </t-form>
           </t-card>
           <t-card :bordered="true" title="两步验证">
-            <template #actions><t-switch v-model="twoFactor" /></template>
+            <template #actions><t-switch v-model="twoFactor" size="large" /></template>
             <div class="ug-2fa">
               <div class="ug-qr"><t-qrcode value="otpauth://totp/AcmeConsole:demo" :size="120" :status="twoFactor ? 'active' : 'expired'" /></div>
               <div>
@@ -142,7 +142,7 @@ function deleteAccount() {
                 </t-list-item-meta>
                 <template #action>
                   <t-tag v-if="s.current" theme="success" variant="light" size="small">当前设备</t-tag>
-                  <t-button v-else variant="outline" size="small" @click="activeSessions = activeSessions.filter((x) => x !== s)">注销</t-button>
+                  <t-button v-else variant="outline" size="large" @click="activeSessions = activeSessions.filter((x) => x !== s)">注销</t-button>
                 </template>
               </t-list-item>
             </t-list>
@@ -161,7 +161,7 @@ function deleteAccount() {
             <t-list :split="true">
               <t-list-item v-for="i in g.items" :key="i.key">
                 <t-list-item-meta :title="i.label" :description="i.desc" />
-                <template #action><t-switch v-model="notify[i.key]" /></template>
+                <template #action><t-switch v-model="notify[i.key]" size="large" /></template>
               </t-list-item>
             </t-list>
           </t-card>
@@ -171,7 +171,7 @@ function deleteAccount() {
           <t-card :bordered="true" title="邀请成员">
             <div class="ug-invite">
               <t-input v-model="invite" placeholder="colleague@company.com" clearable><template #prefix-icon><Icon name="mail" /></template></t-input>
-              <t-button theme="primary" @click="sendInvite"><template #icon><Icon name="send" /></template>发送邀请</t-button>
+              <t-button theme="primary" size="large" @click="sendInvite"><template #icon><Icon name="send" /></template>发送邀请</t-button>
             </div>
           </t-card>
           <t-card :bordered="true" :title="`成员（${members.length}）`">
@@ -180,7 +180,7 @@ function deleteAccount() {
               <template #role="{ row }"><t-select v-model="row.role" :options="roleOptions" size="small" :disabled="row.role === 'owner'" /></template>
               <template #op="{ row }">
                 <t-popconfirm content="确定移除该成员吗？" theme="danger" @confirm="removeMember(row.email)">
-                  <t-button variant="text" size="small" shape="square" theme="danger" :disabled="row.role === 'owner'" aria-label="移除"><Icon name="trash" /></t-button>
+                  <t-button variant="text" size="large" shape="square" theme="danger" :disabled="row.role === 'owner'" aria-label="移除"><Icon name="trash" /></t-button>
                 </t-popconfirm>
               </template>
             </t-table>
@@ -192,7 +192,7 @@ function deleteAccount() {
             <template #actions><t-tag theme="primary" variant="light">{{ currentPlan.name }}</t-tag></template>
             <div class="ug-between">
               <div><div class="ug-price">¥{{ currentPlan.price }}<span class="ug-muted ug-small">/月</span></div><span class="ug-muted">下次扣款 {{ invoices[0].date }}</span></div>
-              <t-space><t-button variant="outline">管理付款方式</t-button><t-button theme="primary">升级</t-button></t-space>
+              <t-space><t-button variant="outline" size="large">管理付款方式</t-button><t-button theme="primary" size="large">升级</t-button></t-space>
             </div>
           </t-card>
           <div class="ug-between">
@@ -204,14 +204,14 @@ function deleteAccount() {
               <template v-if="p.recommended" #actions><t-tag theme="primary" size="small">推荐</t-tag></template>
               <div class="ug-price">{{ priceOf(p) }}<span v-if="p.price !== null" class="ug-muted ug-small">{{ unit }}</span></div>
               <ul class="ug-features"><li v-for="f in p.features" :key="f" class="ug-row"><Icon name="check" class="ug-check" />{{ f }}</li></ul>
-              <t-button block :theme="p.recommended ? 'primary' : 'default'" :variant="p.recommended ? 'base' : 'outline'">{{ p.name === currentPlan.name ? "当前计划" : p.price === null ? "联系我们" : "选择" }}</t-button>
+              <t-button block size="large" :theme="p.recommended ? 'primary' : 'default'" :variant="p.recommended ? 'base' : 'outline'">{{ p.name === currentPlan.name ? "当前计划" : p.price === null ? "联系我们" : "选择" }}</t-button>
             </t-card>
           </div>
           <t-card :bordered="true" title="发票">
             <t-table row-key="id" :data="invoices" :columns="invoiceColumns" size="small" hover table-layout="fixed">
               <template #amount="{ row }"><span class="ug-mono">¥{{ row.amount }}</span></template>
               <template #status="{ row }"><t-tag :theme="statusTheme[row.status]" variant="light-outline" size="small">{{ statusLabel[row.status] }}</t-tag></template>
-              <template #op><t-button variant="text" size="small" shape="square" aria-label="下载"><Icon name="download" /></t-button></template>
+              <template #op><t-button variant="text" size="large" shape="square" aria-label="下载"><Icon name="download" /></t-button></template>
             </t-table>
           </t-card>
         </template>
@@ -219,7 +219,7 @@ function deleteAccount() {
         <t-card :bordered="true" title="危险区" class="ug-danger">
           <div class="ug-between">
             <div><div>删除账号</div><span class="ug-muted ug-small">删除后所有数据将被永久移除，无法恢复。</span></div>
-            <t-button theme="danger" variant="outline" @click="deleteOpen = true"><template #icon><Icon name="trash" /></template>删除账号</t-button>
+            <t-button theme="danger" variant="outline" size="large" @click="deleteOpen = true"><template #icon><Icon name="trash" /></template>删除账号</t-button>
           </div>
         </t-card>
       </div>

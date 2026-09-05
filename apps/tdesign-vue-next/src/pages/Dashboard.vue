@@ -111,7 +111,7 @@ const rowMenu = [
           <template #status="{ row }"><t-tag :theme="statusTheme[row.status]" variant="light-outline" size="small">{{ statusLabel[row.status] }}</t-tag></template>
           <template #amount="{ row }"><span class="ug-mono">{{ money(row.amount, row.currency) }}</span></template>
           <template #op>
-            <t-dropdown :options="rowMenu" placement="bottom-right"><t-button variant="text" shape="square" size="small" aria-label="更多"><Icon name="more-horizontal" /></t-button></t-dropdown>
+            <t-dropdown :options="rowMenu" placement="bottom-right"><t-button variant="text" shape="square" size="large" aria-label="更多"><Icon name="more-horizontal" /></t-button></t-dropdown>
           </template>
         </t-table>
       </t-card>

@@ -120,7 +120,6 @@ function go(path: string) {
 .ug-aside { position: sticky; top: 0; height: 100vh; transition: width 0.2s; flex-shrink: 0; }
 .ug-aside .t-default-menu { height: 100%; }
 .ug-brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--td-text-color-primary); }
-.ug-logo { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--td-radius-medium); background: var(--td-brand-color); color: var(--td-text-color-anti); font-weight: 700; }
 .ug-nav-label { display: inline-flex; align-items: center; gap: 8px; }
 .ug-nav-badge .t-badge--circle, .ug-nav-badge .t-badge--round { position: static; transform: none; }
 .ug-aside-footer { display: flex; flex-direction: column; gap: 8px; padding: 8px 0; }

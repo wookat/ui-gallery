@@ -1,0 +1,59 @@
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+html[data-font="inter"] .radix-themes {
+  --default-font-family: "Inter Variable", sans-serif;
+}
+
+html[data-font="geist"] .radix-themes {
+  --default-font-family: "Geist Variable", sans-serif;
+}
+
+html[data-font="noto-sans-sc"] .radix-themes {
+  --default-font-family: "Noto Sans SC Variable", sans-serif;
+}
+
+html[data-font="lxgw-wenkai"] .radix-themes {
+  --default-font-family: "LXGW WenKai Screen", serif;
+}
+
+.rt-page {
+  min-width: 0;
+}
+
+.rt-scroll-x {
+  overflow-x: auto;
+}
+
+.rt-blink {
+  animation: rt-blink 1s steps(2, jump-none) infinite;
+}
+
+.rt-Button {
+  box-sizing: border-box;
+}
+
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.rt-spin {
+  animation: rt-spin 1s linear infinite;
+}
+
+@keyframes rt-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes rt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

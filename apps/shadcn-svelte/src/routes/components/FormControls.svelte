@@ -98,14 +98,25 @@
     <label class="flex items-center gap-2 text-sm"><Checkbox.Root disabled />禁用</label>
   </div>
 {:else if name === "Radio"}
-  <RadioGroup.Root bind:value={selected} class="flex flex-wrap gap-4"
-    ><label class="flex items-center gap-2 text-sm"><RadioGroup.Item value="one" />邮件</label
-    ><label class="flex items-center gap-2 text-sm"><RadioGroup.Item value="two" />推送</label
-    ></RadioGroup.Root
-  >
+  <RadioGroup.Root bind:value={selected} class="flex flex-wrap gap-4">
+    <label class="inline-flex items-center gap-2 text-sm whitespace-nowrap"
+      ><RadioGroup.Item value="one" />邮件</label
+    >
+    <label class="inline-flex items-center gap-2 text-sm whitespace-nowrap"
+      ><RadioGroup.Item value="two" />推送</label
+    >
+  </RadioGroup.Root>
 {:else if name === "Switch"}
   <div class="flex flex-wrap gap-4">
-    <Switch.Root size="sm" />紧凑 <Switch.Root />默认 <Switch.Root disabled />禁用
+    <label class="inline-flex items-center gap-2 text-sm whitespace-nowrap"
+      ><Switch.Root size="sm" />紧凑</label
+    >
+    <label class="inline-flex items-center gap-2 text-sm whitespace-nowrap"
+      ><Switch.Root />默认</label
+    >
+    <label class="inline-flex items-center gap-2 text-sm whitespace-nowrap"
+      ><Switch.Root disabled />禁用</label
+    >
   </div>
 {:else if name === "Slider"}
   <div class="space-y-4">

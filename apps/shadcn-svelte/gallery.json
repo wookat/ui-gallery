@@ -100,7 +100,7 @@
     "Link": "implemented"
   },
   "externals": {
-    "chart": "layerchart"
+    "chart": "svg"
   },
-  "notes": "官方 shadcn-svelte CLI 初始化（neutral 基色）；图标默认 @lucide/svelte，?icons= 切换 tabler/phosphor/heroicons 由 app 内适配层实现（无 packages/icons-svelte）；图表 layerchart；暗色 mode-watcher + ?theme=。"
+  "notes": "官方 shadcn-svelte CLI 初始化（neutral 基色）；图标默认 @lucide/svelte，?icons= 切换 tabler/phosphor/heroicons 由 app 内适配层实现（无 packages/icons-svelte）；图表使用内联 SVG（折线、柱状、环形），避免 layerchart 在当前 Svelte/Vite 组合下的兼容性问题；暗色 mode-watcher + ?theme=。"
 }

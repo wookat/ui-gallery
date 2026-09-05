@@ -88,7 +88,7 @@
       </div>{/each}
   </div>
 {:else if name === "Card"}
-  <div class="grid gap-3 sm:grid-cols-3">
+  <div class="grid items-stretch gap-3 md:grid-cols-3">
     <Card.Root
       ><Card.Header
         ><Card.Title>默认卡片</Card.Title><Card.Description>简洁信息容器。</Card.Description
@@ -100,12 +100,16 @@
         ><div class="flex size-full items-center justify-center bg-muted">
           <ImageIcon />
         </div></AspectRatio.Root
-      ><Card.Content class="p-4">带比例媒体</Card.Content></Card.Root
+      ><Card.Content class="flex flex-1 items-center p-4">带比例媒体</Card.Content></Card.Root
     >
-    <Card.Root
-      ><Card.Header><Card.Title>横向卡片</Card.Title></Card.Header><Card.Footer
-        ><Button size="sm">确认</Button><Button size="sm" variant="ghost">取消</Button></Card.Footer
-      ></Card.Root
+    <Card.Root class="flex flex-row items-center gap-3 p-4"
+      ><div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-muted">
+        <ImageIcon class="size-5" />
+      </div>
+      <div class="min-w-0 flex-1">
+        <Card.Title>横向卡片</Card.Title><Card.Description>紧凑的横向内容布局。</Card.Description>
+      </div>
+      <Card.Footer class="shrink-0 p-0"><Button size="sm">确认</Button></Card.Footer></Card.Root
     >
   </div>
 {:else if name === "Avatar" || name === "AvatarGroup"}
@@ -183,14 +187,18 @@
     ></Dialog.Root
   >
 {:else if name === "Carousel"}
-  <Carousel.Root class="w-full max-w-sm"
+  <Carousel.Root class="w-full max-w-lg"
     ><Carousel.Content
       ><Carousel.Item
-        ><div class="flex aspect-video items-center justify-center rounded-lg bg-primary/10">
+        ><div
+          class="flex aspect-video basis-full items-center justify-center rounded-lg bg-primary/10"
+        >
           第一张
         </div></Carousel.Item
       ><Carousel.Item
-        ><div class="flex aspect-video items-center justify-center rounded-lg bg-primary/20">
+        ><div
+          class="flex aspect-video basis-full items-center justify-center rounded-lg bg-primary/20"
+        >
           第二张
         </div></Carousel.Item
       ></Carousel.Content

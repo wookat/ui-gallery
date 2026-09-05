@@ -121,6 +121,29 @@
     "Label",
     "Sonner",
   ]
+  const descriptions: Record<string, string> = {
+    Typography: "展示标题层级、段落、引用与列表的排版层次。",
+    Button: "对比按钮的尺寸、变体、禁用和加载状态。",
+    Input: "演示前后缀、密码、搜索和错误输入场景。",
+    Radio: "展示互斥选项的选中状态与键盘焦点。",
+    Switch: "展示紧凑、默认和禁用的开关反馈。",
+    Slider: "对比单值、区间、禁用和垂直滑块。",
+    Table: "展示带选择、排序提示和汇总行的数据表格。",
+    Card: "对比基础、媒体和横向内容容器。",
+    Avatar: "展示不同尺寸、回退文字与头像叠放。",
+    Badge: "对比状态标签的默认、次要、描边和危险变体。",
+    Alert: "用不同语义颜色表达信息、成功、警告和错误。",
+    Dialog: "展示普通弹窗、确认弹窗与长内容布局。",
+    Tabs: "演示默认、带图标、禁用和竖向标签页。",
+    Pagination: "展示完整分页、页码省略与前后导航。",
+    Accordion: "对比单开和多开内容折叠交互。",
+    Carousel: "展示等宽卡片轮播与前后切换控件。",
+    Sidebar: "用缩略导航片段说明应用壳中的侧栏结构。",
+    ThemeProvider: "提供浅色、深色和系统主题切换按钮。",
+    FloatButton: "展示固定在页面角落的快捷操作入口。",
+    Code: "展示行内代码与多行代码块的阅读样式。",
+    Kbd: "组合快捷键提示，帮助用户理解键盘操作。",
+  }
 </script>
 
 <div id="components" class="space-y-8">
@@ -145,9 +168,10 @@
           <Card.Header class="flex flex-row items-center justify-between gap-3">
             <div>
               <Card.Title>{name}</Card.Title><Card.Description
-                >{status === "composed"
-                  ? "由多个 primitives 组合实现。"
-                  : "shadcn-svelte 组件适配。"}</Card.Description
+                >{descriptions[name] ??
+                  (status === "composed"
+                    ? `${name} 由多个基础组件组合，展示完整交互流程。`
+                    : `${name} 示例展示基础外观、尺寸与交互状态。`)}</Card.Description
               >
             </div>
             <Badge.Root

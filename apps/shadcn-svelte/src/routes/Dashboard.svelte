@@ -100,18 +100,36 @@
             ><Card.Content
               ><svg
                 class="h-56 w-full overflow-visible"
-                viewBox="0 0 700 220"
+                viewBox="0 0 700 240"
                 preserveAspectRatio="none"
+                role="img"
+                aria-label="收入趋势折线图"
+                ><g stroke="var(--border)" stroke-width="1" opacity="0.7"
+                  ><line x1="0" y1="30" x2="700" y2="30" /><line
+                    x1="0"
+                    y1="90"
+                    x2="700"
+                    y2="90"
+                  /><line x1="0" y1="150" x2="700" y2="150" /><line
+                    x1="0"
+                    y1="210"
+                    x2="700"
+                    y2="210"
+                  /></g
                 ><polyline
                   fill="none"
-                  stroke="hsl(var(--primary))"
-                  stroke-width="3"
-                  points={series.revenue.map((point, i) => `${i * 116},${210 - point}`).join(" ")}
+                  stroke="var(--primary)"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  points={series.revenue
+                    .map((point, i) => `${i * 116},${210 - (point / 140) * 180}`)
+                    .join(" ")}
                 />{#each series.revenue as point, i}<circle
                     cx={i * 116}
-                    cy={210 - point}
+                    cy={210 - (point / 140) * 180}
                     r="4"
-                    fill="hsl(var(--primary))"
+                    fill="var(--primary)"
                   />{/each}</svg
               >
               <div class="flex justify-between text-xs text-muted-foreground">
@@ -124,12 +142,44 @@
               ><Card.Title>渠道分布</Card.Title><Card.Description>订单来源占比</Card.Description
               ></Card.Header
             ><Card.Content class="flex items-center justify-center"
-              ><div
-                class="relative flex size-44 items-center justify-center rounded-full"
-                style="background: conic-gradient(hsl(var(--primary)) 0 52%, hsl(var(--chart-2)) 52% 75%, hsl(var(--chart-3)) 75% 92%, hsl(var(--chart-4)) 92% 100%)"
-              >
+              ><div class="relative flex size-44 items-center justify-center">
+                <svg
+                  viewBox="0 0 120 120"
+                  class="size-full -rotate-90"
+                  role="img"
+                  aria-label="渠道分布环形图"
+                >
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="42"
+                    fill="none"
+                    stroke="var(--muted)"
+                    stroke-width="16"
+                  />
+                  {#each series.byChannel as channel, i}
+                    {@const start = series.byChannel
+                      .slice(0, i)
+                      .reduce((sum, item) => sum + item.value, 0)}
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="42"
+                      fill="none"
+                      stroke={[
+                        "var(--primary)",
+                        "var(--accent-foreground)",
+                        "var(--ring)",
+                        "var(--muted-foreground)",
+                      ][i]}
+                      stroke-width="16"
+                      stroke-dasharray={`${channel.value * 2.639} ${263.9 - channel.value * 2.639}`}
+                      stroke-dashoffset={-start * 2.639}
+                    />
+                  {/each}
+                </svg>
                 <div
-                  class="flex size-24 items-center justify-center rounded-full bg-background text-center text-xs text-muted-foreground"
+                  class="absolute flex size-24 items-center justify-center rounded-full bg-background text-center text-xs text-muted-foreground"
                 >
                   渠道<br />占比
                 </div>
@@ -143,6 +193,41 @@
         </div></Tabs.Content
       >
     </Tabs.Root>
+    <Card.Root>
+      <Card.Header
+        ><Card.Title>订单趋势</Card.Title><Card.Description>各月订单数量</Card.Description
+        ></Card.Header
+      >
+      <Card.Content>
+        <svg
+          class="h-48 w-full"
+          viewBox="0 0 700 220"
+          preserveAspectRatio="none"
+          role="img"
+          aria-label="订单柱状图"
+        >
+          <g stroke="var(--border)" stroke-width="1" opacity="0.7">
+            <line x1="0" y1="30" x2="700" y2="30" /><line x1="0" y1="90" x2="700" y2="90" />
+            <line x1="0" y1="150" x2="700" y2="150" /><line x1="0" y1="210" x2="700" y2="210" />
+          </g>
+          {#each series.orders as value, i}
+            {@const height = (value / 1100) * 180}
+            <rect
+              x={i * 100 + 26}
+              y={210 - height}
+              width="48"
+              {height}
+              rx="5"
+              fill="var(--primary)"
+              opacity="0.85"
+            />
+          {/each}
+        </svg>
+        <div class="flex justify-around text-xs text-muted-foreground">
+          {#each series.months as month}<span>{month}</span>{/each}
+        </div>
+      </Card.Content>
+    </Card.Root>
     <div class="grid gap-4 xl:grid-cols-3">
       <Card.Root class="xl:col-span-2"
         ><Card.Header><Card.Title>最近订单</Card.Title></Card.Header><Card.Content

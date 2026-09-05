@@ -21,8 +21,9 @@
     <h1 class="text-2xl font-semibold">设置</h1>
     <p class="text-sm text-muted-foreground">管理个人资料、团队和账单。</p>
   </div>
-  <Tabs.Root bind:value={tab} orientation="vertical" class="items-start md:flex-row"
-    ><Tabs.List class="w-full shrink-0 justify-start overflow-x-auto md:w-44 md:flex-col"
+  <Tabs.Root bind:value={tab} class="items-start md:flex-row"
+    ><Tabs.List
+      class="h-auto w-full shrink-0 justify-start overflow-x-auto md:h-fit md:w-44 md:flex-col md:items-stretch [&>[data-slot=tabs-trigger]]:shrink-0 md:[&>[data-slot=tabs-trigger]]:w-full"
       ><Tabs.Trigger value="profile">个人资料</Tabs.Trigger><Tabs.Trigger value="security"
         >账号安全</Tabs.Trigger
       ><Tabs.Trigger value="notifications">通知</Tabs.Trigger><Tabs.Trigger value="team"

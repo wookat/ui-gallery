@@ -99,12 +99,20 @@
         >
         <div class="space-y-3">
           <p class="text-sm font-medium">项目类型</p>
-          <Radio.Root value="internal"><Radio.Item value="internal" />内部项目</Radio.Root
-          ><Radio.Root value="client"><Radio.Item value="client" />客户项目</Radio.Root>
+          <Radio.Root value="internal" class="flex items-center gap-2 whitespace-nowrap"
+            ><Radio.Item value="internal" />内部项目</Radio.Root
+          ><Radio.Root value="client" class="flex items-center gap-2 whitespace-nowrap"
+            ><Radio.Item value="client" />客户项目</Radio.Root
+          >
         </div>
-        <label class="flex items-center gap-2 text-sm"><Checkbox.Root />需要审批</label><label
-          class="flex items-center gap-2 text-sm"><Switch.Root />启用通知</label
-        >
+        <div class="flex flex-wrap gap-4 text-sm">
+          <label class="inline-flex items-center gap-2 whitespace-nowrap"
+            ><Checkbox.Root />需要审批</label
+          >
+          <label class="inline-flex items-center gap-2 whitespace-nowrap"
+            ><Switch.Root />启用通知</label
+          >
+        </div>
       {:else if step === 2}
         <div class="grid gap-5 sm:grid-cols-2">
           <label class="space-y-2 text-sm font-medium"

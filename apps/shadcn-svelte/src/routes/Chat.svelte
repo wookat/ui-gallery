@@ -1,7 +1,7 @@
 <script lang="ts">
   import { marked } from "marked"
   import { onMount } from "svelte"
-  import { Menu, Paperclip, Plus, Send, Sparkles } from "@lucide/svelte"
+  import { Copy, Menu, Paperclip, Plus, Send, Sparkles } from "@lucide/svelte"
   import chat from "@ui-gallery/spec/mock/chat.json"
   import { Button } from "$lib/components/ui/button"
   import * as Avatar from "$lib/components/ui/avatar"
@@ -102,14 +102,17 @@
                   class="text-xs text-muted-foreground">刚刚</span
                 ></Message.Header
               >
-              <div class="prose prose-sm dark:prose-invert max-w-none">
+              <div
+                class="prose prose-sm dark:prose-invert max-w-none overflow-x-auto [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs [&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:bg-muted [&_pre]:p-3 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_table]:my-3 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:p-2 [&_th]:border [&_th]:border-border [&_th]:bg-muted [&_th]:p-2 [&_th]:text-left"
+              >
                 {@html marked.parse(String(message.content))}
               </div>
               <Button
-                size="sm"
+                size="icon-sm"
                 variant="ghost"
                 class="mt-2"
-                onclick={() => copyMessage(message.content)}>复制内容</Button
+                aria-label="复制内容"
+                onclick={() => copyMessage(message.content)}><Copy class="size-4" /></Button
               >
               {#if message.sources}<div class="mt-3 flex flex-wrap gap-1">
                   {#each message.sources as source}<Badge.Root variant="outline"

@@ -112,5 +112,5 @@
     "chart": "recharts",
     "markdown": "react-markdown"
   },
-  "notes": "Official React Suite default theme with native icon fallback."
+  "notes": "Official React Suite default theme with native icon fallback. /components 额外展示 coverage 之外的 rsuite 组件：Animation, Box, Center, DateInput, DateRangeInput, MaskedInput, PasswordInput, PasswordStrengthMeter, Highlight, HeadingGroup, InlineEdit, RadioTile, ButtonToolbar, FormStack, VisuallyHidden, CascadeTree, useBreakpointValue, TimeRangePicker, TagInput, CardGroup（标记为 extra）。"
 }

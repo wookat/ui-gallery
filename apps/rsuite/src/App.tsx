@@ -25,7 +25,7 @@ function useUrlSettings() {
     const font = fonts[params.get("font") ?? ""]
     if (font) document.documentElement.style.setProperty("--rs-font-family-base", font)
   }, [params, theme])
-  return { theme, icons: params.get("icons"), setTheme: setThemeState }
+  return { theme, icons: params.get("icon") ?? params.get("icons"), setTheme: setThemeState }
 }
 
 const shell = (element: ReactNode) => <AppShell>{element}</AppShell>

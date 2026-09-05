@@ -55,7 +55,13 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": [
+              "node_modules/@fontsource-variable/inter/index.css",
+              "node_modules/@fontsource-variable/geist/index.css",
+              "node_modules/@fontsource-variable/noto-sans-sc/index.css",
+              "node_modules/lxgw-wenkai-screen-webfont/style.css",
+              "src/styles.scss"
+            ],
             "baseHref": "/apps/angular-material/",
             "loader": {
               ".svg": "text"

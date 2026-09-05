@@ -69,11 +69,11 @@ const couponDemo = {
   name: "演示优惠券",
   condition: "满 ¥100 可用",
   description: "演示优惠券",
-  denominations: 20,
-  originCondition: 100,
-  value: 20,
-  startAt: Date.now(),
-  endAt: Date.now() + 86400000,
+  value: 2000,
+  valueDesc: "20",
+  unitDesc: "元",
+  startAt: Math.floor(Date.now() / 1000),
+  endAt: Math.floor(Date.now() / 1000) + 86400,
   reason: "",
 }
 const disabledCoupon = { ...couponDemo, id: "coupon-disabled", name: "暂不可用优惠券" }
@@ -81,8 +81,10 @@ const imageSources = [
   `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='240' height='160'><rect width='240' height='160' fill='#1989fa'/><text x='120' y='88' fill='white' text-anchor='middle'>Demo A</text></svg>")}`,
   `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='240' height='160'><rect width='240' height='160' fill='#07c160'/><text x='120' y='88' fill='white' text-anchor='middle'>Demo B</text></svg>")}`,
 ]
-const highlightSource = chat.messages.find((message) => message.role === "assistant")?.content ?? ""
 const longText = landing.testimonials[0].quote + " " + landing.hero.subtitle + " 这是一段用于演示省略和展开交互的较长文本。"
+const highlightSource = landing.hero.subtitle
+const circleRate = ref(65)
+const circleRate2 = ref(72)
 const nestedDarkThemeVars = {
   background: "#000",
   background2: "#1c1c1e",
@@ -91,6 +93,8 @@ const nestedDarkThemeVars = {
   borderColor: "#3a3a3c",
 }
 const floatingAnchors = [100, 200]
+const tooltipShown = ref(true)
+const barrageList = ref(chat.conversations.slice(0, 4).map((item, index) => ({ id: index, text: item.title })))
 const actionSheetActions = [{ name: "选项一" }, { name: "选项二" }, { name: "选项三" }]
 const shareOptions = [
   { name: "微信", icon: "wechat" },
@@ -185,7 +189,7 @@ const previewImages = () => showImagePreview(imageSources)
         <article id="Slider" class="card component-demo"><h3>Slider</h3><van-slider v-model="slider" step="5" /><van-slider v-model="range" range /><van-slider vertical :model-value="40" disabled class="vertical-slider" /></article>
         <article id="Rate" class="card component-demo"><h3>Rate</h3><van-rate v-model="rate" allow-half /><van-rate :model-value="3" readonly /><van-rate :model-value="2" :count="7" disabled /></article>
         <article id="Picker" class="card component-demo"><h3>Select / MultiSelect / Combobox / Autocomplete</h3><van-picker :columns="[{ text: '选项 A', value: 'a' }, { text: '选项 B', value: 'b' }]" /><van-checkbox-group><van-checkbox name="one">多选 A</van-checkbox><van-checkbox name="two">多选 B</van-checkbox></van-checkbox-group><van-search placeholder="输入以筛选建议" /></article>
-        <article id="DatePicker" class="card component-demo"><h3>DatePicker / TimePicker / Calendar</h3><van-date-picker /><van-time-picker /><van-calendar :poppable="false" :show-confirm="false" :style="{ height: '320px' }" /></article>
+        <article id="DatePicker" class="card component-demo"><h3>DatePicker / TimePicker / Calendar</h3><van-date-picker /><van-time-picker /><van-calendar :poppable="false" :show-confirm="false" :style="{ height: '480px' }" /></article>
         <article id="ColorPicker" class="card component-demo"><h3>ColorPicker</h3><van-field label="missing fallback"><template #input><input type="color" value="#1989fa" aria-label="color" /></template></van-field></article>
         <article id="Upload" class="card component-demo"><h3>Uploader</h3><van-uploader multiple preview-size="60" :max-count="3"><template #preview-cover="{ file }"><span>{{ file.name || "文件" }}</span></template></van-uploader><div class="upload-drop">拖拽文件到这里</div></article>
         <article id="Cascader" class="card component-demo"><h3>Cascader</h3><van-cascader :options="[{ text: '省A', value: 'a', children: [{ text: '市A', value: 'aa' }] }, { text: '省B', value: 'b', children: [{ text: '市B', value: 'bb' }] }]" /></article>
@@ -206,13 +210,13 @@ const previewImages = () => showImagePreview(imageSources)
         <article id="Image" class="card component-demo"><h3>Image / ImagePreview</h3><div class="inline"><van-image width="80" height="80" fit="cover" round loading="lazy" error-icon="photo-fail" :src="imageSources[0]" /><van-button size="small" @click="previewImages">预览</van-button></div></article>
         <article id="Carousel" class="card component-demo"><h3>Swipe</h3><van-swipe autoplay="2500" vertical indicator-color="white" :style="{ height: '100px' }"><van-swipe-item v-for="n in 3" :key="n"><div class="swipe-box">第 {{ n }} 页</div></van-swipe-item></van-swipe></article>
         <article id="Empty" class="card component-demo"><h3>Empty</h3><van-empty image="search" description="暂无内容"><van-button type="primary" size="small">刷新</van-button></van-empty></article>
-        <article id="Tooltip" class="card component-demo"><h3>Tooltip / Popover</h3><van-popover theme="dark" :actions="[{ text: '操作一' }, { text: '操作二' }]"><template #reference><van-button>打开 Popover</van-button></template></van-popover></article>
-        <article id="Segmented" class="card component-demo"><h3>Segmented</h3><van-tabs v-model:active="activeTab" type="card"><van-tab title="日" /><van-tab title="周" /><van-tab title="月" /></van-tabs></article>
-        <article id="Circle" class="card component-demo"><h3>Circle / Progress</h3><div class="inline"><van-circle :rate="65" /><van-progress :percentage="65" pivot-text="65%" stroke-width="8" /></div><van-progress :percentage="65" inactive striped /></article>
+        <article id="Tooltip" class="card component-demo"><h3>Tooltip / Popover</h3><div class="inline"><van-popover theme="dark" :actions="[{ text: '操作一' }, { text: '操作二' }]"><template #reference><van-button>打开 Popover</van-button></template></van-popover><van-popover v-model:show="tooltipShown" theme="dark" placement="right"><span class="tooltip-text">{{ landing.hero.social }}</span><template #reference><van-button plain>悬浮提示</van-button></template></van-popover></div></article>
+        <article id="Segmented" class="card component-demo"><h3>Segmented</h3><van-tabs v-model:active="activeTab" type="card"><van-tab title="日"><p class="segment-body">{{ landing.hero.subtitle }}</p></van-tab><van-tab title="周"><p class="segment-body">{{ landing.testimonials[0].quote }}</p></van-tab><van-tab title="月"><p class="segment-body">{{ landing.hero.social }}</p></van-tab></van-tabs></article>
+        <article id="Circle" class="card component-demo"><h3>Circle / Progress</h3><div class="inline"><van-circle v-model:current-rate="circleRate" :rate="65" :speed="100" text="65%" /><van-progress :percentage="65" pivot-text="65%" stroke-width="8" /></div><van-progress :percentage="65" inactive striped /></article>
         <article id="Skeleton" class="card component-demo"><h3>Skeleton</h3><van-skeleton title avatar :row="3" animate /><van-skeleton-title /><van-skeleton-avatar /><van-skeleton-paragraph /><van-skeleton-image /></article>
         <article id="Loading" class="card component-demo"><h3>Loading</h3><div class="inline"><van-loading /><van-loading type="spinner" size="24" /><van-loading vertical>加载中</van-loading></div></article>
         <article id="TextEllipsis" class="card component-demo"><h3>TextEllipsis</h3><van-text-ellipsis :content="longText" rows="2" expand-text="展开" collapse-text="收起" /></article>
-        <article id="Highlight" class="card component-demo"><h3>Highlight</h3><van-highlight :keywords="['收入', '订单']" :source-string="highlightSource" /></article>
+        <article id="Highlight" class="card component-demo"><h3>Highlight</h3><van-highlight :keywords="['订单', 'AI 助手']" :source-string="highlightSource" /></article>
       </div>
     </section>
 
@@ -262,14 +266,14 @@ const previewImages = () => showImagePreview(imageSources)
         <section id="vant-AddressEdit" class="card component-demo"><h3>AddressEdit</h3><van-address-edit :area-list="areaList" show-postal show-set-default /></section>
         <section id="vant-AddressList" class="card component-demo"><h3>AddressList</h3><van-address-list v-model="selected" :list="addresses" :disabled-list="[{ id: 'disabled', name: team[2].name, tel: '136****0000', address: '示例地址' }]" /></section>
         <section id="vant-Area" class="card component-demo"><h3>Area</h3><van-area :area-list="areaList" :columns-placeholder="['省', '市', '区']" /></section>
-        <section id="vant-Barrage" class="card component-demo"><h3>Barrage</h3><van-barrage :rows="2" :list="[{ id: 1, text: chat.conversations[0].title }, { id: 2, text: chat.conversations[1].title }]" /></section>
+        <section id="vant-Barrage" class="card component-demo"><h3>Barrage</h3><van-barrage v-model:list="barrageList" :rows="2" :duration="8000" class="barrage-box"><div class="barrage-stage muted">{{ landing.hero.social }}</div></van-barrage></section>
         <section id="vant-ContactCard" class="card component-demo"><h3>ContactCard</h3><van-contact-card type="add" add-text="添加联系人" /><van-contact-card type="edit" :tel="contacts[0].tel" :name="contacts[0].name" /></section>
         <section id="vant-ContactList" class="card component-demo"><h3>ContactList</h3><van-contact-list v-model="selected" :list="contacts" /></section>
         <section id="vant-ContactEdit" class="card component-demo"><h3>ContactEdit</h3><van-contact-edit is-edit :contact-info="contacts[0]" /></section>
         <section id="vant-CountDown" class="card component-demo"><h3>CountDown</h3><van-count-down time="3600000" format="DD 天 HH 时 mm 分 ss 秒" /></section>
         <section id="vant-Coupon" class="card component-demo"><h3>Coupon</h3><span id="vant-CouponCell" class="anchor-target" /><span id="vant-CouponList" class="anchor-target" /><van-coupon-cell title="优惠券" :coupons="[couponDemo]" :chosen-coupon="0" /><van-coupon-cell title="未选择" :coupons="[couponDemo]" /><van-coupon-list :coupons="[couponDemo]" :disabled-coupons="[disabledCoupon]" :show-exchange-bar="false" /></section>
         <section id="vant-FloatingPanel" class="card component-demo"><h3>FloatingPanel</h3><van-button @click="showFloatingPanel = true">打开 FloatingPanel</van-button><div v-if="showFloatingPanel" class="floating-panel-box"><van-floating-panel :anchors="floatingAnchors"><div class="floating-panel-content"><van-button size="small" @click="showFloatingPanel = false">关闭</van-button><p>浮层内容</p></div></van-floating-panel></div></section>
-        <section id="vant-Highlight" class="card component-demo"><h3>Highlight</h3><van-highlight :keywords="['收入', '订单']" :source-string="highlightSource" /></section>
+        <section id="vant-Highlight" class="card component-demo"><h3>Highlight</h3><van-highlight :keywords="['订单', 'AI 助手']" :source-string="highlightSource" /></section>
         <section id="vant-ImagePreview" class="card component-demo"><h3>ImagePreview</h3><van-button @click="previewImages">打开 ImagePreview</van-button></section>
         <section id="vant-NumberKeyboard" class="card component-demo"><h3>NumberKeyboard</h3><div class="keyboard-box"><van-number-keyboard :show="true" /></div></section>
         <section id="vant-PickerGroup" class="card component-demo"><h3>PickerGroup</h3><van-picker-group :tabs="['开始日期', '结束日期']"><van-date-picker /><van-date-picker /></van-picker-group></section>
@@ -309,14 +313,14 @@ const previewImages = () => showImagePreview(imageSources)
       <div class="component-grid">
         <section id="vant-BackTop" class="card component-demo"><h3>BackTop</h3><p class="muted">页面级 BackTop 已在导航演示中挂载。</p></section>
         <section id="vant-Badge" class="card component-demo"><h3>Badge</h3><van-badge content="8" /></section>
-        <section id="vant-Calendar" class="card component-demo"><h3>Calendar</h3><van-calendar :poppable="false" :show-confirm="false" :style="{ height: '260px' }" /></section>
+        <section id="vant-Calendar" class="card component-demo"><h3>Calendar</h3><van-calendar :poppable="false" :show-confirm="false" :style="{ height: '480px' }" /><h3 class="sub-heading">DateRangePicker（type="range"）</h3><van-calendar type="range" :poppable="false" :show-confirm="false" :style="{ height: '480px' }" /></section>
         <section id="vant-Card" class="card component-demo"><h3>Card</h3><van-card price="20.00" title="显式卡片" desc="卡片内容" /></section>
         <section id="vant-Cascader" class="card component-demo"><h3>Cascader</h3><van-cascader :options="[{ text: '选项一', value: 'one', children: [{ text: '子项', value: 'child' }] }]" /></section>
         <section id="vant-Cell" class="card component-demo"><h3>Cell</h3><van-cell title="显式 Cell" value="内容" is-link /></section>
         <section id="vant-CellGroup" class="card component-demo"><h3>CellGroup</h3><van-cell-group inset><van-cell title="CellGroup 内容" /></van-cell-group></section>
         <section id="vant-Checkbox" class="card component-demo"><h3>Checkbox</h3><van-checkbox :model-value="true">显式复选框</van-checkbox></section>
         <section id="vant-CheckboxGroup" class="card component-demo"><h3>CheckboxGroup</h3><van-checkbox-group><van-checkbox name="one">选项一</van-checkbox><van-checkbox name="two">选项二</van-checkbox></van-checkbox-group></section>
-        <section id="vant-Circle" class="card component-demo"><h3>Circle</h3><van-circle :rate="72" /></section>
+        <section id="vant-Circle" class="card component-demo"><h3>Circle</h3><van-circle v-model:current-rate="circleRate2" :rate="72" :speed="100" text="72%" /></section>
         <section id="vant-Collapse" class="card component-demo"><h3>Collapse</h3><van-collapse><van-collapse-item title="折叠面板" name="one">面板内容</van-collapse-item></van-collapse></section>
         <section id="vant-DatePicker" class="card component-demo"><h3>DatePicker</h3><van-date-picker /></section>
         <section id="vant-Dialog" class="card component-demo"><h3>Dialog</h3><van-button size="small" @click="showDialog = true">打开 Dialog</van-button></section>
@@ -378,7 +382,14 @@ const previewImages = () => showImagePreview(imageSources)
 
 <style scoped>
 .components-page { min-width: 0; }
-.component-index { display: grid; gap: 8px; position: sticky; top: 72px; z-index: 2; max-height: 180px; overflow: auto; }
+.component-index { display: grid; gap: 8px; position: sticky; top: 72px; z-index: 2; max-height: 40vh; overflow: auto; }
+.component-index-links a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 2px; }
+.component-index-links { gap: 2px 6px; }
+.barrage-box { background: var(--van-background); }
+.barrage-stage { display: grid; place-items: center; height: 96px; }
+.tooltip-text { display: block; padding: 8px 12px; font-size: 13px; }
+.segment-body { margin: 12px 0 0; color: var(--van-text-color); }
+.sub-heading { margin: 16px 0 12px; }
 .component-index-links { min-width: 0; }
 .anchor-target { display: inline-block; width: 0; height: 0; overflow: hidden; }
 .anchor-targets { position: absolute; width: 0; height: 0; overflow: hidden; }

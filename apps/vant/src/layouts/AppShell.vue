@@ -45,11 +45,11 @@ const doAction = (label: string) => { profileOpen.value = false; showNotify({ ty
     </aside>
     <section class="dashboard-main">
       <header class="shell-topbar">
-        <van-button class="mobile-only" icon="bars" plain hairline @click="drawer = true"><AppIcon name="menu" /></van-button>
-        <div class="inline muted">
-          <RouterLink to="/">Acme Console</RouterLink>
-          <AppIcon name="chevron-right" :size="14" />
-          <span>{{ currentLabel }}</span>
+        <van-button class="mobile-only" plain hairline aria-label="打开导航" @click="drawer = true"><AppIcon name="menu" /></van-button>
+        <div class="inline muted breadcrumb">
+          <RouterLink class="desktop-only" to="/">Acme Console</RouterLink>
+          <AppIcon class="desktop-only" name="chevron-right" :size="14" />
+          <span class="breadcrumb-current">{{ currentLabel }}</span>
         </div>
         <van-search v-model="search" class="desktop-search" shape="round" placeholder="搜索..." />
         <div class="top-actions">
@@ -59,9 +59,9 @@ const doAction = (label: string) => { profileOpen.value = false; showNotify({ ty
                 <strong>{{ item.title }}</strong><small>{{ item.time }}</small>
               </div>
             </div>
-            <template #reference><van-badge :content="notifications.filter((item) => item.unread).length"><van-button plain icon="bell"><AppIcon name="bell" /></van-button></van-badge></template>
+            <template #reference><van-badge :content="notifications.filter((item) => item.unread).length"><van-button plain aria-label="通知"><AppIcon name="bell" /></van-button></van-badge></template>
           </van-popover>
-          <van-button plain @click="toggleTheme"><AppIcon :name="urlSettings.theme === 'dark' ? 'sun' : 'moon'" /></van-button>
+          <van-button plain :title="urlSettings.theme === 'dark' ? '切换到亮色' : '切换到暗色'" :aria-label="urlSettings.theme === 'dark' ? '切换到亮色' : '切换到暗色'" @click="toggleTheme"><AppIcon :name="urlSettings.theme === 'dark' ? 'sun' : 'moon'" /><span class="desktop-only theme-label">{{ urlSettings.theme === 'dark' ? '亮色' : '暗色' }}</span></van-button>
           <van-popover v-model:show="profileOpen" placement="bottom-end">
             <van-cell-group inset>
               <van-cell v-for="label in ['个人资料', '账户设置', '团队管理', '账单方案', '退出登录']" :key="label" :title="label" is-link @click="doAction(label)" />
@@ -85,7 +85,11 @@ const doAction = (label: string) => { profileOpen.value = false; showNotify({ ty
 
 <style scoped>
 .desktop-search { max-width: 280px; flex: 1; }
-.top-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.top-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; flex: 0 0 auto; }
+.top-actions :deep(.van-button__text) { display: inline-flex; align-items: center; gap: 4px; }
+.theme-label { font-size: 13px; }
+.breadcrumb { min-width: 0; flex-wrap: nowrap; }
+.breadcrumb-current { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--van-text-color); }
 .avatar-button { width: 34px; height: 34px; background: var(--van-primary-color); color: #fff; border: 0; }
 .popover-list { width: 280px; padding: 8px; }
 .popover-item { display: grid; gap: 3px; padding: 9px; border-bottom: 1px solid var(--van-border-color); }

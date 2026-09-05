@@ -8,6 +8,7 @@ const router = useRouter()
 const email = ref("")
 const password = ref("")
 const remember = ref(true)
+const oauthProviders = [{ label: "Google", icon: "globe" }, { label: "GitHub", icon: "github" }, { label: "微信", icon: "wechat" }]
 const passwordVisible = ref(false)
 const loading = ref(false)
 const error = ref("")
@@ -37,14 +38,14 @@ const submit = () => {
             <template #right-icon><AppIcon :name="passwordVisible ? 'eye-off' : 'eye'" @click="passwordVisible = !passwordVisible" /></template>
           </van-field>
         </van-cell-group>
-        <div class="login-options"><van-checkbox v-model="remember">记住我</van-checkbox><a href="#" @click.prevent="showToast('链接已发送')">忘记密码</a></div>
+        <div class="login-options"><van-checkbox v-model="remember">记住我</van-checkbox><a href="#" class="text-link" @click.prevent="showToast('链接已发送')">忘记密码</a></div>
         <van-button block type="primary" native-type="submit" :loading="loading" loading-text="登录中">登录</van-button>
       </van-form>
       <van-divider>或</van-divider>
       <div class="oauth-list">
-        <van-button v-for="label in ['Google', 'GitHub', '微信']" :key="label" plain block @click="showToast(`${label} 登录`)"><template #icon><AppIcon name="globe" /></template>{{ label }}</van-button>
+        <van-button v-for="provider in oauthProviders" :key="provider.label" plain block @click="showToast(`${provider.label} 登录`)"><template #icon><AppIcon :name="provider.icon" /></template>{{ provider.label }}</van-button>
       </div>
-      <p class="login-footer muted">还没有账户？<a href="#" @click.prevent="showToast('注册')">注册</a></p>
+      <p class="login-footer muted">还没有账户？<a href="#" class="text-link" @click.prevent="showToast('注册')">注册</a></p>
     </div>
   </main>
 </template>
@@ -55,7 +56,9 @@ const submit = () => {
 .login-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
 .login-card h1 { margin: 0; font-size: 28px; }
 .login-card p { margin: 8px 0 18px; }
-.login-options { display: flex; justify-content: space-between; align-items: center; margin: 14px 4px 18px; font-size: 14px; }
+.login-options { display: flex; justify-content: space-between; align-items: center; margin: 8px 4px 12px; font-size: 14px; }
+.login-options .van-checkbox { min-height: 40px; }
+.login-footer .text-link { min-height: 40px; }
 .oauth-list { display: grid; gap: 10px; }
 .login-footer { text-align: center; margin-bottom: 4px !important; }
 </style>

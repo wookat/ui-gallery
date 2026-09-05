@@ -33,7 +33,7 @@ const copy = async (value: string) => {
     <div class="page-title"><div><h1>AI 对话</h1><p>与团队智能助手协作</p></div><van-button class="mobile-only" type="primary" @click="drawer = true"><AppIcon name="menu" />对话</van-button></div>
     <div class="chat-layout">
       <aside class="chat-sidebar">
-        <div class="between"><strong>对话</strong><van-button plain icon="plus" @click="empty = true"><AppIcon name="plus" /></van-button></div>
+        <div class="between"><strong>对话</strong><van-button plain aria-label="新建对话" @click="empty = true"><AppIcon name="plus" /></van-button></div>
         <van-search v-model="conversationQuery" placeholder="搜索对话" />
         <van-button block type="primary" class="new-chat" @click="empty = true"><AppIcon name="plus" />新建对话</van-button>
         <van-cell v-for="item in conversations" :key="item.id" :title="item.title" :label="item.time" is-link :class="{ active: item.id === selected }" @click="selected = item.id">
@@ -46,7 +46,7 @@ const copy = async (value: string) => {
         <div v-else class="chat-messages">
           <article v-for="(message, index) in chat.messages" :key="`${message.role}-${index}`" class="message" :class="{ user: message.role === 'user' }">
             <span class="message-avatar">{{ message.role === "user" ? "林" : "AI" }}</span>
-            <div class="bubble"><small class="muted">{{ message.role === "user" ? "林晓" : "AI 助手" }} · 刚刚</small><div v-if="message.role === 'assistant'" class="markdown" v-html="renderMarkdown(message.content)" /><div v-else>{{ message.content }}</div><div v-if="message.role === 'assistant'" class="inline"><van-tag v-for="source in message.sources" :key="source" plain>{{ source }}</van-tag><van-button v-if="message.content.includes('SELECT')" plain size="small" @click="copy(message.content)"><AppIcon name="copy" />{{ copied ? "已复制" : "复制" }}</van-button></div><van-collapse v-if="message.tool"><van-collapse-item :title="`工具调用 · ${message.tool.name}`" name="tool"><pre>{{ JSON.stringify(message.tool.args, null, 2) }}</pre></van-collapse-item></van-collapse><div v-if="message.streaming" class="inline muted"><van-loading type="spinner" size="14" />正在输入...</div></div>
+            <div class="bubble"><small class="bubble-meta">{{ message.role === "user" ? "林晓" : "AI 助手" }} · 刚刚</small><div v-if="message.role === 'assistant'" class="markdown" v-html="renderMarkdown(message.content)" /><div v-else>{{ message.content }}</div><div v-if="message.role === 'assistant'" class="inline"><van-tag v-for="source in message.sources" :key="source" plain>{{ source }}</van-tag><van-button v-if="message.content.includes('SELECT')" plain size="small" @click="copy(message.content)"><AppIcon name="copy" />{{ copied ? "已复制" : "复制" }}</van-button></div><van-collapse v-if="message.tool"><van-collapse-item :title="`工具调用 · ${message.tool.name}`" name="tool"><pre>{{ JSON.stringify(message.tool.args, null, 2) }}</pre></van-collapse-item></van-collapse><div v-if="message.streaming" class="inline muted"><van-loading type="spinner" size="14" />正在输入...</div></div>
           </article>
         </div>
         <div class="composer"><div class="inline suggestion-row"><van-tag v-for="suggestion in chat.suggestions" :key="suggestion" plain @click="draft = suggestion">{{ suggestion }}</van-tag></div><van-field v-model="draft" type="textarea" autosize rows="2" maxlength="2000" show-word-limit placeholder="向 AI 助手提问..."><template #left-icon><AppIcon name="paperclip" /></template><template #button><van-button type="primary" round @click="draft = ''"><AppIcon name="send" /></van-button></template></van-field><small class="muted">Enter 发送 · Shift + Enter 换行</small></div>
@@ -67,5 +67,7 @@ const copy = async (value: string) => {
 .suggestion-grid { display: grid; gap: 8px; max-width: 320px; }
 .suggestion-grid .van-button { white-space: normal; height: auto; min-height: 42px; }
 .message pre { overflow: auto; }
+.bubble-meta { display: block; margin-bottom: 4px; color: var(--van-text-color-2); }
+.message.user .bubble-meta { color: rgba(255, 255, 255, 0.92); }
 .message-avatar { display: grid; place-items: center; flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; background: var(--van-primary-color); color: #fff; font-size: 12px; }
 </style>

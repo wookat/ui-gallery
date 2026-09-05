@@ -25,7 +25,7 @@ const allowDelete = () => deleteText.value === "DELETE"
 <template>
   <div class="page">
     <div class="page-title"><div><h1>设置</h1><p>管理账户、团队与订阅设置</p></div></div>
-    <van-tabs v-model:active="active" swipeable>
+    <van-tabs v-model:active="active" class="settings-tabs mobile-only" swipeable>
       <van-tab v-for="section in sections" :key="section.value" :title="section.text" :name="section.value" />
     </van-tabs>
     <div class="settings-layout">
@@ -47,7 +47,7 @@ const allowDelete = () => deleteText.value === "DELETE"
 <style scoped>
 .settings-layout { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 16px; margin-top: 16px; }
 .settings-content { min-width: 0; }
-.settings-layout > .van-tabs { display: none; }
+
 .qr-placeholder { display: grid; place-items: center; width: 140px; height: 140px; border: 1px dashed var(--van-border-color); margin: 10px auto; color: var(--van-text-color-2); }
 .plan-price { display: block; font-size: 24px; margin: 12px 0; }
 .danger-card { border-color: var(--van-danger-color); }

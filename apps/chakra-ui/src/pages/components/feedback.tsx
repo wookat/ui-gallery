@@ -1,4 +1,4 @@
-import { Alert, Button, Dialog, Drawer, EmptyState, Flex, Popover, Progress, ProgressCircle, Skeleton, SkeletonCircle, SkeletonText, Spinner, Stack, Steps, Text } from "@chakra-ui/react"
+import { Alert, Button, Dialog, Drawer, EmptyState, Flex, Popover, Progress, ProgressCircle, Skeleton, SkeletonCircle, SkeletonText, Spinner, Stack, Text } from "@chakra-ui/react"
 import { toaster } from "@/components/toaster"
 import type { ComponentDemo } from "./typography"
 
@@ -16,5 +16,4 @@ export const feedbackDemos: ComponentDemo[] = [
   { name: "Spinner", node: <Flex gap="5"><Spinner size="xs" /><Spinner size="sm" colorPalette="blue" /><Spinner size="lg" colorPalette="green" /></Flex> },
   { name: "Result", node: <EmptyState.Root><EmptyState.Content><EmptyState.Indicator><Text fontSize="2xl">✓</Text></EmptyState.Indicator><EmptyState.Title>操作成功</EmptyState.Title><EmptyState.Description>你的项目已经创建。</EmptyState.Description><Flex gap="2"><Button>查看项目</Button><Button variant="outline">返回列表</Button></Flex></EmptyState.Content></EmptyState.Root> },
   { name: "Popconfirm", node: <Popover.Root><Popover.Trigger asChild><Button colorPalette="red">删除项目</Button></Popover.Trigger><Popover.Positioner><Popover.Content><Popover.Arrow /><Popover.Header>确认删除？</Popover.Header><Popover.Body>删除后无法恢复。</Popover.Body><Popover.Footer><Popover.CloseTrigger asChild><Button size="sm" variant="outline">取消</Button></Popover.CloseTrigger><Button size="sm" colorPalette="red">确认</Button></Popover.Footer></Popover.Content></Popover.Positioner></Popover.Root> },
-  { name: "Steps", node: <Steps.Root count={3} defaultStep={1}><Steps.List><Steps.Item index={0}><Steps.Indicator /><Steps.Title>基本信息</Steps.Title><Steps.Separator /></Steps.Item><Steps.Item index={1}><Steps.Indicator /><Steps.Title>配置</Steps.Title><Steps.Separator /></Steps.Item><Steps.Item index={2}><Steps.Indicator /><Steps.Title>完成</Steps.Title></Steps.Item></Steps.List><Steps.Content index={0}>填写信息</Steps.Content><Steps.Content index={1}>配置项目</Steps.Content><Steps.Content index={2}>完成创建</Steps.Content></Steps.Root> },
 ]

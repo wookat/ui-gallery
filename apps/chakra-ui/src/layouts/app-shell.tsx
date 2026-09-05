@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <Flex minH="100vh" bg="bg.subtle">
       <Box as="aside" hideBelow="md" width={collapsed ? "16" : "64"} borderEndWidth="1px" bg="bg.panel" p="4" transition="width 0.2s">
-        <Flex align="center" justify="space-between" mb="8"><RouterLink to="/"><Logo compact={collapsed} /></RouterLink><IconButton aria-label="折叠侧栏" size="sm" variant="ghost" onClick={() => setCollapsed((value) => !value)}><Icon name="chevron-left" width="16" height="16" /></IconButton></Flex>
+        <Flex align="center" justify="space-between" mb="8"><RouterLink to="/"><Logo compact={collapsed} /></RouterLink><IconButton aria-label="折叠侧栏" variant="ghost" onClick={() => setCollapsed((value) => !value)}><Icon name="chevron-left" width="16" height="16" /></IconButton></Flex>
         {!collapsed ? <Text fontSize="xs" color="fg.muted" mb="2">工作区</Text> : null}
         <NavItems />
         <Card.Root mt="auto" variant="subtle"><Card.Body p="3"><Flex align="center" gap="2"><Avatar.Root size="sm"><Avatar.Fallback name={team[0].name} /></Avatar.Root>{!collapsed ? <Box><Text fontSize="sm" fontWeight="medium">{team[0].name}</Text><Text fontSize="xs" color="fg.muted">{team[0].email}</Text></Box> : null}</Flex></Card.Body></Card.Root>
@@ -65,7 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Box flex="1" />
           <InputGroup maxW="240px" hideBelow="md" startElement={<Icon name="search" width="16" height="16" />}><Input placeholder="搜索..." /></InputGroup>
           <Popover.Root>
-            <Popover.Trigger asChild><IconButton aria-label="通知" variant="ghost"><Float placement="top-end"><Icon name="bell" width="18" height="18" /><Float offsetX="1" offsetY="1"><Badge size="xs">2</Badge></Float></Float></IconButton></Popover.Trigger>
+            <Popover.Trigger asChild><IconButton aria-label="通知" variant="ghost" position="relative"><Icon name="bell" width="18" height="18" /><Float placement="top-end" offsetX="2.5" offsetY="2.5"><Badge size="xs" colorPalette="red" variant="solid" rounded="full">2</Badge></Float></IconButton></Popover.Trigger>
             <Portal><Popover.Positioner><Popover.Content><Popover.Arrow /><Popover.Body><Stack gap="3"><Heading size="sm">通知</Heading>{notifications.map((item) => <Box key={item.title}><Text fontSize="sm">{item.title}</Text><Text fontSize="xs" color="fg.muted">{item.time}</Text></Box>)}</Stack></Popover.Body></Popover.Content></Popover.Positioner></Portal>
           </Popover.Root>
           <Tooltip.Root><Tooltip.Trigger asChild><IconButton aria-label="切换主题" variant="ghost" onClick={toggleTheme}><Icon name={colorMode === "dark" ? "sun" : "moon"} width="18" height="18" /></IconButton></Tooltip.Trigger><Portal><Tooltip.Positioner><Tooltip.Content>切换主题</Tooltip.Content></Tooltip.Positioner></Portal></Tooltip.Root>

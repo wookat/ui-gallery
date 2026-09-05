@@ -4,7 +4,7 @@ import sessions from "@ui-gallery/spec/mock/sessions.json"
 import team from "@ui-gallery/spec/mock/team.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import invoices from "@ui-gallery/spec/mock/invoices.json"
-import { Avatar, Badge, Box, Button, Card, Combobox, Dialog, Field, FileUpload, Flex, Heading, Input, Portal, QrCode, SegmentGroup, Select, Separator, Stack, Switch, Table, Tabs, Text, Textarea } from "@chakra-ui/react"
+import { Avatar, Badge, Box, Button, Card, Combobox, Dialog, Field, FileUpload, Flex, Heading, Input, Portal, QrCode, SegmentGroup, Select, Separator, Stack, Switch, Table, Tabs, Text, Textarea, useBreakpointValue } from "@chakra-ui/react"
 import { createListCollection } from "@chakra-ui/react"
 import { PageHeader, StatusBadge } from "./shared"
 
@@ -16,7 +16,8 @@ const languages = createListCollection({ items: [{ label: "中文", value: "zh" 
 
 export function SettingsPage() {
   const [tab, setTab] = useState("profile")
-  return <Stack gap="6"><PageHeader title="设置" description="管理你的账户、团队与订阅设置。" /><Tabs.Root value={tab} onValueChange={(details) => setTab(details.value)} orientation="vertical" display={{ md: "grid" }} gridTemplateColumns={{ md: "180px minmax(0, 1fr)" }} gap="6"><Tabs.List flexDirection={{ md: "column" }} alignItems="stretch" overflowX="auto"><Tabs.Trigger value="profile">个人资料</Tabs.Trigger><Tabs.Trigger value="security">账号安全</Tabs.Trigger><Tabs.Trigger value="notifications">通知</Tabs.Trigger><Tabs.Trigger value="team">团队</Tabs.Trigger><Tabs.Trigger value="billing">计费</Tabs.Trigger></Tabs.List><Box minW="0"><Tabs.Content value="profile"><Profile /></Tabs.Content><Tabs.Content value="security"><Security /></Tabs.Content><Tabs.Content value="notifications"><Notifications /></Tabs.Content><Tabs.Content value="team"><Team /></Tabs.Content><Tabs.Content value="billing"><Billing /></Tabs.Content></Box></Tabs.Root><DangerZone /></Stack>
+  const vertical = useBreakpointValue({ base: false, md: true }, { ssr: false }) ?? false
+  return <Stack gap="6"><PageHeader title="设置" description="管理你的账户、团队与订阅设置。" /><Tabs.Root value={tab} onValueChange={(details) => setTab(details.value)} orientation={vertical ? "vertical" : "horizontal"} display={{ md: "grid" }} gridTemplateColumns={{ md: "180px minmax(0, 1fr)" }} gap="6"><Tabs.List flexDirection={{ base: "row", md: "column" }} alignItems="stretch" overflowX="auto"><Tabs.Trigger value="profile" flexShrink="0" whiteSpace="nowrap">个人资料</Tabs.Trigger><Tabs.Trigger value="security" flexShrink="0" whiteSpace="nowrap">账号安全</Tabs.Trigger><Tabs.Trigger value="notifications" flexShrink="0" whiteSpace="nowrap">通知</Tabs.Trigger><Tabs.Trigger value="team" flexShrink="0" whiteSpace="nowrap">团队</Tabs.Trigger><Tabs.Trigger value="billing" flexShrink="0" whiteSpace="nowrap">计费</Tabs.Trigger></Tabs.List><Box minW="0"><Tabs.Content value="profile"><Profile /></Tabs.Content><Tabs.Content value="security"><Security /></Tabs.Content><Tabs.Content value="notifications"><Notifications /></Tabs.Content><Tabs.Content value="team"><Team /></Tabs.Content><Tabs.Content value="billing"><Billing /></Tabs.Content></Box></Tabs.Root><DangerZone /></Stack>
 }
 
 function Profile() {

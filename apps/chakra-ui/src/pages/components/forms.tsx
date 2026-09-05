@@ -16,7 +16,7 @@ function ComboDemo({ allowCustomValue = false }: { allowCustomValue?: boolean })
 }
 
 export const formDemos: ComponentDemo[] = [
-  { name: "Input", node: <Stack gap="3"><Input size="sm" placeholder="小尺寸" /><Input placeholder="默认输入" /><Input size="lg" disabled placeholder="禁用输入" /><Field.Root invalid><Input placeholder="无效输入" /><Field.ErrorText>格式不正确</Field.ErrorText></Field.Root><InputGroup startElement="https://" endElement=".com"><Input placeholder="website" /></InputGroup><InputGroup startElement="⌕" endElement="清除"><Input type="search" placeholder="搜索" /></InputGroup><Input type="password" placeholder="密码" /></Stack> },
+  { name: "Input", node: <Stack gap="3"><Input size="sm" placeholder="小尺寸" /><Input placeholder="默认输入" /><Input size="lg" disabled placeholder="禁用输入" /><Field.Root invalid><Input placeholder="无效输入" /><Field.ErrorText>格式不正确</Field.ErrorText></Field.Root><InputGroup startAddon="https://" endAddon=".com"><Input placeholder="website" /></InputGroup><InputGroup startElement="⌕" endElement="清除"><Input type="search" placeholder="搜索" /></InputGroup><Input type="password" placeholder="密码" /></Stack> },
   { name: "Textarea", node: <Stack gap="3"><Textarea autoresize placeholder="自动增高文本区域..." /><Textarea resize="none" placeholder="不可调整大小" maxLength={120} /></Stack> },
   { name: "NumberInput", node: <NumberInput.Root defaultValue="10" min={0} max={100}><NumberInput.Label>数量</NumberInput.Label><NumberInput.Input /><NumberInput.Control><NumberInput.IncrementTrigger /><NumberInput.DecrementTrigger /></NumberInput.Control></NumberInput.Root> },
   { name: "Select", node: <Stack gap="3"><SelectDemo /><SelectDemo /></Stack> },

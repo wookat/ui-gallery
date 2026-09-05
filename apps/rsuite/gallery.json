@@ -47,7 +47,7 @@
     "Cascader": "implemented",
     "Transfer": "composed",
     "Mention": "missing",
-    "PinInput": "implemented",
+    "PinInput": "composed",
     "Form": "implemented",
     "Table": "implemented",
     "DataGrid": "composed",

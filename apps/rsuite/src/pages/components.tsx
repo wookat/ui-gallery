@@ -1,20 +1,23 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import {
-  Accordion, Affix, Animation, AutoComplete, Avatar, AvatarGroup, Badge, Breadcrumb, Button, ButtonGroup,
-  ButtonToolbar, Calendar, Card, CardGroup, Cascader, Center, Checkbox, CheckboxGroup, CheckPicker,
-  CheckTree, Container, CustomProvider, DateInput, DatePicker, DateRangeInput,
-  DateRangePicker, Divider, Drawer, Dropdown, Form, Grid, Heading, HeadingGroup, Highlight, IconButton,
-  Image, InlineEdit, Input, InputGroup, InputNumber, InputPicker, Kbd, Link, List, Loader, MaskedInput,
+  Accordion, Affix, Animation, AutoComplete, Avatar, AvatarGroup, Badge, Breadcrumb, Box, Button, ButtonGroup,
+  ButtonToolbar, Calendar, Card, CardGroup, Cascader, Checkbox, CheckboxGroup, CheckPicker,
+  CheckTree, Container, Content, CustomProvider, DateInput, DatePicker, DateRangeInput,
+  DateRangePicker, Divider, Drawer, Dropdown, Footer, Form, Grid, Heading, HeadingGroup, Highlight, IconButton,
+  Header, Image, InlineEdit, Input, InputGroup, InputNumber, InputPicker, Kbd, Link, List, Loader, MaskedInput,
   Message, Modal, MultiCascader, Navbar, Nav, Notification, Panel, Pagination, PasswordInput,
   PasswordStrengthMeter, Placeholder, Popover, Progress, Radio, RadioGroup, RadioTile, Rate, RangeSlider,
-  SelectPicker, SegmentedControl, Slider, Stack, Stat, Steps, Table, Tag, TagGroup, TagInput, Tabs, Text, Textarea,
+  SelectPicker, SegmentedControl, Sidenav, Sidebar, Slider, Stack, Stat, Steps, Table, Tag, TagGroup, TagInput, Tabs, Text, Textarea,
   TimePicker, TimeRangePicker, Timeline, Toggle, Tree, TreePicker, Uploader, useBreakpointValue, useToaster,
   Tooltip, Whisper, Carousel,
 } from "rsuite"
+import { zhCN } from "rsuite/locales"
 import { Icon } from "@/components/icon"
 import { coverage } from "@/coverage"
+import { useTheme } from "@/components/theme-context"
 import { PageHeader } from "./shared"
 
+const VStack = ({ children, spacing = 12 }: { children: ReactNode; spacing?: number }) => <Stack direction="column" alignItems="stretch" spacing={spacing}>{children}</Stack>
 const names = Object.keys(coverage)
 const extras = ["Animation", "Box", "Center", "DateInput", "DateRangeInput", "MaskedInput", "PasswordInput", "PasswordStrengthMeter", "Highlight", "HeadingGroup", "InlineEdit", "RadioTile", "ButtonToolbar", "FormStack", "VisuallyHidden", "CascadeTree", "useBreakpointValue", "TimeRangePicker", "TagInput", "CardGroup"]
 const colors = ["red", "orange", "yellow", "green", "cyan", "blue", "violet"] as const
@@ -44,8 +47,8 @@ function DescriptionsDemo() {
 
 function ComposedDemo({ name, open, setOpen }: { name: string; open: boolean; setOpen: (value: boolean) => void }) {
   if (name === "ColorPicker") return <InputGroup><InputGroup.Addon>原生颜色选择</InputGroup.Addon><input type="color" defaultValue="#3498ff" /></InputGroup>
-  if (name === "Empty") return <Stack alignItems="center"><Placeholder.Graph active style={{ width: 120 }} /><Text muted>暂无数据</Text><Button appearance="primary">重新加载</Button></Stack>
-  if (name === "Result") return <Stack alignItems="center"><Icon name="check" size={28} /><Heading level={5}>操作成功</Heading><Text muted>请求已完成。</Text><Button appearance="primary">继续</Button></Stack>
+  if (name === "Empty") return <Stack direction="column" alignItems="center" spacing={8}><Placeholder.Graph active style={{ width: 120 }} /><Text muted>暂无数据</Text><Button appearance="primary">重新加载</Button></Stack>
+  if (name === "Result") return <Stack direction="column" alignItems="center" spacing={8}><Icon name="check" size={28} /><Heading level={5}>操作成功</Heading><Text muted>请求已完成。</Text><Button appearance="primary">继续</Button></Stack>
   if (name === "Transfer") return <TransferDemo />
   if (name === "Descriptions") return <DescriptionsDemo />
   if (name === "Popconfirm") return <Whisper trigger="click" placement="top" speaker={<Popover title="确认删除"><p>此操作无法撤销。</p><ButtonGroup><Button size="sm">取消</Button><Button size="sm" appearance="primary">确认</Button></ButtonGroup></Popover>}><Button color="red">删除</Button></Whisper>
@@ -54,6 +57,16 @@ function ComposedDemo({ name, open, setOpen }: { name: string; open: boolean; se
   if (name === "CommandPalette") return <><Button onClick={() => setOpen(true)}>打开命令面板</Button><Modal open={open} onClose={() => setOpen(false)} size="sm"><Modal.Header><Modal.Title>命令面板</Modal.Title></Modal.Header><Modal.Body><InputGroup inside><InputGroup.Addon><Icon name="search" /></InputGroup.Addon><Input placeholder="搜索命令" /></InputGroup><List hover><List.Item>创建项目</List.Item><List.Item>打开设置</List.Item><List.Item>查看订单</List.Item></List></Modal.Body></Modal></>
   if (name === "FloatButton") return <IconButton circle appearance="primary" icon={<Icon name="plus" />} style={{ position: "relative", float: "right" }} />
   return null
+}
+
+function DialogDemo() {
+  const [variant, setVariant] = useState<"normal" | "confirm" | "full" | "scroll" | null>(null)
+  const labels = { normal: "普通", confirm: "确认", full: "全屏", scroll: "可滚动" }
+  return <><div className="demo-row">{(["normal", "confirm", "full", "scroll"] as const).map((item) => <Button key={item} onClick={() => setVariant(item)}>{labels[item]}</Button>)}</div><Modal open={!!variant} size={variant === "full" ? "full" : "sm"} overflow onClose={() => setVariant(null)}><Modal.Header><Modal.Title>{variant ? labels[variant] : ""}</Modal.Title></Modal.Header><Modal.Body>{variant === "confirm" ? "确认删除该记录？此操作无法撤销。" : variant === "scroll" ? Array.from({ length: 20 }, (_, index) => <p key={index}>这是可滚动内容。</p>) : "这是一个普通对话框。"}</Modal.Body><Modal.Footer><Button appearance="primary" color={variant === "confirm" ? "red" : undefined} onClick={() => setVariant(null)}>确认</Button><Button onClick={() => setVariant(null)}>取消</Button></Modal.Footer></Modal></>
+}
+
+function SidenavDemo() {
+  return <><Sidenav defaultOpenKeys={["3"]} appearance="subtle"><Sidenav.Body><Nav activeKey="1"><Nav.Item eventKey="1" icon={<Icon name="home" />}>垂直菜单</Nav.Item><Nav.Item eventKey="2" disabled>禁用</Nav.Item><Nav.Menu eventKey="3" title="内嵌子菜单" icon={<Icon name="settings" />}><Nav.Item eventKey="3-1">子项 A</Nav.Item><Nav.Item eventKey="3-2">子项 B</Nav.Item></Nav.Menu></Nav></Sidenav.Body></Sidenav><Sidenav expanded={false} appearance="subtle" style={{ width: 56 }}><Sidenav.Body><Nav><Nav.Item icon={<Icon name="home" />}>折叠</Nav.Item><Nav.Item icon={<Icon name="settings" />}>折叠</Nav.Item></Nav></Sidenav.Body></Sidenav></>
 }
 
 function PickerDemo({ name }: { name: string }) {
@@ -72,71 +85,77 @@ function PickerDemo({ name }: { name: string }) {
 function Demo({ name, open, setOpen }: { name: string; open: boolean; setOpen: (value: boolean) => void }) {
   const toaster = useToaster()
   const breakpoint = useBreakpointValue({ xs: "mobile", md: "desktop" })
+  const { theme, setTheme } = useTheme()
   if (coverage[name] === "missing") return <MissingDemo name={name} />
-  if (coverage[name] === "composed") return <ComposedDemo name={name} open={open} setOpen={setOpen} />
-  if (name === "Typography") return <Stack spacing={8}><HeadingGroup><Heading level={1}>Heading 1</Heading><Heading level={4}>Heading 4</Heading></HeadingGroup><Text size="lg" weight="bold">Text / <Highlight query="highlight">highlight</Highlight></Text><Text as="blockquote">blockquote</Text><Text as="code">const value = 42</Text><Kbd>⌘ K</Kbd></Stack>
-  if (name === "Button") return <Stack spacing={8}><div className="demo-row">{(["default", "primary", "subtle", "ghost", "link"] as const).map((appearance) => <Button key={appearance} appearance={appearance}>{appearance}</Button>)}</div><div className="demo-row">{sizes.map((size) => <Button key={size} size={size}>{size}</Button>)}<Button loading>Loading</Button><Button disabled>Disabled</Button><Button block appearance="primary">Block with icon <Icon name="arrow-right" /></Button></div></Stack>
-  if (name === "ButtonGroup") return <Stack><ButtonGroup>{colors.map((color) => <Button key={color} color={color}>{color}</Button>)}</ButtonGroup><ButtonToolbar><Button appearance="primary">保存</Button><Button appearance="default">取消</Button><IconButton circle icon={<Icon name="more-horizontal" />} /></ButtonToolbar></Stack>
+  if (name === "Typography") return <VStack spacing={8}><HeadingGroup><Heading level={1}>Heading 1</Heading><Heading level={4}>Heading 4</Heading></HeadingGroup><Text size="lg" weight="bold">Text / <Highlight query="highlight">highlight</Highlight></Text><Text as="blockquote">blockquote</Text><Text as="code">const value = 42</Text><Kbd>⌘ K</Kbd></VStack>
+  if (name === "Kbd") return <div className="demo-row"><Kbd>⌘</Kbd><Kbd>Shift</Kbd><Kbd>K</Kbd><Text muted>组合快捷键</Text><Kbd size="xs">Esc</Kbd></div>
+  if (name === "Code") return <VStack><Text as="code">npm install rsuite</Text><pre style={{ margin: 0, padding: 12, background: "var(--rs-bg-well)", borderRadius: 6, overflow: "auto" }}><code>{"import { Button } from 'rsuite'\n<Button appearance=\"primary\">保存</Button>"}</code></pre></VStack>
+  if (name === "Button") return <VStack spacing={8}><div className="demo-row">{(["default", "primary", "subtle", "ghost", "link"] as const).map((appearance) => <Button key={appearance} appearance={appearance}>{appearance}</Button>)}</div><div className="demo-row">{sizes.map((size) => <Button key={size} size={size}>{size}</Button>)}<Button loading>Loading</Button><Button disabled>Disabled</Button><Button block appearance="primary">Block with icon <Icon name="arrow-right" /></Button></div></VStack>
+  if (name === "ButtonGroup") return <VStack><ButtonGroup>{colors.map((color) => <Button key={color} color={color}>{color}</Button>)}</ButtonGroup><ButtonToolbar><Button appearance="primary">保存</Button><Button appearance="default">取消</Button><IconButton circle icon={<Icon name="more-horizontal" />} /></ButtonToolbar></VStack>
   if (name === "IconButton") return <div className="demo-row">{sizes.map((size) => <IconButton key={size} size={size} circle icon={<Icon name="settings" />} />)}<IconButton appearance="primary" icon={<Icon name="plus" />} /><IconButton disabled icon={<Icon name="trash" />} /></div>
-  if (name === "Input") return <Stack><div className="demo-row">{sizes.map((size) => <Input key={size} size={size} placeholder={size} />)}</div><div className="demo-row"><Input disabled placeholder="disabled" /><Input readOnly value="readOnly" /><Input plaintext value="plaintext" /></div><InputGroup inside><InputGroup.Addon><Icon name="search" /></InputGroup.Addon><Input placeholder="前后缀 / 按钮" /><InputGroup.Button>搜索</InputGroup.Button></InputGroup><PasswordInput placeholder="密码可见切换" /></Stack>
-  if (name === "Textarea") return <Stack><Textarea rows={3} placeholder="默认文本域" /><Textarea rows={3} disabled value="disabled" /><Text muted>错误状态：请输入描述。</Text></Stack>
+  if (name === "Input") return <VStack><div className="demo-row">{sizes.map((size) => <Input key={size} size={size} placeholder={size} />)}</div><div className="demo-row"><Input disabled placeholder="disabled" /><Input readOnly value="readOnly" /><Input plaintext value="plaintext" /></div><InputGroup><InputGroup.Addon><Icon name="search" /></InputGroup.Addon><Input placeholder="搜索订单" /><InputGroup.Button>搜索</InputGroup.Button></InputGroup><PasswordInput placeholder="密码可见切换" /></VStack>
+  if (name === "Textarea") return <VStack><Textarea rows={3} placeholder="默认文本域" /><Textarea rows={3} disabled value="disabled" /><Text muted>错误状态：请输入描述。</Text></VStack>
   if (name === "NumberInput") return <InputNumber defaultValue={10} min={0} max={100} step={5} />
   if (["Select", "MultiSelect", "Combobox", "Autocomplete", "Cascader", "MultiCascader", "TreePicker", "CheckPicker", "TagPicker"].includes(name)) return <PickerDemo name={name} />
-  if (name === "Checkbox") return <Stack><Checkbox>默认</Checkbox><Checkbox checked>Checked</Checkbox><Checkbox disabled>Disabled</Checkbox><Checkbox indeterminate>Indeterminate</Checkbox><CheckboxGroup inline><Checkbox value="a">A</Checkbox><Checkbox value="b">B</Checkbox></CheckboxGroup></Stack>
-  if (name === "Radio") return <Stack><RadioGroup inline><Radio value="a">默认</Radio><Radio value="b">选项 B</Radio></RadioGroup><RadioTile value="tile">RadioTile</RadioTile></Stack>
+  if (name === "Checkbox") return <VStack><Checkbox>默认</Checkbox><Checkbox checked>Checked</Checkbox><Checkbox disabled>Disabled</Checkbox><Checkbox indeterminate>Indeterminate</Checkbox><CheckboxGroup inline><Checkbox value="a">A</Checkbox><Checkbox value="b">B</Checkbox></CheckboxGroup></VStack>
+  if (name === "Radio") return <VStack><RadioGroup inline><Radio value="a">默认</Radio><Radio value="b">选项 B</Radio></RadioGroup><RadioTile value="tile">RadioTile</RadioTile></VStack>
   if (name === "Switch") return <div className="demo-row">{sizes.map((size) => <Toggle key={size} size={size} defaultChecked>{size}</Toggle>)}</div>
-  if (name === "Slider") return <Stack><Slider defaultValue={35} graduated /><RangeSlider defaultValue={[20, 80]} graduated /></Stack>
-  if (name === "Rating") return <Stack><Rate defaultValue={4.5} allowHalf size="lg" /><Rate defaultValue={3} readOnly color="yellow" /></Stack>
+  if (name === "Slider") return <VStack spacing={24}><Slider defaultValue={35} graduated progress /><RangeSlider defaultValue={[20, 80]} graduated /></VStack>
+  if (name === "Rating") return <VStack><Rate defaultValue={4.5} allowHalf size="lg" /><Rate defaultValue={3} readOnly color="yellow" /></VStack>
   if (name === "DatePicker") return <div className="demo-row">{sizes.map((size) => <DatePicker key={size} size={size} placeholder={size} />)}<DatePicker disabled placeholder="disabled" /></div>
   if (name === "TimePicker") return <div className="demo-row"><TimePicker format="HH:mm" /><DatePicker format="HH:mm" placeholder="DatePicker HH:mm" /></div>
   if (name === "DateRangePicker") return <div className="demo-row"><DateRangePicker /><DateRangePicker disabled /></div>
   if (name === "Upload") return <Uploader action="#" draggable autoUpload={false} fileListVisible><div style={{ padding: 24 }}>拖拽文件到这里上传（仅展示 UI）</div></Uploader>
-  if (name === "PinInput") return <InputGroup><Input placeholder="PinInput fallback" /><InputGroup.Addon>6 位</InputGroup.Addon></InputGroup>
+  if (name === "PinInput") return <div className="demo-row">{Array.from({ length: 6 }).map((_, i) => <Input key={i} maxLength={1} style={{ width: 40, textAlign: "center" }} />)}</div>
   if (name === "Form") return <Form fluid layout="horizontal"><Form.Group><Form.ControlLabel>名称</Form.ControlLabel><Form.Control name="name" accepter={Input} /></Form.Group><Form.Group><Form.ControlLabel>类型</Form.ControlLabel><Form.Control name="type" accepter={SelectPicker} data={pickerData} /></Form.Group><Button appearance="primary">保存</Button></Form>
-  if (name === "Table" || name === "DataGrid") return <div className="table-scroll"><Table data={rows} height={180} bordered cellBordered affixHeader sortColumn="name" sortType="asc" onSortColumn={() => undefined}><Table.Column width={160} fixed="left"><Table.HeaderCell>名称 ↕</Table.HeaderCell><Table.Cell dataKey="name" /></Table.Column><Table.Column width={130}><Table.HeaderCell>状态</Table.HeaderCell><Table.Cell dataKey="status" /></Table.Column><Table.Column width={140}><Table.HeaderCell>金额</Table.HeaderCell><Table.Cell dataKey="amount" /></Table.Column><Table.Column width={120}><Table.HeaderCell>操作</Table.HeaderCell><Table.Cell><Button size="xs">编辑</Button></Table.Cell></Table.Column></Table></div>
+  if (name === "Table") return <div className="table-scroll"><Table data={rows} height={180} bordered cellBordered sortColumn="name" sortType="asc" onSortColumn={() => undefined}><Table.Column width={160} fixed="left"><Table.HeaderCell>名称 ↕</Table.HeaderCell><Table.Cell dataKey="name" /></Table.Column><Table.Column width={130}><Table.HeaderCell>状态</Table.HeaderCell><Table.Cell dataKey="status" /></Table.Column><Table.Column width={140}><Table.HeaderCell>金额</Table.HeaderCell><Table.Cell dataKey="amount" /></Table.Column><Table.Column width={120}><Table.HeaderCell>操作</Table.HeaderCell><Table.Cell><Button size="xs">编辑</Button></Table.Cell></Table.Column></Table></div>
+  if (name === "DataGrid") return <div className="table-scroll"><Table data={rows} height={220} bordered cellBordered><Table.Column width={56} fixed><Table.HeaderCell><Checkbox /></Table.HeaderCell><Table.Cell><Checkbox /></Table.Cell></Table.Column><Table.Column width={160} sortable><Table.HeaderCell>名称</Table.HeaderCell><Table.Cell dataKey="name" /></Table.Column><Table.ColumnGroup header="订单信息"><Table.Column width={130}><Table.HeaderCell>状态</Table.HeaderCell><Table.Cell dataKey="status" /></Table.Column><Table.Column width={140}><Table.HeaderCell>金额</Table.HeaderCell><Table.Cell dataKey="amount" /></Table.Column></Table.ColumnGroup></Table></div>
   if (name === "List") return <List bordered hover sortable><List.Item>第一项</List.Item><List.Item>第二项</List.Item><List.Item>第三项</List.Item></List>
   if (name === "Card") return <Card bordered><Card.Header>Card</Card.Header><Card.Body>Card 内容</Card.Body><Card.Footer><Button appearance="link">查看详情</Button></Card.Footer></Card>
   if (name === "Avatar") return <div className="demo-row">{sizes.map((size) => <Avatar key={size} size={size} circle bordered>{size}</Avatar>)}<Avatar circle bordered><Icon name="user" /></Avatar></div>
   if (name === "AvatarGroup") return <div className="demo-row"><AvatarGroup stack><Avatar circle>A</Avatar><Avatar circle>B</Avatar><Avatar circle>C</Avatar><Avatar circle>D</Avatar></AvatarGroup><Badge content="+2" /></div>
   if (name === "Badge") return <div className="demo-row"><Badge content={12}><Button>消息</Button></Badge><Badge content="99+" maxCount={99}><IconButton circle icon={<Icon name="bell" />} /></Badge></div>
-  if (name === "Tag") return <Stack><div className="demo-row">{colors.map((color) => <Tag key={color} color={color} closable>{color}</Tag>)}</div><TagGroup><Tag>default</Tag><TagInput /></TagGroup></Stack>
+  if (name === "Tag") return <VStack><div className="demo-row">{colors.map((color) => <Tag key={color} color={color} closable>{color}</Tag>)}</div><TagGroup><Tag>default</Tag><TagInput /></TagGroup></VStack>
   if (name === "Statistic") return <Stat><Stat.Label>收入</Stat.Label><Stat.Value value={128430} /><Stat.HelpText>较上月增长</Stat.HelpText><Text color="green">+12.4%</Text></Stat>
   if (name === "Timeline") return <Timeline align="left"><Timeline.Item time="刚刚">订单已支付</Timeline.Item><Timeline.Item time="1 小时前">项目已更新</Timeline.Item></Timeline>
-  if (name === "Tree") return <Stack><Tree data={treeData} showIndentLine /><CheckTree data={treeData} defaultValue={["orders"]} /></Stack>
+  if (name === "Tree") return <VStack><Tree data={treeData} showIndentLine /><CheckTree data={treeData} defaultValue={["orders"]} /></VStack>
   if (name === "Calendar") return <Calendar compact bordered />
-  if (name === "Image") return <Image bordered width={180} height={100} placeholder={<Placeholder.Graph active />} zoomed />
+  if (name === "Image") {
+    const imageSrc = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="360" height="200"><rect width="100%" height="100%" fill="#3498ff"/><circle cx="180" cy="100" r="60" fill="#fff" opacity=".6"/></svg>')
+    return <Image src={imageSrc} bordered width={180} height={100} zoomed fit="cover" />
+  }
   if (name === "Carousel") return <Carousel shape="bar" placement="bottom" style={{ height: 120 }}><div>Slide 1</div><div>Slide 2</div><div>Slide 3</div></Carousel>
   if (name === "Tooltip") return <div className="demo-row">{(["top", "right", "bottom", "left"] as const).map((placement) => <Whisper key={placement} placement={placement} speaker={<Tooltip>{placement} tooltip</Tooltip>}><Button>{placement}</Button></Whisper>)}</div>
   if (name === "Popover") return <div className="demo-row">{(["top", "right", "bottom", "left"] as const).map((placement) => <Whisper key={placement} trigger="click" placement={placement} speaker={<Popover title="Popover">组合内容</Popover>}><Button>{placement}</Button></Whisper>)}</div>
   if (name === "Segmented") return <div className="demo-row"><SegmentedControl data={["日", "周", "月"].map((label) => ({ label, value: label }))} /><SegmentedControl block data={["A", "B"].map((label) => ({ label, value: label }))} disabled /></div>
-  if (name === "Alert") return <Stack><Message type="info" showIcon closable bordered>Info</Message><Message type="success" showIcon closable bordered>Success</Message><Message type="warning" showIcon>Warning</Message><Message type="error" showIcon>Error</Message></Stack>
+  if (name === "Alert") return <VStack><Message type="info" showIcon closable bordered>Info</Message><Message type="success" showIcon closable bordered>Success</Message><Message type="warning" showIcon>Warning</Message><Message type="error" showIcon>Error</Message></VStack>
   if (name === "Toast") return <Button onClick={() => toaster.push(<Message type="success" showIcon>Toast 已推送</Message>, { placement: "topEnd" })}>推送 Toast</Button>
   if (name === "Notification") return <Button onClick={() => toaster.push(<Notification type="success" header="已完成">Notification 已推送</Notification>, { placement: "topEnd" })}>推送 Notification</Button>
-  if (name === "Dialog") return <div className="demo-row"><Button onClick={() => setOpen(true)}>normal</Button><Button onClick={() => setOpen(true)}>confirm</Button><Modal open={open} overflow onClose={() => setOpen(false)} size="sm"><Modal.Header><Modal.Title>Dialog</Modal.Title></Modal.Header><Modal.Body>Modal normal / confirm / overflow</Modal.Body><Modal.Footer><Button appearance="primary" onClick={() => setOpen(false)}>确认</Button></Modal.Footer></Modal></div>
+  if (name === "Dialog") return <DialogDemo />
   if (name === "Drawer") return <div className="demo-row">{(["left", "right", "top", "bottom"] as const).map((placement) => <Button key={placement} onClick={() => setOpen(true)}>{placement}</Button>)}<Drawer open={open} placement="right" onClose={() => setOpen(false)}><Drawer.Header><Drawer.Title>Drawer</Drawer.Title></Drawer.Header><Drawer.Body>四方向 Drawer 演示</Drawer.Body></Drawer></div>
-  if (name === "Progress") return <Stack><Progress.Line percent={72} status="active" /><Progress.Line percent={45} status="success" /><Progress.Circle percent={66} status="active" /></Stack>
-  if (name === "Skeleton") return <Stack><Placeholder.Paragraph rows={3} active /><Placeholder.Grid rows={2} columns={3} active /><Placeholder.Graph active /></Stack>
-  if (name === "Spinner") return <div className="demo-row"><Loader size="xs" /><Loader size="sm" /><Loader size="md" /><Loader size="lg" inverse content="加载中" /></div>
-  if (name === "Menu") return <Nav appearance="tabs" vertical><Nav.Item active>菜单项</Nav.Item><Nav.Item disabled>禁用</Nav.Item><Nav.Menu title="子菜单"><Nav.Item>子项 A</Nav.Item><Nav.Item>子项 B</Nav.Item></Nav.Menu></Nav>
+  if (name === "Progress") return <VStack><Progress.Line percent={72} status="active" /><Progress.Line percent={45} status="success" /><Progress.Circle percent={66} status="active" /></VStack>
+  if (name === "Skeleton") return <VStack><Placeholder.Paragraph rows={3} active /><Placeholder.Grid rows={2} columns={3} active /><Placeholder.Graph active /></VStack>
+  if (name === "Spinner") return <VStack><div className="demo-row" style={{ gap: 24 }}><Loader size="xs" content="xs" /><Loader size="sm" content="sm" /><Loader size="md" content="md" /></div><div style={{ position: "relative", height: 80, marginTop: 12 }}><Loader backdrop center content="加载中" /></div></VStack>
+  if (name === "Menu") return <VStack><Nav appearance="tabs" activeKey="a"><Nav.Item eventKey="a">水平</Nav.Item><Nav.Item eventKey="b">导航</Nav.Item><Nav.Menu title="更多"><Nav.Item>子项</Nav.Item></Nav.Menu></Nav><SidenavDemo /></VStack>
   if (name === "Dropdown") return <Dropdown title="Dropdown"><Dropdown.Item>编辑</Dropdown.Item><Dropdown.Item disabled>禁用</Dropdown.Item><Dropdown.Separator /><Dropdown.Menu title="更多"><Dropdown.Item>复制</Dropdown.Item><Dropdown.Item>归档</Dropdown.Item></Dropdown.Menu></Dropdown>
   if (name === "Breadcrumb") return <Breadcrumb separator="/"><Breadcrumb.Item href="#component-Button">首页</Breadcrumb.Item><Breadcrumb.Item href="#component-Table">设置</Breadcrumb.Item><Breadcrumb.Item active>当前</Breadcrumb.Item></Breadcrumb>
   if (name === "Tabs") return <Tabs defaultActiveKey="1" appearance="subtle"><Tabs.Tab eventKey="1" title="概览">概览内容</Tabs.Tab><Tabs.Tab eventKey="2" title="设置">设置内容</Tabs.Tab></Tabs>
-  if (name === "Pagination") return <div className="demo-row"><Pagination total={40} limit={10} size="sm" /><Pagination total={40} limit={10} size="lg" layout={["total", "-", "limit", "|", "pager", "skip"]} /></div>
-  if (name === "Steps") return <Stack><Steps current={1}><Steps.Item title="开始" /><Steps.Item title="进行中" /><Steps.Item title="完成" /></Steps><Steps vertical current={2}><Steps.Item title="开始" /><Steps.Item title="进行中" /><Steps.Item title="完成" /></Steps></Stack>
+  if (name === "Pagination") return <VStack><Pagination total={40} limit={10} size="sm" maxButtons={3} /><div className="table-scroll"><Pagination total={40} limit={10} maxButtons={3} layout={["total", "-", "limit", "|", "pager", "skip"]} /></div></VStack>
+  if (name === "Steps") return <VStack><div className="table-scroll"><Steps current={1}><Steps.Item title="开始" /><Steps.Item title="进行中" /><Steps.Item title="完成" /></Steps></div><Steps vertical current={2} style={{ maxWidth: 260 }}><Steps.Item title="开始" /><Steps.Item title="进行中" /><Steps.Item title="完成" /></Steps></VStack>
   if (name === "Affix") return <Affix top={10}><Button appearance="primary">Affix 顶部</Button></Affix>
   if (name === "Navbar") return <Navbar><Navbar.Brand>Brand</Navbar.Brand><Nav><Nav.Item>首页</Nav.Item><Nav.Item>设置</Nav.Item></Nav></Navbar>
-  if (name === "Sidebar") return <Container style={{ height: 150 }}><Container><Text>Content</Text></Container><Panel bordered style={{ width: 120 }}>Sidebar</Panel></Container>
+  if (name === "Sidebar") return <Container style={{ height: 160, border: "1px solid var(--rs-border-primary)" }}><Sidebar width={56}><Sidenav expanded={false} appearance="subtle"><Sidenav.Body><Nav><Nav.Item icon={<Icon name="home" />} /><Nav.Item icon={<Icon name="settings" />} /><Nav.Item icon={<Icon name="users" />} /></Nav></Sidenav.Body></Sidenav></Sidebar><Content style={{ padding: 12 }}><Text>Content</Text></Content></Container>
   if (name === "Grid") return <Grid fluid><div className="demo-row"><Panel bordered>A</Panel><Panel bordered>B</Panel><Panel bordered>C</Panel></div></Grid>
   if (name === "Stack") return <Stack spacing={12} wrap><Button>A</Button><Button>B</Button><Button>C</Button></Stack>
-  if (name === "Layout" || name === "Container") return <Container style={{ border: "1px solid var(--rs-border-primary)", padding: 12 }}><Text>Header / Content / Footer layout</Text></Container>
+  if (name === "Layout" || name === "Container") return <Container style={{ border: "1px solid var(--rs-border-primary)" }}><Header><Panel bodyFill style={{ padding: 8 }}>Header</Panel></Header><Container><Sidebar width={80} style={{ padding: 8, borderRight: "1px solid var(--rs-border-primary)" }}>Sidebar</Sidebar><Content style={{ padding: 8 }}>Content</Content></Container><Footer style={{ padding: 8, borderTop: "1px solid var(--rs-border-primary)" }}>Footer</Footer></Container>
   if (name === "Accordion") return <Accordion bordered><Accordion.Panel header="常见问题">回答内容</Accordion.Panel><Accordion.Panel header="更多信息">更多内容</Accordion.Panel></Accordion>
-  if (name === "ThemeProvider") return <CustomProvider theme="dark"><Panel bordered>CustomProvider dark theme</Panel></CustomProvider>
-  if (name === "Divider") return <Stack><Divider>横向分隔</Divider><div style={{ height: 40, display: "flex", alignItems: "center" }}><Text>左</Text><Divider vertical /><Text>右</Text></div></Stack>
-  if (name === "Link") return <Stack><Link href="#component-Button">默认链接</Link><Link href="#component-Button" disabled>禁用链接</Link></Stack>
+  if (name === "ThemeProvider") return <CustomProvider locale={zhCN}><VStack><Text muted>当前主题：{theme}（CustomProvider theme="{theme}"）</Text><div className="demo-row"><Button appearance="primary" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>切换主题</Button><DatePicker placeholder="zhCN 本地化" /></div></VStack></CustomProvider>
+  if (name === "Divider") return <VStack><Divider>横向分隔</Divider><div style={{ height: 40, display: "flex", alignItems: "center" }}><Text>左</Text><Divider vertical /><Text>右</Text></div></VStack>
+  if (name === "Link") return <VStack><Link href="#component-Button">默认链接</Link><Link href="#component-Button" disabled>禁用链接</Link></VStack>
   if (name === "Navigation") return <Nav appearance="tabs"><Nav.Item>一</Nav.Item><Nav.Item>二</Nav.Item></Nav>
   if (name === "Animation") return <Animation.Fade in><Panel bordered>Fade animation</Panel></Animation.Fade>
-  if (name === "Box") return <Panel bordered>Box layout primitive</Panel>
-  if (name === "Center") return <Center style={{ height: 80 }}><Button>Centered</Button></Center>
+  if (name === "Box") return <Box as="section" style={{ padding: 12, border: "1px dashed var(--rs-border-primary)" }}>Box as="section"</Box>
+  if (name === "Center") return <div style={{ height: 80, display: "grid", placeItems: "center" }}><Button>Centered</Button></div>
   if (name === "DateInput") return <DateInput />
   if (name === "DateRangeInput") return <DateRangeInput />
   if (name === "MaskedInput") return <MaskedInput mask={[/\\d/, /\\d/, /\\d/, /\\d/]} placeholder="0000" />
@@ -154,6 +173,7 @@ function Demo({ name, open, setOpen }: { name: string; open: boolean; setOpen: (
   if (name === "TimeRangePicker") return <TimeRangePicker />
   if (name === "TagInput") return <TagInput />
   if (name === "CardGroup") return <CardGroup><Card bordered><Card.Body>Card A</Card.Body></Card><Card bordered><Card.Body>Card B</Card.Body></Card></CardGroup>
+  if (coverage[name] === "composed") return <ComposedDemo name={name} open={open} setOpen={setOpen} />
   return <Text muted>{name} demo</Text>
 }
 

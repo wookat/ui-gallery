@@ -65,8 +65,9 @@ async function send() {
 .chat-card { min-width: 0; }
 .message-list { min-height: 460px; max-height: 600px; overflow-y: auto; }
 .message-wrap { max-width: min(720px, 82%); min-width: 0; }
-.code-block { position: relative; }
-.copy-btn { position: absolute; top: 8px; right: 8px; z-index: 1; min-height: 32px; padding: 0 8px; border: 0; border-radius: 6px; color: rgb(var(--v-theme-primary)); background: rgba(var(--v-theme-on-surface), .08); cursor: pointer; }
+.message-bubble :deep(.code-block) { position: relative; margin: 8px 0; }
+.message-bubble :deep(.code-block > pre) { margin: 0; padding-top: 44px; }
+.message-bubble :deep(.copy-btn) { position: absolute; top: 8px; right: 8px; z-index: 1; min-height: 32px; padding: 0 8px; border: 0; border-radius: 6px; color: rgb(var(--v-theme-primary)); background: rgba(var(--v-theme-on-surface), .08); cursor: pointer; }
 .message-bubble :deep(pre) { overflow-x: auto; padding: 12px; border-radius: 8px; background: rgba(var(--v-theme-on-surface), .08); }
 .message-bubble :deep(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
 .message-bubble :deep(th), .message-bubble :deep(td) { border: 1px solid rgba(var(--v-border-color), .35); padding: 6px 8px; text-align: left; }

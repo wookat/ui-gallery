@@ -22,7 +22,7 @@
     { "slug": "react-bootstrap", "name": "React Bootstrap", "framework": "react", "repo": "react-bootstrap/react-bootstrap", "pkg": "react-bootstrap", "round": 1 },
 
     { "slug": "element-plus", "name": "Element Plus", "framework": "vue", "repo": "element-plus/element-plus", "pkg": "element-plus", "round": 1 },
-    { "slug": "naive-ui", "name": "Naive UI", "framework": "vue", "repo": "tusen-ai/naive-ui", "pkg": "naive-ui", "round": 1 },
+    { "slug": "naive-ui", "name": "Naive UI", "framework": "vue", "repo": "tusen-ai/naive-ui", "pkg": "naive-ui", "round": 1, "status": "built" },
     { "slug": "vuetify", "name": "Vuetify", "framework": "vue", "repo": "vuetifyjs/vuetify", "pkg": "vuetify", "round": 1 },
     { "slug": "primevue", "name": "PrimeVue", "framework": "vue", "repo": "primefaces/primevue", "pkg": "primevue", "round": 1 },
     { "slug": "quasar", "name": "Quasar", "framework": "vue", "repo": "quasarframework/quasar", "pkg": "quasar", "round": 1 },

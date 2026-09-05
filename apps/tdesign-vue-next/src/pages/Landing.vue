@@ -41,10 +41,10 @@ const footerCols = [
           <t-link v-for="l in navLinks" :key="l.href" :href="l.href" theme="default" hover="color">{{ l.label }}</t-link>
         </nav>
         <div class="ug-row ug-lnav-actions">
-          <t-button variant="text" shape="square" :aria-label="settings.theme === 'dark' ? '切换亮色' : '切换暗色'" @click="toggleTheme"><Icon :name="settings.theme === 'dark' ? 'sun' : 'moon'" :size="18" /></t-button>
+          <t-button variant="text" shape="square" size="large" :aria-label="settings.theme === 'dark' ? '切换亮色' : '切换暗色'" @click="toggleTheme"><Icon :name="settings.theme === 'dark' ? 'sun' : 'moon'" :size="18" /></t-button>
           <RouterLink to="/login" class="ug-desktop-only"><t-button variant="text">登录</t-button></RouterLink>
           <t-button theme="primary" class="ug-desktop-only">{{ landing.hero.primary }}</t-button>
-          <t-button variant="text" shape="square" class="ug-mobile-only" aria-label="菜单" @click="drawer = true"><Icon name="menu" :size="20" /></t-button>
+          <t-button variant="text" shape="square" size="large" class="ug-mobile-only" aria-label="菜单" @click="drawer = true"><Icon name="menu" :size="20" /></t-button>
         </div>
       </div>
     </header>
@@ -181,9 +181,9 @@ const footerCols = [
             <div class="ug-brand"><span class="ug-brand-mark">A</span><span>Acme Console</span></div>
             <p class="ug-muted ug-small">{{ landing.hero.subtitle }}</p>
             <t-space size="small">
-              <t-button variant="text" shape="square" aria-label="GitHub"><Icon name="github" /></t-button>
-              <t-button variant="text" shape="square" aria-label="Twitter"><Icon name="twitter" /></t-button>
-              <t-button variant="text" shape="square" aria-label="微信"><Icon name="wechat" /></t-button>
+              <t-button variant="text" shape="square" size="large" aria-label="GitHub"><Icon name="github" /></t-button>
+              <t-button variant="text" shape="square" size="large" aria-label="Twitter"><Icon name="twitter" /></t-button>
+              <t-button variant="text" shape="square" size="large" aria-label="微信"><Icon name="wechat" /></t-button>
             </t-space>
           </div>
           <div v-for="c in footerCols" :key="c.title" class="ug-footer-col">
@@ -207,6 +207,7 @@ const footerCols = [
 .ug-lnav { position: sticky; top: 0; z-index: 20; height: 60px; display: flex; align-items: center; background: color-mix(in srgb, var(--td-bg-color-container) 85%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--td-component-stroke); }
 .ug-lnav > .ug-lwrap { width: 100%; flex-wrap: nowrap; }
 .ug-lnav-links { display: flex; gap: 24px; }
+.ug-lnav-links .t-link { min-height: 40px; display: inline-flex; align-items: center; }
 .ug-lnav-actions { flex-wrap: nowrap; }
 .ug-brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: inherit; }
 .ug-brand-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--td-brand-color); color: #fff; display: inline-grid; place-items: center; font-weight: 700; }

@@ -1,3 +1,7 @@
+:root {
+  --td-font-family: "PingFang SC", "Microsoft YaHei", "Arial Regular", system-ui, "Noto Sans SC", sans-serif;
+  --td-font-family-medium: "PingFang SC", "Microsoft YaHei", "Arial Regular", system-ui, "Noto Sans SC", sans-serif;
+}
 html, body, #app { min-height: 100%; margin: 0; }
 body { background: var(--td-bg-color-page); color: var(--td-text-color-primary); font: var(--td-font-body-medium); font-family: var(--td-font-family); }
 * { box-sizing: border-box; }
@@ -14,6 +18,7 @@ img, svg, video { max-width: 100%; }
 .ug-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .ug-stack { display: flex; flex-direction: column; gap: 12px; }
 .ug-scroll-x { overflow-x: auto; max-width: 100%; }
+.ug-ellipsis { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ug-only-mobile { display: none !important; }
 @media (max-width: 767px) {
   .ug-cols-2, .ug-cols-3, .ug-cols-4 { grid-template-columns: minmax(0, 1fr); }

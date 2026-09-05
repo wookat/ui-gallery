@@ -8,6 +8,7 @@ import nav from "@ui-gallery/spec/mock/nav.json"
 import tasks from "@ui-gallery/spec/mock/tasks.json"
 import Icon from "@/components/Icon.vue"
 import { coverage } from "@/coverage"
+import { settings } from "@/settings"
 
 const components = contract.components as string[]
 const libraryExtras = [
@@ -74,6 +75,7 @@ const statusOf: Record<string, "success" | "warning" | "danger" | "default"> = {
 const statusLabel: Record<string, string> = { paid: "已支付", pending: "待支付", failed: "失败", refunded: "已退款" }
 
 const listItems = tasks.slice(0, 3)
+const watermarkColor = computed(() => (settings.theme === "dark" ? "rgba(255, 255, 255, 0.22)" : "rgba(0, 0, 0, 0.26)"))
 const toast = () => MessagePlugin.success("操作成功")
 const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是一条通知消息", duration: 3000 })
 </script>
@@ -152,14 +154,14 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
           <t-input size="small" placeholder="小尺寸" />
           <t-input size="large" placeholder="大尺寸" />
           <t-input disabled placeholder="禁用状态" />
-          <t-input status="error" tips="邮箱格式不正确" placeholder="错误状态" />
+          <t-input status="error" tips="邮箱格式不正确" placeholder="错误状态" class="ug-has-tips" />
           <t-input type="password" placeholder="密码" />
         </div>
 
         <div v-else-if="name === 'Textarea'" class="ug-stack">
           <t-textarea placeholder="请输入描述" :autosize="{ minRows: 2, maxRows: 4 }" :maxlength="120" />
           <t-textarea disabled placeholder="禁用" />
-          <t-textarea status="error" tips="内容不能为空" />
+          <t-textarea status="error" tips="内容不能为空" class="ug-has-tips" />
         </div>
 
         <t-space v-else-if="name === 'NumberInput'" break-line>
@@ -174,7 +176,7 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
           <t-select v-model="select" :options="options" placeholder="请选择" />
           <t-select :options="options" size="small" placeholder="小尺寸" />
           <t-select :options="options" disabled placeholder="禁用" />
-          <t-select :options="options" status="error" tips="请选择模块" />
+          <t-select :options="options" status="error" tips="请选择模块" class="ug-has-tips" />
           <t-select :options="options" loading placeholder="加载中" />
         </div>
 
@@ -228,7 +230,7 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
           <t-date-picker v-model="date" clearable placeholder="选择日期" />
           <t-date-picker enable-time-picker placeholder="日期时间" />
           <t-date-picker disabled placeholder="禁用" />
-          <t-date-picker status="error" tips="请选择日期" />
+          <t-date-picker status="error" tips="请选择日期" class="ug-has-tips" />
         </div>
 
         <div v-else-if="name === 'TimePicker'" class="ug-stack">
@@ -248,7 +250,7 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
           <t-color-picker-panel :default-value="color" :swatch-colors="[]" :color-modes="['monochrome']" style="width: 100%" />
         </t-space>
 
-        <div v-else-if="name === 'Upload'" class="ug-stack">
+        <div v-else-if="name === 'Upload'" class="ug-stack ug-upload-demo">
           <t-upload theme="file" :auto-upload="false" tips="支持 PDF / PNG，最大 10MB" />
           <t-upload theme="image" :auto-upload="false" accept="image/*" />
           <t-upload theme="custom" draggable :auto-upload="false" />
@@ -260,7 +262,9 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
           <t-cascader :options="cascaderOptions" disabled placeholder="禁用" />
         </div>
 
-        <t-transfer v-else-if="name === 'Transfer'" v-model="transfer" :data="transferData" search :title="['可选成员', '已选成员']" />
+        <div v-else-if="name === 'Transfer'" class="ug-transfer">
+          <t-transfer v-model="transfer" :data="transferData" search :title="['可选成员', '已选成员']" />
+        </div>
 
         <div v-else-if="name === 'Mention'" class="ug-missing">
           <t-empty size="small" title="TDesign Vue Next 无 Mention 组件" description="已在 gallery.json.coverage 标记为 missing" />
@@ -445,13 +449,13 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
 
         <t-space v-else-if="name === 'Notification'" break-line>
           <t-button variant="outline" @click="notify">触发 Notification</t-button>
-          <t-notification theme="info" title="内联通知" content="用于展示系统级消息。" :close-btn="true" />
+          <t-notification theme="info" title="内联通知" content="用于展示系统级消息。" :close-btn="true" class="ug-inline-notification" />
         </t-space>
 
         <div v-else-if="name === 'Dialog'" class="ug-stack">
           <t-button variant="outline" @click="dialog = true">打开对话框</t-button>
           <t-dialog v-model:visible="dialog" header="确认删除" theme="warning" body="删除后无法恢复，确定继续吗？" confirm-btn="确认" cancel-btn="取消" @confirm="dialog = false" />
-          <t-dialog-card header="内联 DialogCard" theme="info" body="用于在页面内嵌入对话框样式。" :cancel-btn="null" confirm-btn="知道了" />
+          <t-dialog-card header="内联 DialogCard" theme="info" body="用于在页面内嵌入对话框样式。" :cancel-btn="null" confirm-btn="知道了" class="ug-inline-dialog" />
         </div>
 
         <div v-else-if="name === 'Drawer'" class="ug-stack">
@@ -539,15 +543,15 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
           </t-tabs>
         </div>
 
-        <div v-else-if="name === 'Pagination'" class="ug-stack">
-          <t-pagination v-model="page" :total="orders.length" :page-size="10" show-jumper :show-page-size="false" />
+        <div v-else-if="name === 'Pagination'" class="ug-stack ug-pagination-demo">
+          <t-pagination v-model="page" :total="orders.length" :page-size="10" show-jumper :show-page-size="false" :total-content="false" />
           <t-pagination :total="120" :page-size="10" size="small" theme="simple" />
           <t-pagination-mini />
-          <t-pagination :total="50" :page-size="10" disabled />
+          <t-pagination :total="50" :page-size="10" disabled :show-page-size="false" />
         </div>
 
-        <div v-else-if="name === 'Steps'" class="ug-stack">
-          <t-steps :current="1">
+        <div v-else-if="name === 'Steps'" class="ug-stack ug-steps-demo">
+          <t-steps :current="1" layout="vertical">
             <t-step-item title="基本信息" content="已完成" />
             <t-step-item title="详细配置" content="进行中" />
             <t-step-item title="确认提交" content="待处理" />
@@ -560,7 +564,7 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
         </div>
 
         <div v-else-if="name === 'Anchor'" class="ug-anchor-demo">
-          <t-anchor :bounds="8" container="#component-Anchor" :affix-props="{ offsetTop: 0 }">
+          <t-anchor :bounds="8">
             <t-anchor-item href="#component-Typography" title="Typography" />
             <t-anchor-item href="#component-Button" title="Button" />
             <t-anchor-item href="#component-Table" title="Table" />
@@ -584,9 +588,8 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
         <div v-else-if="name === 'Navbar'" class="ug-navbar-demo">
           <t-head-menu :default-value="nav[0]!.key" theme="light" height="56px">
             <template #logo><span class="ug-logo-text">UI Gallery</span></template>
-            <t-menu-item v-for="n in nav.slice(0, 3)" :key="n.key" :value="n.key">{{ n.label }}</t-menu-item>
+            <t-menu-item v-for="n in nav.slice(0, 2)" :key="n.key" :value="n.key">{{ n.label }}</t-menu-item>
             <template #operations>
-              <t-button variant="text" shape="square"><template #icon><Icon name="search" /></template></t-button>
               <t-button variant="text" shape="square"><template #icon><Icon name="bell" /></template></t-button>
             </template>
           </t-head-menu>
@@ -666,7 +669,7 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
           <t-typography-text theme="secondary" class="ug-small">暗色通过 html[theme-mode="dark"] 官方机制切换。</t-typography-text>
         </div>
 
-        <t-watermark v-else-if="name === 'Watermark'" :watermark-content="{ text: 'UI Gallery', fontColor: 'var(--td-text-color-placeholder)' }" :y="60" :x="40" :height="24" :width="100" class="ug-watermark">
+        <t-watermark v-else-if="name === 'Watermark'" :key="watermarkColor" :watermark-content="{ text: 'UI Gallery', fontColor: watermarkColor }" :y="60" :x="40" :height="24" :width="100" class="ug-watermark">
           <div style="height: 120px" />
         </t-watermark>
 
@@ -693,7 +696,7 @@ const notify = () => NotifyPlugin.info({ title: "系统通知", content: "这是
         </div>
 
         <t-space v-else-if="name === 'Kbd'" break-line align="center">
-          <kbd class="ug-kbd">⌘</kbd><kbd class="ug-kbd">Shift</kbd><kbd class="ug-kbd">K</kbd>
+          <kbd class="ug-kbd">Ctrl</kbd><kbd class="ug-kbd">Shift</kbd><kbd class="ug-kbd">K</kbd>
           <t-typography-text theme="secondary" class="ug-small">原生 kbd + TDesign 变量（composed）</t-typography-text>
         </t-space>
 
@@ -762,6 +765,21 @@ app.use(TDesign)</code></pre>
 .ug-component-card { scroll-margin-top: 72px; min-width: 0; }
 .ug-component-card :deep(.t-card__body) { overflow: hidden; }
 .ug-stack { display: flex; flex-direction: column; gap: 12px; }
+.ug-has-tips { margin-bottom: 20px; }
+.ug-steps-demo { overflow-x: auto; max-width: 100%; }
+.ug-steps-demo :deep(.t-steps--horizontal) { min-width: 420px; }
+.ug-steps-demo :deep(.t-steps--vertical), .ug-upload-demo :deep(.t-upload), .ug-upload-demo :deep(.t-upload__dragger) { max-width: 100%; min-width: 0; }
+.ug-upload-demo :deep(.t-upload__dragger) { width: 100%; }
+.ug-transfer :deep(.t-transfer) { display: flex; flex-wrap: wrap; gap: 8px; }
+.ug-transfer :deep(.t-transfer__list) { flex: 1 1 100%; width: auto; min-width: 0; }
+.ug-transfer :deep(.t-transfer__operations) { flex: 1 1 100%; flex-direction: row; justify-content: center; margin: 0; }
+.ug-transfer :deep(.t-transfer__operations .t-button) { transform: rotate(90deg); margin: 0 4px; }
+.ug-inline-notification { width: 100%; max-width: 100%; }
+.ug-inline-dialog { width: 100%; max-width: 100%; }
+.ug-inline-dialog :deep(.t-dialog__body) { word-break: break-word; }
+.ug-pagination-demo :deep(.t-pagination) { flex-wrap: wrap; justify-content: flex-start; row-gap: 8px; }
+.ug-navbar-demo :deep(.t-head-menu__inner) { min-width: 0; }
+.ug-navbar-demo :deep(.t-menu) { min-width: 0; overflow: hidden; }
 .ug-btn-group :deep(.t-button + .t-button) { margin-left: -1px; border-radius: 0; }
 .ug-btn-group :deep(.t-button:first-child) { border-radius: var(--td-radius-default) 0 0 var(--td-radius-default); }
 .ug-btn-group :deep(.t-button:last-child) { border-radius: 0 var(--td-radius-default) var(--td-radius-default) 0; }

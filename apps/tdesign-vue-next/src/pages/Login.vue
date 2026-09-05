@@ -34,7 +34,7 @@ function onSubmit({ validateResult }: SubmitContext) {
 
 <template>
   <div class="ug-login">
-    <t-button class="ug-login-theme" variant="text" shape="square" aria-label="切换主题" @click="toggleTheme"><Icon :name="settings.theme === 'dark' ? 'sun' : 'moon'" :size="18" /></t-button>
+    <t-button class="ug-login-theme" variant="text" shape="square" size="large" aria-label="切换主题" @click="toggleTheme"><Icon :name="settings.theme === 'dark' ? 'sun' : 'moon'" :size="18" /></t-button>
     <t-card class="ug-login-card" :bordered="true">
       <div class="ug-login-head">
         <span class="ug-logo">A</span>
@@ -77,7 +77,8 @@ function onSubmit({ validateResult }: SubmitContext) {
 .ug-login-title { margin: 8px 0 0 !important; }
 .ug-login-alert { margin-bottom: 16px; }
 .ug-login-row { margin: -8px 0 16px; }
-.ug-eye { cursor: pointer; display: inline-flex; }
+.ug-login-row .t-checkbox, .ug-login-row .t-link, .ug-login-foot .t-link { min-height: 40px; display: inline-flex; align-items: center; }
+.ug-eye { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; margin-right: -12px; }
 .ug-login-divider { margin: 20px 0 !important; }
 .ug-oauth { display: grid; gap: 8px; }
 .ug-login-foot { text-align: center; margin: 20px 0 0 !important; }

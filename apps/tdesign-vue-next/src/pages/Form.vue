@@ -2,7 +2,9 @@
 import { reactive, ref, useTemplateRef } from "vue"
 import { MessagePlugin, type FormInstanceFunctions, type FormRules, type UploadFile } from "tdesign-vue-next"
 import Icon from "@/components/Icon.vue"
+import { useIsMobile } from "@/pages/shared"
 
+const isMobile = useIsMobile()
 const step = ref(0)
 const submitting = ref(false)
 
@@ -104,7 +106,7 @@ function reset() {
     </div>
 
     <t-card :bordered="true">
-      <t-steps :current="step" :layout="'horizontal'" readonly class="ug-steps">
+      <t-steps :current="step" :layout="isMobile ? 'vertical' : 'horizontal'" readonly class="ug-steps">
         <t-step-item title="基本信息" content="名称、联系方式与计划" />
         <t-step-item title="详细配置" content="区域、时间与资源" />
         <t-step-item title="确认提交" content="核对并同意条款" />
@@ -126,7 +128,7 @@ function reset() {
           <t-form-item label="联系电话" name="phone">
             <t-input-adornment>
               <template #prepend>
-                <t-select v-model="basic.countryCode" :options="countryOptions" auto-width borderless />
+                <t-select v-model="basic.countryCode" :options="countryOptions" borderless class="ug-country-select" />
               </template>
               <t-input v-model="basic.phone" placeholder="手机号" />
             </t-input-adornment>
@@ -248,6 +250,7 @@ function reset() {
 <style>
 .ug-form-page .t-form__item { margin-bottom: 20px; }
 .ug-steps { overflow-x: auto; }
+.ug-country-select { width: 120px; }
 .ug-form-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
 .ug-help-icon { vertical-align: -2px; margin-left: 4px; color: var(--td-text-color-placeholder); }
 .ug-progress { margin: 20px 0; }
@@ -256,7 +259,5 @@ function reset() {
 .ug-result { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 32px 0; }
 .ug-result-icon { color: var(--td-success-color); }
 .ug-error-text { color: var(--td-error-color); font-size: 12px; margin-top: 4px; }
-@media (max-width: 767px) {
-  .ug-steps .t-steps { min-width: 520px; }
-}
+
 </style>

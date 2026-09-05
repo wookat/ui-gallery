@@ -4,11 +4,12 @@ import { useRoute } from "vue-router"
 import { MessagePlugin, type DateRangeValue, type DropdownProps, type PrimaryTableCol, type TableRowData } from "tdesign-vue-next"
 import allOrders from "@ui-gallery/spec/mock/orders.json"
 import Icon from "@/components/Icon.vue"
-import { initials, money, statusLabel, statusTheme } from "@/pages/shared"
+import { initials, money, statusLabel, statusTheme, useIsMobile } from "@/pages/shared"
 
 type Order = (typeof allOrders)[number]
 type DropdownOption = Parameters<NonNullable<DropdownProps["onClick"]>>[0]
 const route = useRoute()
+const isMobile = useIsMobile()
 const state = ref<"loading" | "empty" | "error" | "ready">((route.query.state as "loading" | "empty" | "error") ?? "loading")
 const orders = ref<Order[]>([])
 onMounted(() => {
@@ -72,7 +73,11 @@ const allColumns: PrimaryTableCol<TableRowData>[] = [
   { colKey: "channel", title: "渠道", width: 100 },
   { colKey: "op", title: "操作", width: 110, fixed: "right" },
 ]
-const columns = computed(() => allColumns.filter((c) => ["row-select", "id", "op"].includes(c.colKey!) || visibleCols.value.includes(c.colKey!)))
+const columns = computed(() =>
+  allColumns
+    .filter((c) => ["row-select", "id", "op"].includes(c.colKey!) || visibleCols.value.includes(c.colKey!))
+    .map((c) => (isMobile.value ? { ...c, fixed: undefined } : c)),
+)
 const columnOptions = allColumns.filter((c) => !["row-select", "id", "op"].includes(c.colKey!)).map((c) => ({ value: c.colKey!, label: String(c.title) }))
 
 const detail = ref<Order | null>(null)
@@ -200,7 +205,6 @@ function exportCsv() {
 .ug-col-picker { display: flex; flex-direction: column; gap: 6px; padding: 8px 12px; }
 .ug-active-filters { margin-bottom: 12px; }
 .ug-alert, .ug-empty { margin: 8px 0; }
-.ug-ellipsis { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ug-desc { margin: 12px 0; }
 @media (max-width: 767px) {
   .ug-tb-item { max-width: none; flex-basis: 100%; }

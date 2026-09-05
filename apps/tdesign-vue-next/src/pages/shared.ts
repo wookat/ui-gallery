@@ -1,3 +1,14 @@
+import { onBeforeUnmount, ref } from "vue"
+
+export function useIsMobile(maxWidth = 767) {
+  const query = window.matchMedia(`(max-width: ${maxWidth}px)`)
+  const isMobile = ref(query.matches)
+  const update = (e: MediaQueryListEvent) => (isMobile.value = e.matches)
+  query.addEventListener("change", update)
+  onBeforeUnmount(() => query.removeEventListener("change", update))
+  return isMobile
+}
+
 export const statusTheme: Record<string, "success" | "warning" | "danger" | "default" | "primary"> = {
   paid: "success",
   pending: "warning",

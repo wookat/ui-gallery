@@ -55,7 +55,7 @@ function go(path: string) {
         </template>
         <template #operations>
           <div class="ug-aside-footer">
-            <t-button variant="text" shape="square" @click="collapsed = !collapsed"><Icon name="panel-left" :size="18" /></t-button>
+            <t-button variant="text" shape="square" size="large" @click="collapsed = !collapsed"><Icon name="panel-left" :size="18" /></t-button>
             <div v-if="!collapsed" class="ug-user-card">
               <t-avatar size="small">林</t-avatar>
               <div><div class="ug-user-name">林晓</div><div class="ug-muted ug-user-mail">m0@acme.dev</div></div>
@@ -67,7 +67,7 @@ function go(path: string) {
     <t-layout class="ug-main">
       <t-header class="ug-header">
         <div class="ug-header-inner">
-          <t-button class="ug-only-mobile" variant="text" shape="square" aria-label="菜单" @click="drawer = true"><Icon name="menu" :size="20" /></t-button>
+          <t-button class="ug-only-mobile" variant="text" shape="square" size="large" aria-label="菜单" @click="drawer = true"><Icon name="menu" :size="20" /></t-button>
           <t-breadcrumb class="ug-hide-mobile">
             <t-breadcrumb-item @click="go('/')">Acme Console</t-breadcrumb-item>
             <t-breadcrumb-item>{{ current }}</t-breadcrumb-item>
@@ -80,7 +80,7 @@ function go(path: string) {
             </t-input>
             <t-popup trigger="click" placement="bottom-right">
               <t-badge :count="unread" size="small" :offset="[4, 4]">
-                <t-button variant="text" shape="square" aria-label="通知"><Icon name="bell" :size="18" /></t-button>
+                <t-button variant="text" shape="square" size="large" aria-label="通知"><Icon name="bell" :size="18" /></t-button>
               </t-badge>
               <template #content>
                 <t-list class="ug-notify" size="small">
@@ -91,9 +91,9 @@ function go(path: string) {
                 </t-list>
               </template>
             </t-popup>
-            <t-tooltip content="切换主题"><t-button variant="text" shape="square" aria-label="切换主题" @click="toggleTheme"><Icon :name="settings.theme === 'dark' ? 'sun' : 'moon'" :size="18" /></t-button></t-tooltip>
+            <t-tooltip content="切换主题"><t-button variant="text" shape="square" size="large" aria-label="切换主题" @click="toggleTheme"><Icon :name="settings.theme === 'dark' ? 'sun' : 'moon'" :size="18" /></t-button></t-tooltip>
             <t-dropdown :options="userMenu" @click="onUserMenu">
-              <t-button variant="text" shape="circle" aria-label="账户"><t-avatar size="small">林</t-avatar></t-button>
+              <t-button variant="text" shape="circle" size="large" aria-label="账户"><t-avatar size="small">林</t-avatar></t-button>
             </t-dropdown>
           </div>
         </div>
@@ -122,6 +122,7 @@ function go(path: string) {
 .ug-brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--td-text-color-primary); }
 .ug-logo { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--td-radius-medium); background: var(--td-brand-color); color: var(--td-text-color-anti); font-weight: 700; }
 .ug-nav-label { display: inline-flex; align-items: center; gap: 8px; }
+.ug-nav-badge .t-badge--circle, .ug-nav-badge .t-badge--round { position: static; transform: none; }
 .ug-aside-footer { display: flex; flex-direction: column; gap: 8px; padding: 8px 0; }
 .ug-user-card { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: var(--td-radius-medium); background: var(--td-bg-color-secondarycontainer); }
 .ug-user-name { font-weight: 500; font-size: 13px; }

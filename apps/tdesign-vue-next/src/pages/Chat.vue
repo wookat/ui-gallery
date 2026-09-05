@@ -58,14 +58,14 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
   <div class="ug-page ug-chat-page">
     <div class="ug-between">
       <div><t-typography-title level="h4" class="ug-title">AI 助手</t-typography-title><span class="ug-muted">与团队智能助手协作，保留完整上下文。</span></div>
-      <t-button class="ug-mobile-only" variant="outline" @click="drawer = true"><template #icon><Icon name="list" /></template>会话</t-button>
+      <t-button class="ug-mobile-only" variant="outline" size="large" @click="drawer = true"><template #icon><Icon name="list" /></template>会话</t-button>
     </div>
 
     <div class="ug-chat">
       <aside class="ug-chat-side ug-desktop-only">
         <div class="ug-between ug-chat-side-head">
           <span class="ug-chat-side-title">会话</span>
-          <t-button variant="text" shape="square" size="small" aria-label="新建会话" @click="empty = true"><Icon name="plus" /></t-button>
+          <t-button variant="text" shape="square" size="large" aria-label="新建会话" @click="empty = true"><Icon name="plus" /></t-button>
         </div>
         <t-input v-model="keyword" placeholder="搜索会话" clearable size="small"><template #prefix-icon><Icon name="search" :size="14" /></template></t-input>
         <div v-for="g in groups" :key="g.title" class="ug-chat-group">
@@ -82,8 +82,8 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
 
       <section class="ug-chat-main">
         <header class="ug-chat-head ug-between">
-          <div class="ug-ellipsis"><div class="ug-chat-head-title">{{ empty ? "新会话" : active.title }}</div><span class="ug-muted ug-small">{{ model }} · 已连接</span></div>
-          <t-select v-model="model" :options="chat.models.map((m) => ({ label: m, value: m }))" size="small" auto-width borderless />
+          <div class="ug-chat-head-text"><div class="ug-chat-head-title ug-ellipsis">{{ empty ? "新会话" : active.title }}</div><span class="ug-muted ug-small ug-ellipsis">{{ model }} · 已连接</span></div>
+          <t-select v-model="model" :options="chat.models.map((m) => ({ label: m, value: m }))" auto-width borderless class="ug-chat-head-model" />
         </header>
 
         <div class="ug-chat-stream">
@@ -122,10 +122,10 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
                   </div>
                 </div>
                 <div v-if="m.role === 'assistant'" class="ug-row ug-msg-actions">
-                  <t-button size="small" variant="text" shape="square" aria-label="赞"><Icon name="thumbs-up" :size="14" /></t-button>
-                  <t-button size="small" variant="text" shape="square" aria-label="踩"><Icon name="thumbs-down" :size="14" /></t-button>
-                  <t-button size="small" variant="text" shape="square" aria-label="复制" @click="copy(m.content, i)"><Icon name="copy" :size="14" /></t-button>
-                  <t-button size="small" variant="text" shape="square" aria-label="重新生成"><Icon name="refresh" :size="14" /></t-button>
+                  <t-button size="large" variant="text" shape="square" aria-label="赞"><Icon name="thumbs-up" :size="16" /></t-button>
+                  <t-button size="large" variant="text" shape="square" aria-label="踩"><Icon name="thumbs-down" :size="16" /></t-button>
+                  <t-button size="large" variant="text" shape="square" aria-label="复制" @click="copy(m.content, i)"><Icon name="copy" :size="16" /></t-button>
+                  <t-button size="large" variant="text" shape="square" aria-label="重新生成"><Icon name="refresh" :size="16" /></t-button>
                 </div>
               </div>
             </div>
@@ -140,11 +140,11 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
             <t-textarea v-model="draft" placeholder="输入消息，Ctrl/⌘ + Enter 发送" :autosize="{ minRows: 1, maxRows: 6 }" :maxlength="2000" @keydown="onKeydown" />
             <div class="ug-between ug-composer-bar">
               <div class="ug-row">
-                <t-button variant="text" shape="square" size="small" aria-label="附件"><Icon name="paperclip" /></t-button>
+                <t-button variant="text" shape="square" size="large" aria-label="附件"><Icon name="paperclip" /></t-button>
                 <t-select v-model="model" :options="chat.models.map((m) => ({ label: m, value: m }))" size="small" auto-width />
                 <span class="ug-muted ug-small ug-desktop-only">{{ draft.length }} / 2000</span>
               </div>
-              <t-button theme="primary" size="small" :disabled="!draft.trim()" @click="send()"><template #icon><Icon name="send" :size="14" /></template>发送</t-button>
+              <t-button theme="primary" size="large" :disabled="!draft.trim()" @click="send()"><template #icon><Icon name="send" :size="14" /></template>发送</t-button>
             </div>
           </div>
         </footer>
@@ -176,7 +176,9 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
 .ug-conv-badge .t-badge--dot, .ug-conv-badge .t-badge--circle { position: static; transform: none; }
 .ug-chat-main { display: flex; flex-direction: column; min-width: 0; }
 .ug-chat-head { padding: 12px 16px; border-bottom: 1px solid var(--td-component-stroke); flex-wrap: nowrap; }
+.ug-chat-head-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 .ug-chat-head-title { font-weight: 600; }
+.ug-chat-head-model { flex: 0 0 auto; max-width: 50%; }
 .ug-chat-stream { flex: 1; padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; max-height: 520px; }
 .ug-chat-empty { margin: auto; text-align: center; max-width: 560px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .ug-chat-empty-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--td-brand-color-light); color: var(--td-brand-color); display: grid; place-items: center; }
@@ -189,7 +191,7 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
 .ug-msg-avatar--ai { background: var(--td-brand-color) !important; }
 .ug-bubble { padding: 10px 14px; border-radius: 12px; background: var(--td-bg-color-secondarycontainer); min-width: 0; max-width: 100%; overflow-x: auto; }
 .ug-msg--user .ug-bubble { background: var(--td-brand-color); color: #fff; }
-.ug-msg-actions { opacity: 0.7; }
+.ug-msg-actions { opacity: 0.7; gap: 0; margin: -4px 0 0 -8px; }
 .ug-md p { margin: 0 0 8px; }
 .ug-md p:last-child { margin-bottom: 0; }
 .ug-md table { border-collapse: collapse; margin: 8px 0; font-size: 13px; }
@@ -217,7 +219,7 @@ function onKeydown(_v: TextareaValue, ctx: { e: KeyboardEvent }) {
 }
 @media (max-width: 767px) {
   .ug-chat { min-height: 0; }
-  .ug-chat-stream { max-height: none; padding: 16px 12px; }
+  .ug-chat-stream { max-height: max(240px, calc(100dvh - 400px)); padding: 16px 12px; }
   .ug-suggest-grid { grid-template-columns: minmax(0, 1fr); }
 }
 </style>

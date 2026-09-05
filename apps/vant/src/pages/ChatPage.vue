@@ -1,0 +1,57 @@
+<script setup lang="ts">
+import { computed, ref } from "vue"
+import MarkdownIt from "markdown-it"
+import chat from "@ui-gallery/spec/mock/chat.json"
+import AppIcon from "@/components/AppIcon.vue"
+
+const draft = ref("")
+const empty = ref(false)
+const drawer = ref(false)
+const selected = ref(chat.conversations[0].id)
+const copied = ref(false)
+const md = new MarkdownIt({ html: false, linkify: true, typographer: true })
+const activeConversation = computed(() => chat.conversations.find((item) => item.id === selected.value) ?? chat.conversations[0])
+const renderMarkdown = (value: string) => md.render(value)
+const copy = async (value: string) => { await navigator.clipboard?.writeText(value); copied.value = true; window.setTimeout(() => copied.value = false, 1200) }
+</script>
+
+<template>
+  <div class="page">
+    <div class="page-title"><div><h1>AI 对话</h1><p>与团队智能助手协作</p></div><van-button class="mobile-only" type="primary" @click="drawer = true"><AppIcon name="menu" />对话</van-button></div>
+    <div class="chat-layout">
+      <aside class="chat-sidebar">
+        <div class="between"><strong>对话</strong><van-button plain icon="plus" @click="empty = true"><AppIcon name="plus" /></van-button></div>
+        <van-search placeholder="搜索对话" />
+        <van-button block type="primary" class="new-chat" @click="empty = true"><AppIcon name="plus" />新建对话</van-button>
+        <van-cell v-for="item in chat.conversations" :key="item.id" :title="item.title" :label="item.time" is-link :class="{ active: item.id === selected }" @click="selected = item.id">
+          <template #value><van-badge v-if="item.unread" :content="item.unread" /></template>
+        </van-cell>
+      </aside>
+      <section class="chat-main">
+        <header class="between" style="padding: 14px 18px; border-bottom: 1px solid var(--van-border-color)"><div><strong>{{ activeConversation.title }}</strong><small class="muted"> · {{ chat.models[0] }}</small></div><van-field model-value="gpt-5" readonly is-link /></header>
+        <div v-if="empty" class="chat-messages"><van-empty description="开始一段新对话"><div class="suggestion-grid"><van-button v-for="item in chat.suggestions" :key="item" plain @click="draft = item; empty = false">{{ item }}</van-button></div></van-empty></div>
+        <div v-else class="chat-messages">
+          <article v-for="(message, index) in chat.messages" :key="`${message.role}-${index}`" class="message" :class="{ user: message.role === 'user' }">
+            <span class="message-avatar">{{ message.role === "user" ? "林" : "AI" }}</span>
+            <div class="bubble"><small class="muted">{{ message.role === "user" ? "林晓" : "AI 助手" }} · 刚刚</small><div v-if="message.role === 'assistant'" class="markdown" v-html="renderMarkdown(message.content)" /><div v-else>{{ message.content }}</div><div v-if="message.role === 'assistant'" class="inline"><van-tag v-for="source in message.sources" :key="source" plain>{{ source }}</van-tag><van-button v-if="message.content.includes('SELECT')" plain size="small" @click="copy(message.content)"><AppIcon name="copy" />{{ copied ? "已复制" : "复制" }}</van-button></div><van-collapse v-if="message.tool"><van-collapse-item :title="`工具调用 · ${message.tool.name}`" name="tool"><pre>{{ JSON.stringify(message.tool.args, null, 2) }}</pre></van-collapse-item></van-collapse><div v-if="message.streaming" class="inline muted"><van-loading type="spinner" size="14" />正在输入...</div></div>
+          </article>
+        </div>
+        <div class="composer"><div class="inline suggestion-row"><van-tag v-for="suggestion in chat.suggestions" :key="suggestion" plain @click="draft = suggestion">{{ suggestion }}</van-tag></div><van-field v-model="draft" type="textarea" autosize rows="2" maxlength="2000" show-word-limit placeholder="向 AI 助手提问..."><template #left-icon><AppIcon name="paperclip" /></template><template #button><van-button type="primary" round @click="draft = ''"><AppIcon name="send" /></van-button></template></van-field><small class="muted">Enter 发送 · Shift + Enter 换行</small></div>
+      </section>
+    </div>
+    <van-popup v-model:show="drawer" position="left" :style="{ width: '82%', height: '100%' }"><div class="chat-sidebar" style="height: 100%"><div class="between"><strong>对话</strong><van-button plain @click="drawer = false">关闭</van-button></div><van-cell v-for="item in chat.conversations" :key="item.id" :title="item.title" @click="selected = item.id; drawer = false" /></div></van-popup>
+  </div>
+</template>
+
+<style>
+.new-chat { margin: 10px 0; }
+.chat-sidebar .van-cell.active { background: var(--van-primary-color-light); }
+.chat-sidebar .van-cell { border-radius: 8px; margin: 2px 0; }
+.chat-main > header .van-field { width: 130px; padding: 0; }
+.suggestion-row { margin-bottom: 10px; overflow-x: auto; flex-wrap: nowrap; }
+.suggestion-row .van-tag { cursor: pointer; white-space: nowrap; }
+.suggestion-grid { display: grid; gap: 8px; max-width: 320px; }
+.suggestion-grid .van-button { white-space: normal; height: auto; min-height: 42px; }
+.message pre { overflow: auto; }
+.message-avatar { display: grid; place-items: center; flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; background: var(--van-primary-color); color: #fff; font-size: 12px; }
+</style>

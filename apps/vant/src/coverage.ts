@@ -1,0 +1,25 @@
+export type CoverageStatus = "implemented" | "composed" | "missing"
+
+export const coverage: Record<string, CoverageStatus> = {
+  Typography: "composed", Button: "implemented", ButtonGroup: "composed", IconButton: "implemented",
+  Input: "implemented", Textarea: "implemented", NumberInput: "implemented", Select: "composed",
+  MultiSelect: "composed", Combobox: "composed", Autocomplete: "composed", Checkbox: "implemented",
+  Radio: "implemented", Switch: "implemented", Slider: "implemented", Rating: "implemented",
+  DatePicker: "implemented", TimePicker: "implemented", DateRangePicker: "implemented", ColorPicker: "missing",
+  Upload: "implemented", Cascader: "implemented", Transfer: "missing", Mention: "missing",
+  PinInput: "implemented", Form: "implemented", Table: "composed", DataGrid: "missing",
+  Descriptions: "composed", List: "implemented", Card: "implemented", Avatar: "composed",
+  AvatarGroup: "composed", Badge: "implemented", Tag: "implemented", Statistic: "composed",
+  Timeline: "composed", Tree: "implemented", Calendar: "implemented", Image: "implemented",
+  Carousel: "implemented", Empty: "implemented", Tooltip: "composed", Popover: "implemented",
+  QRCode: "missing", Segmented: "composed", Alert: "composed", Toast: "implemented",
+  Notification: "implemented", Dialog: "implemented", Drawer: "implemented", Progress: "implemented",
+  Skeleton: "implemented", Spinner: "implemented", Result: "composed", Popconfirm: "composed",
+  Menu: "composed", Dropdown: "implemented", Breadcrumb: "composed", Tabs: "implemented",
+  Pagination: "implemented", Steps: "implemented", Anchor: "implemented", BackTop: "implemented",
+  Affix: "implemented", Navbar: "implemented", Sidebar: "implemented", CommandPalette: "composed",
+  Grid: "implemented", Stack: "implemented", Layout: "composed", Container: "composed",
+  AspectRatio: "missing", Resizable: "missing", ScrollArea: "composed", Accordion: "implemented",
+  ThemeProvider: "implemented", Watermark: "implemented", Tour: "missing", FloatButton: "implemented",
+  Kbd: "composed", Code: "composed", Divider: "implemented", Link: "composed",
+}

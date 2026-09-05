@@ -1,0 +1,45 @@
+{
+  "name": "vant",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "lint": "eslint .",
+    "typecheck": "vue-tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ui-gallery/spec": "workspace:*",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/noto-sans-sc": "^5.3.0",
+    "@heroicons/vue": "^2.2.0",
+    "@phosphor-icons/vue": "^2.1.10",
+    "@tabler/icons-vue": "^3.46.0",
+    "@vant/touch-emulator": "^1.5.0",
+    "echarts": "^6.0.0",
+    "lxgw-wenkai-screen-webfont": "^1.7.0",
+    "lucide-vue-next": "^0.468.0",
+    "markdown-it": "^14.1.0",
+    "vant": "^4.10.2",
+    "vue": "^3.5.0",
+    "vue-echarts": "^7.0.3",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^24.0.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "eslint": "^10.0.0",
+    "eslint-plugin-vue": "^10.0.0",
+    "globals": "^17.0.0",
+    "typescript": "~6.0.0",
+    "typescript-eslint": "^8.0.0",
+    "vite": "^8.0.0",
+    "vue-eslint-parser": "^10.0.0",
+    "vue-tsc": "^3.0.0"
+  }
+}

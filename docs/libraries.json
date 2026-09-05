@@ -33,7 +33,7 @@
     { "slug": "vant", "name": "Vant", "framework": "vue", "repo": "youzan/vant", "pkg": "vant", "round": 1 },
 
     { "slug": "shadcn-svelte", "name": "shadcn-svelte", "framework": "svelte", "repo": "huntabyte/shadcn-svelte", "pkg": "shadcn-svelte", "round": 1 },
-    { "slug": "skeleton", "name": "Skeleton", "framework": "svelte", "repo": "skeletonlabs/skeleton", "pkg": "@skeletonlabs/skeleton", "round": 1 },
+    { "slug": "skeleton", "name": "Skeleton", "framework": "svelte", "repo": "skeletonlabs/skeleton", "pkg": "@skeletonlabs/skeleton", "round": 1, "status": "built" },
     { "slug": "kobalte", "name": "Kobalte", "framework": "solid", "repo": "kobaltedev/kobalte", "pkg": "@kobalte/core", "round": 1 },
     { "slug": "angular-material", "name": "Angular Material", "framework": "angular", "repo": "angular/components", "pkg": "@angular/material", "round": 1 },
     { "slug": "primeng", "name": "PrimeNG", "framework": "angular", "repo": "primefaces/primeng", "pkg": "primeng", "round": 1 },

@@ -29,6 +29,50 @@ a { color: var(--primary-color); }
 .p-tree .p-tree-toggler { width: 2.5rem; height: 2.5rem; }
 .p-inputnumber-buttons-horizontal .p-inputnumber-button { min-width: 2.5rem; }
 label.hit { cursor: pointer; }
+.app-aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; align-self: flex-start; }
+.p-breadcrumb .p-menuitem-link { min-height: 2.5rem; display: inline-flex; align-items: center; }
+.p-checkbox, .p-radiobutton, .p-tristatecheckbox .p-checkbox { width: 2.5rem; height: 2.5rem; align-items: center; justify-content: center; }
+.p-datatable .p-selection-column, .p-treetable .p-selection-column { padding-top: .25rem; padding-bottom: .25rem; }
+.p-stepper .p-stepper-action { min-height: 2.5rem; }
+.p-panel .p-panel-header-icon, .p-fieldset .p-fieldset-toggler, .p-dialog .p-dialog-header-icon, .p-sidebar .p-sidebar-close, .p-accordion .p-accordion-header-link { min-width: 2.5rem; min-height: 2.5rem; }
+.p-datatable .p-row-toggler, .p-datatable .p-sortable-column-icon { min-width: 1rem; }
+.p-datatable.p-datatable-hoverable-rows .p-datatable-tbody > tr:not(.p-highlight):hover { cursor: pointer; }
+.p-calendar.inline-calendar {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+.p-calendar.inline-calendar .p-datepicker {
+  display: block;
+  width: auto !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.p-calendar.inline-calendar .p-datepicker table {
+  width: 100%;
+  table-layout: fixed;
+}
+.p-calendar.inline-calendar .p-datepicker-prev,
+.p-calendar.inline-calendar .p-datepicker-next {
+  flex: 0 0 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.p-calendar.inline-calendar .p-datepicker table td { padding: .25rem; }
+.p-dock .p-dock-list { position: static; }
 .marketing-section { max-width: 1180px; margin: 0 auto; padding: 5rem 1.25rem; }
 .hero-title { font-size: clamp(2.5rem, 7vw, 5rem); line-height: 1.05; margin: 0; }
 @media (max-width: 767px) { .page-main { padding: 1rem; } .marketing-section { padding: 3.5rem 1rem; } .chat-bubble { max-width: 100%; } .chat-frame { height: calc(100vh - 11rem); } }
+.hit,
+.p-breadcrumb .p-menuitem-link {
+  min-width: 2.5rem;
+  justify-content: center;
+}
+.p-column-filter-menu-button,
+.p-datepicker .p-datepicker-month,
+.p-datepicker .p-datepicker-year,
+.p-menubar .p-menubar-button {
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}

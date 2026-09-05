@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Icon as GalleryIcon } from "@ui-gallery/icons-react"
 
 const map: Record<string, string> = {
@@ -14,8 +15,15 @@ const map: Record<string, string> = {
   "arrow-right": "arrow-right", "arrow-left": "arrow-left", "message-circle": "comment", info: "info-circle",
 }
 
+const isNative = () => { const family = new URLSearchParams(window.location.search).get("icons"); return !family || family === "native" }
+
 export function Icon({ name, size, className }: { name: string; size?: number; className?: string }) {
-  const family = new URLSearchParams(window.location.search).get("icons")
-  if (family && family !== "native") return <GalleryIcon name={name} size={size} className={className} />
+  if (!isNative()) return <GalleryIcon name={name} size={size} className={className} />
   return <i className={`pi pi-${map[name] ?? name} ${className ?? ""}`} style={size ? { fontSize: size } : undefined} aria-hidden />
+}
+
+/** Icon for MenuItem.icon: string class in native mode so PrimeReact adds `.p-menuitem-icon` spacing itself. */
+export function menuIcon(name: string): string | ReactNode {
+  if (isNative()) return `pi pi-${map[name] ?? name}`
+  return <GalleryIcon name={name} className="p-menuitem-icon" />
 }

@@ -99,7 +99,7 @@ import { TreeTable } from "primereact/treetable"
 import { TriStateCheckbox } from "primereact/tristatecheckbox"
 import { Tooltip } from "primereact/tooltip"
 import { VirtualScroller } from "primereact/virtualscroller"
-import { Icon } from "@/components/icon"
+import { Icon, menuIcon } from "@/components/icon"
 import placeholder from "@/assets/placeholder.svg"
 import { EmptyState, PageHeader } from "@/components/shared"
 import "quill/dist/quill.snow.css"
@@ -115,16 +115,21 @@ const extras = [
 ]
 
 const tree = [
-  { key: "0", label: "工作区", children: [{ key: "0-0", label: "项目" }, { key: "0-1", label: "团队" }] },
+  { key: "0", label: "工作区", children: [{ key: "0-0", label: "项目", children: [{ key: "0-0-0", label: "增长分析" }, { key: "0-0-1", label: "商城改版" }] }, { key: "0-1", label: "团队" }] },
+  { key: "1", label: "归档", children: [{ key: "1-0", label: "2025" }] },
 ]
+const treeExpanded = { "0": true, "0-0": true }
 const cascadeOptions = [
   { name: "华东", code: "east", states: [{ name: "江苏", cities: [{ cname: "南京" }, { cname: "苏州" }] }, { name: "浙江", cities: [{ cname: "杭州" }, { cname: "宁波" }] }] },
   { name: "华北", code: "north", states: [{ name: "北京", cities: [{ cname: "北京" }] }, { name: "河北", cities: [{ cname: "石家庄" }] }] },
   { name: "华南", code: "south", states: [{ name: "广东", cities: [{ cname: "广州" }, { cname: "深圳" }] }] },
 ]
-const navModel = nav.map((item) => ({ label: item.label, icon: <Icon name={item.icon} />, url: item.path }))
+const navModel = nav.map((item) => ({ label: item.label, icon: menuIcon(item.icon), url: item.path }))
+const dockModel = [{ label: "首页", icon: <Icon name="home" size={22} /> }, { label: "设置", icon: <Icon name="settings" size={22} /> }, { label: "消息", icon: <Icon name="mail" size={22} /> }, { label: "帮助", icon: <Icon name="circle-help" size={22} /> }]
+const DockDemo = () => <div className="relative surface-ground border-round" style={{ height: "6rem" }}><Dock model={dockModel} position="bottom" /></div>
 const placeholderImages = [placeholder, placeholder, placeholder]
 const virtualItems = Array.from({ length: 100 }, (_, index) => `团队成员 ${index + 1}`)
+const wideExtras = new Set(["Toolbar", "Dock", "OrganizationChart", "TreeTable", "Galleria", "Terminal", "TieredMenu", "MegaMenu", "SlideMenu", "Menubar", "TabMenu", "Editor", "MeterGroup"])
 const wideComponents = new Set(["Button", "IconButton", "Input", "Table", "DataGrid", "Transfer", "Tree", "Calendar", "Carousel", "Menu", "Navbar", "Steps", "Tabs", "Pagination", "Resizable", "Timeline", "Upload", "Form", "Dialog", "Drawer", "Descriptions", "Grid", "Stack", "Layout", "Container"])
 
 function CommandPaletteDemo() {
@@ -158,7 +163,7 @@ function Demo({ name }: { name: string }) {
   const [dialogKind, setDialogKind] = useState<"normal" | "full" | "scroll" | null>(null)
 
   if (coverage[name] === "missing") return <Message severity="warn" text="PrimeReact 未提供此组件。" />
-  if (name === "Typography") return <div className="flex flex-column gap-2"><h1>一级标题</h1><h2>二级标题</h2><h3>三级标题</h3><h4>四级标题</h4><h5>五级标题</h5><h6>六级标题</h6><p>正文与辅助说明。</p><blockquote>组合排版示例。</blockquote><a href="#component-index">锚点链接</a><ul><li>无序列表</li></ul><ol><li>有序列表</li></ol><Divider /></div>
+  if (name === "Typography") return <div className="flex flex-column gap-2"><h1>一级标题</h1><h2>二级标题</h2><h3>三级标题</h3><h4>四级标题</h4><h5>五级标题</h5><h6>六级标题</h6><p>正文与辅助说明。</p><blockquote>组合排版示例。</blockquote><a className="hit" href="#component-index">锚点链接</a><ul><li>无序列表</li></ul><ol><li>有序列表</li></ol><Divider /></div>
   if (name === "Code") return <pre className="surface-ground p-3 border-round overflow-auto"><code>const ui = "PrimeReact"</code></pre>
   if (name === "Kbd") return <div className="flex align-items-center gap-2">打开命令面板 <kbd>⌘</kbd> <kbd>K</kbd></div>
   if (name === "Button") return <div className="flex flex-column gap-2"><div className="flex flex-wrap gap-2">{(["primary", "secondary", "success", "info", "warning", "help", "danger"] as const).map((severity) => <Button key={severity} label={severity === "primary" ? "默认" : severity} severity={severity === "primary" ? undefined : severity} />)}</div><div className="flex flex-wrap gap-2">{(["实心", "描边", "文本", "凸起", "圆角", "链接"] as const).map((label, index) => <Button key={label} label={label} outlined={index === 1} text={index === 2} raised={index === 3} rounded={index === 4} link={index === 5} />)}</div><div className="flex flex-wrap gap-2"><Button size="small" label="小" /><Button label="默认" /><Button size="large" label="大" /></div><div className="flex flex-wrap gap-2"><Button disabled label="禁用" /><Button loading label="加载" /><Button icon={<Icon name="check" />} label="图标与文字" /><Button icon={<Icon name="arrow-right" />} iconPos="right" label="右侧图标" /></div></div>
@@ -180,7 +185,7 @@ function Demo({ name }: { name: string }) {
   if (name === "DatePicker") return <Calendar showIcon placeholder="选择日期" />
   if (name === "TimePicker") return <Calendar timeOnly showIcon placeholder="选择时间" />
   if (name === "DateRangePicker") return <Calendar selectionMode="range" readOnlyInput showIcon placeholder="选择日期范围" />
-  if (name === "Calendar") return <Calendar inline />
+  if (name === "Calendar") return <div className="overflow-x-auto"><Calendar inline className="inline-calendar" /></div>
   if (name === "ColorPicker") return <div className="flex gap-3 align-items-center"><ColorPicker /><ColorPicker inline /></div>
   if (name === "Upload") return <FileUpload mode="advanced" name="demo[]" chooseLabel="选择文件" uploadLabel="上传" cancelLabel="取消" customUpload uploadHandler={() => undefined} emptyTemplate={<p className="m-0">拖拽文件到此处</p>} />
   if (name === "Cascader") return <CascadeSelect options={cascadeOptions} optionLabel="name" optionGroupLabel="name" optionGroupChildren={["states", "cities"]} placeholder="选择地区、省、市" className="w-full" />
@@ -198,10 +203,10 @@ function Demo({ name }: { name: string }) {
   if (name === "Tag") return <div className="flex flex-wrap gap-2"><Tag value="成功" severity="success" rounded icon="pi pi-check" /><Tag value="信息" severity="info" rounded /><Tag value="次要" severity="secondary" /><Tag value="警告" severity="warning" /><Tag value="危险" severity="danger" /></div>
   if (name === "Statistic") { const statistic = stats[0]; return <Card><span className="muted">{statistic.label}</span><strong className="block text-2xl">{statistic.unit === "CNY" ? `¥${statistic.value.toLocaleString()}` : `${statistic.value}${statistic.unit ?? ""}`}</strong><Tag value={`${statistic.delta > 0 ? "+" : ""}${statistic.delta}%`} severity={statistic.delta > 0 ? "success" : "warning"} /></Card> }
   if (name === "Timeline") return <Timeline value={activity.slice(0, 4)} content={(item) => <span>{item.user} {item.action}</span>} opposite={(item) => item.time} marker={(item) => <span className="flex align-items-center justify-content-center border-circle surface-primary text-primary" style={{ width: "2rem", height: "2rem" }}><Icon name={item.user === "林晓" ? "shopping-bag" : "user"} size={14} /></span>} />
-  if (name === "Tree") return <Tree value={tree} selectionMode="checkbox" filter className="w-full" />
+  if (name === "Tree") return <Tree value={tree} selectionMode="checkbox" filter expandedKeys={treeExpanded} onToggle={() => undefined} className="w-full" />
   if (name === "Image") return <Image src={placeholder} alt="占位图片" preview width="100%" />
   if (name === "Carousel") return <Carousel value={landing.testimonials} numVisible={1} circular itemTemplate={(item) => <Card><p>“{item.quote}”</p><strong>{item.company}</strong></Card>} />
-  if (name === "Empty") return <div><EmptyState title="暂无内容" description="这里还没有可展示的项目。" /><Button label="创建项目" icon={<Icon name="plus" />} /></div>
+  if (name === "Empty") return <div className="text-center"><EmptyState title="暂无内容" description="这里还没有可展示的项目。" /><Button label="创建项目" icon={<Icon name="plus" />} /></div>
   if (name === "Tooltip") return <div className="flex flex-wrap gap-2"><Tooltip target=".tooltip-demo" /><Button className="tooltip-demo" data-pr-tooltip="上方提示" tooltipOptions={{ position: "top" }} label="上方" /><Button className="tooltip-demo" data-pr-tooltip="下方提示" tooltipOptions={{ position: "bottom" }} label="下方" /><Button className="tooltip-demo" data-pr-tooltip="左侧提示" tooltipOptions={{ position: "left" }} label="左侧" /><Button className="tooltip-demo" data-pr-tooltip="右侧提示" tooltipOptions={{ position: "right" }} label="右侧" /></div>
   if (name === "Popover") return <><Button label="打开 Popover" onClick={(event) => overlay.current?.toggle(event)} /><OverlayPanel ref={overlay}><DataTable value={team.slice(0, 3)} size="small"><Column field="name" header="成员" /><Column field="role" header="角色" /></DataTable></OverlayPanel></>
   if (name === "QRCode") return <Message severity="warn" text="PrimeReact 未提供 QRCode。" />
@@ -209,14 +214,14 @@ function Demo({ name }: { name: string }) {
   if (name === "Alert") return <div className="flex flex-column gap-2"><Message severity="info" text="提示消息" /><Message severity="success" text="操作成功" /><Message severity="warn" text="注意事项" /><Message severity="error" text="错误信息" /><Message icon={<Icon name="sparkles" />} content={<span>自定义内容 <Button text size="small" label="关闭" /></span>} /></div>
   if (name === "Toast") return <><Toast ref={toast} /><div className="flex flex-wrap gap-2">{(["success", "info", "warn", "error"] as const).map((severity) => <Button key={severity} label={severity} onClick={() => toast.current?.show({ severity, summary: "通知", detail: "操作已完成" })} />)}<Button label="带操作" onClick={() => toast.current?.show({ severity: "info", content: () => <div><strong className="block">提示</strong><span className="block text-sm">有一项待处理</span><Button text size="small" label="撤销" /></div> })} /></div></>
   if (name === "Notification") return <><Toast ref={toast} position="top-right" /><Button label="显示通知" onClick={() => toast.current?.show({ sticky: true, severity: "info", content: () => <div><strong className="block">系统通知</strong><span className="block text-sm">你有新的团队动态。</span><Button text size="small" label="查看" /></div> })} /></>
-  if (name === "Dialog") return <><ConfirmDialog /><div className="flex flex-wrap gap-2"><Button label="普通 Dialog" onClick={() => setDialogKind("normal")} /><Button label="确认" onClick={() => confirmDialog({ message: "确认继续此操作吗？", header: "请确认", accept: () => toast.current?.show({ severity: "success", summary: "已确认" }) })} /><Button label="全屏" onClick={() => setDialogKind("full")} /><Button label="可滚动" onClick={() => setDialogKind("scroll")} /></div><Dialog visible={dialogKind !== null} onHide={() => setDialogKind(null)} maximized={dialogKind === "full"} maximizable header="Dialog 示例" style={dialogKind === "scroll" ? { maxHeight: "60vh" } : undefined}><p>{dialogKind === "scroll" ? "长内容 ".repeat(80) : "这是 PrimeReact Dialog 内容。"}</p></Dialog></>
+  if (name === "Dialog") return <><ConfirmDialog /><div className="flex flex-wrap gap-2"><Button label="普通 Dialog" onClick={() => setDialogKind("normal")} /><Button label="确认" onClick={() => confirmDialog({ message: "确认继续此操作吗？", header: "请确认", acceptLabel: "确认", rejectLabel: "取消", accept: () => toast.current?.show({ severity: "success", summary: "已确认" }) })} /><Button label="全屏" onClick={() => setDialogKind("full")} /><Button label="可滚动" onClick={() => setDialogKind("scroll")} /></div><Dialog visible={dialogKind !== null} onHide={() => setDialogKind(null)} maximized={dialogKind === "full"} maximizable header="Dialog 示例" style={dialogKind === "scroll" ? { maxHeight: "60vh" } : undefined}><p>{dialogKind === "scroll" ? "长内容 ".repeat(80) : "这是 PrimeReact Dialog 内容。"}</p></Dialog></>
   if (name === "Drawer") return <><div className="flex flex-wrap gap-2"><Button label="左侧" onClick={() => { setSidebarPosition("left"); setVisible(true) }} /><Button label="右侧" onClick={() => { setSidebarPosition("right"); setVisible(true) }} /><Button label="顶部" onClick={() => { setSidebarPosition("top"); setVisible(true) }} /><Button label="底部" onClick={() => { setSidebarPosition("bottom"); setVisible(true) }} /></div><Sidebar visible={visible} position={sidebarPosition} onHide={() => setVisible(false)}><p>Drawer 内容。</p></Sidebar></>
   if (name === "Sidebar") return <><Button label="打开全屏导航" onClick={() => setVisible(true)} /><Sidebar visible={visible} fullScreen onHide={() => setVisible(false)}><PanelMenu model={navModel} /></Sidebar><PanelMenu model={navModel} /></>
-  if (name === "Progress") return <div className="flex flex-column gap-3"><ProgressBar value={72} /><ProgressBar mode="indeterminate" showValue={false} /><ProgressSpinner /><Steps model={[{ label: "开始" }, { label: "配置" }, { label: "完成" }]} activeIndex={1} /></div>
+  if (name === "Progress") return <div className="flex flex-column gap-3"><ProgressBar value={72} /><ProgressBar mode="indeterminate" showValue={false} /><div className="flex align-items-center gap-4"><Knob value={72} readOnly valueTemplate="{value}%" /><ProgressSpinner style={{ width: "3rem", height: "3rem" }} /></div><MeterGroup values={[{ label: "已完成", value: 45 }, { label: "进行中", value: 25 }]} /></div>
   if (name === "Skeleton") return <div className="flex flex-column gap-3"><Skeleton /><Skeleton shape="circle" size="3rem" /><Skeleton width="70%" /><Skeleton width="40%" /></div>
   if (name === "Spinner") return <div className="flex align-items-center gap-3"><ProgressSpinner strokeWidth="2" /><ProgressSpinner strokeWidth="6" style={{ width: "2rem", height: "2rem" }} /><ProgressSpinner strokeWidth="10" style={{ width: "1.5rem", height: "1.5rem" }} /></div>
   if (name === "Result") return <div className="grid"><div className="col-12 md:col-6 text-center"><Icon name="check" size={42} /><h3>操作成功</h3><p className="muted">项目已经创建。</p><Button label="继续" /></div><div className="col-12 md:col-6 text-center"><Icon name="x" size={42} /><h3>操作失败</h3><p className="muted">请稍后重试。</p><Button outlined label="重试" /></div></div>
-  if (name === "Popconfirm") return <><ConfirmPopup /><Button label="删除" severity="danger" onClick={(event) => confirmPopup({ target: event.currentTarget, message: "确认删除？", accept: () => undefined })} /></>
+  if (name === "Popconfirm") return <><ConfirmPopup /><Button label="删除" severity="danger" onClick={(event) => confirmPopup({ target: event.currentTarget, message: "确认删除？", acceptLabel: "删除", rejectLabel: "取消", accept: () => undefined })} /></>
   if (name === "Menu") return <div className="flex flex-column gap-3"><Menubar model={navModel} /><Menu model={navModel} /><PanelMenu model={navModel} /><TieredMenu model={navModel} /></div>
   if (name === "Dropdown") return <><Button label="打开菜单" onClick={(event) => overlay.current?.toggle(event)} /><OverlayPanel ref={overlay}><Menu model={navModel} /></OverlayPanel><ContextMenu ref={contextMenu} model={navModel} /><div className="surface-ground p-3 mt-2" onContextMenu={(event) => { event.preventDefault(); contextMenu.current?.show(event) }}>右键此区域打开 ContextMenu</div></>
   if (name === "Breadcrumb") return <BreadCrumb home={{ label: "首页" }} model={[{ label: "组件" }, { label: "当前页" }]} />
@@ -238,14 +243,14 @@ function Demo({ name }: { name: string }) {
   if (name === "Accordion") return <Accordion multiple activeIndex={[0]}><AccordionTab header="第一项">内容一</AccordionTab><AccordionTab header="第二项">内容二</AccordionTab><AccordionTab header="第三项">内容三</AccordionTab><AccordionTab header="禁用" disabled>不可用</AccordionTab></Accordion>
   if (name === "ThemeProvider") return <div className="flex flex-column gap-2"><Message severity="info" text="PrimeReactProvider + Lara 主题。" /><div className="flex gap-2"><Button label="浅色主题" onClick={() => { const params = new URLSearchParams(location.search); params.set("theme", "light"); location.search = params.toString() }} /><Button label="深色主题" onClick={() => { const params = new URLSearchParams(location.search); params.set("theme", "dark"); location.search = params.toString() }} /></div></div>
   if (name === "Watermark" || name === "Tour") return <Message severity="warn" text={`PrimeReact 未提供 ${name}。`} />
-  if (name === "FloatButton") return <div className="flex gap-3"><SpeedDial model={[{ icon: <Icon name="plus" />, command: () => undefined }]} direction="up" /><Dock model={[{ label: "首页", icon: <Icon name="home" /> }, { label: "设置", icon: <Icon name="settings" /> }, { label: "消息", icon: <Icon name="mail" /> }, { label: "帮助", icon: <Icon name="circle-help" /> }]} /></div>
-  if (name === "Divider") return <div><Divider /><Divider align="left">左对齐</Divider><Divider align="center">居中</Divider><Divider align="right">右对齐</Divider><Divider type="dashed">虚线</Divider><div className="flex align-items-center" style={{ height: "3rem" }}><Divider layout="vertical" /></div></div>
+  if (name === "FloatButton") return <div className="flex flex-column gap-3"><div className="relative" style={{ height: "4rem" }}><SpeedDial model={[{ icon: menuIcon("plus"), command: () => undefined }, { icon: menuIcon("pencil"), command: () => undefined }]} direction="right" style={{ left: 0, top: 0 }} /></div><DockDemo /></div>
+  if (name === "Divider") return <div><Divider /><Divider align="left">左对齐</Divider><Divider align="center">居中</Divider><Divider align="right">右对齐</Divider><Divider type="dashed">虚线</Divider><div className="flex align-items-center justify-content-center" style={{ height: "4rem" }}><span>左侧内容</span><Divider layout="vertical" /><span>右侧内容</span></div></div>
   if (name === "Link") return <div className="flex gap-3"><a className="hit" href="#component-index">普通链接</a><Button link label="链接按钮" /></div>
   if (name === "Fieldset") return <Fieldset legend="团队说明" toggleable>这是一个可折叠的 Fieldset。</Fieldset>
   if (name === "Toolbar") return <Toolbar start={<Button label="开始" />} center={<span>工具栏</span>} end={<Button outlined label="结束" />} />
   if (name === "Inplace") return <Inplace><InplaceDisplay>点击编辑</InplaceDisplay><InplaceContent><InputText autoFocus /></InplaceContent></Inplace>
   if (name === "BlockUI") return <BlockUI blocked><Panel header="被遮罩的面板">内容暂时不可用。</Panel></BlockUI>
-  if (name === "Dock") return <Dock model={[{ label: "首页", icon: <Icon name="home" /> }, { label: "设置", icon: <Icon name="settings" /> }, { label: "帮助", icon: <Icon name="circle-help" /> }, { label: "邮件", icon: <Icon name="mail" /> }]} />
+  if (name === "Dock") return <DockDemo />
   if (name === "Chips") return <Chips value={["设计", "前端"]} onChange={() => undefined} />
   if (name === "ToggleButton") return <ToggleButton checked={Boolean(value)} onChange={(event) => setValue(event.value)} onLabel="已开启" offLabel="已关闭" />
   if (name === "MultiStateCheckbox") return <MultiStateCheckbox value={value as string | null} onChange={(event) => setValue(event.value)} options={[{ value: "on", icon: "pi pi-check" }, { value: "off", icon: "pi pi-times" }, { value: "maybe", icon: "pi pi-minus" }]} />
@@ -257,12 +262,12 @@ function Demo({ name }: { name: string }) {
   if (name === "DataScroller") return <DataScroller value={team} rows={3} inline itemTemplate={(item) => <div className="p-3 border-bottom-1 surface-border">{item.name} · {item.role}</div>} />
   if (name === "VirtualScroller") return <VirtualScroller items={virtualItems} itemSize={40} style={{ height: "8rem" }} itemTemplate={(item) => <div className="p-2 border-bottom-1 surface-border">{item}</div>} />
   if (name === "Galleria") return <Galleria value={placeholderImages} showThumbnails={false} showIndicators item={(item: string) => <img src={item} alt="占位图片" className="w-full" />} />
-  if (name === "DeferredContent") return <DeferredContent onLoad={() => undefined}><Card title="延迟内容">滚动到此处后加载。</Card></DeferredContent>
+  if (name === "DeferredContent") return <div>{value ? null : <div className="flex flex-column gap-2"><Skeleton height="1.5rem" width="40%" /><Skeleton height="3rem" /><small className="muted">滚动到此处后加载内容。</small></div>}<DeferredContent onLoad={() => setValue(true)}><Panel header="延迟内容">已在进入视口时加载。</Panel></DeferredContent></div>
   if (name === "Terminal") return <Terminal welcomeMessage="欢迎使用终端" prompt="acme $" />
   if (name === "SplitButton") return <SplitButton label="保存" model={[{ label: "另存为" }, { label: "导出" }]} />
   if (name === "TieredMenu") return <TieredMenu model={navModel} />
   if (name === "MegaMenu") return <MegaMenu model={navModel} />
-  if (name === "SlideMenu") return <SlideMenu model={navModel} />
+  if (name === "SlideMenu") return <SlideMenu model={navModel} viewportHeight={260} menuWidth={240} />
   if (name === "ContextMenu") return <><ContextMenu ref={contextMenu} model={navModel} /><div className="surface-ground p-3" onContextMenu={(event) => { event.preventDefault(); contextMenu.current?.show(event) }}>右键此区域</div></>
   if (name === "Menubar") return <Menubar model={navModel} end={<Button text label="账户" />} />
   if (name === "TabMenu") return <TabMenu model={navModel.slice(0, 4)} />
@@ -286,6 +291,6 @@ export function ComponentsPage() {
     <PageHeader title="组件全集" description="PrimeReact 官方组件、contract 覆盖与组合示例。" action={<Button outlined label="组件索引" icon={<Icon name="list" />} />} />
     <div id="component-index" className="flex flex-wrap gap-2">{(contract.components as string[]).map((name) => <a className="hit p-button p-button-outlined p-button-sm no-underline" href={`#component-${name}`} key={name}>{name}</a>)}</div>
     <div className="grid">{(contract.components as string[]).map((name) => <div className={`col-12 ${wideComponents.has(name) ? "" : "md:col-6 xl:col-4"}`} id={`component-${name}`} key={name}><Card className="demo-card" title={<span className="flex justify-content-between align-items-center">{name}<Tag value={coverage[name]} severity={coverage[name] === "missing" ? "danger" : coverage[name] === "composed" ? "warning" : "success"} /></span>}><Demo name={name} /></Card></div>)}</div>
-    <div><h2>Extras</h2><div className="grid">{extras.map((name) => <div className="col-12 md:col-6 xl:col-4" key={name}><Card title={name}><Demo name={name} /></Card></div>)}</div></div>
+    <div><h2>Extras</h2><div className="grid">{extras.map((name) => <div className={wideExtras.has(name) ? "col-12 md:col-6" : "col-12 md:col-6 xl:col-4"} key={name}><Card title={name}><Demo name={name} /></Card></div>)}</div></div>
   </div>
 }

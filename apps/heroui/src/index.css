@@ -1,0 +1,40 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-sc";
+@import "lxgw-wenkai-screen-webfont/style.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@source "../node_modules/@heroui/styles/dist/**/*.css";
+
+:root {
+  --font-sans: "Geist Variable", sans-serif;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+.prose-chat :where(p, ul, ol, pre, table):not(:first-child) {
+  margin-top: 0.5rem;
+}
+.prose-chat :where(ul) { list-style: disc; padding-left: 1.25rem; }
+.prose-chat :where(ol) { list-style: decimal; padding-left: 1.25rem; }
+.prose-chat :where(code):not(pre code) {
+  border-radius: 0.25rem;
+  background: var(--surface-secondary);
+  padding: 0.1rem 0.3rem;
+  font-size: 0.85em;
+}
+.prose-chat :where(pre) {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: var(--surface-secondary);
+  padding: 0.75rem;
+  font-size: 0.8rem;
+}
+.prose-chat :where(table) { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+.prose-chat :where(th, td) { border: 1px solid var(--border); padding: 0.25rem 0.5rem; text-align: left; }
+.prose-chat :where(a) { text-decoration: underline; }

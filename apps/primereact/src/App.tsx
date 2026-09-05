@@ -22,7 +22,10 @@ export function applySettings() {
   document.documentElement.style.colorScheme = dark ? "dark" : "light"
   let link = document.getElementById("pr-theme") as HTMLLinkElement | null
   if (!link) { link = document.createElement("link"); link.id = "pr-theme"; link.rel = "stylesheet"; document.head.appendChild(link) }
-  link.href = dark ? darkTheme : lightTheme
+  link.onload = () => window.dispatchEvent(new Event("pr-theme-change"))
+  const nextHref = dark ? darkTheme : lightTheme
+  if (link.href === new URL(nextHref, window.location.href).href) window.dispatchEvent(new Event("pr-theme-change"))
+  link.href = nextHref
   const fonts: Record<string, string> = { inter: "'Inter Variable', sans-serif", geist: "'Geist Variable', sans-serif", "noto-sans-sc": "'Noto Sans SC Variable', sans-serif", "lxgw-wenkai": "'LXGW WenKai Screen', serif" }
   const font = fonts[params.get("font") ?? ""]
   if (font) document.documentElement.style.setProperty("--font-family", font)

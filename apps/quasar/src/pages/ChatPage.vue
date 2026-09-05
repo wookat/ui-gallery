@@ -57,15 +57,17 @@ function send() {
             <q-chat-message v-if="message.role === 'user'" sent :text="[message.content]" stamp="刚刚" />
             <q-chat-message v-else stamp="刚刚">
               <template #avatar><q-avatar color="primary" text-color="white">A</q-avatar></template>
-              <!-- eslint-disable-next-line vue/no-v-html -->
-              <div class="markdown-body" v-html="markdown(message.content)" />
-              <q-btn v-if="code(message.content)" flat dense no-caps @click="copy(code(message.content))"><AppIcon name="copy" :size="16" class="q-mr-xs" />复制代码</q-btn>
-              <div v-if="message.sources" class="row q-gutter-xs q-mt-sm"><q-chip v-for="source in message.sources" :key="source" dense>{{ source }}</q-chip></div>
-              <q-expansion-item v-if="message.tool" dense bordered class="q-mt-sm" label="工具调用">
-                <template #header><q-item-section><div class="row items-center q-gutter-sm"><span>{{ message.tool.name }}</span><q-badge color="positive">{{ message.tool.status }}</q-badge></div></q-item-section></template>
-                <pre>{{ JSON.stringify(message.tool.args, null, 2) }}</pre>
-              </q-expansion-item>
-              <q-spinner-dots v-if="message.streaming" color="primary" size="20px" />
+              <div class="chat-assistant-content">
+                <div v-if="code(message.content)" class="row items-center justify-end chat-code-header"><q-btn flat dense no-caps @click="copy(code(message.content))"><AppIcon name="copy" :size="16" class="q-mr-xs" />复制代码</q-btn></div>
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div class="markdown-body" v-html="markdown(message.content)" />
+                <div v-if="message.sources" class="row q-gutter-xs q-mt-sm"><q-chip v-for="source in message.sources" :key="source" dense>{{ source }}</q-chip></div>
+                <q-expansion-item v-if="message.tool" dense bordered class="q-mt-sm" label="工具调用">
+                  <template #header><q-item-section><div class="row items-center q-gutter-sm"><span>{{ message.tool.name }}</span><q-badge color="positive">{{ message.tool.status }}</q-badge></div></q-item-section></template>
+                  <pre>{{ JSON.stringify(message.tool.args, null, 2) }}</pre>
+                </q-expansion-item>
+                <q-spinner-dots v-if="message.streaming" color="primary" size="20px" />
+              </div>
             </q-chat-message>
           </template>
         </div><div class="chat-composer q-pa-md"><div class="row q-gutter-xs q-mb-sm"><q-chip v-for="suggestion in chat.suggestions" :key="suggestion" clickable @click="useSuggestion(suggestion)">{{ suggestion }}</q-chip></div><div class="row items-end q-gutter-sm"><q-btn flat round dense><AppIcon name="paperclip" /></q-btn><q-input v-model="input" type="textarea" autogrow :rows="1" label="输入消息" class="col" @keydown.enter.exact.prevent="send" /><q-select v-model="model" dense outlined :options="chat.models" style="width: 150px" /><q-btn round color="primary" @click="send"><AppIcon name="send" color="white" /></q-btn></div><div class="text-caption text-grey-7 q-mt-xs">Enter 发送 · Shift+Enter 换行 · {{ input.length }}/2000</div></div></main>

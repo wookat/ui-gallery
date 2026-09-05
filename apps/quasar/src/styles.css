@@ -8,6 +8,8 @@ body {
 
 .table-scroll {
   min-width: 0;
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
 }
 
@@ -35,12 +37,9 @@ body {
 
 .landing-screenshot,
 .landing-split-placeholder {
-  min-height: 320px;
   border: 1px solid var(--q-separator-color);
   border-radius: 16px;
   background: var(--q-color-grey-2);
-  display: grid;
-  place-items: center;
   overflow: hidden;
 }
 
@@ -51,16 +50,29 @@ body {
 
 .logo-placeholder {
   height: 56px;
-  border: 1px solid var(--q-separator-color);
+  border: 1px solid #bdbdbd;
   border-radius: 8px;
+  background: #f2f3f5;
+  position: relative;
   display: grid;
   place-items: center;
-  color: var(--q-color-grey-6);
+  color: #616161;
   font-size: 12px;
 }
 
+.logo-placeholder .q-skeleton {
+  position: absolute;
+  inset: 7px auto auto 50%;
+  transform: translateX(-50%);
+}
+
+.logo-placeholder span {
+  position: relative;
+  z-index: 1;
+}
+
 .settings-tabs {
-  min-height: 280px;
+  min-height: 0;
 }
 
 .qr-placeholder {
@@ -128,7 +140,51 @@ body {
   background: var(--q-color-grey-2);
   padding: 12px;
   overflow-x: auto;
+  max-width: 100%;
   border-radius: 6px;
+}
+
+.chat-assistant-content {
+  min-width: 0;
+  max-width: 85%;
+}
+
+.chat-code-header {
+  min-width: 0;
+}
+
+.component-kbd {
+  border: 1px solid var(--q-separator-color);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.component-code {
+  background: var(--q-color-grey-2);
+  border-radius: 4px;
+  padding: 3px 6px;
+}
+
+.component-demo {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  scroll-margin-top: 80px;
+}
+
+.component-table {
+  min-width: 620px;
+}
+
+.bordered-layout {
+  border: 1px solid var(--q-separator-color);
+  border-radius: 4px;
+}
+
+.avatar-overlap {
+  margin-right: -8px;
+  border: 2px solid var(--q-background);
 }
 
 @media (max-width: 599px) {

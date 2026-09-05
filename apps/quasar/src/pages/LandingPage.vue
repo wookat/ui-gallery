@@ -39,11 +39,11 @@ const currentPlans = computed(() => plans.map((plan) => ({ ...plan, displayPrice
               <div class="row q-gutter-sm q-mt-lg"><q-btn color="primary" size="lg" :label="landing.hero.primary" to="/login" /><q-btn outline size="lg" :label="landing.hero.secondary" /></div>
               <div class="row items-center q-gutter-sm q-mt-lg"><q-avatar v-for="item in landing.testimonials.slice(0, 5)" :key="item.name" size="28px" color="primary" text-color="white">{{ item.name.slice(0, 1) }}</q-avatar><span class="text-body2 text-grey-7">{{ landing.hero.social }}</span></div>
             </div>
-            <div class="col-12 col-md-6"><div class="landing-screenshot"><q-skeleton height="100%" /></div></div>
+            <div class="col-12 col-md-6"><q-responsive :ratio="16 / 9" class="landing-screenshot"><q-skeleton class="fit" /></q-responsive></div>
           </div>
         </section>
 
-        <section class="landing-container q-py-xl"><div class="row q-col-gutter-md"><div v-for="index in 6" :key="index" class="col-6 col-md-2"><div class="logo-placeholder">LOGO</div></div></div></section>
+        <section class="landing-container q-py-xl"><div class="row q-col-gutter-md"><div v-for="index in 6" :key="index" class="col-6 col-md-2"><div class="logo-placeholder"><q-skeleton type="rect" width="120px" height="40px" /><span>LOGO</span></div></div></div></section>
 
         <section class="landing-container q-py-xl"><div class="row q-col-gutter-md"><div v-for="feature in landing.features" :key="feature.title" class="col-12 col-sm-6 col-md-4"><q-card bordered class="full-height"><q-card-section><AppIcon :name="feature.icon" size="28" /><div class="text-h6 q-mt-md">{{ feature.title }}</div><div class="text-body2 text-grey-7 q-mt-sm">{{ feature.desc }}</div></q-card-section></q-card></div></div></section>
 

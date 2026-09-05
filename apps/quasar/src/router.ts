@@ -5,6 +5,7 @@ import FormPage from "./pages/FormPage.vue"
 import SettingsPage from "./pages/SettingsPage.vue"
 import LandingPage from "./pages/LandingPage.vue"
 import ChatPage from "./pages/ChatPage.vue"
+import ComponentsPage from "./pages/ComponentsPage.vue"
 import LoginPage from "./pages/LoginPage.vue"
 import OrdersPage from "./pages/OrdersPage.vue"
 import StubPage from "./pages/StubPage.vue"
@@ -19,7 +20,7 @@ export default createRouter({
     { path: "/orders", ...shell(OrdersPage) },
     { path: "/form", ...shell(FormPage) },
     { path: "/settings", ...shell(SettingsPage) },
-    { path: "/components", ...shell(StubPage) },
+    { path: "/components", ...shell(ComponentsPage) },
     { path: "/landing", component: LandingPage },
     { path: "/chat", ...shell(ChatPage) },
   ],

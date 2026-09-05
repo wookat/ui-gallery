@@ -30,7 +30,7 @@ async function submit() {
   <div class="login-page">
     <q-card class="login-card" bordered>
       <q-card-section class="q-gutter-y-lg">
-        <router-link to="/" class="row items-center q-gutter-sm text-weight-bold text-no-wrap text-dark">
+        <router-link to="/" class="row items-center q-gutter-sm text-weight-bold text-no-wrap" style="text-decoration: none; color: inherit">
           <q-avatar color="primary" text-color="white">A</q-avatar><span>Acme Console</span>
         </router-link>
         <div>

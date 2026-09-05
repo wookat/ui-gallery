@@ -6,6 +6,7 @@ import sessions from "@ui-gallery/spec/mock/sessions.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import invoices from "@ui-gallery/spec/mock/invoices.json"
 import AppIcon from "../icons/AppIcon.vue"
+import PageHeader from "../components/PageHeader.vue"
 import { statusColors } from "./shared"
 
 const $q = useQuasar()
@@ -46,10 +47,10 @@ function inviteMember() {
 
 <template>
   <div class="q-gutter-y-lg">
-    <div><div class="text-h5 text-weight-medium">设置</div><div class="text-body2 text-grey-7 q-mt-sm">管理个人资料、团队与账单。</div></div>
+    <PageHeader title="设置" description="管理个人资料、团队与账单。" />
     <div class="row q-col-gutter-lg items-start">
       <div class="col-12 col-md-3">
-        <q-tabs v-model="tab" :vertical="$q.screen.gt.sm" :scrollable="$q.screen.lt.md" align="left" active-color="primary" indicator-color="primary" class="settings-tabs">
+        <q-tabs v-model="tab" :vertical="$q.screen.gt.sm" :scrollable="$q.screen.lt.md" outside-arrows mobile-arrows dense align="left" active-color="primary" indicator-color="primary" class="settings-tabs text-grey-8">
           <q-tab name="profile" label="个人资料" />
           <q-tab name="security" label="账号安全" />
           <q-tab name="notifications" label="通知" />
@@ -103,9 +104,9 @@ function inviteMember() {
             <q-card bordered><q-card-section><div class="text-h6">发票</div></q-card-section><div class="table-scroll"><q-table flat :rows="invoices" :columns="invoiceColumns" row-key="id"><template #body-cell-amount="slot"><q-td :props="slot">¥{{ slot.value }}</q-td></template><template #body-cell-status="slot"><q-td :props="slot"><q-chip dense :color="statusColors[slot.value] ?? 'grey'" text-color="white">{{ slot.value }}</q-chip></q-td></template></q-table></div></q-card>
           </q-tab-panel>
         </q-tab-panels>
+        <q-card bordered class="border-negative q-mt-lg"><q-card-section><div class="text-h6 text-negative">危险区</div><div class="text-body2 text-grey-7 q-mt-sm">删除账号后所有数据将无法恢复。</div><q-btn outline color="negative" label="删除账号" class="q-mt-md" @click="deleteDialog = true" /></q-card-section></q-card>
       </div>
     </div>
-    <q-card bordered class="border-negative"><q-card-section><div class="text-h6 text-negative">危险区</div><div class="text-body2 text-grey-7 q-mt-sm">删除账号后所有数据将无法恢复。</div><q-btn outline color="negative" label="删除账号" class="q-mt-md" @click="deleteDialog = true" /></q-card-section></q-card>
     <q-dialog v-model="deleteDialog"><q-card style="width: min(100%, 420px)"><q-card-section><div class="text-h6">确认删除账号</div><div class="text-body2 q-mt-sm">请输入 DELETE 以确认。</div><q-input v-model="deleteText" class="q-mt-md" /></q-card-section><q-card-actions align="right"><q-btn flat label="取消" v-close-popup /><q-btn color="negative" label="确认删除" :disable="deleteText !== 'DELETE'" /></q-card-actions></q-card></q-dialog>
   </div>
 </template>

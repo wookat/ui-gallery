@@ -80,7 +80,7 @@ function navigate(path: string) {
       <q-toolbar>
         <q-btn v-if="$q.screen.lt.md" flat round dense aria-label="打开导航" @click="drawer = !drawer"><AppIcon name="menu" /></q-btn>
         <q-breadcrumbs class="gt-sm">
-          <q-breadcrumbs-el label="Acme Console" to="/" />
+          <q-breadcrumbs-el to="/"><span>Acme Console</span></q-breadcrumbs-el>
           <q-breadcrumbs-el :label="current" />
         </q-breadcrumbs>
         <q-space />

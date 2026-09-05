@@ -47,6 +47,7 @@ import Minus from "@mui/icons-material/Remove"
 import Bell from "@mui/icons-material/Notifications"
 import ChevronDown from "@mui/icons-material/ExpandMore"
 import ChevronRight from "@mui/icons-material/ChevronRight"
+import ChevronLeft from "@mui/icons-material/ChevronLeft"
 import MoreHorizontal from "@mui/icons-material/MoreHoriz"
 import User from "@mui/icons-material/Person"
 import X from "@mui/icons-material/Close"
@@ -76,6 +77,7 @@ const NATIVE: Record<string, ComponentType<SvgIconProps>> = {
   check: Check,
   "chevron-down": ChevronDown,
   "chevron-right": ChevronRight,
+  "chevron-left": ChevronLeft,
   "circle-help": CircleHelp,
   copy: Copy,
   download: Download,

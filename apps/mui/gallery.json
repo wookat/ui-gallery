@@ -41,8 +41,8 @@
     "Rating": "implemented",
     "DatePicker": "implemented",
     "TimePicker": "implemented",
-    "DateRangePicker": "missing",
-    "ColorPicker": "missing",
+    "DateRangePicker": "composed",
+    "ColorPicker": "composed",
     "Upload": "composed",
     "Cascader": "missing",
     "Transfer": "composed",
@@ -114,5 +114,5 @@
     "datePickers": "@mui/x-date-pickers",
     "tree": "@mui/x-tree-view"
   },
-  "notes": "Hand-initialized Vite + React app on @mui/material 9 default theme (createTheme with palette.mode only). Native @mui/icons-material by default; ?icon= / ?icons= switch to lucide/tabler/phosphor/heroicons via @ui-gallery/icons-react. Default font Roboto (self-hosted @fontsource-variable/roboto, OFL-1.1). MUI X community packages (charts/data-grid/date-pickers/tree-view) used for chart/DataGrid/DatePicker/Tree; DateRangePicker is Pro-only so marked missing."
+  "notes": "Hand-initialized Vite + React app on @mui/material 9 default theme (createTheme with palette.mode only). Native @mui/icons-material by default; ?icon= / ?icons= switch to lucide/tabler/phosphor/heroicons via @ui-gallery/icons-react. Default font Roboto (self-hosted @fontsource-variable/roboto, OFL-1.1). MUI X community packages (charts/data-grid/date-pickers/tree-view) used for chart/DataGrid/DatePicker/Tree; DateRangePicker is composed from community DatePicker controls."
 }

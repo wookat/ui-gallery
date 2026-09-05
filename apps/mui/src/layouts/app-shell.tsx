@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Link,
   NavLink,
@@ -12,9 +12,12 @@ import {
   Avatar,
   Badge,
   Box,
+  Button,
   Breadcrumbs,
   Divider,
   Drawer,
+  Dialog,
+  DialogContent,
   IconButton,
   List,
   ListItemButton,
@@ -26,6 +29,7 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  Chip,
 } from "@mui/material"
 import nav from "@ui-gallery/spec/mock/nav.json"
 import notifications from "@ui-gallery/spec/mock/notifications.json"
@@ -34,6 +38,7 @@ import { FlexStack as Stack } from "@/components/flex-stack"
 import { useThemeMode } from "@/theme-context"
 
 const drawerWidth = 240
+const collapsedWidth = 72
 
 function Brand() {
   return (
@@ -59,7 +64,13 @@ function Brand() {
   )
 }
 
-function Navigation({ onNavigate }: { onNavigate?: () => void }) {
+function Navigation({
+  onNavigate,
+  collapsed,
+}: {
+  onNavigate?: () => void
+  collapsed?: boolean
+}) {
   const location = useLocation()
   return (
     <List disablePadding>
@@ -76,11 +87,15 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
             "&.active": { bgcolor: "action.selected" },
           }}
         >
-          <ListItemIcon sx={{ minWidth: 38 }}>
-            <Icon name={item.icon} size={19} />
-          </ListItemIcon>
-          <ListItemText primary={item.label} />
-          {item.badge ? (
+          <Tooltip title={collapsed ? item.label : ""} placement="right">
+            <ListItemIcon
+              sx={{ minWidth: collapsed ? 0 : 38, justifyContent: "center" }}
+            >
+              <Icon name={item.icon} size={19} />
+            </ListItemIcon>
+          </Tooltip>
+          {!collapsed ? <ListItemText primary={item.label} /> : null}
+          {!collapsed && item.badge ? (
             <Typography variant="caption" color="text.secondary">
               {item.badge}
             </Typography>
@@ -91,11 +106,19 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
   )
 }
 
-function DrawerContent({ onNavigate }: { onNavigate?: () => void }) {
+function DrawerContent({
+  onNavigate,
+  collapsed,
+  onToggle,
+}: {
+  onNavigate?: () => void
+  collapsed?: boolean
+  onToggle?: () => void
+}) {
   return (
     <Box
       sx={{
-        width: drawerWidth,
+        width: collapsed ? collapsedWidth : drawerWidth,
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -103,14 +126,22 @@ function DrawerContent({ onNavigate }: { onNavigate?: () => void }) {
       }}
     >
       <Box sx={{ px: 1, py: 1.5 }}>
-        <Brand />
+        {collapsed ? (
+          <Tooltip title="Acme Console" placement="right">
+            <Box>
+              <Brand />
+            </Box>
+          </Tooltip>
+        ) : (
+          <Brand />
+        )}
       </Box>
       <Divider sx={{ my: 1 }} />
       <Typography variant="overline" color="text.secondary" sx={{ px: 1 }}>
         工作区
       </Typography>
       <Box sx={{ mt: 1 }}>
-        <Navigation onNavigate={onNavigate} />
+        <Navigation onNavigate={onNavigate} collapsed={collapsed} />
       </Box>
       <Box sx={{ mt: "auto" }}>
         <Divider sx={{ mb: 1 }} />
@@ -120,9 +151,25 @@ function DrawerContent({ onNavigate }: { onNavigate?: () => void }) {
           onClick={onNavigate}
           sx={{ borderRadius: 1 }}
         >
-          <Avatar sx={{ width: 30, height: 30, mr: 1.5 }}>林</Avatar>
-          <ListItemText primary="林晓" secondary="管理员" />
+          <Tooltip title={collapsed ? "林晓" : ""} placement="right">
+            <Avatar sx={{ width: 30, height: 30, mr: collapsed ? 0 : 1.5 }}>
+              林
+            </Avatar>
+          </Tooltip>
+          {!collapsed ? (
+            <ListItemText primary="林晓" secondary="管理员" />
+          ) : null}
         </ListItemButton>
+        {onToggle ? (
+          <Tooltip
+            title={collapsed ? "展开侧边栏" : "折叠侧边栏"}
+            placement="right"
+          >
+            <IconButton aria-label="折叠侧边栏" onClick={onToggle}>
+              <Icon name={collapsed ? "chevron-right" : "chevron-left"} />
+            </IconButton>
+          </Tooltip>
+        ) : null}
       </Box>
     </Box>
   )
@@ -132,6 +179,9 @@ export function AppShell() {
   const theme = useTheme()
   const mobile = useMediaQuery(theme.breakpoints.down("md"))
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [commandOpen, setCommandOpen] = useState(false)
+  const [command, setCommand] = useState("")
   const [notificationsAnchor, setNotificationsAnchor] =
     useState<HTMLElement | null>(null)
   const [profileAnchor, setProfileAnchor] = useState<HTMLElement | null>(null)
@@ -140,6 +190,18 @@ export function AppShell() {
   const navigate = useNavigate()
   const current =
     nav.find((item) => item.path === location.pathname)?.label ?? "仪表盘"
+  const commandItems = nav.filter((item) => item.label.includes(command))
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault()
+        setCommandOpen(true)
+      }
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  })
 
   const changeTheme = () => {
     toggle()
@@ -163,8 +225,10 @@ export function AppShell() {
         elevation={0}
         sx={{
           flexShrink: 0,
-          width: mobile ? "100%" : `calc(100% - ${drawerWidth}px)`,
-          ml: mobile ? 0 : `${drawerWidth}px`,
+          width: mobile
+            ? "100%"
+            : `calc(100% - ${collapsed ? collapsedWidth : drawerWidth}px)`,
+          ml: mobile ? 0 : `${collapsed ? collapsedWidth : drawerWidth}px`,
           borderBottom: 1,
           borderColor: "divider",
           bgcolor: "background.paper",
@@ -189,14 +253,22 @@ export function AppShell() {
             <Typography color="text.primary">{current}</Typography>
           </Breadcrumbs>
           <Box sx={{ flex: 1, minWidth: 0 }} />
-          <TextField
+          <Button
+            variant="outlined"
             size="small"
-            placeholder="搜索..."
-            sx={{ display: { xs: "none", md: "block" }, width: 220 }}
-            slotProps={{
-              input: { startAdornment: <Icon name="search" size={18} /> },
-            }}
-          />
+            startIcon={<Icon name="search" />}
+            onClick={() => setCommandOpen(true)}
+            sx={{ display: { xs: "none", md: "inline-flex" } }}
+          >
+            搜索… <Chip size="small" label="⌘K" sx={{ ml: 1 }} />
+          </Button>
+          <IconButton
+            aria-label="搜索"
+            onClick={() => setCommandOpen(true)}
+            sx={{ display: { xs: "inline-flex", md: "none" } }}
+          >
+            <Icon name="search" />
+          </IconButton>
           <Tooltip title="通知">
             <IconButton
               onClick={(event) => setNotificationsAnchor(event.currentTarget)}
@@ -229,12 +301,15 @@ export function AppShell() {
           open
           sx={{
             "& .MuiDrawer-paper": {
-              width: drawerWidth,
+              width: collapsed ? collapsedWidth : drawerWidth,
               boxSizing: "border-box",
             },
           }}
         >
-          <DrawerContent />
+          <DrawerContent
+            collapsed={collapsed}
+            onToggle={() => setCollapsed((value) => !value)}
+          />
         </Drawer>
       ) : null}
       {mobile ? (
@@ -279,6 +354,36 @@ export function AppShell() {
           </MenuItem>
         ))}
       </Menu>
+      <Dialog
+        open={commandOpen}
+        onClose={() => setCommandOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            value={command}
+            onChange={(event) => setCommand(event.target.value)}
+            placeholder="搜索…"
+          />
+          <List>
+            {commandItems.map((item) => (
+              <ListItemButton
+                key={item.key}
+                onClick={() => {
+                  navigate(item.path)
+                  setCommandOpen(false)
+                  setCommand("")
+                }}
+              >
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            ))}
+          </List>
+        </DialogContent>
+      </Dialog>
       <Menu
         anchorEl={profileAnchor}
         open={Boolean(profileAnchor)}

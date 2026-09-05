@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Chip,
   Dialog,
   DialogActions,
@@ -13,23 +14,28 @@ import {
   DialogTitle,
   Drawer,
   FormControl,
+  IconButton,
   InputLabel,
+  Menu,
   MenuItem,
-  Pagination,
   Select,
+  Snackbar,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
+  Tabs,
   TextField,
   Typography,
 } from "@mui/material"
 import orders from "@ui-gallery/spec/mock/orders.json"
 import { Icon } from "@/components/icon"
 import { FlexStack as Stack } from "@/components/flex-stack"
-import { PageHeader, StatusBadge } from "./shared"
+import { PageHeader, STATUS_LABELS, StatusBadge } from "./shared"
 
 type Order = (typeof orders)[number]
 
@@ -42,6 +48,13 @@ export function OrdersPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [confirm, setConfirm] = useState(false)
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
+  const [menuOrder, setMenuOrder] = useState<Order | null>(null)
+  const [drawerTab, setDrawerTab] = useState("details")
+  const [note, setNote] = useState("")
+  const [mobilePage, setMobilePage] = useState(0)
+  const [mobileSelected, setMobileSelected] = useState<string[]>([])
+  const [snack, setSnack] = useState(false)
   const filtered = useMemo(
     () =>
       orders.filter(
@@ -78,7 +91,29 @@ export function OrdersPage() {
       headerAlign: "right",
       valueFormatter: (value: number) => `¥${value.toLocaleString()}`,
     },
+    {
+      field: "actions",
+      headerName: "操作",
+      width: 80,
+      sortable: false,
+      renderCell: ({ row }) => (
+        <IconButton
+          aria-label="操作"
+          size="small"
+          onClick={(event) => {
+            setMenuOrder(row)
+            setMenuAnchor(event.currentTarget)
+          }}
+        >
+          <Icon name="more-horizontal" />
+        </IconButton>
+      ),
+    },
   ]
+  const mobileRows = filtered.slice(mobilePage * 10, mobilePage * 10 + 10)
+  const allMobileSelected =
+    mobileRows.length > 0 &&
+    mobileRows.every((row) => mobileSelected.includes(row.id))
   return (
     <Stack spacing={3}>
       <PageHeader
@@ -116,13 +151,15 @@ export function OrdersPage() {
                 onChange={(event) => setStatus(event.target.value)}
               >
                 <MenuItem value="all">全部状态</MenuItem>
-                {["paid", "pending", "shipped", "failed", "refunded"].map(
-                  (value) => (
-                    <MenuItem key={value} value={value}>
-                      {value}
-                    </MenuItem>
+                {Object.entries(STATUS_LABELS)
+                  .filter(([key]) =>
+                    orders.some((order) => order.status === key)
                   )
-                )}
+                  .map(([key, label]) => (
+                    <MenuItem key={key} value={key}>
+                      {label}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
             <Button variant="outlined" startIcon={<Icon name="calendar" />}>
@@ -211,51 +248,112 @@ export function OrdersPage() {
               getRowId={(row) => row.id}
               checkboxSelection
               disableRowSelectionOnClick
+              initialState={{
+                pagination: { paginationModel: { pageSize: 10 } },
+              }}
+              pageSizeOptions={[5, 10, 25]}
               sx={{ height: 520 }}
             />
           </Box>
-          <TableContainer
-            sx={{ display: { xs: "block", md: "none" }, overflowX: "auto" }}
-          >
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>订单号</TableCell>
-                  <TableCell>状态</TableCell>
-                  <TableCell align="right">金额</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filtered.slice(0, 10).map((order) => (
-                  <TableRow
-                    key={order.id}
-                    onClick={() => setSelected(order)}
-                    hover
-                  >
-                    <TableCell>{order.id}</TableCell>
-                    <TableCell>
-                      <StatusBadge value={order.status} />
+          <Box sx={{ display: { xs: "block", md: "none" } }}>
+            <TableContainer sx={{ maxHeight: 480 }}>
+              <Table size="small" stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={allMobileSelected}
+                        indeterminate={
+                          mobileSelected.length > 0 && !allMobileSelected
+                        }
+                        onChange={(event) =>
+                          setMobileSelected(
+                            event.target.checked
+                              ? Array.from(
+                                  new Set([
+                                    ...mobileSelected,
+                                    ...mobileRows.map((row) => row.id),
+                                  ])
+                                )
+                              : mobileSelected.filter(
+                                  (id) =>
+                                    !mobileRows.some((row) => row.id === id)
+                                )
+                          )
+                        }
+                      />
                     </TableCell>
-                    <TableCell align="right">
-                      ¥{order.amount.toLocaleString()}
-                    </TableCell>
+                    <TableCell>订单号</TableCell>
+                    <TableCell>状态</TableCell>
+                    <TableCell align="right">金额</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Typography variant="body2" color="text.secondary">
-              {filtered.length} 条订单
-            </Typography>
-            <Pagination count={3} color="primary" />
-          </Stack>
+                </TableHead>
+                <TableBody>
+                  {mobileRows.map((order) => (
+                    <TableRow
+                      key={order.id}
+                      onClick={() => setSelected(order)}
+                      hover
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={mobileSelected.includes(order.id)}
+                          onClick={(event) => event.stopPropagation()}
+                          onChange={(event) =>
+                            setMobileSelected((current) =>
+                              event.target.checked
+                                ? [...current, order.id]
+                                : current.filter((id) => id !== order.id)
+                            )
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>{order.id}</TableCell>
+                      <TableCell>
+                        <StatusBadge value={order.status} />
+                      </TableCell>
+                      <TableCell align="right">
+                        ¥{order.amount.toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              count={filtered.length}
+              page={mobilePage}
+              onPageChange={(_, page) => setMobilePage(page)}
+              rowsPerPage={10}
+              rowsPerPageOptions={[10]}
+            />
+          </Box>
         </>
       )}
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={() => setMenuAnchor(null)}
+      >
+        <MenuItem
+          onClick={() => {
+            setSelected(menuOrder)
+            setMenuAnchor(null)
+          }}
+        >
+          编辑
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setSelected(menuOrder)
+            setConfirm(true)
+            setMenuAnchor(null)
+          }}
+        >
+          删除
+        </MenuItem>
+      </Menu>
       <Drawer
         anchor="right"
         open={Boolean(selected)}
@@ -266,7 +364,15 @@ export function OrdersPage() {
           <Typography variant="body2" color="text.secondary">
             查看订单的完整信息与操作。
           </Typography>
-          {selected ? (
+          <Tabs
+            value={drawerTab}
+            onChange={(_, value) => setDrawerTab(value)}
+            sx={{ mt: 2 }}
+          >
+            <Tab value="details" label="详情" />
+            <Tab value="notes" label="备注" />
+          </Tabs>
+          {selected && drawerTab === "details" ? (
             <Stack spacing={2.5} sx={{ mt: 3 }}>
               <Stack direction="row" justifyContent="space-between">
                 <Typography color="text.secondary">客户</Typography>
@@ -289,7 +395,17 @@ export function OrdersPage() {
                 删除订单
               </Button>
             </Stack>
-          ) : null}
+          ) : (
+            <TextField
+              multiline
+              minRows={8}
+              fullWidth
+              sx={{ mt: 3 }}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              label="备注"
+            />
+          )}
         </Box>
       </Drawer>
       <Dialog open={confirm} onClose={() => setConfirm(false)}>
@@ -302,12 +418,22 @@ export function OrdersPage() {
             onClick={() => {
               setConfirm(false)
               setSelected(null)
+              setSnack(true)
             }}
           >
             确认删除
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={snack}
+        autoHideDuration={3000}
+        onClose={() => setSnack(false)}
+      >
+        <Alert severity="success" onClose={() => setSnack(false)}>
+          订单已删除
+        </Alert>
+      </Snackbar>
     </Stack>
   )
 }

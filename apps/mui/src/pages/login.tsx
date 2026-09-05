@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link as RouterLink } from "react-router-dom"
 import {
   Alert,
   Box,
@@ -11,6 +11,7 @@ import {
   Divider,
   FormControlLabel,
   IconButton,
+  Link,
   InputAdornment,
   TextField,
   Typography,
@@ -124,7 +125,9 @@ export function LoginPage() {
                   alignItems="center"
                 >
                   <FormControlLabel control={<Checkbox />} label="记住我" />
-                  <Link to="#forgot">忘记密码？</Link>
+                  <Link component={RouterLink} to="#forgot">
+                    忘记密码？
+                  </Link>
                 </Stack>
                 <Button
                   fullWidth
@@ -171,7 +174,10 @@ export function LoginPage() {
         </CardContent>
         <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            还没有账户？ <Link to="#register">立即注册</Link>
+            还没有账户？{" "}
+            <Link component={RouterLink} to="#register">
+              立即注册
+            </Link>
           </Typography>
         </Box>
       </Card>

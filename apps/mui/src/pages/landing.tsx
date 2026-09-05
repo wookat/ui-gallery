@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom"
+import { useState } from "react"
+import { Link as RouterLink } from "react-router-dom"
 import {
   Accordion,
   AccordionDetails,
@@ -10,22 +11,55 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Chip,
   Container,
+  Drawer,
+  FormControlLabel,
   Grid,
+  IconButton,
+  Link,
+  List,
+  ListItem,
+  MenuItem,
+  Select,
+  Switch,
   Toolbar,
   Typography,
 } from "@mui/material"
 import landing from "@ui-gallery/spec/mock/landing.json"
+import nav from "@ui-gallery/spec/mock/nav.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import { Icon } from "@/components/icon"
 import { FlexStack as Stack } from "@/components/flex-stack"
 
 export function LandingPage() {
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [yearly, setYearly] = useState(false)
+  const initials = landing.testimonials
+    .slice(0, 4)
+    .map((item) => item.name.slice(0, 1))
+  const footerProducts = nav.slice(0, 4)
+  const footerMore = nav.slice(4, 8)
+  const footerColumns = [
+    [
+      "产品",
+      footerProducts.map((item) => ({ label: item.label, path: item.path })),
+    ],
+    [
+      "更多",
+      footerMore.map((item) => ({ label: item.label, path: item.path })),
+    ],
+    ["方案", plans.map((item) => ({ label: item.name, path: "#pricing" }))],
+    [
+      "帮助",
+      landing.faq.slice(0, 3).map((item) => ({ label: item.q, path: "#faq" })),
+    ],
+  ] as const
   return (
     <Box sx={{ minHeight: "100vh" }}>
       <AppBar position="sticky" color="inherit" elevation={0}>
         <Toolbar sx={{ justifyContent: "space-between", gap: 2 }}>
-          <Link to="/" style={{ color: "inherit", textDecoration: "none" }}>
+          <Link component={RouterLink} to="/" color="inherit" underline="none">
             <Stack direction="row" spacing={1} alignItems="center">
               <Box
                 sx={{
@@ -46,23 +80,75 @@ export function LandingPage() {
           </Link>
           <Stack
             direction="row"
-            spacing={1}
+            spacing={2}
             sx={{ display: { xs: "none", md: "flex" } }}
           >
-            <Button href="#features">产品</Button>
-            <Button href="#pricing">价格</Button>
-            <Button href="#faq">FAQ</Button>
+            <Link href="#features" underline="none">
+              产品
+            </Link>
+            <Link href="#pricing" underline="none">
+              价格
+            </Link>
+            <Link href="#faq" underline="none">
+              FAQ
+            </Link>
           </Stack>
-          <Stack direction="row" spacing={1}>
-            <Button component={Link} to="/login">
-              登录
-            </Button>
-            <Button component={Link} to="/login" variant="contained">
-              开始使用
-            </Button>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ display: { xs: "none", md: "flex" } }}
+            >
+              <Button component={RouterLink} to="/login">
+                登录
+              </Button>
+              <Button component={RouterLink} to="/login" variant="contained">
+                开始使用
+              </Button>
+            </Stack>
+            <IconButton
+              aria-label="菜单"
+              sx={{ display: { xs: "inline-flex", md: "none" } }}
+              onClick={() => setMobileOpen(true)}
+            >
+              <Icon name="menu" />
+            </IconButton>
           </Stack>
         </Toolbar>
       </AppBar>
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+      >
+        <Stack spacing={2} sx={{ width: 280, p: 3 }}>
+          <Typography variant="h6">导航</Typography>
+          {[
+            ["产品", "#features"],
+            ["价格", "#pricing"],
+            ["FAQ", "#faq"],
+          ].map(([label, href]) => (
+            <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
+              {label}
+            </Link>
+          ))}
+          <Button
+            component={RouterLink}
+            to="/login"
+            onClick={() => setMobileOpen(false)}
+          >
+            登录
+          </Button>
+          <Button
+            component={RouterLink}
+            to="/login"
+            variant="contained"
+            onClick={() => setMobileOpen(false)}
+          >
+            开始使用
+          </Button>
+        </Stack>
+      </Drawer>
       <Container maxWidth="xl">
         <Grid
           container
@@ -71,7 +157,6 @@ export function LandingPage() {
         >
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={3}>
-              <Typography variant="overline">ACME CONSOLE · 2026</Typography>
               <Typography
                 variant="h2"
                 component="h1"
@@ -87,7 +172,7 @@ export function LandingPage() {
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 <Button
-                  component={Link}
+                  component={RouterLink}
                   to="/login"
                   variant="contained"
                   size="large"
@@ -101,9 +186,9 @@ export function LandingPage() {
               </Stack>
               <Stack direction="row" spacing={1} alignItems="center">
                 <Stack direction="row">
-                  {["林", "王", "A", "M"].map((name) => (
+                  {initials.map((name, index) => (
                     <Avatar
-                      key={name}
+                      key={`${name}-${index}`}
                       sx={{
                         width: 32,
                         height: 32,
@@ -145,33 +230,17 @@ export function LandingPage() {
                       }}
                     />
                     <Grid container spacing={1}>
-                      <Grid size={4}>
-                        <Box
-                          sx={{
-                            height: 100,
-                            bgcolor: "background.paper",
-                            borderRadius: 1,
-                          }}
-                        />
-                      </Grid>
-                      <Grid size={4}>
-                        <Box
-                          sx={{
-                            height: 100,
-                            bgcolor: "background.paper",
-                            borderRadius: 1,
-                          }}
-                        />
-                      </Grid>
-                      <Grid size={4}>
-                        <Box
-                          sx={{
-                            height: 100,
-                            bgcolor: "background.paper",
-                            borderRadius: 1,
-                          }}
-                        />
-                      </Grid>
+                      {[1, 2, 3].map((item) => (
+                        <Grid size={4} key={item}>
+                          <Box
+                            sx={{
+                              height: 100,
+                              bgcolor: "background.paper",
+                              borderRadius: 1,
+                            }}
+                          />
+                        </Grid>
+                      ))}
                     </Grid>
                   </Stack>
                 </Box>
@@ -183,21 +252,32 @@ export function LandingPage() {
       <Box sx={{ borderBlock: 1, borderColor: "divider", py: 3 }}>
         <Container>
           <Grid container spacing={2} sx={{ textAlign: "center" }}>
-            {[
-              "Northwind",
-              "Contoso",
-              "Globex",
-              "Fabrikam",
-              "Initech",
-              "Umbrella",
-            ].map((name) => (
-              <Grid size={{ xs: 6, sm: 2 }} key={name}>
+            {landing.testimonials.map((item) => (
+              <Grid size={{ xs: 6, sm: 2 }} key={item.company}>
                 <Typography
                   variant="body2"
                   color="text.secondary"
                   sx={{ fontWeight: 600 }}
                 >
-                  {name}
+                  {item.company}
+                </Typography>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+      <Box sx={{ borderBlock: 1, borderColor: "divider", py: 4 }}>
+        <Container>
+          <Grid container>
+            {landing.numbers.map((item) => (
+              <Grid
+                key={item.label}
+                size={{ xs: 6, sm: 3 }}
+                sx={{ textAlign: "center" }}
+              >
+                <Typography variant="h3">{item.value}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {item.label}
                 </Typography>
               </Grid>
             ))}
@@ -206,15 +286,9 @@ export function LandingPage() {
       </Box>
       <Container id="features" sx={{ py: 10 }}>
         <Stack spacing={5}>
-          <Box sx={{ textAlign: "center" }}>
-            <Typography variant="body2" color="text.secondary">
-              为团队打造
-            </Typography>
-            <Typography variant="h3">一个地方，完成所有工作</Typography>
-            <Typography color="text.secondary">
-              从数据到决策，让每一步都更清晰。
-            </Typography>
-          </Box>
+          <Typography variant="h3" sx={{ textAlign: "center" }}>
+            功能特性
+          </Typography>
           <Grid container spacing={2}>
             {landing.features.map((item) => (
               <Grid size={{ xs: 12, md: 4 }} key={item.title}>
@@ -243,14 +317,58 @@ export function LandingPage() {
               </Grid>
             ))}
           </Grid>
+          {landing.features.slice(0, 3).map((item, index) => (
+            <Grid
+              container
+              spacing={4}
+              key={`split-${item.title}`}
+              sx={{
+                alignItems: "center",
+                flexDirection: {
+                  xs: "column",
+                  md: index % 2 ? "row-reverse" : "row",
+                },
+              }}
+            >
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Card>
+                  <Box
+                    sx={{
+                      aspectRatio: "16 / 9",
+                      display: "grid",
+                      placeItems: "center",
+                      bgcolor: "action.hover",
+                    }}
+                  >
+                    <Icon name={item.icon} size={72} />
+                  </Box>
+                </Card>
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Stack spacing={1}>
+                  <Typography variant="h4">{item.title}</Typography>
+                  <Typography color="text.secondary">{item.desc}</Typography>
+                </Stack>
+              </Grid>
+            </Grid>
+          ))}
         </Stack>
       </Container>
       <Container id="pricing" sx={{ py: 10 }}>
         <Stack spacing={4}>
-          <Box sx={{ textAlign: "center" }}>
-            <Typography variant="h3">选择适合你的方案</Typography>
-            <Typography color="text.secondary">简单透明，随时升级。</Typography>
-          </Box>
+          <Stack direction="row" justifyContent="center" alignItems="center">
+            <Typography variant="h3">定价</Typography>
+            <FormControlLabel
+              sx={{ ml: 2 }}
+              control={
+                <Switch
+                  checked={yearly}
+                  onChange={(event) => setYearly(event.target.checked)}
+                />
+              }
+              label="按年付费"
+            />
+          </Stack>
           <Grid container spacing={2}>
             {plans.map((plan) => (
               <Grid size={{ xs: 12, md: 4 }} key={plan.name}>
@@ -262,25 +380,45 @@ export function LandingPage() {
                   }}
                 >
                   <CardHeader
-                    title={plan.name}
+                    title={
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <span>{plan.name}</span>
+                        {plan.recommended ? (
+                          <Chip size="small" color="primary" label="推荐" />
+                        ) : null}
+                      </Stack>
+                    }
                     subheader={
                       plan.price === null
                         ? "定制"
                         : plan.price === 0
                           ? "免费"
-                          : `¥${plan.price} / 月`
+                          : yearly
+                            ? `¥${plan.price * 12} / 年`
+                            : `¥${plan.price} / 月`
                     }
                   />
                   <CardContent>
-                    <Typography color="text.secondary">
-                      {plan.features.join(" · ")}
-                    </Typography>
+                    <List dense>
+                      {plan.features.map((feature) => (
+                        <ListItem key={feature} disableGutters>
+                          <Icon name="check" size={18} />
+                          <Typography sx={{ ml: 1 }}>{feature}</Typography>
+                        </ListItem>
+                      ))}
+                    </List>
                     <Button
+                      component={RouterLink}
+                      to="/login"
                       fullWidth
-                      sx={{ mt: 3 }}
+                      sx={{ mt: 2 }}
                       variant={plan.recommended ? "contained" : "outlined"}
                     >
-                      开始使用
+                      {landing.hero.primary}
                     </Button>
                   </CardContent>
                 </Card>
@@ -289,8 +427,41 @@ export function LandingPage() {
           </Grid>
         </Stack>
       </Container>
-      <Container sx={{ py: 8 }}>
-        <Stack spacing={3}>
+      <Container sx={{ py: 10 }}>
+        <Stack spacing={4}>
+          <Typography variant="h3" sx={{ textAlign: "center" }}>
+            用户评价
+          </Typography>
+          <Grid container spacing={2}>
+            {landing.testimonials.map((item) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.name}>
+                <Card>
+                  <CardContent>
+                    <Stack spacing={1.5}>
+                      <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Avatar>{item.name.slice(0, 1)}</Avatar>
+                        <Box>
+                          <Typography sx={{ fontWeight: 600 }}>
+                            {item.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {item.company}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                      <Typography color="text.secondary">
+                        “{item.quote}”
+                      </Typography>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Stack>
+      </Container>
+      <Container id="faq" sx={{ py: 8 }}>
+        <Stack spacing={2}>
           <Typography variant="h3" sx={{ textAlign: "center" }}>
             常见问题
           </Typography>
@@ -317,37 +488,78 @@ export function LandingPage() {
           borderRadius: 2,
         }}
       >
-        <Typography variant="h3">准备好让团队更高效了吗？</Typography>
-        <Typography sx={{ mt: 1 }}>
-          从今天开始，把工作放进一个控制台。
-        </Typography>
+        <Typography variant="h3">{landing.hero.title}</Typography>
+        <Typography sx={{ mt: 1 }}>{landing.hero.subtitle}</Typography>
         <Button
-          component={Link}
+          component={RouterLink}
           to="/login"
           variant="contained"
           color="secondary"
           sx={{ mt: 3 }}
         >
-          免费开始
+          {landing.hero.primary}
         </Button>
       </Box>
       <Box
         component="footer"
-        sx={{ mt: 8, borderTop: 1, borderColor: "divider", py: 4 }}
+        sx={{ mt: 8, borderTop: 1, borderColor: "divider", py: 6 }}
       >
         <Container>
+          <Grid container spacing={4}>
+            {footerColumns.map(([heading, items]) => (
+              <Grid size={{ xs: 6, md: 3 }} key={heading}>
+                <Stack spacing={1}>
+                  <Typography sx={{ fontWeight: 600 }}>{heading}</Typography>
+                  {items.map((item) =>
+                    item.path.startsWith("/") ? (
+                      <Link
+                        key={item.label}
+                        component={RouterLink}
+                        to={item.path}
+                        color="text.secondary"
+                        underline="hover"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <Link
+                        key={item.label}
+                        href={item.path}
+                        color="text.secondary"
+                        underline="hover"
+                      >
+                        {item.label}
+                      </Link>
+                    )
+                  )}
+                </Stack>
+              </Grid>
+            ))}
+          </Grid>
           <Stack
             direction={{ xs: "column", sm: "row" }}
             justifyContent="space-between"
+            alignItems={{ sm: "center" }}
             spacing={2}
+            sx={{ mt: 5 }}
           >
             <Typography variant="body2" color="text.secondary">
-              © 2026 Acme Console
+              © {new Date().getFullYear()} Acme Console
             </Typography>
-            <Stack direction="row" spacing={2}>
-              <a href="#features">产品</a>
-              <a href="#pricing">价格</a>
-              <a href="#faq">帮助中心</a>
+            <Stack direction="row" spacing={1}>
+              <IconButton aria-label="GitHub">
+                <Icon name="github" />
+              </IconButton>
+              <IconButton aria-label="网站">
+                <Icon name="globe" />
+              </IconButton>
+              <IconButton aria-label="微信">
+                <Icon name="message-circle" />
+              </IconButton>
+              <Select size="small" defaultValue="zh" aria-label="语言">
+                <MenuItem value="zh">简体中文</MenuItem>
+                <MenuItem value="en">English</MenuItem>
+              </Select>
             </Stack>
           </Stack>
         </Container>

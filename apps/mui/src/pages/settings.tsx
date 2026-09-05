@@ -29,6 +29,8 @@ import {
   TableRow,
   Tabs,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material"
 import sessions from "@ui-gallery/spec/mock/sessions.json"
@@ -43,6 +45,13 @@ export function SettingsPage() {
   const [tab, setTab] = useState("profile")
   const [saved, setSaved] = useState(false)
   const [danger, setDanger] = useState(false)
+  const [dangerText, setDangerText] = useState("")
+  const [channel, setChannel] = useState("email")
+  const channelLabels: Record<string, string> = {
+    email: "邮件",
+    push: "推送",
+    inbox: "站内",
+  }
   return (
     <Stack spacing={3}>
       <PageHeader title="设置" description="管理你的账户、团队与订阅设置。" />
@@ -195,6 +204,16 @@ export function SettingsPage() {
           <CardHeader title="通知偏好" subheader="选择你希望接收的通知。" />
           <CardContent>
             <Stack spacing={2}>
+              <ToggleButtonGroup
+                exclusive
+                value={channel}
+                onChange={(_, value) => value && setChannel(value)}
+                size="small"
+              >
+                <ToggleButton value="email">邮件</ToggleButton>
+                <ToggleButton value="push">推送</ToggleButton>
+                <ToggleButton value="inbox">站内</ToggleButton>
+              </ToggleButtonGroup>
               {["项目更新", "账单提醒", "团队活动", "产品新闻"].map(
                 (label, index) => (
                   <Stack
@@ -211,7 +230,7 @@ export function SettingsPage() {
                     <Box>
                       <Typography sx={{ fontWeight: 600 }}>{label}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        通过邮件接收重要提醒
+                        通过{channelLabels[channel]}接收重要提醒
                       </Typography>
                     </Box>
                     <Switch defaultChecked={index < 3} />
@@ -349,23 +368,26 @@ export function SettingsPage() {
               </Table>
             </TableContainer>
           </Card>
-          <Card variant="outlined" sx={{ borderColor: "error.main" }}>
-            <CardHeader
-              title="危险区"
-              subheader="删除账户后所有数据将被永久删除。"
-            />
-            <CardContent>
-              <Button
-                color="error"
-                variant="outlined"
-                onClick={() => setDanger(true)}
-              >
-                删除账户
-              </Button>
-            </CardContent>
-          </Card>
         </Stack>
       ) : null}
+      <Card variant="outlined" sx={{ borderColor: "error.main" }}>
+        <CardHeader
+          title="危险区"
+          subheader="删除账户后所有数据将被永久删除。"
+        />
+        <CardContent>
+          <Button
+            color="error"
+            variant="outlined"
+            onClick={() => {
+              setDangerText("")
+              setDanger(true)
+            }}
+          >
+            删除账户
+          </Button>
+        </CardContent>
+      </Card>
       <Snackbar
         open={saved}
         autoHideDuration={3000}
@@ -377,10 +399,23 @@ export function SettingsPage() {
       </Snackbar>
       <Dialog open={danger} onClose={() => setDanger(false)}>
         <DialogTitle>确定删除账户？</DialogTitle>
-        <DialogContent>所有数据将被永久删除。</DialogContent>
+        <DialogContent>
+          <Typography>所有数据将被永久删除。</Typography>
+          <TextField
+            fullWidth
+            sx={{ mt: 2 }}
+            label="输入 删除 以确认"
+            value={dangerText}
+            onChange={(event) => setDangerText(event.target.value)}
+          />
+        </DialogContent>
         <DialogActions>
           <Button onClick={() => setDanger(false)}>取消</Button>
-          <Button color="error" onClick={() => setDanger(false)}>
+          <Button
+            color="error"
+            disabled={dangerText !== "删除"}
+            onClick={() => setDanger(false)}
+          >
             确认删除
           </Button>
         </DialogActions>

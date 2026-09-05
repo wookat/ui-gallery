@@ -10,6 +10,17 @@ import {
 import type { CardProps } from "@mui/material"
 import { FlexStack as Stack } from "@/components/flex-stack"
 
+export const STATUS_LABELS: Record<string, string> = {
+  paid: "已支付",
+  pending: "待支付",
+  shipped: "已发货",
+  failed: "失败",
+  refunded: "已退款",
+  active: "活跃",
+  due: "待付",
+  overdue: "逾期",
+}
+
 export function PageHeader({
   title,
   description,
@@ -62,5 +73,12 @@ export function StatusBadge({ value }: { value: string }) {
     : ["pending", "due"].includes(value)
       ? "warning"
       : "error"
-  return <Chip size="small" label={value} color={color} variant="outlined" />
+  return (
+    <Chip
+      size="small"
+      label={STATUS_LABELS[value] ?? value}
+      color={color}
+      variant="outlined"
+    />
+  )
 }

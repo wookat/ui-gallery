@@ -73,7 +73,7 @@ function submit() {
           <div class="col gap-1">
             <div class="flex items-center justify-between">
               <label for="password" class="text-sm font-medium">密码</label>
-              <a href="#" class="text-sm" @click.prevent>忘记密码？</a>
+              <a href="#" class="text-sm inline-link" @click.prevent>忘记密码？</a>
             </div>
             <Password id="password" v-model="password" toggle-mask :feedback="false" placeholder="至少 8 位" autocomplete="current-password" :invalid="!!errors.password" fluid input-class="w-full" />
             <Message v-if="errors.password" severity="error" size="small" variant="simple">{{ errors.password }}</Message>
@@ -102,7 +102,7 @@ function submit() {
         </form>
       </template>
       <template #footer>
-        <p class="text-center text-sm muted">还没有账号？ <RouterLink to="/login">注册</RouterLink></p>
+        <p class="text-center text-sm muted">还没有账号？ <RouterLink to="/login" class="inline-link">注册</RouterLink></p>
       </template>
     </Card>
   </div>
@@ -112,6 +112,7 @@ function submit() {
 .login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--p-surface-50); }
 .dark .login { background: var(--p-surface-950); }
 .login__card { width: 100%; max-width: 420px; }
+.login .inline-link { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; min-width: 40px; padding: 0 8px; margin: -10px 0; border-radius: var(--p-content-border-radius); font-weight: 500; }
 .login__logo { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--p-primary-color); color: var(--p-primary-contrast-color); font-weight: 700; font-size: 20px; }
 @media (max-width: 767px) { .login { padding: 0; align-items: stretch; } .login__card { max-width: none; border-radius: 0; } }
 </style>

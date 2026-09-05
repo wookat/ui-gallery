@@ -16,7 +16,8 @@ body {
 }
 .dark body { background: var(--p-surface-950); }
 body, #app { min-height: 100vh; }
-a { color: var(--p-primary-color); text-decoration: none; }
+a { color: var(--p-primary-700); text-decoration: none; }
+.dark a { color: var(--p-primary-color); }
 a:hover { text-decoration: underline; }
 h1, h2, h3, h4, h5, h6, p { margin: 0; }
 img, svg, video { display: block; max-width: 100%; }

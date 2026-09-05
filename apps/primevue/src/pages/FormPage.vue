@@ -101,6 +101,7 @@ function reset() { submitted.value = false; attempted.value = false; step.value 
 </template>
 
 <style scoped>
+.page :deep(.p-step-header) { min-height: 40px; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .field b { color: var(--p-red-500); }

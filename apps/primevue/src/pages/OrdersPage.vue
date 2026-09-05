@@ -89,10 +89,10 @@ function retry() { demoState.value = "normal"; loading.value = false }
       <div v-if="demoState === 'loading'" class="col gap-3 p-4"><Skeleton v-for="n in 8" :key="n" height="2.75rem" /></div>
       <div v-else-if="demoState === 'empty'" class="empty-state"><i class="pi pi-inbox" style="font-size: 2rem" /><div>没有找到订单</div><Button label="清除筛选" size="small" outlined @click="search = ''; status = null; channels = []" /></div>
       <Message v-else-if="demoState === 'error'" severity="error" class="m-4">订单加载失败，请稍后重试 <Button label="重试" text size="small" @click="retry" /></Message>
-      <div v-else class="table-scroll">
+      <div v-else class="table-scroll orders-table"><div class="scroll-hint mobile-only text-xs muted"><i class="pi pi-arrows-h" /> 左右滑动查看更多列</div>
         <DataTable v-model:selection="selected" :value="filteredOrders" data-key="id" selection-mode="multiple" :meta-key-selection="false" paginator :rows="10" :rows-per-page-options="[10, 20, 50]" sort-mode="multiple" striped-rows removable-sort @row-click="openOrder($event.data)">
           <Column selection-mode="multiple" header-style="width: 3rem" />
-          <Column v-for="column in showingColumns" :key="column.field" :field="column.field" :header="column.header" sortable>
+          <Column v-for="column in showingColumns" :key="column.field" :field="column.field" :header="column.header" sortable :header-class="column.field === 'amount' ? 'amount-col' : undefined" :body-class="column.field === 'amount' ? 'amount-col' : undefined">
             <template v-if="column.field === 'customer'" #body="{ data }"><div class="flex items-center gap-2"><Avatar :label="data.customer.slice(0, 1)" shape="circle" size="small" /><div class="min-w-0"><div>{{ data.customer }}</div><div class="text-xs muted truncate">{{ data.email }}</div></div></div></template>
             <template v-else-if="column.field === 'status'" #body="{ data }"><StatusTag :status="data.status" /></template>
             <template v-else-if="column.field === 'amount'" #body="{ data }"><span class="tabular">¥{{ data.amount.toLocaleString() }}</span></template>
@@ -115,6 +115,9 @@ function retry() { demoState.value = "normal"; loading.value = false }
 
 <style scoped>
 .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.orders-table :deep(.amount-col), .orders-table :deep(.amount-col .p-datatable-column-header-content) { text-align: right; justify-content: flex-end; }
+.scroll-hint { display: none; } .scroll-hint i { font-size: 11px; }
+@media (max-width: 767px) { .scroll-hint { display: flex !important; align-items: center; gap: 6px; padding: 8px 16px; border-bottom: 1px solid var(--p-content-border-color); } .orders-table { position: relative; } .orders-table::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 28px; pointer-events: none; background: linear-gradient(to left, color-mix(in srgb, var(--p-text-color) 14%, transparent), transparent); } }
 .filter-control { min-width: 150px; max-width: 240px; }
 .details-list { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 0; }
 .details-list > div { display: grid; grid-template-columns: 72px 1fr; gap: 10px; }

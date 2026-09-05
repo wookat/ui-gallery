@@ -1,0 +1,32 @@
+{
+  "slug": "quasar",
+  "name": "Quasar",
+  "framework": "vue",
+  "version": "2.30.0",
+  "repo": "quasarframework/quasar",
+  "license": { "github": "MIT", "npm": "MIT" },
+  "theme": { "dark": true, "nativeIcons": true },
+  "routes": ["/login", "/", "/orders", "/form", "/settings", "/components", "/landing", "/chat"],
+  "coverage": {
+    "Typography": "missing", "Button": "missing", "ButtonGroup": "missing", "IconButton": "missing",
+    "Input": "missing", "Textarea": "missing", "NumberInput": "missing", "Select": "missing",
+    "MultiSelect": "missing", "Combobox": "missing", "Autocomplete": "missing", "Checkbox": "missing",
+    "Radio": "missing", "Switch": "missing", "Slider": "missing", "Rating": "missing", "DatePicker": "missing",
+    "TimePicker": "missing", "DateRangePicker": "missing", "ColorPicker": "missing", "Upload": "missing",
+    "Cascader": "missing", "Transfer": "missing", "Mention": "missing", "PinInput": "missing", "Form": "missing",
+    "Table": "missing", "DataGrid": "missing", "Descriptions": "missing", "List": "missing", "Card": "missing",
+    "Avatar": "missing", "AvatarGroup": "missing", "Badge": "missing", "Tag": "missing", "Statistic": "missing",
+    "Timeline": "missing", "Tree": "missing", "Calendar": "missing", "Image": "missing", "Carousel": "missing",
+    "Empty": "missing", "Tooltip": "missing", "Popover": "missing", "QRCode": "missing", "Segmented": "missing",
+    "Alert": "missing", "Toast": "missing", "Notification": "missing", "Dialog": "missing", "Drawer": "missing",
+    "Progress": "missing", "Skeleton": "missing", "Spinner": "missing", "Result": "missing", "Popconfirm": "missing",
+    "Menu": "missing", "Dropdown": "missing", "Breadcrumb": "missing", "Tabs": "missing", "Pagination": "missing",
+    "Steps": "missing", "Anchor": "missing", "BackTop": "missing", "Affix": "missing", "Navbar": "missing",
+    "Sidebar": "missing", "CommandPalette": "missing", "Grid": "missing", "Stack": "missing", "Layout": "missing",
+    "Container": "missing", "AspectRatio": "missing", "Resizable": "missing", "ScrollArea": "missing",
+    "Accordion": "missing", "ThemeProvider": "missing", "Watermark": "missing", "Tour": "missing",
+    "FloatButton": "missing", "Kbd": "missing", "Code": "missing", "Divider": "missing", "Link": "missing"
+  },
+  "externals": { "chart": "echarts" },
+  "notes": ""
+}

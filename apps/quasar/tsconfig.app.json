@@ -1,0 +1,18 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "paths": {
+      "@/*": ["./src/*"],
+      "quasar": ["./node_modules/quasar-lib"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"]
+}

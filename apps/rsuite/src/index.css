@@ -29,7 +29,7 @@ body { margin: 0; }
 .markdown table { width: 100%; border-collapse: collapse; }
 .markdown th, .markdown td { padding: 6px 8px; border: 1px solid var(--rs-border-primary); text-align: left; }
 .markdown pre { max-width: 100%; overflow: auto; padding: 12px; background: var(--rs-bg-well); border-radius: 6px; }
-.markdown pre code, pre code { display: block; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.markdown pre code { display: block; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 .markdown :not(pre) > code { white-space: pre-wrap; word-break: break-word; }
 .settings-layout { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px; }
 @media (max-width: 767px) {
@@ -40,12 +40,6 @@ body { margin: 0; }
   .chat-sidebar { display: none; }
   .message-bubble { max-width: 92%; }
   .settings-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .table-scroll .rs-table-affix-header { display: none; }
-  .table-scroll .rs-table-row { width: 100% !important; min-width: 0 !important; }
-  .table-scroll .rs-table-row { transform: scaleX(.55) !important; transform-origin: left top !important; }
-  .table-scroll .rs-table-cell { width: auto !important; min-width: 0 !important; flex: 1 1 0 !important; }
-  .table-scroll .rs-table-cell:first-child { flex: 0 0 48px !important; }
-  .table-scroll .rs-table-cell-last { display: none; }
   .logo-cloud { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .demo-grid { grid-template-columns: minmax(0, 1fr); }
 }

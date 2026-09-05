@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react"
 import {
   Accordion, Affix, Animation, AutoComplete, Avatar, AvatarGroup, Badge, Breadcrumb, Box, Button, ButtonGroup,
-  ButtonToolbar, Calendar, Card, CardGroup, Cascader, Checkbox, CheckboxGroup, CheckPicker,
+  ButtonToolbar, Calendar, Card, CardGroup, Cascader, Center, Checkbox, CheckboxGroup, CheckPicker,
   CheckTree, Container, Content, CustomProvider, DateInput, DatePicker, DateRangeInput,
   DateRangePicker, Divider, Drawer, Dropdown, Footer, Form, Grid, Heading, HeadingGroup, Highlight, IconButton,
   Header, Image, InlineEdit, Input, InputGroup, InputNumber, InputPicker, Kbd, Link, List, Loader, MaskedInput,
@@ -89,7 +89,7 @@ function Demo({ name, open, setOpen }: { name: string; open: boolean; setOpen: (
   if (coverage[name] === "missing") return <MissingDemo name={name} />
   if (name === "Typography") return <VStack spacing={8}><HeadingGroup><Heading level={1}>Heading 1</Heading><Heading level={4}>Heading 4</Heading></HeadingGroup><Text size="lg" weight="bold">Text / <Highlight query="highlight">highlight</Highlight></Text><Text as="blockquote">blockquote</Text><Text as="code">const value = 42</Text><Kbd>⌘ K</Kbd></VStack>
   if (name === "Kbd") return <div className="demo-row"><Kbd>⌘</Kbd><Kbd>Shift</Kbd><Kbd>K</Kbd><Text muted>组合快捷键</Text><Kbd size="xs">Esc</Kbd></div>
-  if (name === "Code") return <VStack><Text as="code">npm install rsuite</Text><pre style={{ margin: 0, padding: 12, background: "var(--rs-bg-well)", borderRadius: 6, overflow: "auto" }}><code>{"import { Button } from 'rsuite'\n<Button appearance=\"primary\">保存</Button>"}</code></pre></VStack>
+  if (name === "Code") return <VStack><Text as="code">npm install rsuite</Text><pre style={{ margin: 0, padding: 12, background: "var(--rs-bg-well)", borderRadius: 6, overflow: "auto" }}><code style={{ display: "block", maxWidth: "100%", whiteSpace: "pre-wrap", overflowWrap: "anywhere", wordBreak: "break-word" }}>{"import { Button } from 'rsuite'\n<Button appearance=\"primary\">保存</Button>"}</code></pre></VStack>
   if (name === "Button") return <VStack spacing={8}><div className="demo-row">{(["default", "primary", "subtle", "ghost", "link"] as const).map((appearance) => <Button key={appearance} appearance={appearance}>{appearance}</Button>)}</div><div className="demo-row">{sizes.map((size) => <Button key={size} size={size}>{size}</Button>)}<Button loading>Loading</Button><Button disabled>Disabled</Button><Button block appearance="primary">Block with icon <Icon name="arrow-right" /></Button></div></VStack>
   if (name === "ButtonGroup") return <VStack><ButtonGroup>{colors.map((color) => <Button key={color} color={color}>{color}</Button>)}</ButtonGroup><ButtonToolbar><Button appearance="primary">保存</Button><Button appearance="default">取消</Button><IconButton circle icon={<Icon name="more-horizontal" />} /></ButtonToolbar></VStack>
   if (name === "IconButton") return <div className="demo-row">{sizes.map((size) => <IconButton key={size} size={size} circle icon={<Icon name="settings" />} />)}<IconButton appearance="primary" icon={<Icon name="plus" />} /><IconButton disabled icon={<Icon name="trash" />} /></div>
@@ -155,7 +155,7 @@ function Demo({ name, open, setOpen }: { name: string; open: boolean; setOpen: (
   if (name === "Navigation") return <Nav appearance="tabs"><Nav.Item>一</Nav.Item><Nav.Item>二</Nav.Item></Nav>
   if (name === "Animation") return <Animation.Fade in><Panel bordered>Fade animation</Panel></Animation.Fade>
   if (name === "Box") return <Box as="section" style={{ padding: 12, border: "1px dashed var(--rs-border-primary)" }}>Box as="section"</Box>
-  if (name === "Center") return <div style={{ height: 80, display: "grid", placeItems: "center" }}><Button>Centered</Button></div>
+  if (name === "Center") return <Center style={{ height: 80 }}><Button>Centered</Button></Center>
   if (name === "DateInput") return <DateInput />
   if (name === "DateRangeInput") return <DateRangeInput />
   if (name === "MaskedInput") return <MaskedInput mask={[/\\d/, /\\d/, /\\d/, /\\d/]} placeholder="0000" />

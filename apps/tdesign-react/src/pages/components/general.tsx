@@ -147,14 +147,48 @@ function SelectDemo() {
     <DemoPanel>
       <DemoRow>
         <Select options={componentOptions} placeholder="single" />
-        <Select multiple options={componentOptions} placeholder="multiple" />
-        <Select filterable creatable options={componentOptions} placeholder="filterable + creatable" />
+        <Select clearable options={componentOptions} defaultValue="two" />
+        <Select options={componentOptions} placeholder="readonly" readonly defaultValue="one" />
       </DemoRow>
       <DemoRow>
         <Select size="small" options={componentOptions} prefixIcon={<Icon name="search" />} />
         <Select size="large" options={componentOptions} />
         <Select disabled options={componentOptions} defaultValue="one" />
         <Select loading options={componentOptions} />
+      </DemoRow>
+    </DemoPanel>
+  )
+}
+
+function MultiSelectDemo() {
+  return (
+    <DemoPanel>
+      <DemoRow>
+        <Select multiple options={componentOptions} defaultValue={["one", "two"]} placeholder="multiple" />
+        <Select multiple minCollapsedNum={1} options={componentOptions} defaultValue={["one", "two", "three"]} />
+        <Select multiple showArrow={false} options={componentOptions} placeholder="multiple · 无箭头" />
+      </DemoRow>
+      <DemoRow>
+        <Select multiple size="small" options={componentOptions} defaultValue={["one"]} />
+        <Select multiple size="large" options={componentOptions} defaultValue={["two"]} />
+        <Select multiple disabled options={componentOptions} defaultValue={["one", "three"]} />
+      </DemoRow>
+    </DemoPanel>
+  )
+}
+
+function ComboboxDemo() {
+  const [value, setValue] = useState<string | number>("")
+  return (
+    <DemoPanel>
+      <DemoRow>
+        <Select filterable options={componentOptions} placeholder="filterable" />
+        <Select filterable creatable options={componentOptions} placeholder="filterable + creatable" />
+        <Select filterable multiple creatable options={componentOptions} placeholder="filterable + multiple" />
+      </DemoRow>
+      <DemoRow>
+        <Select filterable value={value} onChange={(next) => setValue(next as string | number)} options={componentOptions} placeholder="受控 combobox" />
+        <Typography.Text theme="secondary">当前值：{value === "" ? "未选择" : String(value)}</Typography.Text>
       </DemoRow>
     </DemoPanel>
   )
@@ -346,8 +380,8 @@ export const generalDemos = {
   Textarea: TextareaDemo,
   NumberInput: NumberInputDemo,
   Select: SelectDemo,
-  MultiSelect: SelectDemo,
-  Combobox: SelectDemo,
+  MultiSelect: MultiSelectDemo,
+  Combobox: ComboboxDemo,
   Autocomplete: () => <AutocompleteDemo />,
   Mention: () => <AutocompleteDemo mention />,
   Checkbox: CheckboxDemo,

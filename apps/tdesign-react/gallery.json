@@ -96,7 +96,7 @@
     "Layout": "implemented",
     "Container": "composed",
     "AspectRatio": "composed",
-    "Resizable": "missing",
+    "Resizable": "composed",
     "ScrollArea": "composed",
     "Accordion": "implemented",
     "ThemeProvider": "implemented",

@@ -38,19 +38,22 @@ export function DashboardPage() {
           <div className="table-scroll">
             <Table
               rowKey="id"
+             
               data={orders.slice(0, 5)}
               columns={[
                 {
                   colKey: "customer",
                   title: "客户",
+                  width: 160,
                   cell: ({ row }) => <div className="inline"><Avatar size="32px">{row.customer.slice(0, 1)}</Avatar><span>{row.customer}</span></div>,
                 },
-                { colKey: "product", title: "产品" },
-                { colKey: "status", title: "状态", cell: ({ row }) => <Tag theme={statusTheme[row.status]}>{statusLabel[row.status]}</Tag> },
-                { colKey: "amount", title: "金额", cell: ({ row }) => `¥${row.amount.toLocaleString()}` },
+                { colKey: "product", title: "产品", width: 180 },
+                { colKey: "status", title: "状态", width: 100, cell: ({ row }) => <Tag theme={statusTheme[row.status]}>{statusLabel[row.status]}</Tag> },
+                { colKey: "amount", title: "金额", width: 120, align: "right", cell: ({ row }) => `¥${row.amount.toLocaleString()}` },
                 {
                   colKey: "op",
                   title: "操作",
+                  width: 96,
                   cell: () => (
                     <Dropdown options={[{ content: "查看", value: "view" }, { content: "编辑", value: "edit" }, { content: "删除", value: "delete" }]}>
                       <Button variant="text">操作</Button>

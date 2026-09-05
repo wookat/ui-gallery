@@ -123,7 +123,7 @@ function ResizableDemo() {
 }
 
 function AlertMissing() {
-  return <Typography.Text theme="warning">TDesign React 没有原生 Resizable，保留 CSS resize 占位。</Typography.Text>
+  return <Typography.Text theme="warning">TDesign React 没有原生 Resizable，用 CSS resize 组合实现可拖拽宽度。</Typography.Text>
 }
 
 function ScrollAreaDemo() {

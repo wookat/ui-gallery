@@ -64,7 +64,7 @@ function CommandPaletteDemo() {
   const actions = ["打开仪表盘", "创建订单", "打开设置"].filter((item) => item.includes(query))
   return (
     <DemoPanel>
-      <Button onClick={() => setVisible(true)}>打开命令面板 <Tag variant="outline">⌘K</Tag></Button>
+      <Button className="demo-action" variant="outline" suffix={<Tag variant="outline" size="small">⌘K</Tag>} onClick={() => setVisible(true)}>打开命令面板</Button>
       <Dialog visible={visible} header="Command Palette" onClose={() => setVisible(false)} footer={false}>
         <Input autofocus value={query} onChange={setQuery} placeholder="搜索命令" />
         <List>{actions.map((action) => <List.ListItem key={action}>{action}</List.ListItem>)}</List>
@@ -143,7 +143,7 @@ export function ComponentsPage() {
       <Card title="TDesign 补充">
         <div className="supplemental-grid">
           {supplemental.map((name) => (
-            <div className="supplemental-card" key={name}>
+            <div className={name === "DateRangePickerPanel" ? "supplemental-card supplemental-card--wide" : "supplemental-card"} key={name}>
               <Typography.Title level="h5">{name}</Typography.Title>
               <SupplementalDemo name={name} />
             </div>

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Avatar, Button, Card, DialogPlugin, Form, Input, List, MessagePlugin, QRCode, Radio, Select, Switch, Tabs, Table, Tag, Textarea, Typography, Upload } from "tdesign-react"
 import { Icon } from "@/components/icon"
+import { useIsMobile } from "@/url-settings"
 import sessions from "@ui-gallery/spec/mock/sessions.json"
 import team from "@ui-gallery/spec/mock/team.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
@@ -8,6 +9,7 @@ import invoices from "@ui-gallery/spec/mock/invoices.json"
 
 export function SettingsPage() {
   const [tab, setTab] = useState("profile")
+  const isMobile = useIsMobile()
   const [deleteText, setDeleteText] = useState("")
   const destroyAccount = () => {
     const dialog = DialogPlugin.confirm({ header: "删除账号", body: <div className="stack"><Typography.Paragraph>此操作不可撤销，请输入“删除”确认。</Typography.Paragraph><Input value={deleteText} onChange={setDeleteText} placeholder="输入删除" /></div>, confirmBtn: { content: "确认删除", theme: "danger", disabled: deleteText !== "删除" }, onConfirm: () => { MessagePlugin.success("已提交删除申请"); dialog.destroy() } })
@@ -16,7 +18,7 @@ export function SettingsPage() {
   return (
     <div className="stack">
       <div className="page-heading"><div><Typography.Title level="h2">设置</Typography.Title><Typography.Paragraph>管理个人资料、团队与订阅。</Typography.Paragraph></div></div>
-      <Tabs value={tab} placement="left" onChange={(value) => setTab(String(value))}>
+      <Tabs value={tab} placement={isMobile ? "top" : "left"} onChange={(value) => setTab(String(value))}>
         <Tabs.TabPanel value="profile" label="个人资料"><Card title="个人资料"><Form layout="vertical"><Form.FormItem label="头像"><Upload autoUpload={false} theme="custom" /></Form.FormItem><Form.FormItem label="姓名"><Input defaultValue="林晓" /></Form.FormItem><Form.FormItem label="简介"><Textarea defaultValue="负责 Acme Console 的增长与运营。" /></Form.FormItem><Form.FormItem label="语言"><Select defaultValue="zh-CN" options={[{ label: "简体中文", value: "zh-CN" }, { label: "English", value: "en-US" }]} /></Form.FormItem><Form.FormItem label="时区"><Select filterable options={["Asia/Shanghai", "Asia/Tokyo", "Europe/Berlin"].map((value) => ({ label: value, value }))} defaultValue="Asia/Shanghai" /></Form.FormItem><Button theme="primary">保存更改</Button></Form></Card></Tabs.TabPanel>
         <Tabs.TabPanel value="security" label="账号安全"><div className="stack"><Card title="修改密码"><Form layout="vertical"><Form.FormItem label="当前密码" rules={[{ required: true, message: "请输入当前密码" }]}><Input type="password" /></Form.FormItem><Form.FormItem label="新密码" rules={[{ required: true, message: "请输入新密码" }]}><Input type="password" /></Form.FormItem><Button theme="primary">更新密码</Button></Form></Card><Card title="两步验证"><div className="inline"><Switch /><span>启用两步验证</span><QRCode value="https://example.com/acme-console" size={100} /></div></Card><Card title="活跃会话"><List>{sessions.map((session) => <List.ListItem key={session.device} action={<Button variant="text" disabled={session.current}>注销</Button>}><List.ListItemMeta title={session.device} description={`${session.location} · ${session.time}`} /></List.ListItem>)}</List></Card></div></Tabs.TabPanel>
         <Tabs.TabPanel value="notifications" label="通知"><Card title="通知偏好"><div className="stack"><Typography.Title level="h4">通知渠道</Typography.Title><div className="inline"><Radio.Group variant="default-filled" defaultValue="email"><Radio value="email">邮件</Radio><Radio value="push">推送</Radio><Radio value="inbox">站内</Radio></Radio.Group></div>{["新订单", "团队动态", "系统维护"].map((label) => <div className="inline" style={{ justifyContent: "space-between" }} key={label}><span>{label}</span><Switch defaultValue /></div>)}</div></Card></Tabs.TabPanel>

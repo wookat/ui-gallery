@@ -14,7 +14,7 @@ export function FormPage() {
       // TDesign renders field errors inline.
     }
   }
-  if (success) return <Card><Empty image={<Icon name="check-circle" size={48} />} description="项目创建成功" /><Button onClick={() => { setSuccess(false); setStep(0) }}>创建另一个项目</Button></Card>
+  if (success) return <Card><Empty type="success" title="项目创建成功" description="项目已创建，可以继续邀请成员。" action={<Button theme="primary" onClick={() => { setSuccess(false); setStep(0) }}>创建另一个项目</Button>} /></Card>
   return (
     <div className="stack">
       <div className="page-heading"><div><Typography.Title level="h2">新建项目</Typography.Title><Typography.Paragraph>按步骤配置你的新工作区。</Typography.Paragraph></div></div>

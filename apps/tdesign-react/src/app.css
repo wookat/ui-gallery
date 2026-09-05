@@ -66,6 +66,20 @@ a {
   flex: 1;
 }
 
+.landing-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 64px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--td-component-stroke);
+  background: var(--td-bg-color-container);
+}
+
+.landing-header-spacer {
+  flex: 1;
+}
+
 .mobile-only {
   display: none;
 }
@@ -120,6 +134,10 @@ a {
   gap: 16px;
 }
 
+.stack > .t-tag {
+  align-self: flex-start;
+}
+
 .inline {
   display: flex;
   align-items: center;
@@ -151,12 +169,20 @@ a {
   gap: 16px;
 }
 
-.table-scroll {
-  overflow-x: auto;
+.table-scroll,
+.component-table-scroll {
+  max-width: 100%;
+  min-width: 0;
 }
 
-.table-scroll > .t-table {
-  min-width: 760px;
+.table-scroll .t-table,
+.component-table-scroll .t-table {
+  max-width: 100%;
+}
+
+.table-scroll .t-table__content,
+.component-table-scroll .t-table__content {
+  overflow-x: auto;
 }
 
 .chart-box {
@@ -200,6 +226,37 @@ a {
   align-items: center;
   gap: 48px;
   min-height: 540px;
+}
+
+.landing-testimonials {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.landing-shot {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
+  padding: 16px;
+  border-radius: var(--td-radius-large);
+  background: var(--td-bg-color-page);
+}
+
+.landing-shot > span {
+  border-radius: var(--td-radius-medium);
+  background: var(--td-bg-color-component);
+}
+
+.landing-shot > span:first-child {
+  grid-column: 1 / -1;
+  height: 20px;
+  width: 40%;
+  background: var(--td-brand-color);
 }
 
 .placeholder-panel {
@@ -256,9 +313,19 @@ a {
   background: var(--td-bg-color-container);
 }
 
+.message-bubble {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .message-bubble pre {
   max-width: 100%;
   overflow-x: auto;
+}
+
+.message-bubble code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .message-row.user .message-bubble {
@@ -303,15 +370,6 @@ a {
 
 .components-anchor {
   display: none;
-}
-
-.component-table-scroll {
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.component-table-scroll > .t-table {
-  min-width: 720px;
 }
 
 .component-image {
@@ -367,6 +425,38 @@ a {
   border: 1px solid var(--td-component-stroke);
 }
 
+.mini-layout .t-layout__header,
+.mini-layout .t-layout__sider,
+.mini-layout .t-layout__content,
+.mini-layout .t-layout__footer {
+  padding: 12px 16px;
+}
+
+.mini-layout .t-layout__header,
+.mini-layout .t-layout__footer {
+  background: var(--td-bg-color-container);
+}
+
+.mini-layout .t-layout__header {
+  border-bottom: 1px solid var(--td-component-stroke);
+}
+
+.mini-layout .t-layout__footer {
+  border-top: 1px solid var(--td-component-stroke);
+}
+
+.mini-layout .t-layout__sider {
+  background: var(--td-bg-color-secondarycontainer);
+}
+
+.mini-layout .t-layout__content {
+  min-height: 64px;
+}
+
+.demo-action {
+  align-self: flex-start;
+}
+
 .aspect-demo {
   width: min(100%, 480px);
   aspect-ratio: 16 / 9;
@@ -404,15 +494,27 @@ a {
 
 .supplemental-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
 }
 
 .supplemental-card {
   min-width: 0;
   padding: 16px;
+  overflow-x: auto;
   border: 1px solid var(--td-component-stroke);
   border-radius: var(--td-radius-medium);
+}
+
+.supplemental-card .t-dialog {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 769px) {
+  .supplemental-card--wide {
+    grid-column: span 2;
+  }
 }
 
 .swiper-slide {
@@ -478,6 +580,48 @@ a {
 
   .landing-section {
     padding: 48px 16px;
+  }
+
+  .landing-header {
+    padding: 0 16px;
+  }
+
+  .landing-testimonials {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .t-transfer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .t-transfer__list {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .t-upload__dragger {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .t-pagination {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    row-gap: 8px;
+  }
+
+  .t-pagination__pager {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .t-pagination__total {
+    flex-basis: 100%;
+  }
+
+  .component-demo-panel > * {
+    max-width: 100%;
   }
 
   .chat-layout {

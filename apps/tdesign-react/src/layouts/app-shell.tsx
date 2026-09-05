@@ -49,14 +49,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Layout.Aside>
       <Layout>
         <Layout.Header className="app-header">
-          <Button variant="text" shape="square" onClick={() => setDrawer(true)} className="mobile-only"><Icon name="menu" /></Button>
+          <Button variant="text" shape="square" size="large" onClick={() => setDrawer(true)} className="mobile-only"><Icon name="menu" /></Button>
           <Breadcrumb><Breadcrumb.BreadcrumbItem><Link to="/">Acme Console</Link></Breadcrumb.BreadcrumbItem><Breadcrumb.BreadcrumbItem>{current}</Breadcrumb.BreadcrumbItem></Breadcrumb>
           <div className="app-header-spacer" />
           <Input className="desktop-search" prefixIcon={<Icon name="search" />} placeholder="搜索..." />
-          <Popup trigger="click" content={notificationContent}><Badge count={3}><Button variant="text" shape="square"><Icon name="bell" /></Button></Badge></Popup>
-          <Button variant="text" shape="square" onClick={toggle}><Icon name={theme === "dark" ? "sun" : "moon"} /></Button>
+          <Popup trigger="click" content={notificationContent}><Badge count={3}><Button variant="text" shape="square" size="large"><Icon name="bell" /></Button></Badge></Popup>
+          <Button variant="text" shape="square" size="large" onClick={toggle}><Icon name={theme === "dark" ? "sun" : "moon"} /></Button>
           <Dropdown options={[{ content: "个人资料", value: "profile" }, { content: "账户设置", value: "settings" }, { content: "偏好设置", value: "preferences" }, { content: "帮助中心", value: "help" }, { content: "退出登录", value: "logout" }]}><Avatar size="32px">林</Avatar></Dropdown>
-          <Button variant="text" shape="square" onClick={() => setCollapsed(!collapsed)} className="desktop-only"><Icon name="menu" /></Button>
+          <Button variant="text" shape="square" size="large" onClick={() => setCollapsed(!collapsed)} className="desktop-only"><Icon name="menu" /></Button>
         </Layout.Header>
         <Layout.Content><main className="app-main">{children}</main></Layout.Content>
       </Layout>

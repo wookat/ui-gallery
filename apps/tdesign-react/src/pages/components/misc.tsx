@@ -63,7 +63,7 @@ function PopoverDemo() {
           </Popup>
         ))}
       </DemoRow>
-      <Popup trigger="hover" content="hover content" showArrow><Button>hover</Button></Popup>
+      <Popup trigger="hover" content="hover content" showArrow><Button className="demo-action">hover</Button></Popup>
     </DemoPanel>
   )
 }

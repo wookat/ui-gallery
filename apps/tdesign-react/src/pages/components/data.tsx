@@ -23,6 +23,7 @@ import {
 import orders from "@ui-gallery/spec/mock/orders.json"
 import team from "@ui-gallery/spec/mock/team.json"
 import { Icon } from "@/components/icon"
+import { useIsMobile } from "@/url-settings"
 import { componentOptions, DemoPanel, DemoRow, demoImage, treeOptions } from "./types"
 
 const statusTheme: Record<string, "success" | "warning" | "danger" | "primary"> = {
@@ -105,14 +106,15 @@ function TableDemo({ dataGrid = false }: { dataGrid?: boolean }) {
 }
 
 function DescriptionsDemo() {
+  const isMobile = useIsMobile()
   return (
     <DemoPanel>
-      <Descriptions bordered column={3} size="small">
+      <Descriptions bordered column={isMobile ? 1 : 3} size="small">
         <Descriptions.DescriptionsItem label="订单号">ORD-2400</Descriptions.DescriptionsItem>
         <Descriptions.DescriptionsItem label="客户">林晓</Descriptions.DescriptionsItem>
         <Descriptions.DescriptionsItem label="状态"><Tag theme="success">已支付</Tag></Descriptions.DescriptionsItem>
       </Descriptions>
-      <Descriptions layout="vertical" column={2}>
+      <Descriptions layout="vertical" column={isMobile ? 1 : 2}>
         <Descriptions.DescriptionsItem label="产品">Pro 年付</Descriptions.DescriptionsItem>
         <Descriptions.DescriptionsItem label="金额">¥1,638.45</Descriptions.DescriptionsItem>
       </Descriptions>
@@ -269,9 +271,10 @@ function TreeDemo() {
 }
 
 function CalendarDemo() {
+  const isMobile = useIsMobile()
   return (
     <DemoPanel>
-      <Calendar />
+      {isMobile ? null : <Calendar />}
       <Calendar theme="card" controllerConfig={{}} />
     </DemoPanel>
   )
@@ -311,7 +314,7 @@ function EmptyDemo() {
         <Empty type="network-error" />
         <Empty type="maintenance" />
       </DemoRow>
-      <Button theme="primary">重新加载</Button>
+      <Button className="demo-action" theme="primary">重新加载</Button>
     </DemoPanel>
   )
 }

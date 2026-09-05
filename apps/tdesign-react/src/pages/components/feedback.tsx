@@ -175,10 +175,9 @@ function ResultDemo() {
   return (
     <DemoPanel>
       <DemoRow>
-        <Empty type="success" description="操作成功" />
-        <Empty type="fail" description="操作失败" />
+        <Empty type="success" title="操作成功" description="提交已完成" action={<Button theme="primary" size="small">继续</Button>} />
+        <Empty type="fail" title="操作失败" description="请稍后重试" action={<Button variant="outline" size="small">重试</Button>} />
       </DemoRow>
-      <Button theme="primary">继续</Button>
     </DemoPanel>
   )
 }

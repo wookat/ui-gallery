@@ -138,7 +138,7 @@ function ButtonMatrix({ iconOnly = false }: { iconOnly?: boolean }) {
               <Icon name="x" />
             </IconButton>
             <IconButton loading>
-              <Icon name="reload" />
+              <Icon name="refresh" />
             </IconButton>
           </>
         ) : (
@@ -155,7 +155,7 @@ function ButtonMatrix({ iconOnly = false }: { iconOnly?: boolean }) {
         {colors.map((color) =>
           iconOnly ? (
             <IconButton key={color} color={color} variant="soft">
-              <Icon name="circle" />
+              <Icon name="check" />
             </IconButton>
           ) : (
             <Button key={color} color={color}>
@@ -191,6 +191,7 @@ function BadgeMatrix() {
                 size={size as "1"}
                 variant={variant}
                 color={color}
+                highContrast
               >
                 {variant} {color}
               </Badge>
@@ -270,7 +271,7 @@ function FieldMatrix({ area = false }: { area?: boolean }) {
           ))}
           <TextField.Root variant={variant} color="red" placeholder="error">
             <TextField.Slot>
-              <Icon name="exclamation-triangle" />
+              <Icon name="alert-circle" />
             </TextField.Slot>
           </TextField.Root>
           <TextField.Root
@@ -362,7 +363,7 @@ function ExportDemo({ name }: { name: string }) {
           {(["soft", "surface", "outline"] as const).map((variant) => (
             <Callout.Root key={variant} variant={variant} color="blue" size="2">
               <Callout.Icon>
-                <Icon name="info" />
+                <Icon name="alert-circle" />
               </Callout.Icon>
               <Callout.Text>{variant} callout</Callout.Text>
             </Callout.Root>
@@ -515,7 +516,7 @@ function ExportDemo({ name }: { name: string }) {
         <Flex align="center" gap="2">
           <Button aria-label="隐藏文本示例">
             <VisuallyHidden>屏幕阅读器可见</VisuallyHidden>
-            <Icon name="info" />
+            <Icon name="alert-circle" />
           </Button>
           <Text size="1" color="gray">
             VisuallyHidden label
@@ -684,10 +685,19 @@ function Demo({ name }: { name: string }) {
     case "TimePicker":
     case "DateRangePicker":
       return (
-        <Flex gap="2">
-          <TextField.Root type="date" />
-          <TextField.Root type="time" />
-          <TextField.Root type="date" />
+        <Flex gap="2" wrap="wrap">
+          <TextField.Root
+            type="date"
+            style={{ flex: "1 1 140px", minWidth: 0 }}
+          />
+          <TextField.Root
+            type="time"
+            style={{ flex: "1 1 140px", minWidth: 0 }}
+          />
+          <TextField.Root
+            type="date"
+            style={{ flex: "1 1 140px", minWidth: 0 }}
+          />
         </Flex>
       )
     case "ColorPicker":
@@ -889,7 +899,7 @@ function Demo({ name }: { name: string }) {
     case "Empty":
       return (
         <Flex direction="column" align="center" gap="3" p="5">
-          <Icon name="inbox" size={32} />
+          <Icon name="archive" size={32} />
           <Text color="gray">暂无数据</Text>
           <Button variant="outline">清除筛选</Button>
         </Flex>
@@ -928,7 +938,7 @@ function Demo({ name }: { name: string }) {
           {["blue", "green", "amber", "red"].map((color) => (
             <Callout.Root key={color} color={color as "blue"}>
               <Callout.Icon>
-                <Icon name="info" />
+                <Icon name="alert-circle" />
               </Callout.Icon>
               <Callout.Text>{color} 提示</Callout.Text>
             </Callout.Root>
@@ -1028,7 +1038,7 @@ function Demo({ name }: { name: string }) {
       return (
         <Callout.Root color="green">
           <Callout.Icon>
-            <Icon name="check-circle" />
+            <Icon name="check" />
           </Callout.Icon>
           <Callout.Text>操作成功</Callout.Text>
         </Callout.Root>
@@ -1209,8 +1219,8 @@ function Demo({ name }: { name: string }) {
       )
     case "ScrollArea":
       return (
-        <ScrollArea scrollbars="both" style={{ height: "100px" }}>
-          <Box width="600px" height="180px" p="3">
+        <ScrollArea scrollbars="vertical" style={{ height: "100px" }}>
+          <Box height="240px" p="3">
             可滚动内容
           </Box>
         </ScrollArea>

@@ -39,12 +39,18 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
     <Flex direction="column" gap="1">
       {nav.map((item) => (
         <Button
+          size="3"
           key={item.key}
           asChild
           variant={location.pathname === item.path ? "soft" : "ghost"}
           color={location.pathname === item.path ? "indigo" : undefined}
           onClick={onNavigate}
-          style={{ width: "100%", justifyContent: "flex-start" }}
+          style={{
+            width: "100%",
+            minHeight: "40px",
+            boxSizing: "border-box",
+            justifyContent: "flex-start",
+          }}
         >
           <Link to={item.path}>
             <Icon name={item.icon} />
@@ -104,8 +110,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Card>
             </Box>
             <IconButton
+              size="3"
               variant="ghost"
               onClick={() => setCollapsed((value) => !value)}
+              style={{ minHeight: "40px", minWidth: "40px" }}
             >
               <Icon name={collapsed ? "chevron-right" : "chevron-left"} />
             </IconButton>
@@ -128,7 +136,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
                 <Dialog.Trigger>
-                  <IconButton variant="ghost">
+                  <IconButton
+                    size="3"
+                    variant="ghost"
+                    style={{ minHeight: "40px", minWidth: "40px" }}
+                  >
                     <Icon name="menu" />
                   </IconButton>
                 </Dialog.Trigger>
@@ -176,7 +188,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Box>
             <Popover.Root>
               <Popover.Trigger>
-                <IconButton variant="ghost">
+                <IconButton
+                  size="3"
+                  variant="ghost"
+                  style={{ minHeight: "40px", minWidth: "40px" }}
+                >
                   <Icon name="bell" />
                   <Badge size="1" color="red">
                     {notifications.filter((item) => item.unread).length}
@@ -198,12 +214,21 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Flex>
               </Popover.Content>
             </Popover.Root>
-            <IconButton variant="ghost" onClick={toggle}>
+            <IconButton
+              size="3"
+              variant="ghost"
+              onClick={toggle}
+              style={{ minHeight: "40px", minWidth: "40px" }}
+            >
               <Icon name={appearance === "dark" ? "sun" : "moon"} />
             </IconButton>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger>
-                <IconButton variant="ghost">
+                <IconButton
+                  size="3"
+                  variant="ghost"
+                  style={{ minHeight: "40px", minWidth: "40px" }}
+                >
                   <Avatar size="2" fallback="林" />
                 </IconButton>
               </DropdownMenu.Trigger>

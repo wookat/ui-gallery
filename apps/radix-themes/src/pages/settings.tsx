@@ -11,6 +11,7 @@ import {
   Heading,
   IconButton,
   Select,
+  ScrollArea,
   SegmentedControl,
   Switch,
   Table,
@@ -31,15 +32,15 @@ export function SettingsPage() {
     <Box>
       <PageHeader title="设置" description="管理你的个人资料、团队和订阅。" />
       <Tabs.Root defaultValue="profile">
-        <Box className="rt-scroll-x">
-          <Tabs.List wrap="wrap">
+        <ScrollArea scrollbars="horizontal" type="auto">
+          <Tabs.List style={{ whiteSpace: "nowrap" }}>
             <Tabs.Trigger value="profile">个人资料</Tabs.Trigger>
             <Tabs.Trigger value="security">账号安全</Tabs.Trigger>
             <Tabs.Trigger value="notifications">通知</Tabs.Trigger>
             <Tabs.Trigger value="team">团队</Tabs.Trigger>
             <Tabs.Trigger value="billing">计费</Tabs.Trigger>
           </Tabs.List>
-        </Box>
+        </ScrollArea>
         <Tabs.Content value="profile">
           <Card mt="4">
             <Flex direction="column" gap="4">

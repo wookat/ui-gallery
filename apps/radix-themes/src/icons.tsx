@@ -96,6 +96,7 @@ const native = {
   image: ComponentInstanceIcon,
   info: InfoCircledIcon,
   "layout-dashboard": DashboardIcon,
+  link: Link2Icon,
   loader: ReloadIcon,
   lock: LockClosedIcon,
   "log-in": PersonIcon,

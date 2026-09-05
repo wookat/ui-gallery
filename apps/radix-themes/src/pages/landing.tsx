@@ -48,16 +48,35 @@ export function LandingPage() {
                   <Box display={{ initial: "block", md: "none" }}>
                     <Dialog.Root>
                       <Dialog.Trigger>
-                        <IconButton variant="ghost">
+                        <IconButton
+                          size="3"
+                          variant="ghost"
+                          style={{ minHeight: "40px", minWidth: "40px" }}
+                        >
                           <Icon name="menu" />
                         </IconButton>
                       </Dialog.Trigger>
-                      <Dialog.Content>
+                      <Dialog.Content
+                        style={{
+                          position: "fixed",
+                          inset: "0 0 0 auto",
+                          width: "280px",
+                          maxWidth: "100vw",
+                          maxHeight: "100vh",
+                          borderRadius: 0,
+                          transform: "none",
+                        }}
+                      >
                         <Dialog.Title>导航</Dialog.Title>
                         <Flex direction="column" gap="3" mt="4">
                           {["产品", "解决方案", "定价", "客户", "资源"].map(
                             (label) => (
-                              <Button key={label} variant="ghost">
+                              <Button
+                                key={label}
+                                size="3"
+                                variant="ghost"
+                                style={{ justifyContent: "flex-start" }}
+                              >
                                 {label}
                               </Button>
                             )

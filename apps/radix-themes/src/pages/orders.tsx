@@ -26,11 +26,37 @@ import { useToast } from "@/toast"
 import { PageHeader, StatusBadge } from "./shared"
 
 type Order = (typeof orders)[number]
+
+function RowActions({
+  order,
+  onDelete,
+}: {
+  order: Order
+  onDelete: (o: Order) => void
+}) {
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger>
+        <IconButton size="3" variant="ghost">
+          <Icon name="more-horizontal" />
+        </IconButton>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content>
+        <DropdownMenu.Item>编辑</DropdownMenu.Item>
+        <DropdownMenu.Item color="red" onSelect={() => onDelete(order)}>
+          删除
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  )
+}
+
 export function OrdersPage() {
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState("all")
   const [sortAsc, setSortAsc] = useState(false)
   const [selected, setSelected] = useState<Order | null>(null)
+  const [deleting, setDeleting] = useState<Order | null>(null)
   const [state, setState] = useState("normal")
   const { show } = useToast()
   const filtered = useMemo(
@@ -156,7 +182,7 @@ export function OrdersPage() {
           </Flex>
           {state === "empty" ? (
             <Flex direction="column" align="center" gap="3" p="8">
-              <Icon name="inbox" size={32} />
+              <Icon name="archive" size={32} />
               <Text color="gray">没有找到订单</Text>
               <Button
                 variant="outline"
@@ -183,129 +209,159 @@ export function OrdersPage() {
               <Button onClick={() => setState("normal")}>重试</Button>
             </Flex>
           ) : (
-            <Box style={{ overflowX: "auto", minWidth: 0 }}>
-              <Table.Root variant="surface">
-                <Table.Header>
-                  <Table.Row>
-                    <Table.ColumnHeaderCell>
-                      <Checkbox checked="indeterminate" size="3" />
-                    </Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell
-                      onClick={() => setSortAsc((value) => !value)}
-                    >
-                      订单{" "}
-                      <Icon
-                        name={sortAsc ? "arrow-up" : "chevrons-up-down"}
-                        size={14}
-                      />
-                    </Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell>客户</Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell>状态</Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell>日期</Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell align="right">
-                      金额
-                    </Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell>操作</Table.ColumnHeaderCell>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {filtered.slice(0, 10).map((order) => (
-                    <Table.Row
-                      key={order.id}
-                      onClick={() => setSelected(order)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <Table.Cell>
-                        <Checkbox
-                          size="3"
-                          onClick={(event) => event.stopPropagation()}
+            <>
+              <Box
+                display={{ initial: "none", sm: "block" }}
+                style={{ overflowX: "auto", minWidth: 0 }}
+              >
+                <Table.Root variant="surface">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.ColumnHeaderCell>
+                        <Checkbox checked="indeterminate" size="3" />
+                      </Table.ColumnHeaderCell>
+                      <Table.ColumnHeaderCell
+                        onClick={() => setSortAsc((value) => !value)}
+                      >
+                        订单{" "}
+                        <Icon
+                          name={sortAsc ? "arrow-up" : "arrow-down"}
+                          size={14}
                         />
-                      </Table.Cell>
-                      <Table.Cell>{order.id}</Table.Cell>
-                      <Table.Cell>{order.customer}</Table.Cell>
-                      <Table.Cell>
-                        <StatusBadge value={order.status} />
-                      </Table.Cell>
-                      <Table.Cell>{order.date}</Table.Cell>
-                      <Table.Cell align="right">
-                        ¥{order.amount.toLocaleString()}
-                      </Table.Cell>
-                      <Table.Cell>
-                        <DropdownMenu.Root>
-                          <DropdownMenu.Trigger>
-                            <IconButton
-                              size="2"
-                              variant="ghost"
-                              onClick={(event) => event.stopPropagation()}
-                            >
-                              <Icon name="more-horizontal" />
-                            </IconButton>
-                          </DropdownMenu.Trigger>
-                          <DropdownMenu.Content>
-                            <DropdownMenu.Item>编辑</DropdownMenu.Item>
-                            <AlertDialog.Root>
-                              <AlertDialog.Trigger>
-                                <DropdownMenu.Item
-                                  color="red"
-                                  onSelect={(event) => event.preventDefault()}
-                                >
-                                  删除
-                                </DropdownMenu.Item>
-                              </AlertDialog.Trigger>
-                              <AlertDialog.Content>
-                                <AlertDialog.Title>
-                                  删除订单？
-                                </AlertDialog.Title>
-                                <AlertDialog.Description>
-                                  此操作无法撤销。
-                                </AlertDialog.Description>
-                                <Flex justify="end" gap="3" mt="4">
-                                  <AlertDialog.Cancel>
-                                    <Button variant="soft">取消</Button>
-                                  </AlertDialog.Cancel>
-                                  <AlertDialog.Action>
-                                    <Button
-                                      color="red"
-                                      onClick={() => show("订单已删除")}
-                                    >
-                                      确认删除
-                                    </Button>
-                                  </AlertDialog.Action>
-                                </Flex>
-                              </AlertDialog.Content>
-                            </AlertDialog.Root>
-                          </DropdownMenu.Content>
-                        </DropdownMenu.Root>
-                      </Table.Cell>
+                      </Table.ColumnHeaderCell>
+                      <Table.ColumnHeaderCell>客户</Table.ColumnHeaderCell>
+                      <Table.ColumnHeaderCell>状态</Table.ColumnHeaderCell>
+                      <Table.ColumnHeaderCell>日期</Table.ColumnHeaderCell>
+                      <Table.ColumnHeaderCell align="right">
+                        金额
+                      </Table.ColumnHeaderCell>
+                      <Table.ColumnHeaderCell>操作</Table.ColumnHeaderCell>
                     </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
-            </Box>
+                  </Table.Header>
+                  <Table.Body>
+                    {filtered.slice(0, 10).map((order) => (
+                      <Table.Row
+                        key={order.id}
+                        onClick={() => setSelected(order)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Table.Cell>
+                          <Checkbox
+                            size="3"
+                            onClick={(event) => event.stopPropagation()}
+                          />
+                        </Table.Cell>
+                        <Table.Cell>{order.id}</Table.Cell>
+                        <Table.Cell>{order.customer}</Table.Cell>
+                        <Table.Cell>
+                          <StatusBadge value={order.status} />
+                        </Table.Cell>
+                        <Table.Cell>{order.date}</Table.Cell>
+                        <Table.Cell align="right">
+                          ¥{order.amount.toLocaleString()}
+                        </Table.Cell>
+                        <Table.Cell
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <RowActions order={order} onDelete={setDeleting} />
+                        </Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table.Root>
+              </Box>
+              <Flex
+                direction="column"
+                gap="2"
+                display={{ initial: "flex", sm: "none" }}
+                style={{ minWidth: 0 }}
+              >
+                {filtered.slice(0, 10).map((order) => (
+                  <Card
+                    key={order.id}
+                    onClick={() => setSelected(order)}
+                    style={{ cursor: "pointer", minWidth: 0 }}
+                  >
+                    <Flex direction="column" gap="2" style={{ minWidth: 0 }}>
+                      <Flex justify="between" gap="2" style={{ minWidth: 0 }}>
+                        <Text weight="medium" style={{ minWidth: 0 }}>
+                          {order.id}
+                        </Text>
+                        <StatusBadge value={order.status} />
+                      </Flex>
+                      <Flex justify="between" gap="2" style={{ minWidth: 0 }}>
+                        <Text
+                          size="2"
+                          color="gray"
+                          style={{ minWidth: 0, overflowWrap: "anywhere" }}
+                        >
+                          {order.customer} · {order.date}
+                        </Text>
+                        <Text weight="medium">
+                          ¥{order.amount.toLocaleString()}
+                        </Text>
+                      </Flex>
+                      <Flex justify="end">
+                        <Box onClick={(event) => event.stopPropagation()}>
+                          <RowActions order={order} onDelete={setDeleting} />
+                        </Box>
+                      </Flex>
+                    </Flex>
+                  </Card>
+                ))}
+              </Flex>
+            </>
           )}
-          <Flex justify="between" align="center">
-            <Text size="2" color="gray">
-              共 {filtered.length} 条
-            </Text>
-            <Flex gap="2">
-              <Button size="2" variant="soft">
-                1
-              </Button>
-              <Button size="2" variant="ghost">
-                2
-              </Button>
-              <Select.Root defaultValue="10">
-                <Select.Trigger placeholder="10 / 页" />
-                <Select.Content>
-                  <Select.Item value="10">10 / 页</Select.Item>
-                  <Select.Item value="20">20 / 页</Select.Item>
-                  <Select.Item value="50">50 / 页</Select.Item>
-                </Select.Content>
-              </Select.Root>
+          {state === "normal" ? (
+            <Flex justify="between" align="center">
+              <Text size="2" color="gray">
+                共 {filtered.length} 条
+              </Text>
+              <Flex gap="2">
+                <Button size="2" variant="soft">
+                  1
+                </Button>
+                <Button size="2" variant="ghost">
+                  2
+                </Button>
+                <Select.Root defaultValue="10">
+                  <Select.Trigger placeholder="10 / 页" />
+                  <Select.Content>
+                    <Select.Item value="10">10 / 页</Select.Item>
+                    <Select.Item value="20">20 / 页</Select.Item>
+                    <Select.Item value="50">50 / 页</Select.Item>
+                  </Select.Content>
+                </Select.Root>
+              </Flex>
             </Flex>
-          </Flex>
+          ) : null}
         </Flex>
       </Card>
+      <AlertDialog.Root
+        open={!!deleting}
+        onOpenChange={(open) => !open && setDeleting(null)}
+      >
+        <AlertDialog.Content>
+          <AlertDialog.Title>删除订单？</AlertDialog.Title>
+          <AlertDialog.Description>此操作无法撤销。</AlertDialog.Description>
+          <Flex justify="end" gap="3" mt="4">
+            <AlertDialog.Cancel>
+              <Button variant="soft">取消</Button>
+            </AlertDialog.Cancel>
+            <AlertDialog.Action>
+              <Button
+                color="red"
+                onClick={() => {
+                  show("订单已删除")
+                  setDeleting(null)
+                }}
+              >
+                确认删除
+              </Button>
+            </AlertDialog.Action>
+          </Flex>
+        </AlertDialog.Content>
+      </AlertDialog.Root>
       <Dialog.Root
         open={!!selected}
         onOpenChange={(open) => !open && setSelected(null)}
@@ -360,8 +416,9 @@ export function OrdersPage() {
               <Button
                 color="red"
                 onClick={() => {
-                  show("订单已删除")
+                  const order = selected
                   setSelected(null)
+                  setDeleting(order)
                 }}
               >
                 删除订单

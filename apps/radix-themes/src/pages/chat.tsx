@@ -99,7 +99,7 @@ function ToolCall({ tool }: { tool: (typeof chat.messages)[number]["tool"] }) {
             style={{ width: "100%", justifyContent: "flex-start" }}
           >
             <Flex align="center" gap="2" width="100%">
-              <Icon name="chevrons-up-down" size={14} />
+              <Icon name="chevron-down" size={14} />
               <Text weight="medium">{tool.name}</Text>
               <Badge color={color} ml="auto">
                 {tool.status}
@@ -258,18 +258,20 @@ export function ChatPage() {
           </Flex>
         )}
         <Flex direction="column" gap="2" mt="auto">
-          <Flex gap="2" wrap="wrap">
-            {chat.suggestions.map((suggestion) => (
-              <Button
-                key={suggestion}
-                size="2"
-                variant="soft"
-                onClick={() => setInput(suggestion)}
-              >
-                {suggestion}
-              </Button>
-            ))}
-          </Flex>
+          {!empty ? (
+            <Flex gap="2" wrap="wrap">
+              {chat.suggestions.map((suggestion) => (
+                <Button
+                  key={suggestion}
+                  size="2"
+                  variant="soft"
+                  onClick={() => setInput(suggestion)}
+                >
+                  {suggestion}
+                </Button>
+              ))}
+            </Flex>
+          ) : null}
           <Flex direction="column" gap="2" style={{ minWidth: 0 }}>
             <TextArea
               value={input}

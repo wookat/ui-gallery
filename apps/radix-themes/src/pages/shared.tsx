@@ -32,7 +32,11 @@ export function StatusBadge({ value }: { value: string }) {
       : value === "failed" || value === "refunded"
         ? "red"
         : "amber"
-  return <Badge color={color}>{value}</Badge>
+  return (
+    <Badge color={color} highContrast>
+      {value}
+    </Badge>
+  )
 }
 
 export function FieldLabel({

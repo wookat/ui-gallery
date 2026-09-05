@@ -40,7 +40,7 @@ export function LoginPage() {
           {submitted && (!email || !password) ? (
             <Callout.Root color="red">
               <Callout.Icon>
-                <Icon name="alert-triangle" />
+                <Icon name="alert-circle" />
               </Callout.Icon>
               <Callout.Text>邮箱或密码不正确</Callout.Text>
             </Callout.Root>
@@ -60,7 +60,7 @@ export function LoginPage() {
                   placeholder="user@example.com"
                 >
                   <TextField.Slot>
-                    <Icon name="mail" size={16} />
+                    <Icon name="user" size={16} />
                   </TextField.Slot>
                 </TextField.Root>
                 {submitted && !email ? (
@@ -101,7 +101,12 @@ export function LoginPage() {
                 <Flex align="center" gap="2">
                   <Checkbox /> <Text size="2">记住我</Text>
                 </Flex>
-                <Button variant="ghost" size="2" asChild>
+                <Button
+                  variant="ghost"
+                  size="3"
+                  asChild
+                  style={{ minHeight: "40px" }}
+                >
                   <Link to="#">忘记密码</Link>
                 </Button>
               </Flex>
@@ -119,22 +124,27 @@ export function LoginPage() {
             <Separator size="4" />
           </Flex>
           <Flex direction="column" gap="2">
-            <Button variant="outline">
+            <Button size="3" variant="outline">
               <Icon name="globe" />
               Google
             </Button>
-            <Button variant="outline">
-              <Icon name="github" />
+            <Button size="3" variant="outline">
+              <Icon name="link" />
               GitHub
             </Button>
-            <Button variant="outline">
+            <Button size="3" variant="outline">
               <Icon name="message-circle" />
               微信
             </Button>
           </Flex>
           <Text align="center" size="2">
             还没有账号？{" "}
-            <Button variant="ghost" size="2" asChild>
+            <Button
+              variant="ghost"
+              size="3"
+              asChild
+              style={{ minHeight: "40px" }}
+            >
               <Link to="#">注册</Link>
             </Button>
           </Text>

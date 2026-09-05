@@ -124,7 +124,11 @@ export function DashboardPage() {
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Legend />
+                  <Legend
+                    formatter={(value) => (
+                      <span style={{ color: "var(--gray-12)" }}>{value}</span>
+                    )}
+                  />
                   <Line
                     dataKey="revenue"
                     stroke="var(--accent-9)"
@@ -205,12 +209,10 @@ export function DashboardPage() {
           <Heading size="4" mb="3">
             最近订单
           </Heading>
-          <Box display={{ initial: "block", sm: "none" }} mb="2">
-            <Text size="1" color="gray">
-              左右滑动查看更多
-            </Text>
-          </Box>
-          <Box style={{ overflowX: "auto" }}>
+          <Box
+            display={{ initial: "none", sm: "block" }}
+            style={{ overflowX: "auto" }}
+          >
             <Table.Root variant="surface">
               <Table.Header>
                 <Table.Row>
@@ -246,6 +248,33 @@ export function DashboardPage() {
               </Table.Body>
             </Table.Root>
           </Box>
+          <Flex
+            direction="column"
+            gap="2"
+            display={{ initial: "flex", sm: "none" }}
+          >
+            {orders.slice(0, 5).map((order) => (
+              <Card key={order.id}>
+                <Flex justify="between" align="center">
+                  <Flex gap="2" align="center">
+                    <Avatar size="1" fallback={order.customer.slice(0, 1)} />
+                    <Box>
+                      <Text weight="medium" as="div">
+                        {order.id}
+                      </Text>
+                      <Text size="1" color="gray" as="div">
+                        {order.customer}
+                      </Text>
+                    </Box>
+                  </Flex>
+                  <Flex direction="column" align="end" gap="1">
+                    <StatusBadge value={order.status} />
+                    <Text size="2">¥{order.amount.toLocaleString()}</Text>
+                  </Flex>
+                </Flex>
+              </Card>
+            ))}
+          </Flex>
         </Card>
         <Card>
           <Heading size="4" mb="4">

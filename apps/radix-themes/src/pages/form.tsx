@@ -26,11 +26,14 @@ import { FieldLabel, Help, PageHeader } from "./shared"
 export function FormPage() {
   const [step, setStep] = useState(1)
   const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [attempted, setAttempted] = useState(false)
   const [tags, setTags] = useState<string[]>([])
   const [tag, setTag] = useState("")
   const [done, setDone] = useState(false)
   const [assignee, setAssignee] = useState("")
   const [agree, setAgree] = useState(false)
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   const addTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && tag.trim()) {
       event.preventDefault()
@@ -61,7 +64,7 @@ export function FormPage() {
       {done ? (
         <Card>
           <Flex direction="column" align="center" gap="4" p="6">
-            <Icon name="check-circle" size={40} />
+            <Icon name="check" size={40} />
             <Heading size="6">项目创建成功</Heading>
             <Text color="gray">你的配置已经保存。</Text>
             <Button
@@ -88,7 +91,7 @@ export function FormPage() {
                     placeholder="输入项目名称"
                   />
                 </label>
-                {!name ? (
+                {attempted && !name ? (
                   <Text size="1" color="red">
                     项目名称为必填项
                   </Text>
@@ -102,8 +105,16 @@ export function FormPage() {
                   <TextField.Root
                     mt="2"
                     type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
                     placeholder="user@example.com"
+                    color={attempted && !emailOk ? "red" : undefined}
                   />
+                  {attempted && !emailOk ? (
+                    <Text size="1" color="red">
+                      请输入有效邮箱
+                    </Text>
+                  ) : null}
                 </label>
                 <label>
                   <FieldLabel>联系电话</FieldLabel>
@@ -249,7 +260,7 @@ export function FormPage() {
                 </Flex>
                 <Tooltip content="项目成员可以在创建后继续编辑">
                   <Button variant="ghost" size="1">
-                    <Icon name="info" />
+                    <Icon name="alert-circle" />
                     需要帮助？
                   </Button>
                 </Tooltip>
@@ -281,8 +292,13 @@ export function FormPage() {
             {step < 3 ? (
               <Flex justify="end" gap="3">
                 <Button
-                  disabled={step === 1 && !name}
-                  onClick={() => setStep((value) => value + 1)}
+                  onClick={() => {
+                    if (step === 1 && (!name || !emailOk)) {
+                      setAttempted(true)
+                      return
+                    }
+                    setStep((value) => value + 1)
+                  }}
                 >
                   下一步
                 </Button>

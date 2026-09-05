@@ -8,7 +8,7 @@
   "theme": { "dark": true, "nativeIcons": true },
   "routes": ["/login", "/", "/orders", "/form", "/settings", "/components", "/landing", "/chat"],
   "coverage": {
-    "Typography": "implemented", "Button": "implemented", "ButtonGroup": "implemented", "IconButton": "implemented",
+    "Typography": "implemented", "Button": "implemented", "ButtonGroup": "composed", "IconButton": "implemented",
     "Input": "implemented", "Textarea": "implemented", "NumberInput": "implemented", "Select": "implemented",
     "MultiSelect": "implemented", "Combobox": "implemented", "Autocomplete": "implemented", "Checkbox": "implemented",
     "Radio": "implemented", "Switch": "implemented", "Slider": "implemented", "Rating": "implemented",

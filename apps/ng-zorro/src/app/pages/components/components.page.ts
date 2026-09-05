@@ -70,7 +70,7 @@ import { IconComponent } from '../../core/icon.component';
 import { UrlSettings } from '../../core/url-settings';
 
 export const COVERAGE = {
-  Typography: 'implemented', Button: 'implemented', ButtonGroup: 'implemented', IconButton: 'implemented',
+  Typography: 'implemented', Button: 'implemented', ButtonGroup: 'composed', IconButton: 'implemented',
   Input: 'implemented', Textarea: 'implemented', NumberInput: 'implemented', Select: 'implemented', MultiSelect: 'implemented',
   Combobox: 'implemented', Autocomplete: 'implemented', Checkbox: 'implemented', Radio: 'implemented', Switch: 'implemented',
   Slider: 'implemented', Rating: 'implemented', DatePicker: 'implemented', TimePicker: 'implemented', DateRangePicker: 'implemented',

@@ -12,6 +12,53 @@ export function mount(root: HTMLElement): void {
   const form = root.querySelector<HTMLFormElement>("#project-form")
   const sections = [...root.querySelectorAll<HTMLElement>("[data-step]")]
   const steps = [...root.querySelectorAll<HTMLElement>(".stepper li")]
+  const clearError = (control: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => {
+    control.removeAttribute("aria-invalid")
+    control.parentElement?.querySelectorAll(".field-error").forEach((error) => error.remove())
+    control.closest("fieldset")?.querySelectorAll(".field-error").forEach((error) => error.remove())
+  }
+  const validateStep = (step: number): boolean => {
+    const section = root.querySelector<HTMLElement>(`section[data-step="${step}"]`)
+    if (!section) return true
+    let valid = true
+    const handledRadios = new Set<string>()
+    section.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("[required]").forEach((control) => {
+      if (control instanceof HTMLInputElement && control.type === "radio") {
+        if (handledRadios.has(control.name)) return
+        handledRadios.add(control.name)
+        const group = [...section.querySelectorAll<HTMLInputElement>("input[type='radio']")].filter((input) => input.name === control.name)
+        const fieldset = control.closest("fieldset")
+        const groupValid = group.some((input) => input.checked)
+        if (groupValid) {
+          group.forEach(clearError)
+          fieldset?.querySelectorAll(".field-error").forEach((error) => error.remove())
+        } else {
+          valid = false
+          group.forEach((input) => input.setAttribute("aria-invalid", "true"))
+          fieldset?.querySelectorAll(".field-error").forEach((error) => error.remove())
+          const error = document.createElement("small")
+          error.className = "field-error"
+          error.setAttribute("role", "alert")
+          error.textContent = "此项为必填"
+          fieldset?.append(error)
+        }
+        return
+      }
+      if (control.checkValidity()) {
+        clearError(control)
+        return
+      }
+      valid = false
+      control.setAttribute("aria-invalid", "true")
+      control.parentElement?.querySelectorAll(".field-error").forEach((error) => error.remove())
+      const error = document.createElement("small")
+      error.className = "field-error"
+      error.setAttribute("role", "alert")
+      error.textContent = control.validity.valueMissing ? "此项为必填" : control.validity.typeMismatch ? "请输入有效的邮箱地址" : "输入格式不正确"
+      control.after(error)
+    })
+    return valid
+  }
   const show = (step: number) => {
     sections.forEach((section) => { section.hidden = Number(section.dataset.step) !== step })
     steps.forEach((item, index) => item.classList.toggle("active", index < step))
@@ -21,10 +68,12 @@ export function mount(root: HTMLElement): void {
       root.querySelector("#summary-email")!.textContent = form?.elements.namedItem("email") instanceof HTMLInputElement ? (form.elements.namedItem("email") as HTMLInputElement).value : "—"
     }
   }
-  root.querySelector("#next-1")?.addEventListener("click", () => { if (form?.checkValidity()) show(2); else form?.reportValidity() })
-  root.querySelector("#next-2")?.addEventListener("click", () => show(3))
+  root.querySelector("#next-1")?.addEventListener("click", () => { if (validateStep(1)) show(2) })
+  root.querySelector("#next-2")?.addEventListener("click", () => { if (validateStep(2)) show(3) })
   root.querySelector("#back-2")?.addEventListener("click", () => show(1))
   root.querySelector("#back-3")?.addEventListener("click", () => show(2))
+  form?.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("input,select,textarea").forEach((control) => control.addEventListener("input", () => clearError(control)))
+  form?.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("input,select,textarea").forEach((control) => control.addEventListener("change", () => clearError(control)))
   root.querySelector("#description")?.addEventListener("input", (event) => { root.querySelector("#char-count")!.textContent = String((event.target as HTMLTextAreaElement).value.length) })
   root.querySelector("#tags")?.addEventListener("keydown", (event) => {
     const keyboardEvent = event as KeyboardEvent
@@ -36,9 +85,12 @@ export function mount(root: HTMLElement): void {
   })
   form?.addEventListener("submit", (event) => {
     event.preventDefault()
-    if (!form.checkValidity()) { form.reportValidity(); return }
+    if (!validateStep(3)) return
     const section = root.querySelector<HTMLElement>("[data-step='3']")
     if (section) section.innerHTML = `<article role="status" style="text-align:center"><h2>${icon("check-circle")}项目创建成功</h2><p>你的工作区已经准备就绪。</p><button type="button" id="return-dashboard">返回</button></article>`
-    root.querySelector("#return-dashboard")?.addEventListener("click", () => window.history.pushState({}, "", "./"))
+    root.querySelector("#return-dashboard")?.addEventListener("click", () => {
+      window.history.pushState({}, "", window.location.pathname.replace(/\/form$/, "/"))
+      window.dispatchEvent(new Event("popstate"))
+    })
   })
 }

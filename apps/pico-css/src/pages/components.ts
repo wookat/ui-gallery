@@ -48,7 +48,7 @@ function demo(name: string): string {
     case "Timeline": return `<ul class="timeline"><li><strong>创建项目</strong><small>刚刚</small></li><li><strong>邀请团队成员</strong><small>1 小时前</small></li><li><strong>完成部署</strong><small>昨天</small></li></ul>`
     case "Tree": return `<details open><summary>工作区</summary><ul><li><details><summary>订单</summary><ul><li>列表</li><li>分析</li></ul></details></li><li>设置</li></ul></details>`
     case "Calendar": return `<table class="calendar-demo"><thead><tr>${["一", "二", "三", "四", "五", "六", "日"].map((x) => `<th>${x}</th>`).join("")}</tr></thead><tbody>${Array.from({ length: 5 }, (_, row) => `<tr>${Array.from({ length: 7 }, (_, col) => `<td>${row * 7 + col + 1}</td>`).join("")}</tr>`).join("")}</tbody></table>`
-    case "Image": return `<figure><img class="image-placeholder" alt="产品预览" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%23e8eef2'/%3E%3C/svg%3E"><figcaption>产品预览</figcaption></figure>`
+    case "Image": return `<figure><div class="image-placeholder" role="img" aria-label="产品预览">${icon("image", 32)}</div><figcaption>产品预览</figcaption></figure>`
     case "Empty": return `<article class="empty-state">${icon("inbox", 32)}<h3>暂无内容</h3><p>没有可展示的数据。</p>${button("创建第一条记录")}</article>`
     case "Tooltip": return `<div class="demo-row tooltip-demo">${["top", "right", "bottom", "left"].map((place) => button(place, "outline", `data-tooltip="${place} 提示" data-placement="${place}"`)).join("")}</div>`
     case "Popover": return `<details class="dropdown"><summary role="button" class="outline">打开 Popover</summary><ul><li><strong>快捷操作</strong></li><li><a href="#component-Popover">查看详情</a></li></ul></details>`

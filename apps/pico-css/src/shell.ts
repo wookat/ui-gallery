@@ -4,6 +4,7 @@ import team from "@ui-gallery/spec/mock/team.json"
 import { icon } from "./icons"
 
 const user = team[0]
+let dropdownController: AbortController | undefined
 
 export function shell(page: string): string {
   const path = window.location.pathname.replace("/apps/pico-css", "") || "/"
@@ -32,6 +33,9 @@ export function shell(page: string): string {
 }
 
 export function mountShell(root: HTMLElement): void {
+  dropdownController?.abort()
+  dropdownController = new AbortController()
+  const { signal } = dropdownController
   const sidebar = root.querySelector<HTMLElement>("#sidebar")
   const backdrop = root.querySelector<HTMLElement>("#drawer-backdrop")
   root.querySelector("#collapse-sidebar")?.addEventListener("click", () => sidebar?.classList.toggle("collapsed"))
@@ -39,6 +43,16 @@ export function mountShell(root: HTMLElement): void {
   root.querySelector("#mobile-menu")?.addEventListener("click", () => { sidebar?.classList.add("open"); backdrop?.classList.add("open") })
   backdrop?.addEventListener("click", close)
   root.querySelectorAll(".nav-list a").forEach((link) => link.addEventListener("click", close))
+  const dropdowns = [...root.querySelectorAll<HTMLDetailsElement>(".compact-dropdown")]
+  dropdowns.forEach((dropdown) => dropdown.addEventListener("toggle", () => {
+    if (!dropdown.open) return
+    dropdowns.forEach((other) => { if (other !== dropdown) other.open = false })
+  }, { signal }))
+  document.addEventListener("click", (event) => {
+    const target = event.target as Node
+    if (dropdowns.some((dropdown) => dropdown.contains(target))) return
+    dropdowns.forEach((dropdown) => { dropdown.open = false })
+  }, { signal })
   root.querySelector("#theme-toggle")?.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark"
     document.documentElement.dataset.theme = next

@@ -5,11 +5,11 @@ const contract = JSON.parse(readFileSync(`${root}packages/spec/contract.json`, "
 const source = readFileSync(`${root}apps/shadcn-svelte/src/coverage.ts`, "utf8")
 const galleryPath = `${root}apps/shadcn-svelte/gallery.json`
 const gallery = JSON.parse(readFileSync(galleryPath, "utf8"))
-const entries = Object.fromEntries(
-  [...source.matchAll(/^\s{2}([A-Za-z0-9]+): "(implemented|composed|missing)",?$/gm)].map(
-    (match) => [match[1], match[2]]
-  )
-)
+const entries = {}
+for (const status of ["implemented", "composed", "missing"]) {
+  const match = source.match(new RegExp(`const ${status} = \\[(.*?)\\]`, "s"))
+  for (const name of match?.[1].matchAll(/"([^"]+)"/g) ?? []) entries[name[1]] = status
+}
 gallery.coverage = Object.fromEntries(
   contract.components.map((name) => [name, entries[name] ?? "missing"])
 )

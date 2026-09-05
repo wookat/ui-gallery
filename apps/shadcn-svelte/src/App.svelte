@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { Component } from "svelte"
+  import { onMount } from "svelte"
+  import { ModeWatcher, setMode } from "mode-watcher"
   import { currentPath } from "$lib/router.svelte"
   import AppShell from "$lib/layouts/AppShell.svelte"
   import Login from "./routes/Login.svelte"
@@ -20,12 +22,23 @@
     "/chat": Chat,
   }
   const page = $derived(pages[currentPath.value] ?? Dashboard)
+
+  onMount(() => {
+    const explicitTheme = new URLSearchParams(window.location.search).get("theme")
+    if (explicitTheme === "dark" || explicitTheme === "light") {
+      setTimeout(() => setMode(explicitTheme), 0)
+    }
+  })
 </script>
 
+<ModeWatcher />
 {#if currentPath.value === "/login"}
   <Login />
 {:else if currentPath.value === "/landing"}
   <Landing />
 {:else}
-  <AppShell><svelte:component this={page} /></AppShell>
+  <AppShell>
+    {@const Page = page}
+    <Page />
+  </AppShell>
 {/if}

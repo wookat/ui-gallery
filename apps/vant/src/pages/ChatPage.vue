@@ -8,11 +8,24 @@ const draft = ref("")
 const empty = ref(false)
 const drawer = ref(false)
 const selected = ref(chat.conversations[0].id)
+const model = ref(chat.models[0])
+const modelPopup = ref(false)
+const conversationQuery = ref("")
 const copied = ref(false)
 const md = new MarkdownIt({ html: false, linkify: true, typographer: true })
 const activeConversation = computed(() => chat.conversations.find((item) => item.id === selected.value) ?? chat.conversations[0])
+const conversations = computed(() => chat.conversations.filter((item) => item.title.toLowerCase().includes(conversationQuery.value.toLowerCase())))
+const modelColumns = chat.models.map((text) => ({ text, value: text }))
 const renderMarkdown = (value: string) => md.render(value)
-const copy = async (value: string) => { await navigator.clipboard?.writeText(value); copied.value = true; window.setTimeout(() => copied.value = false, 1200) }
+const copy = async (value: string) => {
+  try {
+    await navigator.clipboard?.writeText(value)
+    copied.value = true
+    window.setTimeout(() => copied.value = false, 1200)
+  } catch {
+    copied.value = false
+  }
+}
 </script>
 
 <template>
@@ -21,14 +34,14 @@ const copy = async (value: string) => { await navigator.clipboard?.writeText(val
     <div class="chat-layout">
       <aside class="chat-sidebar">
         <div class="between"><strong>对话</strong><van-button plain icon="plus" @click="empty = true"><AppIcon name="plus" /></van-button></div>
-        <van-search placeholder="搜索对话" />
+        <van-search v-model="conversationQuery" placeholder="搜索对话" />
         <van-button block type="primary" class="new-chat" @click="empty = true"><AppIcon name="plus" />新建对话</van-button>
-        <van-cell v-for="item in chat.conversations" :key="item.id" :title="item.title" :label="item.time" is-link :class="{ active: item.id === selected }" @click="selected = item.id">
+        <van-cell v-for="item in conversations" :key="item.id" :title="item.title" :label="item.time" is-link :class="{ active: item.id === selected }" @click="selected = item.id">
           <template #value><van-badge v-if="item.unread" :content="item.unread" /></template>
         </van-cell>
       </aside>
       <section class="chat-main">
-        <header class="between" style="padding: 14px 18px; border-bottom: 1px solid var(--van-border-color)"><div><strong>{{ activeConversation.title }}</strong><small class="muted"> · {{ chat.models[0] }}</small></div><van-field model-value="gpt-5" readonly is-link /></header>
+        <header class="between" style="padding: 14px 18px; border-bottom: 1px solid var(--van-border-color)"><div><strong>{{ activeConversation.title }}</strong><small class="muted"> · {{ model }}</small></div><van-field :model-value="model" readonly is-link @click="modelPopup = true" /></header>
         <div v-if="empty" class="chat-messages"><van-empty description="开始一段新对话"><div class="suggestion-grid"><van-button v-for="item in chat.suggestions" :key="item" plain @click="draft = item; empty = false">{{ item }}</van-button></div></van-empty></div>
         <div v-else class="chat-messages">
           <article v-for="(message, index) in chat.messages" :key="`${message.role}-${index}`" class="message" :class="{ user: message.role === 'user' }">
@@ -39,7 +52,8 @@ const copy = async (value: string) => { await navigator.clipboard?.writeText(val
         <div class="composer"><div class="inline suggestion-row"><van-tag v-for="suggestion in chat.suggestions" :key="suggestion" plain @click="draft = suggestion">{{ suggestion }}</van-tag></div><van-field v-model="draft" type="textarea" autosize rows="2" maxlength="2000" show-word-limit placeholder="向 AI 助手提问..."><template #left-icon><AppIcon name="paperclip" /></template><template #button><van-button type="primary" round @click="draft = ''"><AppIcon name="send" /></van-button></template></van-field><small class="muted">Enter 发送 · Shift + Enter 换行</small></div>
       </section>
     </div>
-    <van-popup v-model:show="drawer" position="left" :style="{ width: '82%', height: '100%' }"><div class="chat-sidebar" style="height: 100%"><div class="between"><strong>对话</strong><van-button plain @click="drawer = false">关闭</van-button></div><van-cell v-for="item in chat.conversations" :key="item.id" :title="item.title" @click="selected = item.id; drawer = false" /></div></van-popup>
+    <van-popup v-model:show="drawer" position="left" :style="{ width: '82%', height: '100%' }"><div class="chat-sidebar" style="height: 100%"><div class="between"><strong>对话</strong><van-button plain @click="drawer = false">关闭</van-button></div><van-search v-model="conversationQuery" placeholder="搜索对话" /><van-cell v-for="item in conversations" :key="item.id" :title="item.title" :label="item.time" @click="selected = item.id; drawer = false"><template #value><van-badge v-if="item.unread" :content="item.unread" /></template></van-cell></div></van-popup>
+    <van-popup v-model:show="modelPopup" position="bottom"><van-picker :columns="modelColumns" @confirm="(item) => { model = String(item.selectedValues[0]); modelPopup = false }" /></van-popup>
   </div>
 </template>
 

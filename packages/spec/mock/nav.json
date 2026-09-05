@@ -1,0 +1,51 @@
+[
+ {
+  "key": "dashboard",
+  "label": "仪表盘",
+  "path": "/",
+  "icon": "layout-dashboard"
+ },
+ {
+  "key": "orders",
+  "label": "订单",
+  "path": "/orders",
+  "icon": "shopping-cart",
+  "badge": 12
+ },
+ {
+  "key": "form",
+  "label": "新建项目",
+  "path": "/form",
+  "icon": "file-plus"
+ },
+ {
+  "key": "chat",
+  "label": "AI 助手",
+  "path": "/chat",
+  "icon": "message-square"
+ },
+ {
+  "key": "components",
+  "label": "组件全集",
+  "path": "/components",
+  "icon": "boxes"
+ },
+ {
+  "key": "landing",
+  "label": "落地页",
+  "path": "/landing",
+  "icon": "globe"
+ },
+ {
+  "key": "settings",
+  "label": "设置",
+  "path": "/settings",
+  "icon": "settings"
+ },
+ {
+  "key": "login",
+  "label": "登录页",
+  "path": "/login",
+  "icon": "log-in"
+ }
+]

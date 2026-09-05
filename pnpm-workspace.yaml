@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+  - gallery
+  - tools/*
+
+allowBuilds:
+  esbuild: true
+  playwright: true
+  playwright-core: true
+  sharp: true
+  "@parcel/watcher": true

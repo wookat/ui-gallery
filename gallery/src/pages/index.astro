@@ -1,0 +1,110 @@
+---
+import contract from "../../../packages/spec/contract.json";
+const routes = contract.routes.map((r) => ({ route: r, name: r === "/" ? "dashboard" : r.slice(1) }));
+const labels: Record<string, string> = {
+  login: "登录", dashboard: "仪表盘", orders: "数据表格", form: "多步表单", settings: "设置",
+  components: "组件全集", landing: "落地页", chat: "AI 对话",
+};
+---
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>UI Gallery — 同一套页面，每个开源组件库长什么样</title>
+    <meta name="description" content="同一套 8 个应用页面，用每个免费/开源 UI 组件库各做一遍（官方默认主题），桌面/移动 × 亮/暗并排对比。" />
+  </head>
+  <body>
+    <header>
+      <h1>UI Gallery</h1>
+      <p>同一套页面 · 每个开源组件库 · 官方默认主题 · 并排看</p>
+      <nav class="tabs" id="routes">
+        {routes.map((r, i) => <button data-route={r.name} class={i === 1 ? "on" : ""}>{labels[r.name]}</button>)}
+      </nav>
+      <div class="controls">
+        <div class="seg" id="vp"><button data-v="desktop" class="on">桌面 1440</button><button data-v="mobile">移动 375</button></div>
+        <div class="seg" id="th"><button data-v="light" class="on">亮色</button><button data-v="dark">暗色</button></div>
+        <select id="fw"><option value="">全部框架</option></select>
+        <input id="q" type="search" placeholder="搜索库名…" />
+        <span id="count" class="muted"></span>
+      </div>
+    </header>
+    <main id="grid" class="grid"></main>
+    <footer class="muted">
+      数据与许可证实查见 <a href="https://github.com/wookat/frontend-libs-research">frontend-libs-research</a> ·
+      源码 <a href="https://github.com/wookat/ui-gallery">wookat/ui-gallery</a> · 截图由 Playwright 自动生成，点击任意卡片进入真实可交互页面。
+    </footer>
+    <script>
+      type App = { slug: string; name: string; framework: string; version?: string; repo?: string; license?: { github?: string; npm?: string }; theme?: { dark?: boolean }; coverage?: Record<string, string> };
+      const state = { route: "dashboard", vp: "desktop", th: "light", fw: "", q: "" };
+      let apps: App[] = [];
+      const grid = document.getElementById("grid")!;
+      const fw = document.getElementById("fw") as HTMLSelectElement;
+      const count = document.getElementById("count")!;
+      const routeOf = (n: string) => (n === "dashboard" ? "/" : "/" + n);
+      function render() {
+        const list = apps.filter((a) => (!state.fw || a.framework === state.fw) && (!state.q || a.name.toLowerCase().includes(state.q) || a.slug.includes(state.q)));
+        count.textContent = `${list.length} / ${apps.length} 个库`;
+        grid.className = "grid " + state.vp;
+        grid.innerHTML = list.map((a) => {
+          const dark = a.theme?.dark === false && state.th === "dark";
+          const cov = a.coverage ? Object.values(a.coverage) : [];
+          const impl = cov.filter((v) => v === "implemented").length;
+          const img = `/shots/${a.slug}/${state.route}__${state.vp}__${state.th}.png`;
+          const href = `/apps/${a.slug}${routeOf(state.route)}?theme=${state.th}`;
+          return `<a class="card" href="${href}" target="_blank" rel="noopener">
+            <div class="shot">${dark ? `<div class="na">该库无暗色主题</div>` : `<img loading="lazy" src="${img}" alt="${a.name} ${state.route}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'na',textContent:'截图待生成'}))" />`}</div>
+            <div class="meta"><b>${a.name}</b><span class="muted">${a.framework}${a.version ? " · v" + a.version : ""}${a.license?.npm ? " · " + a.license.npm : ""}${cov.length ? ` · 组件 ${impl}/${cov.length}` : ""}</span></div>
+          </a>`;
+        }).join("") || `<p class="muted empty">还没有库。首个参考实现正在路上。</p>`;
+      }
+      fetch("/manifest.json").then((r) => (r.ok ? r.json() : [])).then((m: App[]) => {
+        apps = m.sort((a, b) => a.name.localeCompare(b.name));
+        for (const f of [...new Set(apps.map((a) => a.framework))].sort()) fw.append(new Option(f, f));
+        render();
+      }).catch(render);
+      const seg = (id: string, key: "vp" | "th") => document.getElementById(id)!.addEventListener("click", (e) => {
+        const b = (e.target as HTMLElement).closest("button"); if (!b) return;
+        document.querySelectorAll(`#${id} button`).forEach((x) => x.classList.remove("on")); b.classList.add("on");
+        (state as any)[key] = b.dataset.v; render();
+      });
+      seg("vp", "vp"); seg("th", "th");
+      document.getElementById("routes")!.addEventListener("click", (e) => {
+        const b = (e.target as HTMLElement).closest("button"); if (!b) return;
+        document.querySelectorAll("#routes button").forEach((x) => x.classList.remove("on")); b.classList.add("on");
+        state.route = b.dataset.route!; render();
+      });
+      fw.addEventListener("change", () => { state.fw = fw.value; render(); });
+      document.getElementById("q")!.addEventListener("input", (e) => { state.q = (e.target as HTMLInputElement).value.trim().toLowerCase(); render(); });
+    </script>
+    <style>
+      :root { --bg: #fafafa; --fg: #111; --muted: #666; --line: #e5e5e5; --card: #fff; --accent: #111; }
+      @media (prefers-color-scheme: dark) { :root { --bg: #0b0b0c; --fg: #f2f2f2; --muted: #9a9a9a; --line: #262626; --card: #141416; --accent: #f2f2f2; } }
+      * { box-sizing: border-box; }
+      body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--fg); }
+      header { position: sticky; top: 0; z-index: 2; background: var(--bg); border-bottom: 1px solid var(--line); padding: 16px clamp(12px, 3vw, 32px) 12px; }
+      h1 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
+      header p { margin: 2px 0 12px; color: var(--muted); }
+      .tabs, .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .tabs { margin-bottom: 10px; }
+      button, select, input { font: inherit; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; min-height: 40px; cursor: pointer; }
+      input { cursor: text; min-width: 160px; }
+      button.on { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+      .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+      .seg button { border: 0; border-radius: 0; }
+      .muted { color: var(--muted); font-size: 13px; }
+      .grid { display: grid; gap: 16px; padding: 16px clamp(12px, 3vw, 32px) 40px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+      .grid.mobile { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+      .card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; color: inherit; text-decoration: none; transition: transform .15s, box-shadow .15s; }
+      .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+      .shot { aspect-ratio: 1440 / 900; background: var(--line); position: relative; }
+      .mobile .shot { aspect-ratio: 375 / 812; }
+      .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+      .na { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 13px; }
+      .meta { padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+      .empty { grid-column: 1 / -1; text-align: center; padding: 60px 0; }
+      footer { padding: 16px clamp(12px, 3vw, 32px) 40px; border-top: 1px solid var(--line); }
+      a { color: inherit; }
+    </style>
+  </body>
+</html>

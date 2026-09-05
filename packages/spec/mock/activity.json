@@ -1,0 +1,32 @@
+[
+ {
+  "user": "林晓",
+  "action": "创建了订单 ORD-2401",
+  "time": "1 小时前"
+ },
+ {
+  "user": "王子涵",
+  "action": "评论了「Q3 发布计划」",
+  "time": "2 小时前"
+ },
+ {
+  "user": "Alex Chen",
+  "action": "上传了 3 个文件",
+  "time": "3 小时前"
+ },
+ {
+  "user": "Maria García",
+  "action": "邀请 Kenji 加入团队",
+  "time": "4 小时前"
+ },
+ {
+  "user": "陈思远",
+  "action": "关闭了工单 #128",
+  "time": "5 小时前"
+ },
+ {
+  "user": "Sophie Martin",
+  "action": "发布了 v2.3.0",
+  "time": "6 小时前"
+ }
+]

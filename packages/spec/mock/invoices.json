@@ -1,0 +1,38 @@
+[
+ {
+  "id": "INV-000",
+  "date": "2026-09-01",
+  "amount": 99,
+  "status": "due"
+ },
+ {
+  "id": "INV-001",
+  "date": "2026-08-01",
+  "amount": 99,
+  "status": "paid"
+ },
+ {
+  "id": "INV-002",
+  "date": "2026-07-01",
+  "amount": 99,
+  "status": "paid"
+ },
+ {
+  "id": "INV-003",
+  "date": "2026-06-01",
+  "amount": 99,
+  "status": "paid"
+ },
+ {
+  "id": "INV-004",
+  "date": "2026-05-01",
+  "amount": 99,
+  "status": "paid"
+ },
+ {
+  "id": "INV-005",
+  "date": "2026-04-01",
+  "amount": 99,
+  "status": "paid"
+ }
+]

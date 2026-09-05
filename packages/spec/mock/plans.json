@@ -1,0 +1,32 @@
+[
+ {
+  "name": "Starter",
+  "price": 0,
+  "features": [
+   "3 个项目",
+   "1 GB 存储",
+   "社区支持"
+  ]
+ },
+ {
+  "name": "Pro",
+  "price": 99,
+  "recommended": true,
+  "features": [
+   "无限项目",
+   "100 GB 存储",
+   "优先支持",
+   "自定义域名"
+  ]
+ },
+ {
+  "name": "Enterprise",
+  "price": null,
+  "features": [
+   "SSO / SAML",
+   "审计日志",
+   "专属客户经理",
+   "SLA 99.9%"
+  ]
+ }
+]

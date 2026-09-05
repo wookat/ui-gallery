@@ -1,0 +1,117 @@
+{
+ "hero": {
+  "title": "把团队的工作放进一个控制台",
+  "subtitle": "Acme Console 让订单、客户、数据与 AI 助手在一个界面协同。",
+  "primary": "免费开始",
+  "secondary": "查看演示",
+  "social": "1,000+ 团队正在使用"
+ },
+ "features": [
+  {
+   "icon": "zap",
+   "title": "极速搭建",
+   "desc": "10 分钟接入，无需后端改造。"
+  },
+  {
+   "icon": "shield",
+   "title": "企业级安全",
+   "desc": "SSO、审计日志与细粒度权限。"
+  },
+  {
+   "icon": "bar-chart",
+   "title": "实时看板",
+   "desc": "收入、订单、转化一屏掌握。"
+  },
+  {
+   "icon": "bot",
+   "title": "AI 助手",
+   "desc": "自然语言查询业务数据。"
+  },
+  {
+   "icon": "globe",
+   "title": "多语言",
+   "desc": "内置 20+ 语言与时区。"
+  },
+  {
+   "icon": "plug",
+   "title": "开放 API",
+   "desc": "REST / Webhook / SDK 全覆盖。"
+  }
+ ],
+ "numbers": [
+  {
+   "value": "99.99%",
+   "label": "可用性"
+  },
+  {
+   "value": "3 亿+",
+   "label": "月处理订单"
+  },
+  {
+   "value": "120+",
+   "label": "国家与地区"
+  },
+  {
+   "value": "4.9/5",
+   "label": "用户评分"
+  }
+ ],
+ "testimonials": [
+  {
+   "name": "林晓",
+   "company": "Northwind",
+   "quote": "上线两周，客服工单下降 40%。"
+  },
+  {
+   "name": "王子涵",
+   "company": "Contoso",
+   "quote": "看板终于不用再拼 Excel 了。"
+  },
+  {
+   "name": "Alex Chen",
+   "company": "Fabrikam",
+   "quote": "AI 助手回答比我们 BI 团队还快。"
+  },
+  {
+   "name": "Maria García",
+   "company": "Globex",
+   "quote": "移动端体验非常顺滑。"
+  },
+  {
+   "name": "陈思远",
+   "company": "Initech",
+   "quote": "迁移只花了一个下午。"
+  },
+  {
+   "name": "Sophie Martin",
+   "company": "Umbrella",
+   "quote": "权限体系省了我们半年开发。"
+  }
+ ],
+ "faq": [
+  {
+   "q": "可以免费试用吗？",
+   "a": "Starter 计划永久免费，无需信用卡。"
+  },
+  {
+   "q": "支持私有部署吗？",
+   "a": "Enterprise 计划支持私有云与本地部署。"
+  },
+  {
+   "q": "数据存放在哪里？",
+   "a": "可选择中国大陆、新加坡或法兰克福区域。"
+  },
+  {
+   "q": "如何迁移现有数据？",
+   "a": "提供 CSV 导入与 API 批量迁移工具。"
+  },
+  {
+   "q": "有移动端吗？",
+   "a": "Web 完全响应式，另有 iOS/Android 应用。"
+  },
+  {
+   "q": "如何取消订阅？",
+   "a": "在设置 → 计费中随时取消，按比例退款。"
+  }
+ ]
+}

@@ -12,4 +12,5 @@
 | 外部资源清单 | ① **GitHub 仓库 `wookat/ui-gallery`**：Devin 的 GitHub App 无 createRepository 权限（实测 403），需老板手动创建空仓并授权 Devin App——缺口期：本地 monorepo 先建，规格/清单/骨架就绪后一次推送；② 域名 `ui.zalize.com` DNS：已有 Cloudflare token，可自行配置，无需老板；③ 无付费依赖。 |
 | 竞品对标对象 | The Component Gallery（component.gallery，组件级截图，无页面级）；shadcn Blocks / Mantine UI（单库页面级）；TodoMVC / RealWorld（多实现同规格，但比代码不比视觉）。达标口径：任取一库，8 页 × 4 态截图齐全、无横向溢出、暗色不缺态；画廊可在 3 秒内把 ≥30 个库同一页面并排看完。 |
 | 主要风险 | ① 库数量大、质量参差：用工作流 + 结构化输出强制每库交付「组件覆盖清单」勾选表，缺项即审查不过；② 各库默认主题下同一规格实现差异导致「不公平」：规格只约束信息结构与组件类型，不约束像素，差异本身就是要展示的东西；③ 非 React 框架的 mock/路由需各自实现：spec 用框架无关的 JSON 定义数据与路由，每框架只写一次薄壳；④ 并发 100 会话上限与 429：串行创建、重试、落盘登记（adapters/devin.md）；⑤ 图标/字体切换在部分库（如 MUI 内置图标）不适用：允许标 `n/a`。 |
+| 获客 / 分发 / 变现 | 分发：站点开源（MIT）+ GitHub README 长图；每新增一库向该库官方仓库 Discussions/Showcase 投稿链接（各库社区天然导流）；提交至 awesome-react-components / awesome-vue / component.gallery 等目录；X/掘金/V2EX 发「同一页面 30 个组件库长什么样」对比长图。获客指标：GitHub star、周 UV、被引用次数。变现：前期完全免费不接支付（公司规则）；后续可选设计师/团队向「主题定制对比」「私有设计系统接入」增值服务，本轮不做。 |
 | 迭代方式 | 短周期：每轮 = 增一批库 → 审查 → 合并部署 → 体验官线上走查 → 修 P0/P1 → 下一轮；不做长期规划，不等老板逐轮确认。 |

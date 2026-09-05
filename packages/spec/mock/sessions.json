@@ -1,0 +1,20 @@
+[
+ {
+  "device": "MacBook Pro · Chrome",
+  "location": "上海",
+  "current": true,
+  "time": "现在"
+ },
+ {
+  "device": "iPhone 16 · Safari",
+  "location": "杭州",
+  "current": false,
+  "time": "3 小时前"
+ },
+ {
+  "device": "Windows · Edge",
+  "location": "北京",
+  "current": false,
+  "time": "5 天前"
+ }
+]

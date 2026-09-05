@@ -1,0 +1,69 @@
+{
+ "conversations": [
+  {
+   "id": "c1",
+   "title": "9 月收入分析",
+   "time": "刚刚",
+   "unread": 2
+  },
+  {
+   "id": "c2",
+   "title": "退款率异常排查",
+   "time": "昨天",
+   "unread": 0
+  },
+  {
+   "id": "c3",
+   "title": "写一封催款邮件",
+   "time": "周三",
+   "unread": 0
+  },
+  {
+   "id": "c4",
+   "title": "落地页文案 A/B",
+   "time": "上周",
+   "unread": 0
+  }
+ ],
+ "messages": [
+  {
+   "role": "user",
+   "content": "9 月收入和上月比怎么样？"
+  },
+  {
+   "role": "assistant",
+   "content": "9 月收入 **¥128,430**，环比 **+12.4%**。\n\n| 指标 | 8 月 | 9 月 |\n|---|---|---|\n| 收入 | ¥114,260 | ¥128,430 |\n| 订单 | 940 | 1,024 |\n\n主要增长来自 Web 渠道（+18%）。",
+   "sources": [
+    "orders.json",
+    "stats.json"
+   ],
+   "tool": {
+    "name": "query_orders",
+    "args": {
+     "month": "2026-09"
+    },
+    "status": "done"
+   }
+  },
+  {
+   "role": "user",
+   "content": "用 SQL 表示这个查询"
+  },
+  {
+   "role": "assistant",
+   "content": "```sql\nSELECT date_trunc('month', created_at) AS m, sum(amount)\nFROM orders WHERE status = 'paid'\nGROUP BY 1 ORDER BY 1 DESC LIMIT 2;\n```",
+   "streaming": true
+  }
+ ],
+ "suggestions": [
+  "总结本周退款原因",
+  "生成本月经营周报",
+  "哪个渠道转化率最高？",
+  "预测下月收入"
+ ],
+ "models": [
+  "gpt-5",
+  "claude-sonnet-4.5",
+  "qwen3-max"
+ ]
+}

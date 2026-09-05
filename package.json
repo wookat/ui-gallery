@@ -1,0 +1,13 @@
+{
+  "name": "ui-gallery",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "shoot": "node tools/shoot/shoot.mjs",
+    "assemble": "node tools/assemble.mjs"
+  },
+  "devDependencies": { "turbo": "^2.10.12" }
+}

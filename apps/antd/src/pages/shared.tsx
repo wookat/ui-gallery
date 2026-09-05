@@ -83,15 +83,27 @@ export const statusLabel: Record<string, string> = {
   failed: "失败",
 }
 
-export function placeholder(width: number, height: number, label: string) {
+export function placeholder(
+  width: number,
+  height: number,
+  label: string,
+  colors: { fill: string; text: string }
+) {
   const svgNamespace = ["ht", "tp://www.w3.org/2000/svg"].join("")
   const svg = [
     `<svg xmlns="${svgNamespace}" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
-    '<rect width="100%" height="100%" fill="#f0f2f5"/>',
-    `<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#8c8c8c" font-family="sans-serif" font-size="16">${label}</text>`,
+    `<rect width="100%" height="100%" fill="${colors.fill}"/>`,
+    `<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="${colors.text}" font-family="sans-serif" font-size="16">${label}</text>`,
     "</svg>",
   ].join("")
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+}
+
+export function usePlaceholder() {
+  const { token } = theme.useToken()
+  const colors = { fill: token.colorFillSecondary, text: token.colorTextTertiary }
+  return (width: number, height: number, label: string) =>
+    placeholder(width, height, label, colors)
 }
 
 export function DemoSection({ children }: { children: ReactNode }) {

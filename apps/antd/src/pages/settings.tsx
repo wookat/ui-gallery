@@ -273,6 +273,8 @@ export function SettingsPage() {
       <PageHeader title="设置" description="管理账户、通知、团队与订阅。" />
       <Tabs
         tabPosition={screens.md ? "left" : "top"}
+        size={screens.md ? undefined : "middle"}
+        tabBarGutter={screens.md ? undefined : 20}
         activeKey={active}
         onChange={setActive}
         items={items}

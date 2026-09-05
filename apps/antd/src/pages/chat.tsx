@@ -190,12 +190,14 @@ export function ChatPage() {
                               : undefined,
                         }}
                       >
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={markdownComponents}
-                        >
-                          {item.content}
-                        </ReactMarkdown>
+                        <div className="markdown-body">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={markdownComponents}
+                          >
+                            {item.content}
+                          </ReactMarkdown>
+                        </div>
                         {item.sources ? (
                           <Space wrap>
                             {item.sources.map((source) => (

@@ -165,12 +165,24 @@ export function LandingPage() {
         <section className="landing-section">
           <Flex justify="space-between" align="center" wrap gap={12}>
             <Typography.Title level={2}>选择适合你的计划</Typography.Title>
-            <Switch
-              checked={annual}
-              onChange={setAnnual}
-              checkedChildren="年付"
-              unCheckedChildren="月付"
-            />
+            <label
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                minHeight: 44,
+                cursor: "pointer",
+              }}
+            >
+              <Typography.Text>月付</Typography.Text>
+              <Switch
+                checked={annual}
+                onChange={setAnnual}
+                checkedChildren="年付"
+                unCheckedChildren="月付"
+              />
+              <Typography.Text>年付</Typography.Text>
+            </label>
           </Flex>
           <Row gutter={[16, 16]}>
             {plans.map((plan) => (

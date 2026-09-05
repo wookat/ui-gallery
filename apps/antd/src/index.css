@@ -30,8 +30,10 @@ body { font-family: var(--font-sans); }
 .component-grid .ant-table-wrapper { max-width: 100%; overflow-x: auto; }
 .landing-section { padding-block: 56px; }
 .header-extra { max-width: 100%; overflow-x: auto; }
-table td,
-table th { border: 1px solid var(--ant-color-border); padding: 4px 8px; }
+.markdown-body table { border-collapse: collapse; }
+.markdown-body table td,
+.markdown-body table th { border: 1px solid var(--ant-color-border); padding: 4px 8px; }
+.shell-nav-toggle { flex-shrink: 0; min-width: 40px; min-height: 40px; }
 .public-page { min-height: 100vh; overflow-x: clip; }
 .login-page { display: grid; place-items: center; padding: 16px; }
 .login-error { color: var(--ant-color-error); background: var(--ant-color-error-bg); border: 1px solid var(--ant-color-error-border); border-radius: 6px; padding: 10px 12px; }

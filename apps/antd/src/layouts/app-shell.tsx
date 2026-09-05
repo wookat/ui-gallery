@@ -177,7 +177,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           }}
         >
           <Button
-            className="mobile-only"
+            className="mobile-only shell-nav-toggle"
+            size="large"
             icon={<Icon name="menu" />}
             onClick={() => setMobileOpen(true)}
             aria-label="打开导航"

@@ -74,7 +74,7 @@ import orders from "@ui-gallery/spec/mock/orders.json"
 import team from "@ui-gallery/spec/mock/team.json"
 import activity from "@ui-gallery/spec/mock/activity.json"
 import { Icon } from "@/icons"
-import { PageHeader, DemoSection, avatar, placeholder } from "@/pages/shared"
+import { PageHeader, DemoSection, avatar, usePlaceholder } from "@/pages/shared"
 import { coverage } from "@/coverage"
 
 const demoOptions = ["选项一", "选项二", "选项三"].map((value) => ({
@@ -235,6 +235,7 @@ export function ComponentsPage() {
           ghost
           size="small"
           style={{ marginTop: 8 }}
+          defaultActiveKey={indexGroups.map((group) => group.label)}
           items={indexGroups.map((group) => ({
             key: group.label,
             label: `${group.label}（${group.names.length}）`,
@@ -305,6 +306,7 @@ function Demo({ name }: { name: string }) {
   const targetB = useRef<HTMLButtonElement>(null)
   const targetC = useRef<HTMLButtonElement>(null)
   const { token } = theme.useToken()
+  const placeholder = usePlaceholder()
   const notify = (type: "success" | "info" | "warning" | "error") =>
     notification[type]({ message: "通知", description: "这是一个通知示例。" })
   if (name === "Typography")
@@ -683,6 +685,7 @@ function Demo({ name }: { name: string }) {
       <Descriptions
         bordered
         size="small"
+        column={1}
         items={[
           { label: "状态", children: "正常" },
           { label: "负责人", children: "林晓" },
@@ -759,7 +762,9 @@ function Demo({ name }: { name: string }) {
         </Badge>
         <Badge status="success" text="成功" />
         <Badge.Ribbon text="推荐">
-          <Card size="small">Ribbon</Card>
+          <Card size="small" style={{ paddingInlineEnd: 56 }}>
+            Ribbon
+          </Card>
         </Badge.Ribbon>
       </Space>
     )
@@ -981,24 +986,27 @@ function Demo({ name }: { name: string }) {
     )
   if (name === "Spinner")
     return (
-      <Space direction="vertical">
-        <Spin size="small" />
-        <Spin />
-        <Spin size="large" tip="加载中">
-          <Card>内容</Card>
+      <Space direction="vertical" style={{ width: "100%" }}>
+        <Space>
+          <Spin size="small" />
+          <Spin />
+          <Spin size="large" />
+        </Space>
+        <Spin tip="加载中">
+          <Card style={{ minHeight: 120 }} />
         </Spin>
       </Space>
     )
   if (name === "Result")
     return (
-      <Space wrap>
+      <Space direction="vertical" style={{ width: "100%" }}>
         {(["success", "error", "warning", "404", "403", "500"] as const).map(
           (status) => (
             <Result
               key={status}
               status={status}
               title={status}
-              style={{ width: 150 }}
+              style={{ padding: 8 }}
             />
           )
         )}
@@ -1012,7 +1020,7 @@ function Demo({ name }: { name: string }) {
     )
   if (name === "Menu")
     return (
-      <Space>
+      <Space direction="vertical" style={{ width: "100%" }}>
         <Menu mode="horizontal" items={demoMenu} />
         <Menu mode="vertical" items={demoMenu} />
         <div style={{ width: 64 }}>
@@ -1060,8 +1068,14 @@ function Demo({ name }: { name: string }) {
     )
   if (name === "Pagination")
     return (
-      <Space direction="vertical">
-        <Pagination total={50} showSizeChanger showQuickJumper />
+      <Space direction="vertical" style={{ width: "100%" }}>
+        <Pagination
+          total={50}
+          showSizeChanger
+          showQuickJumper
+          responsive
+          style={{ flexWrap: "wrap", rowGap: 8 }}
+        />
         <Pagination size="small" total={20} />
         <Pagination simple total={20} />
       </Space>
@@ -1367,6 +1381,11 @@ function AppInfoDemo() {
 }
 
 const demoMenu: MenuProps["items"] = [
-  { key: "1", label: "菜单一" },
-  { key: "2", label: "菜单二", children: [{ key: "2-1", label: "子菜单" }] },
+  { key: "1", label: "菜单一", icon: <Icon name="home" /> },
+  {
+    key: "2",
+    label: "菜单二",
+    icon: <Icon name="settings" />,
+    children: [{ key: "2-1", label: "子菜单" }],
+  },
 ]

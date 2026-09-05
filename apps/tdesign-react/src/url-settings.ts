@@ -40,6 +40,24 @@ export function useThemeMode() {
   return { theme, setTheme, toggle: () => setTheme(theme === "dark" ? "light" : "dark") }
 }
 
+function readTokens(names: readonly string[]) {
+  const style = getComputedStyle(document.documentElement)
+  return Object.fromEntries(names.map((name) => [name, style.getPropertyValue(name).trim()]))
+}
+
+export function useThemeTokens(names: readonly string[]) {
+  const key = names.join("|")
+  const [tokens, setTokens] = useState<Record<string, string>>({})
+  useEffect(() => {
+    const update = () => setTokens(readTokens(key.split("|")))
+    update()
+    const observer = new MutationObserver(update)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["theme-mode"] })
+    return () => observer.disconnect()
+  }, [key])
+  return tokens
+}
+
 export function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {

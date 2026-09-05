@@ -1,5 +1,7 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Avatar, AvatarGroup, Button, Card, Collapse, Col, Menu, Row, Select, Space, Switch, Tag, Typography } from "tdesign-react"
+import { Avatar, AvatarGroup, Button, Card, Collapse, Col, Drawer, Menu, Row, Select, Space, Switch, Tag, Typography } from "tdesign-react"
+import { useIsMobile } from "@/url-settings"
 import { Icon } from "@/components/icon"
 import landing from "@ui-gallery/spec/mock/landing.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
@@ -26,6 +28,22 @@ function ProductShot({ label }: { label: string }) {
   return <div className="landing-shot" role="img" aria-label={label}><span /><span /><span /></div>
 }
 
+const landingLinks = [{ href: "#features", label: "产品" }, { href: "#pricing", label: "价格" }, { href: "#faq", label: "帮助中心" }]
+
 function LayoutHeader() {
-  return <header className="landing-header" style={{ position: "sticky", top: 0, zIndex: 2 }}><Link className="app-brand" to="/landing"><span className="app-brand-mark">A</span><span>Acme Console</span></Link><div className="landing-header-spacer" /><Menu.HeadMenu className="desktop-only" value="features"><Menu.MenuItem value="features"><a href="#features">产品</a></Menu.MenuItem><Menu.MenuItem value="pricing"><a href="#pricing">价格</a></Menu.MenuItem><Menu.MenuItem value="faq"><a href="#faq">帮助中心</a></Menu.MenuItem></Menu.HeadMenu><Link to="/login"><Button theme="primary">免费开始</Button></Link></header>
+  const [open, setOpen] = useState(false)
+  const isMobile = useIsMobile()
+  return (
+    <header className="landing-header" style={{ position: "sticky", top: 0, zIndex: 2 }}>
+      <Link className="app-brand" to="/landing"><span className="app-brand-mark">A</span><span>Acme Console</span></Link>
+      <div className="landing-header-spacer" />
+      <Menu.HeadMenu className="desktop-only" value="features">{landingLinks.map((item) => <Menu.MenuItem key={item.href} value={item.href.slice(1)}><a href={item.href}>{item.label}</a></Menu.MenuItem>)}</Menu.HeadMenu>
+      <Link to="/login"><Button theme="primary">免费开始</Button></Link>
+      <Button className="mobile-only" variant="text" shape="square" size="large" aria-label="打开菜单" onClick={() => setOpen(true)}><Icon name="list" /></Button>
+      <Drawer visible={isMobile && open} placement="right" size="280px" header="Acme Console" footer={false} onClose={() => setOpen(false)}>
+        <Menu value="features" onChange={() => setOpen(false)}>{landingLinks.map((item) => <Menu.MenuItem key={item.href} value={item.href.slice(1)}><a href={item.href}>{item.label}</a></Menu.MenuItem>)}</Menu>
+        <Link to="/login" style={{ display: "block", marginTop: 16 }}><Button block theme="primary">免费开始</Button></Link>
+      </Drawer>
+    </header>
+  )
 }

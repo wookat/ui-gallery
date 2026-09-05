@@ -1,11 +1,13 @@
 import { useState } from "react"
 import { AutoComplete, Button, Card, Checkbox, ColorPicker, DatePicker, DateRangePicker, Descriptions, Form, Input, InputNumber, Rate, Select, Slider, Steps, Switch, TagInput, Textarea, TimePicker, Tooltip, Upload, Radio, Empty, Typography } from "tdesign-react"
 import { Icon } from "@/components/icon"
+import { useIsMobile } from "@/url-settings"
 
 export function FormPage() {
   const [step, setStep] = useState(0)
   const [success, setSuccess] = useState(false)
   const [form] = Form.useForm()
+  const isMobile = useIsMobile()
   const next = async () => {
     try {
       await form.validate()
@@ -23,7 +25,7 @@ export function FormPage() {
         <Form form={form} layout="vertical" requiredMark onSubmit={() => setSuccess(true)}>
           {step === 0 && <div className="grid-two">
             <Form.FormItem label="项目名称" name="name" rules={[{ required: true, message: "请输入项目名称" }]}><Input placeholder="例如：增长实验室" /></Form.FormItem>
-            <Form.FormItem label="席位数" name="seats" rules={[{ required: true, message: "请输入席位数" }, { min: 1, message: "至少 1 个席位" }]}><InputNumber min={1} max={1000} /></Form.FormItem>
+            <Form.FormItem label="席位数" name="seats" rules={[{ required: true, message: "请输入席位数" }, { min: 1, message: "至少 1 个席位" }]}><InputNumber min={1} max={1000} size={isMobile ? "large" : "medium"} /></Form.FormItem>
             <Form.FormItem label="联系邮箱" name="email" rules={[{ required: true, message: "请输入邮箱" }, { email: true, message: "邮箱格式不正确" }]}><Input placeholder="team@example.com" /></Form.FormItem>
             <Form.FormItem label="联系电话" name="phone" rules={[{ required: true, message: "请输入手机号" }]}><Input placeholder="+86 138 0000 0000" /></Form.FormItem>
             <Form.FormItem label="项目简介" name="description" rules={[{ required: true, message: "请填写简介" }]}><Textarea maxlength={200} maxcharacter={200} placeholder="介绍一下你的项目" /></Form.FormItem>

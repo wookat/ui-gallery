@@ -81,7 +81,7 @@ a {
 }
 
 .mobile-only {
-  display: none;
+  display: none !important;
 }
 
 .desktop-only {
@@ -283,6 +283,36 @@ a {
   border-right: 1px solid var(--td-component-stroke);
 }
 
+.t-drawer .chat-sidebar {
+  padding: 0;
+  border-right: 0;
+}
+
+.chat-conversations {
+  margin-top: 4px;
+}
+
+.chat-conversation {
+  cursor: pointer;
+  border-radius: var(--td-radius-medium);
+}
+
+.chat-conversation .t-list-item {
+  padding: 8px 12px;
+}
+
+.chat-conversation:hover {
+  background: var(--td-bg-color-container-hover);
+}
+
+.chat-conversation.is-active {
+  background: var(--td-brand-color-light);
+}
+
+.chat-conversation .t-list-item__meta-title {
+  font-weight: 500;
+}
+
 .chat-main {
   display: flex;
   min-width: 0;
@@ -350,6 +380,22 @@ a {
   flex-direction: column;
   gap: 12px;
   min-width: 0;
+}
+
+.component-demo-panel > .t-button {
+  align-self: flex-start;
+}
+
+.slider-demo {
+  padding: 0 16px 20px;
+}
+
+.pin-cell {
+  width: 44px;
+}
+
+.pin-cell .t-input__inner {
+  font-size: var(--td-font-size-title-medium);
 }
 
 .component-demo-row {
@@ -470,20 +516,17 @@ a {
   object-fit: cover;
 }
 
-.resizable-placeholder {
-  width: 260px;
-  min-width: 160px;
-  max-width: 100%;
-  resize: horizontal;
-  overflow: auto;
-  padding: 24px;
-  border: 1px dashed var(--td-warning-color);
+.resizable-demo {
+  flex-direction: row;
 }
 
-.theme-subtree {
-  padding: 12px;
-  border-radius: var(--td-radius-medium);
-  background: var(--td-bg-color-page);
+.resizable-demo .resizable-pane {
+  width: 220px;
+  min-width: 120px;
+  max-width: 70%;
+  resize: horizontal;
+  overflow: auto;
+  border-right: 1px solid var(--td-component-stroke);
 }
 
 .watermark-demo {
@@ -548,7 +591,16 @@ a {
   }
 
   .mobile-only {
-    display: inline-flex;
+    display: inline-flex !important;
+  }
+
+  .t-button:not(.t-size-s):not(.t-size-l):not(.t-input__suffix .t-button):not(.t-table .t-button):not(.t-input-number .t-button) {
+    height: var(--td-comp-size-xl);
+  }
+
+  .t-button--shape-square:not(.t-size-s):not(.t-size-l):not(.t-input__suffix .t-button):not(.t-input-number .t-button),
+  .t-button--shape-circle:not(.t-size-s):not(.t-size-l):not(.t-input__suffix .t-button):not(.t-input-number .t-button) {
+    width: var(--td-comp-size-xl);
   }
 
   .desktop-only,
@@ -628,7 +680,7 @@ a {
     min-height: 620px;
   }
 
-  .chat-sidebar {
+  .chat-layout > .chat-sidebar {
     display: none;
   }
 

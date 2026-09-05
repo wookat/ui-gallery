@@ -12,7 +12,7 @@ import {
   Typography,
 } from "tdesign-react"
 import { Icon } from "@/components/icon"
-import { DemoPanel } from "./types"
+import { DemoPanel, DemoRow } from "./types"
 
 function MenuDemo() {
   const [collapsed, setCollapsed] = useState(false)
@@ -54,6 +54,7 @@ function NavbarDemo() {
 function DropdownDemo() {
   return (
     <DemoPanel>
+      <DemoRow>
       <Dropdown
         options={[
           { content: "编辑", value: "edit" },
@@ -70,6 +71,7 @@ function DropdownDemo() {
       <Dropdown options={[{ content: "hover item", value: "hover" }]} trigger="hover">
         <Button theme="danger">hover danger</Button>
       </Dropdown>
+      </DemoRow>
     </DemoPanel>
   )
 }
@@ -102,11 +104,13 @@ function TabsDemo() {
   )
 }
 
+const simpleTotal = 100
+
 function PaginationDemo() {
   return (
     <DemoPanel>
       <Pagination total={100} pageSize={10} showJumper pageSizeOptions={[10, 20, 50]} />
-      <Pagination total={100} theme="simple" size="medium" totalContent="总计 {total} 条" />
+      <Pagination total={simpleTotal} theme="simple" size="medium" totalContent={`总计 ${simpleTotal} 条`} />
       <Pagination total={20} disabled />
     </DemoPanel>
   )

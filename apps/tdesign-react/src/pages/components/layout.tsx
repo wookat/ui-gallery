@@ -17,6 +17,7 @@ import {
   Typography,
 } from "tdesign-react"
 import { Icon } from "@/components/icon"
+import { useThemeMode } from "@/url-settings"
 import { DemoPanel, demoImage } from "./types"
 
 function AffixDemo() {
@@ -116,14 +117,13 @@ function AspectRatioDemo() {
 function ResizableDemo() {
   return (
     <DemoPanel>
-      <AlertMissing />
-      <div className="resizable-placeholder">CSS resize: horizontal</div>
+      <Typography.Text theme="secondary">TDesign React 没有原生 Splitter/Resizable，用 Layout.Aside + CSS resize 组合实现可拖拽宽度。</Typography.Text>
+      <Layout className="mini-layout resizable-demo">
+        <Layout.Aside className="resizable-pane">拖动右下角调整宽度</Layout.Aside>
+        <Layout.Content>右侧内容随左栏宽度自适应</Layout.Content>
+      </Layout>
     </DemoPanel>
   )
-}
-
-function AlertMissing() {
-  return <Typography.Text theme="warning">TDesign React 没有原生 Resizable，用 CSS resize 组合实现可拖拽宽度。</Typography.Text>
 }
 
 function ScrollAreaDemo() {
@@ -149,11 +149,11 @@ function AccordionDemo() {
 }
 
 function ThemeProviderDemo() {
+  const { theme, toggle } = useThemeMode()
   return (
     <DemoPanel>
-      <div theme-mode="dark" className="theme-subtree">
-        <Card title="dark subtree"><Button theme="primary">dark button</Button><input placeholder="dark input" /></Card>
-      </div>
+      <Typography.Text theme="secondary">TDesign 暗色模式通过根节点 theme-mode 属性全局切换，当前：{theme}。</Typography.Text>
+      <Button variant="outline" onClick={toggle}>切换到 {theme === "dark" ? "light" : "dark"}</Button>
       <div style={{ "--td-brand-color": "var(--td-success-color)" } as React.CSSProperties}>
         <Button theme="primary">overridden brand variable</Button>
       </div>

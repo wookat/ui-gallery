@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Layout.Aside>
       <Layout>
         <Layout.Header className="app-header">
-          <Button variant="text" shape="square" size="large" onClick={() => setDrawer(true)} className="mobile-only"><Icon name="menu" /></Button>
+          <Button variant="text" shape="square" size="large" onClick={() => setDrawer(true)} className="mobile-only"><Icon name="list" /></Button>
           <Breadcrumb><Breadcrumb.BreadcrumbItem><Link to="/">Acme Console</Link></Breadcrumb.BreadcrumbItem><Breadcrumb.BreadcrumbItem>{current}</Breadcrumb.BreadcrumbItem></Breadcrumb>
           <div className="app-header-spacer" />
           <Input className="desktop-search" prefixIcon={<Icon name="search" />} placeholder="搜索..." />
@@ -60,7 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Layout.Header>
         <Layout.Content><main className="app-main">{children}</main></Layout.Content>
       </Layout>
-      <Drawer visible={isMobile && drawer} placement="left" size="280px" onClose={() => setDrawer(false)}><Brand /><Navigation onNavigate={() => setDrawer(false)} /></Drawer>
+      <Drawer visible={isMobile && drawer} placement="left" size="280px" footer={false} onClose={() => setDrawer(false)}><Brand /><Navigation onNavigate={() => setDrawer(false)} /></Drawer>
     </Layout>
   )
 }

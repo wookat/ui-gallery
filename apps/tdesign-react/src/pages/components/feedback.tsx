@@ -12,12 +12,13 @@ import {
   NotificationPlugin,
   Popconfirm,
   Progress,
-  QRCode,
+  Select,
   Skeleton,
   Tag,
   Typography,
 } from "tdesign-react"
 import { Icon } from "@/components/icon"
+import { ThemedQRCode } from "@/components/themed-qrcode"
 import { DemoPanel, DemoRow } from "./types"
 
 function AlertDemo() {
@@ -59,12 +60,7 @@ function NotificationDemo() {
   const [placement, setPlacement] = useState<"top-right" | "top-left" | "bottom-right" | "bottom-left">("top-right")
   return (
     <DemoPanel>
-      <select value={placement} onChange={(event) => setPlacement(event.target.value as typeof placement)}>
-        <option value="top-right">top-right</option>
-        <option value="top-left">top-left</option>
-        <option value="bottom-right">bottom-right</option>
-        <option value="bottom-left">bottom-left</option>
-      </select>
+      <Select style={{ width: 180 }} value={placement} onChange={(value) => setPlacement(value as typeof placement)} options={["top-right", "top-left", "bottom-right", "bottom-left"].map((value) => ({ label: value, value }))} />
       <DemoRow>
         {(["info", "success", "warning", "error"] as const).map((theme) => (
           <Button key={theme} onClick={() => NotificationPlugin[theme]({ title: theme, content: "通知内容", placement, footer: <Button variant="text">查看</Button> })}>
@@ -198,11 +194,11 @@ function QRCodeDemo() {
   return (
     <DemoPanel>
       <DemoRow>
-        <QRCode value="Acme Console" size={80} level="L" />
-        <QRCode value="Acme Console" size={120} level="H" icon="Acme" />
-        <QRCode value="Acme Console" status="loading" />
-        <QRCode value="Acme Console" status="expired" />
-        <QRCode value="Acme Console" status="scanned" />
+        <ThemedQRCode value="Acme Console" size={80} level="L" />
+        <ThemedQRCode value="Acme Console" size={120} level="H" icon="Acme" />
+        <ThemedQRCode value="Acme Console" status="loading" />
+        <ThemedQRCode value="Acme Console" status="expired" />
+        <ThemedQRCode value="Acme Console" status="scanned" />
       </DemoRow>
     </DemoPanel>
   )

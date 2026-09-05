@@ -13,7 +13,7 @@ const statusLabel: Record<string, string> = { paid: "已支付", pending: "待�
 
 function StatCard({ item }: { item: typeof stats[number] }) {
   const data = item.trend.map((value, index) => ({ index, value }))
-  return <Card><Statistic title={item.label} value={item.value} unit={item.unit === "CNY" ? "元" : item.unit} trend={item.delta >= 0 ? "increase" : "decrease"} /><Typography.Text>{item.delta > 0 ? "+" : ""}{item.delta}%</Typography.Text><div className="chart-box" style={{ height: 48 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={data}><Line type="monotone" dataKey="value" stroke="var(--td-brand-color)" dot={false} strokeWidth={2} /></LineChart></ResponsiveContainer></div></Card>
+  return <Card><Statistic title={item.label} value={item.value} unit={item.unit === "CNY" ? "元" : item.unit} trend={item.delta >= 0 ? "increase" : "decrease"} /><Typography.Text>{item.delta > 0 ? "+" : ""}{item.delta}%</Typography.Text><div className="chart-box" style={{ height: 48 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={data}><Line type="monotone" dataKey="value" stroke="var(--td-brand-color)" dot={false} strokeWidth={2} isAnimationActive={false} /></LineChart></ResponsiveContainer></div></Card>
 }
 
 export function DashboardPage() {
@@ -27,10 +27,10 @@ export function DashboardPage() {
       <div className="grid-four">{stats.map((item) => <StatCard item={item} key={item.key} />)}</div>
       <div className="grid-two">
         <Card title="收入趋势" actions={<Tabs value={period} onChange={(value) => setPeriod(String(value))}><Tabs.TabPanel value="day" label="日" /><Tabs.TabPanel value="week" label="周" /><Tabs.TabPanel value="month" label="月" /></Tabs>}>
-          <div className="chart-box"><ResponsiveContainer width="100%" height="100%"><LineChart data={series.months.map((month, index) => ({ month, revenue: series.revenue[index] }))}><CartesianGrid strokeDasharray="3 3" stroke="var(--td-component-stroke)" /><XAxis dataKey="month" /><YAxis /><ChartTooltip /><Line type="monotone" dataKey="revenue" stroke="var(--td-brand-color)" strokeWidth={3} /></LineChart></ResponsiveContainer></div>
+          <div className="chart-box"><ResponsiveContainer width="100%" height="100%"><LineChart data={series.months.map((month, index) => ({ month, revenue: series.revenue[index] }))}><CartesianGrid strokeDasharray="3 3" stroke="var(--td-component-stroke)" /><XAxis dataKey="month" /><YAxis /><ChartTooltip /><Line type="monotone" dataKey="revenue" stroke="var(--td-brand-color)" strokeWidth={3} isAnimationActive={false} /></LineChart></ResponsiveContainer></div>
         </Card>
         <Card title="订单渠道">
-          <div className="chart-box"><ResponsiveContainer width="100%" height="100%"><BarChart data={series.byChannel}><CartesianGrid strokeDasharray="3 3" stroke="var(--td-component-stroke)" /><XAxis dataKey="name" /><YAxis /><ChartTooltip /><Bar dataKey="value" fill="var(--td-brand-color)" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div>
+          <div className="chart-box"><ResponsiveContainer width="100%" height="100%"><BarChart data={series.byChannel}><CartesianGrid strokeDasharray="3 3" stroke="var(--td-component-stroke)" /><XAxis dataKey="name" /><YAxis /><ChartTooltip /><Bar dataKey="value" fill="var(--td-brand-color)" radius={[4, 4, 0, 0]} isAnimationActive={false} /></BarChart></ResponsiveContainer></div>
         </Card>
       </div>
       <div className="grid-two">

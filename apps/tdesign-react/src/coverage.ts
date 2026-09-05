@@ -16,7 +16,7 @@ export const coverage: Record<string, CoverageStatus> = {
   Popconfirm: "implemented", Menu: "implemented", Dropdown: "implemented", Breadcrumb: "implemented", Tabs: "implemented",
   Pagination: "implemented", Steps: "implemented", Anchor: "implemented", BackTop: "implemented", Affix: "implemented",
   Navbar: "implemented", Sidebar: "implemented", CommandPalette: "composed", Grid: "implemented", Stack: "implemented",
-  Layout: "implemented", Container: "composed", AspectRatio: "composed", Resizable: "missing", ScrollArea: "composed",
+  Layout: "implemented", Container: "composed", AspectRatio: "composed", Resizable: "composed", ScrollArea: "composed",
   Accordion: "implemented", ThemeProvider: "implemented", Watermark: "implemented", Tour: "implemented", FloatButton: "composed",
   Kbd: "composed", Code: "composed", Divider: "implemented", Link: "implemented",
 }

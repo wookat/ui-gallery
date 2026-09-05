@@ -23,6 +23,7 @@ import {
   Upload,
 } from "tdesign-react"
 import { Icon } from "@/components/icon"
+import { useThemeTokens } from "@/url-settings"
 import { componentOptions, DemoPanel, DemoRow } from "./types"
 
 function TypographyDemo() {
@@ -278,8 +279,8 @@ function SwitchDemo() {
 function SliderDemo() {
   return (
     <DemoPanel>
-      <Slider defaultValue={40} marks={{ 0: "0", 50: "50", 100: "100" }} />
-      <Slider range defaultValue={[20, 80]} inputNumberProps={{}} />
+      <div className="slider-demo"><Slider defaultValue={40} marks={{ 0: "0", 50: "50", 100: "100" }} /></div>
+      <div className="slider-demo"><Slider range defaultValue={[20, 80]} inputNumberProps={{}} /></div>
       <div style={{ height: 120, width: 180, padding: "48px 0" }}>
         <Slider defaultValue={60} disabled />
       </div>
@@ -322,13 +323,40 @@ function TimeDemo() {
 }
 
 function ColorDemo() {
+  const tokens = useThemeTokens(["--td-brand-color", "--td-success-color", "--td-warning-color"])
+  const brand = tokens["--td-brand-color"] || undefined
   return (
     <DemoPanel>
       <DemoRow>
-        <ColorPicker defaultValue="var(--td-brand-color)" />
-        <ColorPicker format="HEX" defaultValue="var(--td-success-color)" />
-        <ColorPicker disabled defaultValue="var(--td-warning-color)" />
-        <ColorPickerPanel defaultValue="var(--td-brand-color)" />
+        <ColorPicker key={`brand-${brand}`} defaultValue={brand} />
+        <ColorPicker key={`success-${brand}`} format="HEX" defaultValue={tokens["--td-success-color"] || undefined} />
+        <ColorPicker key={`warning-${brand}`} disabled defaultValue={tokens["--td-warning-color"] || undefined} />
+        <ColorPickerPanel key={`panel-${brand}`} defaultValue={brand} />
+      </DemoRow>
+    </DemoPanel>
+  )
+}
+
+function PinInputDemo() {
+  const [code, setCode] = useState<string[]>(["", "", "", "", "", ""])
+  const update = (index: number, value: string) => {
+    const next = [...code]
+    next[index] = value.replace(/\D/g, "").slice(-1)
+    setCode(next)
+    if (next[index]) (document.querySelector(`[data-pin-index="${index + 1}"] input`) as HTMLInputElement | null)?.focus()
+  }
+  return (
+    <DemoPanel>
+      <Typography.Text theme="secondary">TDesign React 没有 OTP/PinInput，用 6 个单字符 Input 组合实现。</Typography.Text>
+      <DemoRow>
+        {code.map((digit, index) => (
+          <span key={index} data-pin-index={index} className="pin-cell">
+            <Input value={digit} maxlength={1} align="center" placeholder="" aria-label={`验证码第 ${index + 1} 位`} onChange={(value) => update(index, String(value))} />
+          </span>
+        ))}
+      </DemoRow>
+      <DemoRow>
+        {code.map((digit, index) => <span key={index} className="pin-cell"><Input value={digit} maxlength={1} align="center" placeholder="" disabled /></span>)}
       </DemoRow>
     </DemoPanel>
   )
@@ -384,6 +412,7 @@ export const generalDemos = {
   Combobox: ComboboxDemo,
   Autocomplete: () => <AutocompleteDemo />,
   Mention: () => <AutocompleteDemo mention />,
+  PinInput: PinInputDemo,
   Checkbox: CheckboxDemo,
   Radio: RadioDemo,
   Segmented: SegmentedDemo,

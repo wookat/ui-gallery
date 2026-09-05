@@ -1,0 +1,21 @@
+export type CoverageStatus = 'implemented' | 'composed' | 'missing';
+export const coverage: Record<string, CoverageStatus> = {
+  Typography: 'implemented', Button: 'implemented', ButtonGroup: 'implemented', IconButton: 'implemented',
+  Input: 'implemented', Textarea: 'implemented', Select: 'implemented', MultiSelect: 'implemented',
+  Autocomplete: 'implemented', Checkbox: 'implemented', Radio: 'implemented', Switch: 'implemented',
+  Slider: 'implemented', DatePicker: 'implemented', TimePicker: 'implemented', DateRangePicker: 'implemented',
+  Form: 'implemented', Table: 'implemented', List: 'implemented', Card: 'implemented', Badge: 'implemented',
+  Tag: 'implemented', Tree: 'implemented', Calendar: 'implemented', Tooltip: 'implemented', Toast: 'implemented',
+  Dialog: 'implemented', Drawer: 'implemented', Progress: 'implemented', Spinner: 'implemented', Menu: 'implemented',
+  Dropdown: 'implemented', Tabs: 'implemented', Pagination: 'implemented', Steps: 'implemented', Navbar: 'implemented',
+  Sidebar: 'implemented', Grid: 'implemented', Layout: 'implemented', ScrollArea: 'implemented', Accordion: 'implemented',
+  ThemeProvider: 'implemented', FloatButton: 'implemented', Divider: 'implemented', Segmented: 'implemented',
+  NumberInput: 'composed', Combobox: 'composed', Rating: 'composed', ColorPicker: 'composed', Upload: 'composed',
+  Cascader: 'composed', Transfer: 'composed', Mention: 'composed', PinInput: 'composed', DataGrid: 'composed',
+  Descriptions: 'composed', Avatar: 'composed', AvatarGroup: 'composed', Statistic: 'composed', Timeline: 'composed',
+  Image: 'composed', Carousel: 'composed', Empty: 'composed', Popover: 'composed', Alert: 'composed',
+  Notification: 'composed', Skeleton: 'composed', Result: 'composed', Popconfirm: 'composed', Breadcrumb: 'composed',
+  Anchor: 'composed', BackTop: 'composed', Affix: 'composed', CommandPalette: 'composed', Stack: 'composed',
+  Container: 'composed', AspectRatio: 'composed', Kbd: 'composed', Code: 'composed', Link: 'composed',
+  QRCode: 'missing', Resizable: 'missing', Watermark: 'missing', Tour: 'missing',
+};

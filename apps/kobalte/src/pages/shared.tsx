@@ -12,10 +12,10 @@ export function SectionCard(props: ParentProps<{ title: string; description?: st
 }
 
 export function StatusBadge(props: { value: string }) {
-  const variant = ["paid", "shipped", "active"].includes(props.value) ? "default" : ["pending", "due"].includes(props.value) ? "secondary" : "destructive"
-  return <Badge variant={variant}>{props.value}</Badge>
+  const variant = (value: string) => ["paid", "shipped", "active"].includes(value) ? "default" : ["pending", "due"].includes(value) ? "secondary" : "destructive"
+  return <Badge variant={variant(props.value)}>{props.value}</Badge>
 }
 
 export function SectionDivider(props: { label: string }) {
-  return <div class="flex items-center gap-3 text-xs text-zinc-500"><Separator class="flex-1" /><span>{props.label}</span><Separator class="flex-1" /></div>
+  return <div class="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400"><Separator class="flex-1" /><span>{props.label}</span><Separator class="flex-1" /></div>
 }

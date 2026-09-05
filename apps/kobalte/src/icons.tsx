@@ -33,6 +33,10 @@ import {
   Link2,
   List,
   LoaderCircle,
+  Mail,
+  Eye,
+  EyeOff,
+  Info,
   Lock,
   LogIn,
   LogOut,
@@ -101,6 +105,9 @@ import {
   IconLink,
   IconList,
   IconLoader2,
+  IconMail,
+  IconEye,
+  IconEyeOff,
   IconLock,
   IconLogin,
   IconLogout,
@@ -154,6 +161,9 @@ import {
   Copy as PhCopy,
   Cube as PhBoxes,
   DotsThree as PhDotsThree,
+  Envelope as PhEnvelope,
+  Eye as PhEye,
+  EyeSlash as PhEyeSlash,
   DownloadSimple as PhDownload,
   Faders as PhFaders,
   FilePlus as PhFilePlus,
@@ -162,6 +172,7 @@ import {
   GridFour as PhGridFour,
   Heart as PhHeart,
   House as PhHouse,
+  Info as PhInfo,
   Lightning as PhLightning,
   Link as PhLink,
   List as PhList,
@@ -212,6 +223,9 @@ import {
   cloudArrowUp as heroUpload,
   cog_6Tooth as heroSettings,
   ellipsisHorizontal as heroDots,
+  envelope as heroEnvelope,
+  eye as heroEye,
+  eyeSlash as heroEyeSlash,
   folderPlus as heroFilePlus,
   funnel as heroFilter,
   globeAlt as heroGlobe,
@@ -289,11 +303,11 @@ const lucide: Record<string, unknown> = {
   heart: Heart,
   home: Home,
   inbox: Archive,
-  info: CircleHelp,
+  info: Info,
   "layout-dashboard": LayoutDashboard,
-  mail: MessageCircle,
-  eye: CircleHelp,
-  "eye-off": CircleHelp,
+  mail: Mail,
+  eye: Eye,
+  "eye-off": EyeOff,
   link: Link2,
   "link-2": Link2,
   list: List,
@@ -383,9 +397,9 @@ const tabler: Record<string, unknown> = {
   inbox: IconArchive,
   info: IconInfoCircle,
   "layout-dashboard": IconLayoutDashboard,
-  mail: IconMessage,
-  eye: IconInfoCircle,
-  "eye-off": IconInfoCircle,
+  mail: IconMail,
+  eye: IconEye,
+  "eye-off": IconEyeOff,
   link: IconLink,
   "link-2": IconLink,
   list: IconList,
@@ -473,11 +487,11 @@ const phosphor: Record<string, unknown> = {
   heart: PhHeart,
   home: PhHouse,
   inbox: PhArchive,
-  info: PhCheckCircle,
+  info: PhInfo,
   "layout-dashboard": PhGridFour,
-  mail: PhChatCircle,
-  eye: PhCheckCircle,
-  "eye-off": PhCheckCircle,
+  mail: PhEnvelope,
+  eye: PhEye,
+  "eye-off": PhEyeSlash,
   link: PhLink,
   "link-2": PhLink,
   list: PhList,
@@ -567,9 +581,9 @@ const heroicons: Record<string, HeroPath> = {
   inbox: heroList,
   info: heroInfo,
   "layout-dashboard": heroHome,
-  mail: heroMegaphone,
-  eye: heroInfo,
-  "eye-off": heroInfo,
+  mail: heroEnvelope,
+  eye: heroEye,
+  "eye-off": heroEyeSlash,
   link: heroLink,
   "link-2": heroLink,
   list: heroList,
@@ -623,8 +637,6 @@ const heroicons: Record<string, HeroPath> = {
 }
 
 export const iconNames = Object.keys(lucide)
-const warnedMissing = new Set<string>()
-
 function family() {
   if (typeof window === "undefined") return "lucide"
   const params = new URLSearchParams(window.location.search)
@@ -636,11 +648,6 @@ function family() {
 
 export function Icon(props: IconProps) {
   const selected = family()
-  const map = selected === "tabler" ? tabler : selected === "phosphor" ? phosphor : selected === "heroicons" ? heroicons : lucide
-  if (!(props.name in map) && !warnedMissing.has(`${selected}:${props.name}`)) {
-    warnedMissing.add(`${selected}:${props.name}`)
-    console.warn(`[Icon] Missing icon "${props.name}" in ${selected} family`)
-  }
   return (
     <Show
       when={selected === "heroicons"}

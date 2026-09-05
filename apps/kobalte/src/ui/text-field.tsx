@@ -18,6 +18,10 @@ type TextFieldProps = ParentProps<{
   suffix?: JSX.Element
   onKeyDown?: (event: KeyboardEvent) => void
   onInput?: (event: InputEvent & { currentTarget: HTMLInputElement }) => void
+  ariaLabel?: string
+  maxLength?: number
+  inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search"
+  ref?: (element: HTMLInputElement) => void
 }>
 
 export function TextField(props: TextFieldProps) {
@@ -35,7 +39,7 @@ export function TextField(props: TextFieldProps) {
     >
       {props.label ? <KobalteTextField.Label class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{props.label}{props.required ? <span class="ml-1 text-red-600">*</span> : null}</KobalteTextField.Label> : null}
       <div class="flex min-h-9 items-center rounded-md border border-zinc-300 bg-white px-3 shadow-sm focus-within:ring-2 focus-within:ring-blue-500 data-[invalid]:border-red-500 dark:border-zinc-700 dark:bg-zinc-900">
-        {props.prefix ? <span class="mr-2 text-zinc-500">{props.prefix}</span> : null}
+        {props.prefix ? <span class="mr-2 text-zinc-500 dark:text-zinc-400">{props.prefix}</span> : null}
         <KobalteTextField.Input
           class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-400 disabled:opacity-50 dark:text-zinc-100"
           placeholder={props.placeholder}
@@ -43,10 +47,13 @@ export function TextField(props: TextFieldProps) {
           type={isPassword() && !visible() ? "password" : isPassword() ? "text" : props.type}
           onInput={props.onInput}
           onKeyDown={props.onKeyDown}
-          aria-label={props.label}
+          aria-label={props.ariaLabel ?? props.label}
+          maxLength={props.maxLength}
+          inputMode={props.inputMode}
+          ref={props.ref}
         />
-        {isPassword() ? <button type="button" class="ml-2 text-zinc-500" aria-label={visible() ? "隐藏密码" : "显示密码"} onClick={() => setVisible((value) => !value)}><Icon name={visible() ? "eye-off" : "eye"} size={16} /></button> : null}
-        {props.suffix ? <span class="ml-2 text-zinc-500">{props.suffix}</span> : null}
+        {isPassword() ? <button type="button" class="ml-2 text-zinc-500 dark:text-zinc-400" aria-label={visible() ? "隐藏密码" : "显示密码"} onClick={() => setVisible((value) => !value)}><Icon name={visible() ? "eye-off" : "eye"} size={16} /></button> : null}
+        {props.suffix ? <span class="ml-2 text-zinc-500 dark:text-zinc-400">{props.suffix}</span> : null}
       </div>
       {props.description ? <KobalteTextField.Description class="text-xs text-zinc-500 dark:text-zinc-400">{props.description}</KobalteTextField.Description> : null}
       {props.error ? <KobalteTextField.ErrorMessage class="text-xs text-red-600 dark:text-red-400">{props.error}</KobalteTextField.ErrorMessage> : null}
@@ -60,7 +67,7 @@ export function TextArea(props: TextFieldProps & { rows?: number; maxLength?: nu
     <KobalteTextField class={`grid gap-1.5 ${props.class ?? ""}`} validationState={props.error ? "invalid" : "valid"}>
       {props.label ? <KobalteTextField.Label class="text-sm font-medium">{props.label}{props.required ? <span class="ml-1 text-red-600">*</span> : null}</KobalteTextField.Label> : null}
       <KobalteTextField.TextArea rows={props.rows ?? 4} maxLength={props.maxLength} class="w-full rounded-md border border-zinc-300 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100" placeholder={props.placeholder} onInput={props.onInput} aria-label={props.label} />
-      {props.description ? <KobalteTextField.Description class="text-xs text-zinc-500">{props.description}</KobalteTextField.Description> : null}
+      {props.description ? <KobalteTextField.Description class="text-xs text-zinc-500 dark:text-zinc-400">{props.description}</KobalteTextField.Description> : null}
       {props.error ? <KobalteTextField.ErrorMessage class="text-xs text-red-600">{props.error}</KobalteTextField.ErrorMessage> : null}
     </KobalteTextField>
   )

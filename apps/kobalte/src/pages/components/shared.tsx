@@ -21,11 +21,11 @@ export const descriptions: Record<string, string> = {
   Switch: "Kobalte Switch · sizes and descriptions",
   Slider: "Kobalte Slider · single and range",
   Rating: "Kobalte Rating · stars",
-  DatePicker: "TextField · native date input",
-  DateRangePicker: "TextField · two date inputs",
+  DatePicker: "composed · native date input",
+  DateRangePicker: "composed · native date input",
   TimePicker: "Kobalte TimeField · segments",
   ColorPicker: "Kobalte ColorArea · hue and swatch",
-  Upload: "Kobalte FileField · dropzone",
+  Upload: "Kobalte FileField · dropzone and list",
   Cascader: "Select · chained values",
   Transfer: "Kobalte Listbox · move controls",
   Mention: "Not available in Kobalte",
@@ -114,7 +114,7 @@ export function DemoCard(props: { name: string; status: string; children: JSX.El
 }
 
 export function DemoLabel(props: { children: JSX.Element }) {
-  return <span class="text-xs font-medium uppercase tracking-wide text-zinc-500">{props.children}</span>
+  return <span class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{props.children}</span>
 }
 
 export function IconButton(props: { name: string; label: string; size?: "sm" | "md" | "lg"; variant?: "primary" | "outline" | "ghost" }) {
@@ -122,6 +122,5 @@ export function IconButton(props: { name: string; label: string; size?: "sm" | "
 }
 
 export function MiniTable(props: { rows?: string[][]; striped?: boolean }) {
-  const rows = props.rows ?? [["ORD-1001", "林晓", "¥12,480"], ["ORD-1002", "王子涵", "¥8,200"], ["ORD-1003", "Alex Chen", "¥5,760"]]
-  return <div class="overflow-x-auto rounded border border-zinc-200 dark:border-zinc-700"><table class="min-w-[420px] w-full text-left text-sm"><thead class="bg-zinc-100 dark:bg-zinc-800"><tr><For each={["编号", "客户", "金额"]}>{(head) => <th class="px-3 py-2 font-medium">{head}</th>}</For></tr></thead><tbody><For each={rows}>{(row, index) => <tr class={`border-t border-zinc-200 dark:border-zinc-700 ${props.striped && index() % 2 ? "bg-zinc-50 dark:bg-zinc-900" : ""}`}><For each={row}>{(cell) => <td class="px-3 py-2">{cell}</td>}</For></tr>}</For></tbody></table></div>
+  return <div class="overflow-x-auto rounded border border-zinc-200 dark:border-zinc-700"><table class="min-w-[420px] w-full text-left text-sm"><thead class="bg-zinc-100 dark:bg-zinc-800"><tr><For each={["编号", "客户", "金额"]}>{(head) => <th class="px-3 py-2 font-medium">{head}</th>}</For></tr></thead><tbody><For each={props.rows ?? [["ORD-1001", "林晓", "¥12,480"], ["ORD-1002", "王子涵", "¥8,200"], ["ORD-1003", "Alex Chen", "¥5,760"]]}>{(row, index) => <tr class={`border-t border-zinc-200 dark:border-zinc-700 ${props.striped && index() % 2 ? "bg-zinc-50 dark:bg-zinc-900" : ""}`}><For each={row}>{(cell) => <td class="px-3 py-2">{cell}</td>}</For></tr>}</For></tbody></table></div>
 }

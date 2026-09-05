@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react"
 import { Theme } from "@radix-ui/themes"
 
 export type Appearance = "light" | "dark"
@@ -8,18 +15,25 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 function initialAppearance(): Appearance {
   const value = new URLSearchParams(window.location.search).get("theme")
   if (value === "dark" || value === "light") return value
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light"
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [appearance, setAppearance] = useState<Appearance>(initialAppearance)
-  const [font, setFont] = useState(() => new URLSearchParams(window.location.search).get("font"))
+  const [font, setFont] = useState(() =>
+    new URLSearchParams(window.location.search).get("font")
+  )
 
   useEffect(() => {
     const root = document.documentElement
     root.classList.toggle("dark", appearance === "dark")
     root.classList.toggle("light", appearance === "light")
-    if (font && ["inter", "geist", "noto-sans-sc", "lxgw-wenkai"].includes(font)) {
+    if (
+      font &&
+      ["inter", "geist", "noto-sans-sc", "lxgw-wenkai"].includes(font)
+    ) {
       root.dataset.font = font
     } else {
       delete root.dataset.font
@@ -28,7 +42,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const icon = params.get("icon")
     if (icon && !params.get("icons")) {
       params.set("icons", icon)
-      window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`)
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}?${params.toString()}`
+      )
     }
   }, [appearance, font])
 
@@ -36,7 +54,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const onPopState = () => {
       const params = new URLSearchParams(window.location.search)
       const next = params.get("theme")
-      setAppearance(next === "dark" || next === "light" ? next : initialAppearance())
+      setAppearance(
+        next === "dark" || next === "light" ? next : initialAppearance()
+      )
       setFont(params.get("font"))
     }
     window.addEventListener("popstate", onPopState)
@@ -48,7 +68,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setAppearance(next)
     const params = new URLSearchParams(window.location.search)
     params.set("theme", next)
-    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`)
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${params.toString()}`
+    )
   }, [appearance])
 
   return (

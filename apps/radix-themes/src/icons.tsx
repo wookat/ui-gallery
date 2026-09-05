@@ -14,30 +14,42 @@ import {
   ComponentInstanceIcon,
   CopyIcon,
   Cross2Icon,
-  CubeIcon,
   DashboardIcon,
   DotsHorizontalIcon,
   DownloadIcon,
+  EnvelopeClosedIcon,
   EyeClosedIcon,
   EyeOpenIcon,
+  ExternalLinkIcon,
+  FileIcon,
   FilePlusIcon,
   GearIcon,
+  GitHubLogoIcon,
   GlobeIcon,
   HamburgerMenuIcon,
   InfoCircledIcon,
+  Link2Icon,
+  LightningBoltIcon,
   LockClosedIcon,
   MagnifyingGlassIcon,
   MinusIcon,
   MoonIcon,
   MixerHorizontalIcon,
+  PaperPlaneIcon,
+  Pencil1Icon,
   PersonIcon,
   PlusIcon,
   QuestionMarkCircledIcon,
+  ReloadIcon,
+  SpeakerLoudIcon,
   StarFilledIcon,
   StarIcon,
   SunIcon,
   TrashIcon,
-  UpdateIcon,
+  ActivityLogIcon,
+  BackpackIcon,
+  CaretSortIcon,
+  ClockIcon,
   UploadIcon,
 } from "@radix-ui/react-icons"
 import { Icon as SharedIcon } from "@ui-gallery/icons-react"
@@ -46,7 +58,7 @@ type IconType = ComponentType<SVGProps<SVGSVGElement>>
 type Props = SVGProps<SVGSVGElement> & { name: string; size?: number | string }
 
 const native = {
-  activity: UpdateIcon,
+  activity: ActivityLogIcon,
   "alert-circle": InfoCircledIcon,
   archive: ArchiveIcon,
   "arrow-down": ChevronDownIcon,
@@ -65,15 +77,16 @@ const native = {
   "chevron-right": ChevronRightIcon,
   "chevron-up": ChevronUpIcon,
   clipboard: ClipboardCopyIcon,
-  clock: UpdateIcon,
+  clock: ClockIcon,
   copy: CopyIcon,
   download: DownloadIcon,
-  edit: GearIcon,
-  "external-link": GlobeIcon,
+  edit: Pencil1Icon,
+  "external-link": ExternalLinkIcon,
   eye: EyeOpenIcon,
   "eye-off": EyeClosedIcon,
   "file-plus": FilePlusIcon,
-  file: ArchiveIcon,
+  file: FileIcon,
+  github: GitHubLogoIcon,
   filter: MixerHorizontalIcon,
   globe: GlobeIcon,
   grid: ComponentInstanceIcon,
@@ -83,28 +96,28 @@ const native = {
   image: ComponentInstanceIcon,
   info: InfoCircledIcon,
   "layout-dashboard": DashboardIcon,
-  loader: UpdateIcon,
+  loader: ReloadIcon,
   lock: LockClosedIcon,
   "log-in": PersonIcon,
   "log-out": PersonIcon,
   menu: HamburgerMenuIcon,
   "message-circle": ChatBubbleIcon,
   "message-square": ChatBubbleIcon,
-  mail: ChatBubbleIcon,
-  mic: ChatBubbleIcon,
+  mail: EnvelopeClosedIcon,
+  mic: SpeakerLoudIcon,
   minus: MinusIcon,
   "more-horizontal": DotsHorizontalIcon,
   moon: MoonIcon,
-  paperclip: UploadIcon,
-  pencil: GearIcon,
+  paperclip: Link2Icon,
+  pencil: Pencil1Icon,
   plus: PlusIcon,
   plug: ComponentInstanceIcon,
-  refresh: UpdateIcon,
+  refresh: ReloadIcon,
   search: MagnifyingGlassIcon,
-  send: UploadIcon,
+  send: PaperPlaneIcon,
   settings: GearIcon,
   shield: LockClosedIcon,
-  "shopping-cart": CubeIcon,
+  "shopping-cart": BackpackIcon,
   sliders: MixerHorizontalIcon,
   sparkles: StarFilledIcon,
   star: StarIcon,
@@ -115,8 +128,8 @@ const native = {
   user: PersonIcon,
   users: PersonIcon,
   x: Cross2Icon,
-  zap: UpdateIcon,
-  "chevrons-up-down": MixerHorizontalIcon,
+  zap: LightningBoltIcon,
+  "chevrons-up-down": CaretSortIcon,
   "alert-triangle": InfoCircledIcon,
   "x-circle": Cross2Icon,
   "inbox-icon": ArchiveIcon,
@@ -125,9 +138,15 @@ const native = {
 export function Icon({ name, size = 18, ...props }: Props) {
   const params = new URLSearchParams(window.location.search)
   const family = params.get("icons") ?? params.get("icon")
-  if (family && ["lucide", "tabler", "phosphor", "heroicons"].includes(family)) {
+  if (family !== "native") {
     return <SharedIcon name={name} size={size} />
   }
   const Component = native[name] ?? QuestionMarkCircledIcon
-  return <Component width={size} height={size} {...(props as SVGProps<SVGSVGElement>)} />
+  return (
+    <Component
+      width={size}
+      height={size}
+      {...(props as SVGProps<SVGSVGElement>)}
+    />
+  )
 }

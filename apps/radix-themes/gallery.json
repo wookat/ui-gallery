@@ -10,7 +10,7 @@
   },
   "theme": {
     "dark": true,
-    "nativeIcons": true
+    "nativeIcons": false
   },
   "routes": [
     "/login",
@@ -111,5 +111,5 @@
   "externals": {
     "chart": "recharts"
   },
-  "notes": "Radix Themes default theme with native Radix icons."
+  "notes": "Radix Themes 本身不含图标体系；默认使用 lucide（@ui-gallery/icons-react），另通过 ?icons=native 额外提供 @radix-ui/react-icons 映射。图表使用 recharts（external）。"
 }

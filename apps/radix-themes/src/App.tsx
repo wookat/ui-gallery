@@ -10,16 +10,19 @@ import { OrdersPage } from "./pages/orders"
 import { SettingsPage } from "./pages/settings"
 
 const shell = (element: React.ReactNode) => <AppShell>{element}</AppShell>
-const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
-  { path: "/", element: shell(<DashboardPage />) },
-  { path: "/orders", element: shell(<OrdersPage />) },
-  { path: "/form", element: shell(<FormPage />) },
-  { path: "/settings", element: shell(<SettingsPage />) },
-  { path: "/components", element: shell(<ComponentsPage />) },
-  { path: "/landing", element: <LandingPage /> },
-  { path: "/chat", element: shell(<ChatPage />) },
-], { basename: "/apps/radix-themes" })
+const router = createBrowserRouter(
+  [
+    { path: "/login", element: <LoginPage /> },
+    { path: "/", element: shell(<DashboardPage />) },
+    { path: "/orders", element: shell(<OrdersPage />) },
+    { path: "/form", element: shell(<FormPage />) },
+    { path: "/settings", element: shell(<SettingsPage />) },
+    { path: "/components", element: shell(<ComponentsPage />) },
+    { path: "/landing", element: <LandingPage /> },
+    { path: "/chat", element: shell(<ChatPage />) },
+  ],
+  { basename: "/apps/radix-themes" }
+)
 
 export default function App() {
   return <RouterProvider router={router} />

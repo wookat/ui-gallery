@@ -17,7 +17,7 @@ const fontMap: Record<string, string> = {
   "lxgw-wenkai": "'LXGW WenKai Screen', serif",
 }
 const isPublic = computed(() => route.path === "/login" || route.path === "/landing")
-const configTheme = computed(() => ({ algorithm: dark.value ? theme.darkAlgorithm : theme.defaultAlgorithm, ...(fontMap[font] ? { token: { fontFamily: `var(--font-sans)` } } : {}) }))
+const configTheme = computed(() => ({ algorithm: dark.value ? theme.darkAlgorithm : theme.defaultAlgorithm, token: { controlHeight: 40 }, ...(fontMap[font] ? { token: { controlHeight: 40, fontFamily: `var(--font-sans)` } } : {}) }))
 watchEffect(() => {
   document.documentElement.classList.toggle("dark", dark.value)
   document.documentElement.style.colorScheme = dark.value ? "dark" : "light"

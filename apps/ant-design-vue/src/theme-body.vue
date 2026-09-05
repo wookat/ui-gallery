@@ -10,6 +10,9 @@ watchEffect(() => {
   const root = document.documentElement
   root.style.setProperty("--app-color-primary", current.colorPrimary)
   root.style.setProperty("--app-color-white", current.colorWhite)
+  root.style.setProperty("--app-color-error", current.colorError)
+  root.style.setProperty("--app-color-primary-bg", current.colorPrimaryBg)
+  root.style.setProperty("--app-color-primary-text", current.colorPrimaryText)
   root.style.setProperty("--app-color-text", current.colorText)
   root.style.setProperty("--app-color-text-secondary", current.colorTextSecondary)
   root.style.setProperty("--app-color-bg-layout", current.colorBgLayout)

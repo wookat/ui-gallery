@@ -151,6 +151,7 @@ export function DashboardPage() {
                         stat.delta >= 0 ? token.colorSuccess : token.colorError
                       }
                       dot={false}
+                      isAnimationActive={false}
                     />
                   </ReLineChart>
                 </ResponsiveContainer>
@@ -172,8 +173,13 @@ export function DashboardPage() {
                     dataKey="revenue"
                     stroke={token.colorPrimary}
                     strokeWidth={3}
+                    isAnimationActive={false}
                   />
-                  <Line dataKey="orders" stroke={token.colorSuccess} />
+                  <Line
+                    dataKey="orders"
+                    stroke={token.colorSuccess}
+                    isAnimationActive={false}
+                  />
                 </ReLineChart>
               </ResponsiveContainer>
             </div>
@@ -190,6 +196,7 @@ export function DashboardPage() {
                     nameKey="name"
                     outerRadius={90}
                     label
+                    isAnimationActive={false}
                   >
                     {series.byChannel.map((entry, index) => (
                       <Cell
@@ -219,7 +226,11 @@ export function DashboardPage() {
               <XAxis dataKey="month" />
               <YAxis />
               <ChartTooltip />
-              <Bar dataKey="orders" fill={token.colorPrimary} />
+              <Bar
+                dataKey="orders"
+                fill={token.colorPrimary}
+                isAnimationActive={false}
+              />
             </ReBarChart>
           </ResponsiveContainer>
         </div>

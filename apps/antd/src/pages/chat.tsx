@@ -30,6 +30,12 @@ export function ChatPage() {
   const [drawer, setDrawer] = useState(false)
   const { message } = App.useApp()
   const { token } = theme.useToken()
+  const recentConversations = chat.conversations.filter(
+    (item) => item.time === "刚刚" || item.time === "昨天"
+  )
+  const earlierConversations = chat.conversations.filter(
+    (item) => !recentConversations.includes(item)
+  )
   const conversation = (
     <>
       <Input.Search placeholder="搜索会话" />
@@ -41,16 +47,20 @@ export function ChatPage() {
       >
         新建会话
       </Button>
-      <List
-        header="今天"
-        dataSource={chat.conversations.filter((item) => item.time === "今天")}
-        renderItem={conversationItem}
-      />
-      <List
-        header="更早"
-        dataSource={chat.conversations.filter((item) => item.time !== "今天")}
-        renderItem={conversationItem}
-      />
+      {recentConversations.length > 0 ? (
+        <List
+          header="最近"
+          dataSource={recentConversations}
+          renderItem={conversationItem}
+        />
+      ) : null}
+      {earlierConversations.length > 0 ? (
+        <List
+          header="更早"
+          dataSource={earlierConversations}
+          renderItem={conversationItem}
+        />
+      ) : null}
     </>
   )
   function conversationItem(item: (typeof chat.conversations)[number]) {
@@ -63,9 +73,10 @@ export function ChatPage() {
   }
   const markdownComponents = {
     pre: ({ children }: { children?: React.ReactNode }) => (
-      <Card size="small" className="markdown-code">
-        <Flex justify="space-between" align="start">
-          <pre>{children}</pre>
+      <Card
+        size="small"
+        className="markdown-code"
+        extra={
           <Button
             size="small"
             icon={<Icon name="copy" />}
@@ -76,7 +87,9 @@ export function ChatPage() {
           >
             复制
           </Button>
-        </Flex>
+        }
+      >
+        <pre>{children}</pre>
       </Card>
     ),
   }
@@ -84,6 +97,7 @@ export function ChatPage() {
     <Layout className="chat-layout">
       <Layout.Sider
         width={280}
+        theme="light"
         breakpoint="md"
         collapsedWidth={0}
         className="desktop-only"

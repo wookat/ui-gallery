@@ -82,7 +82,7 @@ for (const route of routes)
         width,
         errors: errors.length,
       })
-      if (viewport.name === "mobile" && width > 375) rows.at(-1).overflow = true
+      if (width > viewport.width) rows.at(-1).overflow = true
       if (errors.length) rows.at(-1).errorMessages = errors
       await page.close()
     }

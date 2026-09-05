@@ -9,8 +9,10 @@ import {
   Flex,
   Form,
   Input,
+  Layout,
   Space,
   Typography,
+  theme,
 } from "antd"
 import { Icon } from "@/icons"
 
@@ -18,6 +20,7 @@ export function LoginPage() {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const { message } = App.useApp()
+  const { token } = theme.useToken()
   const submit = async () => {
     try {
       await form.validateFields()
@@ -31,7 +34,10 @@ export function LoginPage() {
     }
   }
   return (
-    <div className="public-page login-page">
+    <Layout
+      className="public-page login-page"
+      style={{ background: token.colorBgLayout }}
+    >
       <Card style={{ width: "100%", maxWidth: 440 }}>
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
           <div style={{ textAlign: "center" }}>
@@ -100,6 +106,6 @@ export function LoginPage() {
           </Typography.Text>
         </Space>
       </Card>
-    </div>
+    </Layout>
   )
 }

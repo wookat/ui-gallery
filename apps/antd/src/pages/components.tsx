@@ -202,7 +202,7 @@ function Demo({ name }: { name: string }) {
         </Typography.Text>
       </Space>
     )
-  if (name === "Button" || name === "ButtonGroup")
+  if (name === "Button")
     return (
       <Space direction="vertical">
         <Space wrap>
@@ -235,6 +235,43 @@ function Demo({ name }: { name: string }) {
           <Button>保存</Button>
           <Button type="primary">提交</Button>
           <Button danger>删除</Button>
+        </Space.Compact>
+      </Space>
+    )
+  if (name === "ButtonGroup")
+    return (
+      <Space direction="vertical" style={{ width: "100%" }}>
+        <Space.Compact>
+          <Button>上一步</Button>
+          <Button type="primary">保存</Button>
+          <Button>下一步</Button>
+        </Space.Compact>
+        <Space.Compact direction="vertical" block>
+          <Button>上一步</Button>
+          <Button type="primary">保存</Button>
+          <Button>下一步</Button>
+        </Space.Compact>
+        <Space.Compact block>
+          <Button size="small">小</Button>
+          <Button>中</Button>
+          <Button size="large">大</Button>
+        </Space.Compact>
+        <Dropdown.Button
+          menu={{
+            items: [
+              { key: "draft", label: "保存草稿" },
+              { key: "copy", label: "另存副本" },
+            ],
+          }}
+        >
+          提交
+        </Dropdown.Button>
+        <Space.Compact>
+          <Button icon={<Icon name="arrow-left" />} />
+          <Button icon={<Icon name="edit" />} type="primary">
+            编辑
+          </Button>
+          <Button icon={<Icon name="arrow-right" />} />
         </Space.Compact>
       </Space>
     )

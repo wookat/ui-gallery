@@ -5,8 +5,8 @@ import os
 REPO = "github.com/wookat/ui-gallery"
 REPO_SLUG = "wookat/ui-gallery"
 ROUND = int(os.environ.get("UI_GALLERY_ROUND", "1"))
-HERE = os.path.dirname(os.path.abspath(__file__))
-LIBS_PATH = os.path.normpath(os.path.join(HERE, "..", "..", "..", "docs", "libraries.json"))
+REPO_DIR = os.environ.get("UI_GALLERY_REPO_DIR", os.path.expanduser("~/repos/ui-gallery"))
+LIBS_PATH = os.path.join(REPO_DIR, "docs", "libraries.json")
 
 with open(LIBS_PATH, encoding="utf-8") as f:
     LIBS = [x for x in json.load(f)["libraries"] if x.get("round") == ROUND]

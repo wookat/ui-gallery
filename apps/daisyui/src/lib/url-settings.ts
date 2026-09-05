@@ -23,7 +23,8 @@ export function applyTheme(theme: Theme) {
 }
 
 // `?icon=` is the spec alias for `?icons=` consumed by @ui-gallery/icons-react.
-function normalizeIconParam() {
+// Must run before the first render because the icon adapter reads the URL synchronously.
+export function normalizeIconParam() {
   const params = new URLSearchParams(window.location.search)
   const alias = params.get("icon")
   if (alias && !params.get("icons")) {
@@ -36,7 +37,6 @@ function normalizeIconParam() {
 export function useUrlSettings() {
   const [theme, setThemeState] = useState<Theme>(() => readTheme())
   useEffect(() => {
-    normalizeIconParam()
     const font = new URLSearchParams(window.location.search).get("font") ?? "default"
     document.documentElement.style.setProperty("--app-font", FONTS[font] ?? DEFAULT_FONT)
   }, [])

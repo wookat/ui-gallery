@@ -5,7 +5,8 @@
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/noto-sans-sc";
-@import "lxgw-wenkai-screen-webfont/style.css";
+/* style.css 只含嵌套 @import url()，打包时不会展开，直接引入字体定义文件 */
+@import "lxgw-wenkai-screen-webfont/lxgwwenkaiscreen.css";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
@@ -87,10 +88,12 @@ body {
 
 .chat-start .chat-bubble table {
   min-width: max-content;
+  margin: 0.75rem 0;
 }
 
-.chat-start .chat-bubble table {
-  margin: 0.75rem 0;
+.chat-start .chat-bubble pre {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 @media (max-width: 639px) {

@@ -4,7 +4,7 @@ import { DatePickerInput } from "@mantine/dates"
 import { notifications } from "@mantine/notifications"
 import { Icon } from "@ui-gallery/icons-react"
 import orders from "@ui-gallery/spec/mock/orders.json"
-import { PageHeader, StatusBadge, money } from "./shared"
+import { muted, PageHeader, StatusBadge, money } from "./shared"
 import { useFakeLoading } from "./dashboard"
 
 type Order = (typeof orders)[number]
@@ -90,14 +90,14 @@ export function OrdersPage() {
 
       <Card withBorder radius="md" padding={0}>
         {loading ? (
-          <Center py={80}><Stack align="center" gap="sm"><Loader /><Text size="sm" c="dimmed">加载订单...</Text></Stack></Center>
+          <Center py={80}><Stack align="center" gap="sm"><Loader /><Text size="sm" c={muted}>加载订单...</Text></Stack></Center>
         ) : rows.length === 0 ? (
           <EmptyState py={60} icon={<Icon name="shopping-cart" size={28} />} title="暂无订单" description="调整筛选条件，或创建第一笔订单。">
             <EmptyState.Actions><Button leftSection={<Icon name="plus" size={16} />}>新建订单</Button></EmptyState.Actions>
           </EmptyState>
         ) : (
-          <Table.ScrollContainer minWidth={800}>
-            <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md">
+          <Table.ScrollContainer minWidth={960}>
+            <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md" styles={{ th: { whiteSpace: "nowrap" }, td: { whiteSpace: "nowrap" } }}>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th w={40}><Checkbox aria-label="全选" checked={allSelected} indeterminate={someSelected && !allSelected} onChange={() => setSelected(allSelected ? selected.filter((id) => !rows.some((r) => r.id === id)) : [...new Set([...selected, ...rows.map((r) => r.id)])])} /></Table.Th>
@@ -118,15 +118,15 @@ export function OrdersPage() {
                   <Table.Tr key={o.id} bg={selected.includes(o.id) ? "var(--mantine-primary-color-light)" : undefined} onClick={() => setDetail(o)} style={{ cursor: "pointer" }}>
                     <Table.Td onClick={(e) => e.stopPropagation()}><Checkbox aria-label={`选择 ${o.id}`} checked={selected.includes(o.id)} onChange={(e) => setSelected(e.currentTarget.checked ? [...selected, o.id] : selected.filter((id) => id !== o.id))} /></Table.Td>
                     {visible.id ? <Table.Td><Text size="sm" fw={500}>{o.id}</Text></Table.Td> : null}
-                    {visible.customer ? <Table.Td><Group gap="xs" wrap="nowrap"><Avatar size="sm" radius="xl" color="blue">{o.customer.slice(0, 1)}</Avatar><div><Text size="sm">{o.customer}</Text><Text size="xs" c="dimmed">{o.email}</Text></div></Group></Table.Td> : null}
+                    {visible.customer ? <Table.Td><Group gap="xs" wrap="nowrap"><Avatar size="sm" radius="xl" color="blue">{o.customer.slice(0, 1)}</Avatar><div><Text size="sm">{o.customer}</Text><Text size="xs" c={muted}>{o.email}</Text></div></Group></Table.Td> : null}
                     {visible.product ? <Table.Td><Text size="sm">{o.product}</Text></Table.Td> : null}
-                    {visible.channel ? <Table.Td><Text size="sm" tt="uppercase" c="dimmed">{o.channel}</Text></Table.Td> : null}
+                    {visible.channel ? <Table.Td><Text size="sm" tt="uppercase" c={muted}>{o.channel}</Text></Table.Td> : null}
                     {visible.status ? <Table.Td><StatusBadge value={o.status} /></Table.Td> : null}
                     {visible.date ? <Table.Td><Text size="sm">{o.date}</Text></Table.Td> : null}
                     {visible.amount ? <Table.Td ta="right"><Text size="sm" ff="monospace">{money(o.amount, o.currency)}</Text></Table.Td> : null}
                     <Table.Td onClick={(e) => e.stopPropagation()}>
                       <Menu position="bottom-end">
-                        <Menu.Target><ActionIcon variant="subtle" color="gray" aria-label="操作"><Icon name="more-horizontal" size={16} /></ActionIcon></Menu.Target>
+                        <Menu.Target><ActionIcon size={40} variant="subtle" color="gray" aria-label="操作"><Icon name="more-horizontal" size={16} /></ActionIcon></Menu.Target>
                         <Menu.Dropdown>
                           <Menu.Item leftSection={<Icon name="pencil" size={14} />} onClick={() => setDetail(o)}>编辑</Menu.Item>
                           <Menu.Item color="red" leftSection={<Icon name="trash" size={14} />} onClick={() => setDeleting(o)}>删除</Menu.Item>
@@ -140,7 +140,7 @@ export function OrdersPage() {
           </Table.ScrollContainer>
         )}
         <Group justify="space-between" p="md" wrap="wrap" style={{ borderTop: "1px solid var(--mantine-color-default-border)" }}>
-          <Text size="sm" c="dimmed">已选 {selected.length} / {filtered.length} 条</Text>
+          <Text size="sm" c={muted}>已选 {selected.length} / {filtered.length} 条</Text>
           <Group gap="sm">
             <Select size="xs" w={110} data={["5", "10", "20"].map((v) => ({ value: v, label: `${v} 条/页` }))} value={pageSize} onChange={(v) => { setPageSize(v ?? "10"); setPage(1) }} />
             <Pagination size="sm" total={pageCount} value={page} onChange={setPage} />
@@ -151,7 +151,7 @@ export function OrdersPage() {
       <Drawer opened={!!detail} onClose={() => setDetail(null)} position="right" size="md" title={detail ? `订单 ${detail.id}` : ""}>
         {detail ? (
           <Stack gap="md">
-            <Group><StatusBadge value={detail.status} /><Text size="sm" c="dimmed">{detail.date}</Text></Group>
+            <Group><StatusBadge value={detail.status} /><Text size="sm" c={muted}>{detail.date}</Text></Group>
             <DataList withDivider labelWidth={80}>
               <DataList.Item><DataList.ItemLabel>客户</DataList.ItemLabel><DataList.ItemValue>{detail.customer}</DataList.ItemValue></DataList.Item>
               <DataList.Item><DataList.ItemLabel>邮箱</DataList.ItemLabel><DataList.ItemValue>{detail.email}</DataList.ItemValue></DataList.Item>
@@ -162,7 +162,7 @@ export function OrdersPage() {
             <Tabs defaultValue="items">
               <Tabs.List><Tabs.Tab value="items">明细</Tabs.Tab><Tabs.Tab value="history">历史</Tabs.Tab><Tabs.Tab value="notes">备注</Tabs.Tab></Tabs.List>
               <Tabs.Panel value="items" pt="md"><Text size="sm">{detail.product} × 1 — {money(detail.amount, detail.currency)}</Text></Tabs.Panel>
-              <Tabs.Panel value="history" pt="md"><Text size="sm" c="dimmed">{detail.date} 创建 · 状态 {detail.status}</Text></Tabs.Panel>
+              <Tabs.Panel value="history" pt="md"><Text size="sm" c={muted}>{detail.date} 创建 · 状态 {detail.status}</Text></Tabs.Panel>
               <Tabs.Panel value="notes" pt="md"><Textarea placeholder="添加备注..." autosize minRows={3} /></Tabs.Panel>
             </Tabs>
             <Group justify="flex-end"><Button variant="default" onClick={() => setDetail(null)}>关闭</Button><Button color="red" variant="light" onClick={() => { setDeleting(detail); setDetail(null) }}>删除</Button></Group>

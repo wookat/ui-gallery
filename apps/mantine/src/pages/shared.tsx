@@ -1,13 +1,16 @@
 import type { ReactNode } from "react"
 import { Badge, Card, Group, Stack, Text, Title } from "@mantine/core"
 
+export const muted = "var(--ug-muted)"
+export const placeholderBg = "var(--ug-placeholder)"
+
 export function PageHeader({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
   return (
     <Group justify="space-between" align="flex-end" wrap="wrap" gap="md">
       <Stack gap={4}>
-        <Text size="xs" fw={600} c="dimmed" tt="uppercase" style={{ letterSpacing: "0.2em" }}>ACME CONSOLE</Text>
+        <Text size="xs" fw={600} c={muted} tt="uppercase" style={{ letterSpacing: "0.2em" }}>ACME CONSOLE</Text>
         <Title order={1} size="h2">{title}</Title>
-        {description ? <Text size="sm" c="dimmed">{description}</Text> : null}
+        {description ? <Text size="sm" c={muted}>{description}</Text> : null}
       </Stack>
       {action}
     </Group>
@@ -21,7 +24,7 @@ export function SectionCard({ title, description, children, right }: { title: st
         <Group justify="space-between" wrap="nowrap">
           <div>
             <Text fw={600}>{title}</Text>
-            {description ? <Text size="sm" c="dimmed">{description}</Text> : null}
+            {description ? <Text size="sm" c={muted}>{description}</Text> : null}
           </div>
           {right}
         </Group>

@@ -7,7 +7,7 @@ import orders from "@ui-gallery/spec/mock/orders.json"
 import series from "@ui-gallery/spec/mock/series.json"
 import stats from "@ui-gallery/spec/mock/stats.json"
 import tasks from "@ui-gallery/spec/mock/tasks.json"
-import { PageHeader, SectionCard, StatusBadge, money } from "./shared"
+import { muted, PageHeader, SectionCard, StatusBadge, money } from "./shared"
 
 export function useFakeLoading(ms = 250) {
   const [loading, setLoading] = useState(() => new URLSearchParams(window.location.search).get("state") !== "ready")
@@ -55,7 +55,7 @@ export function DashboardPage() {
             ) : (
               <Stack gap="xs">
                 <Group justify="space-between">
-                  <Text size="sm" c="dimmed">{stat.label}</Text>
+                  <Text size="sm" c={muted}>{stat.label}</Text>
                   <Badge variant="light" color={stat.delta >= 0 ? "teal" : "red"} leftSection={<Icon name={stat.delta >= 0 ? "arrow-up" : "arrow-down"} size={10} />}>
                     {Math.abs(stat.delta)}%
                   </Badge>
@@ -105,13 +105,13 @@ export function DashboardPage() {
                   <Table.Tbody>
                     {orders.slice(0, 5).map((o) => (
                       <Table.Tr key={o.id}>
-                        <Table.Td><Text size="sm" fw={500}>{o.id}</Text><Text size="xs" c="dimmed">{o.date}</Text></Table.Td>
+                        <Table.Td><Text size="sm" fw={500}>{o.id}</Text><Text size="xs" c={muted}>{o.date}</Text></Table.Td>
                         <Table.Td><Group gap="xs" wrap="nowrap"><Avatar size="sm" radius="xl" color="blue">{o.customer.slice(0, 1)}</Avatar><Text size="sm">{o.customer}</Text></Group></Table.Td>
                         <Table.Td><StatusBadge value={o.status} /></Table.Td>
                         <Table.Td ta="right"><Text size="sm" ff="monospace">{money(o.amount, o.currency)}</Text></Table.Td>
                         <Table.Td>
                           <Menu position="bottom-end">
-                            <Menu.Target><ActionIcon variant="subtle" color="gray" aria-label="操作"><Icon name="more-horizontal" size={16} /></ActionIcon></Menu.Target>
+                            <Menu.Target><ActionIcon size={40} variant="subtle" color="gray" aria-label="操作"><Icon name="more-horizontal" size={16} /></ActionIcon></Menu.Target>
                             <Menu.Dropdown>
                               <Menu.Item leftSection={<Icon name="pencil" size={14} />}>编辑</Menu.Item>
                               <Menu.Item leftSection={<Icon name="copy" size={14} />}>复制</Menu.Item>
@@ -134,8 +134,8 @@ export function DashboardPage() {
                 <Timeline active={1} bulletSize={24} lineWidth={2}>
                   {activity.map((a) => (
                     <Timeline.Item key={a.action} bullet={<Avatar size={22} radius="xl" color="blue">{a.user.slice(0, 1)}</Avatar>} title={<Text size="sm" fw={500}>{a.user}</Text>}>
-                      <Text size="sm" c="dimmed">{a.action}</Text>
-                      <Text size="xs" c="dimmed" mt={2}>{a.time}</Text>
+                      <Text size="sm" c={muted}>{a.action}</Text>
+                      <Text size="xs" c={muted} mt={2}>{a.time}</Text>
                     </Timeline.Item>
                   ))}
                 </Timeline>
@@ -148,7 +148,7 @@ export function DashboardPage() {
                     <div key={t.title}>
                       <Group justify="space-between" mb={4}>
                         <Text size="sm" fw={500}>{t.title}</Text>
-                        <Text size="xs" c="dimmed">{t.owner} · {t.progress}%</Text>
+                        <Text size="xs" c={muted}>{t.owner} · {t.progress}%</Text>
                       </Group>
                       <Progress value={t.progress} size="sm" color={t.progress > 80 ? "teal" : t.progress < 30 ? "orange" : "blue"} />
                     </div>

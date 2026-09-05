@@ -5,7 +5,7 @@ import { Dropzone, type FileWithPath } from "@mantine/dropzone"
 import { useForm } from "@mantine/form"
 import { Icon } from "@ui-gallery/icons-react"
 import team from "@ui-gallery/spec/mock/team.json"
-import { PageHeader } from "./shared"
+import { muted, PageHeader } from "./shared"
 
 const help = (label: string, tip: string) => (
   <Group gap={4} wrap="nowrap" component="span">
@@ -70,7 +70,7 @@ export function FormPage() {
           <Stack align="center" gap="md" py="xl">
             <ThemeIcon size={64} radius="xl" color="teal" variant="light"><Icon name="check" size={32} /></ThemeIcon>
             <Title order={2}>项目已创建</Title>
-            <Text c="dimmed" ta="center">项目「{form.values.name}」已创建，成员将收到邀请邮件。</Text>
+            <Text c={muted} ta="center">项目「{form.values.name}」已创建，成员将收到邀请邮件。</Text>
             <Group><Button variant="default" onClick={() => { setDone(false); setActive(0); form.reset() }}>再建一个</Button><Button>进入项目</Button></Group>
           </Stack>
         </Card>
@@ -138,14 +138,14 @@ export function FormPage() {
                     <Dropzone.Accept><Icon name="upload" size={32} /></Dropzone.Accept>
                     <Dropzone.Reject><Icon name="x" size={32} /></Dropzone.Reject>
                     <Dropzone.Idle><Icon name="upload" size={32} /></Dropzone.Idle>
-                    <div><Text size="sm">拖拽文件到此处或点击上传</Text><Text size="xs" c="dimmed">单个文件不超过 5 MB</Text></div>
+                    <div><Text size="sm">拖拽文件到此处或点击上传</Text><Text size="xs" c={muted}>单个文件不超过 5 MB</Text></div>
                   </Group>
                 </Dropzone>
                 {files.length ? (
                   <List size="sm" mt="xs" spacing={4}>
                     {files.map((f) => (
                       <List.Item key={f.name} icon={<Icon name="paperclip" size={14} />}>
-                        <Group gap="xs">{f.name}<Text size="xs" c="dimmed">{(f.size / 1024).toFixed(1)} KB</Text><ActionIcon size="xs" variant="subtle" color="gray" onClick={() => setFiles(files.filter((x) => x !== f))} aria-label="移除"><Icon name="x" size={12} /></ActionIcon></Group>
+                        <Group gap="xs">{f.name}<Text size="xs" c={muted}>{(f.size / 1024).toFixed(1)} KB</Text><ActionIcon size="xs" variant="subtle" color="gray" onClick={() => setFiles(files.filter((x) => x !== f))} aria-label="移除"><Icon name="x" size={12} /></ActionIcon></Group>
                       </List.Item>
                     ))}
                   </List>

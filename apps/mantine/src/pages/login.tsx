@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { Alert, Anchor, Box, Button, Center, Checkbox, Container, Divider, Group, Paper, PasswordInput, SimpleGrid, Stack, Text, TextInput, Title } from "@mantine/core"
 import { Icon } from "@ui-gallery/icons-react"
 import { Brand } from "@/layouts/app-shell"
+import { muted } from "./shared"
 
 export function LoginPage() {
   const [email, setEmail] = useState("")
@@ -35,7 +36,7 @@ export function LoginPage() {
               <Brand />
               <div>
                 <Title order={2}>欢迎回来</Title>
-                <Text c="dimmed" size="sm" mt={4}>登录 Acme Console，继续你的工作。</Text>
+                <Text c={muted} size="sm" mt={4}>登录 Acme Console，继续你的工作。</Text>
               </div>
               {error ? (
                 <Alert color="red" variant="light" icon={<Icon name="alert-circle" size={16} />} title="登录失败" withCloseButton onClose={() => setError(null)}>
@@ -62,6 +63,7 @@ export function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.currentTarget.value)}
                     error={passwordError}
+                    visibilityToggleButtonProps={{ size: "md" }}
                   />
                   <Group justify="space-between">
                     <Checkbox label="记住我" size="sm" />
@@ -76,7 +78,7 @@ export function LoginPage() {
                 <Button variant="default" leftSection={<Icon name="link" size={16} />}>GitHub</Button>
                 <Button variant="default" leftSection={<Icon name="message-circle" size={16} />}>微信</Button>
               </SimpleGrid>
-              <Text size="sm" c="dimmed" ta="center">
+              <Text size="sm" c={muted} ta="center">
                 还没有账户？ <Anchor component={Link} to="#register" size="sm">立即注册</Anchor>
               </Text>
             </Stack>

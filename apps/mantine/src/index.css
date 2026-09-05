@@ -17,3 +17,13 @@ body,
 #root {
   min-height: 100%;
 }
+
+:root {
+  --ug-muted: var(--mantine-color-gray-7);
+  --ug-placeholder: var(--mantine-color-gray-1);
+}
+
+:root[data-mantine-color-scheme="dark"] {
+  --ug-muted: var(--mantine-color-gray-5);
+  --ug-placeholder: var(--mantine-color-dark-5);
+}

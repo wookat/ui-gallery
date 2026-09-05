@@ -11,3 +11,5 @@ allowBuilds:
   sharp: true
   "@parcel/watcher": true
   workerd: true
+  maplibre-gl: false
+  vue-demi: false

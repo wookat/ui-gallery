@@ -1357,7 +1357,7 @@ export function ComponentsPage() {
               <Demo name="PanelLayout" note="Splitter / Resizable 对应：可拖拽分栏；display all / panel-only / main-only">
                 <SegmentedControl selectedId={display} onChange={({ detail }) => setDisplay(detail.selectedId as typeof display)} label="显示" options={[{ id: "all", text: "全部" }, { id: "panel-only", text: "仅面板" }, { id: "main-only", text: "仅主区" }]} />
                 <div style={{ height: 200 }}>
-                  <PanelLayout panelPosition="side-start" resizable defaultPanelSize={240} minPanelSize={160} display={display} i18nStrings={{ resizeHandleAriaLabel: "调整宽度", resizeHandleTooltipText: "拖拽调整" }} panelContent={<Box padding="m">侧栏面板</Box>} mainContent={<Box padding="m">主内容区</Box>} />
+                  <PanelLayout panelPosition="side-start" resizable defaultPanelSize={240} minPanelSize={160} display={display} i18nStrings={{ resizeHandleAriaLabel: "调整宽度", resizeHandleTooltipText: "拖拽调整" }} panelContent={<Container fitHeight><Box>侧栏面板</Box></Container>} mainContent={<Container fitHeight><Box>主内容区</Box></Container>} />
                 </div>
               </Demo>
               <Demo name="SplitPanel" note="需在 AppLayout 的 splitPanel 插槽渲染（底部 / 侧边可切换）；订单页抽屉与本页 Drawer 同属该体系，此处不重复嵌套。" />

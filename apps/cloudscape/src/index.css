@@ -67,8 +67,17 @@ body {
 }
 
 .gallery-hero {
-  background: var(--color-background-home-header-4c9jt4, #0f141a);
-  color: var(--color-text-home-header-default-morg6i, #ebebf0);
+  background: var(--color-background-layout-main-7z8vaj, #0f141a);
+}
+
+.gallery-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.gallery-input-row > :first-child {
+  flex: 1;
+  min-width: 0;
 }
 
 .gallery-landing-nav {

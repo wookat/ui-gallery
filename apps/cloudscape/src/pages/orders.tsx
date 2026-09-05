@@ -4,6 +4,7 @@ import Alert from "@cloudscape-design/components/alert"
 import Box from "@cloudscape-design/components/box"
 import Button from "@cloudscape-design/components/button"
 import ButtonDropdown from "@cloudscape-design/components/button-dropdown"
+import Cards from "@cloudscape-design/components/cards"
 import CollectionPreferences, { type CollectionPreferencesProps } from "@cloudscape-design/components/collection-preferences"
 import ContentLayout from "@cloudscape-design/components/content-layout"
 import DateRangePicker, { type DateRangePickerProps } from "@cloudscape-design/components/date-range-picker"
@@ -13,6 +14,7 @@ import FormField from "@cloudscape-design/components/form-field"
 import Grid from "@cloudscape-design/components/grid"
 import Header from "@cloudscape-design/components/header"
 import KeyValuePairs from "@cloudscape-design/components/key-value-pairs"
+import Link from "@cloudscape-design/components/link"
 import Modal from "@cloudscape-design/components/modal"
 import Multiselect, { type MultiselectProps } from "@cloudscape-design/components/multiselect"
 import Pagination from "@cloudscape-design/components/pagination"
@@ -26,6 +28,7 @@ import TextFilter from "@cloudscape-design/components/text-filter"
 import ordersData from "@ui-gallery/spec/mock/orders.json"
 
 import { iconProps } from "@/lib/icons"
+import { useIsMobile } from "@/lib/use-mobile"
 import { label, money, OrderStatus, PageHeader, PersonAvatar } from "./shared"
 
 type Order = (typeof ordersData)[number]
@@ -73,6 +76,7 @@ const DEFAULT_PREFS: CollectionPreferencesProps.Preferences = {
 }
 
 export function OrdersPage() {
+  const isMobile = useIsMobile()
   const [mode, setMode] = useState<Mode>("loading")
   const [status, setStatus] = useState<SelectProps.Option>(ALL_STATUS)
   const [channels, setChannels] = useState<readonly MultiselectProps.Option[]>([])
@@ -148,6 +152,14 @@ export function OrdersPage() {
     if (selected?.id === pendingDelete.id) setSelected(null)
   }
 
+  const actionItems = [
+    { id: "edit", text: "编辑", ...iconProps("pencil") },
+    { id: "delete", text: "删除", ...iconProps("trash") },
+  ]
+  const onAction = (o: Order, id: string) => {
+    if (id === "delete") setPendingDelete(o)
+    else setSelected(o)
+  }
   const actionColumn: TableProps.ColumnDefinition<Order> = {
     id: "actions",
     header: "操作",
@@ -157,18 +169,107 @@ export function OrdersPage() {
         variant="inline-icon"
         ariaLabel={`${o.id} 操作`}
         expandToViewport
-        items={[
-          { id: "edit", text: "编辑", ...iconProps("pencil") },
-          { id: "delete", text: "删除", ...iconProps("trash") },
-        ]}
-        onItemClick={({ detail }) => {
-          if (detail.id === "delete") setPendingDelete(o)
-          else setSelected(o)
-        }}
+        items={actionItems}
+        onItemClick={({ detail }) => onAction(o, detail.id)}
       />
     ),
   }
-
+  const modeSwitcher = (
+    <ButtonDropdown
+      items={[
+        { id: "default", text: "默认" },
+        { id: "empty", text: "空态" },
+        { id: "loading", text: "加载" },
+        { id: "error", text: "错误" },
+      ]}
+      onItemClick={({ detail }) => setMode(detail.id as Mode)}
+    >
+      状态演示
+    </ButtonDropdown>
+  )
+  const sharedHeader = (
+    <Header
+      variant="awsui-h1-sticky"
+      counter={collectionProps.selectedItems?.length ? `(${collectionProps.selectedItems.length}/${source.length})` : `(${source.length})`}
+      description="点击行查看详情；使用工具栏筛选与导出"
+      actions={
+        <SpaceBetween direction="horizontal" size="xs">
+          {modeSwitcher}
+          <Button {...iconProps("download")} disabled={!source.length}>
+            导出
+          </Button>
+          <Button variant="primary" {...iconProps("plus")}>
+            新建订单
+          </Button>
+        </SpaceBetween>
+      }
+    >
+      订单
+    </Header>
+  )
+  const sharedFilter = (
+    <Grid
+      gridDefinition={[
+        { colspan: { default: 12, s: 4 } },
+        { colspan: { default: 6, s: 2 } },
+        { colspan: { default: 6, s: 3 } },
+        { colspan: { default: 12, s: 3 } },
+      ]}
+    >
+      <TextFilter
+        {...filterProps}
+        filteringPlaceholder="搜索订单号 / 客户 / 产品"
+        filteringAriaLabel="搜索订单"
+        countText={filteredItemsCount !== undefined ? `${filteredItemsCount} 条匹配` : ""}
+      />
+      <Select
+        selectedOption={status}
+        onChange={({ detail }) => setStatus(detail.selectedOption)}
+        options={[ALL_STATUS, ...STATUSES.map((s) => ({ value: s, label: label(s) }))]}
+        ariaLabel="状态筛选"
+      />
+      <Multiselect
+        selectedOptions={channels}
+        onChange={({ detail }) => setChannels(detail.selectedOptions)}
+        options={CHANNELS.map((c) => ({ value: c, label: c }))}
+        placeholder="渠道"
+        ariaLabel="渠道筛选"
+        inlineTokens
+      />
+      <DateRangePicker
+        value={range}
+        onChange={({ detail }) => setRange(detail.value)}
+        dateOnly
+        placeholder="日期范围"
+        relativeOptions={[
+          { key: "7d", amount: 7, unit: "day", type: "relative" },
+          { key: "30d", amount: 30, unit: "day", type: "relative" },
+        ]}
+        isValidRange={() => ({ valid: true })}
+        expandToViewport
+      />
+    </Grid>
+  )
+  const sharedPagination = <Pagination {...paginationProps} />
+  const sharedPreferences = (
+    <CollectionPreferences
+      title="表格偏好"
+      confirmLabel="确认"
+      cancelLabel="取消"
+      preferences={prefs}
+      onConfirm={({ detail }) => setPrefs(detail)}
+      pageSizePreference={{
+        title: "每页条数",
+        options: [5, 10, 20].map((n) => ({ value: n, label: `${n} 条` })),
+      }}
+      wrapLinesPreference={{ label: "自动换行", description: "单元格文本换行显示" }}
+      stripedRowsPreference={{ label: "斑马纹", description: "交替行背景" }}
+      contentDisplayPreference={{
+        title: "列显示",
+        options: columnDefinitions.map((c) => ({ id: c.id!, label: typeof c.header === "string" ? c.header : "金额" })),
+      }}
+    />
+  )
   const table = (
     <Table<Order>
       {...collectionProps}
@@ -190,106 +291,80 @@ export function OrdersPage() {
         allItemsSelectionLabel: () => "全选",
         itemSelectionLabel: (_, item) => `选择 ${item.id}`,
       }}
-      header={
-        <Header
-          variant="awsui-h1-sticky"
-          counter={collectionProps.selectedItems?.length ? `(${collectionProps.selectedItems.length}/${source.length})` : `(${source.length})`}
-          description="点击行查看详情；使用工具栏筛选与导出"
-          actions={
-            <SpaceBetween direction="horizontal" size="xs">
+      header={sharedHeader}
+      filter={sharedFilter}
+      pagination={sharedPagination}
+      preferences={sharedPreferences}
+    />
+  )
+  const cards = (
+    <Cards<Order>
+      {...collectionProps}
+      variant="full-page"
+      selectionType="multi"
+      loading={mode === "loading"}
+      loadingText="加载订单"
+      items={items}
+      trackBy="id"
+      cardsPerRow={[{ cards: 1 }]}
+      ariaLabels={{ selectionGroupLabel: "选择订单", itemSelectionLabel: (_, item) => `选择 ${item.id}` }}
+      header={sharedHeader}
+      filter={sharedFilter}
+      pagination={sharedPagination}
+      preferences={sharedPreferences}
+      cardDefinition={{
+        header: (o) => (
+          <Link
+            fontSize="heading-m"
+            onFollow={(e) => {
+              e.preventDefault()
+              setSelected(o)
+            }}
+            href="#"
+          >
+            {o.id}
+          </Link>
+        ),
+        sections: [
+          {
+            id: "customer",
+            header: "客户",
+            content: (o) => (
+              <SpaceBetween direction="horizontal" size="xs" alignItems="center">
+                <PersonAvatar name={o.customer} size="small" />
+                <span>{o.customer}</span>
+              </SpaceBetween>
+            ),
+          },
+          { id: "product", header: "产品", content: (o) => o.product },
+          { id: "channel", header: "渠道", content: (o) => o.channel },
+          { id: "status", header: "状态", content: (o) => <OrderStatus status={o.status} /> },
+          { id: "date", header: "日期", content: (o) => o.date },
+          { id: "amount", header: "金额", content: (o) => money(o.amount, o.currency) },
+          {
+            id: "actions",
+            header: "操作",
+            content: (o) => (
               <ButtonDropdown
-                items={[
-                  { id: "default", text: "默认" },
-                  { id: "empty", text: "空态" },
-                  { id: "loading", text: "加载" },
-                  { id: "error", text: "错误" },
-                ]}
-                onItemClick={({ detail }) => setMode(detail.id as Mode)}
+                variant="normal"
+                ariaLabel={`${o.id} 操作`}
+                expandToViewport
+                items={actionItems}
+                onItemClick={({ detail }) => onAction(o, detail.id)}
               >
-                状态演示
+                操作
               </ButtonDropdown>
-              <Button {...iconProps("download")} disabled={!source.length}>
-                导出
-              </Button>
-              <Button variant="primary" {...iconProps("plus")}>
-                新建订单
-              </Button>
-            </SpaceBetween>
-          }
-        >
-          订单
-        </Header>
-      }
-      filter={
-        <Grid
-          gridDefinition={[
-            { colspan: { default: 12, s: 4 } },
-            { colspan: { default: 6, s: 2 } },
-            { colspan: { default: 6, s: 3 } },
-            { colspan: { default: 12, s: 3 } },
-          ]}
-        >
-          <TextFilter
-            {...filterProps}
-            filteringPlaceholder="搜索订单号 / 客户 / 产品"
-            filteringAriaLabel="搜索订单"
-            countText={filteredItemsCount !== undefined ? `${filteredItemsCount} 条匹配` : ""}
-          />
-          <Select
-            selectedOption={status}
-            onChange={({ detail }) => setStatus(detail.selectedOption)}
-            options={[ALL_STATUS, ...STATUSES.map((s) => ({ value: s, label: label(s) }))]}
-            ariaLabel="状态筛选"
-          />
-          <Multiselect
-            selectedOptions={channels}
-            onChange={({ detail }) => setChannels(detail.selectedOptions)}
-            options={CHANNELS.map((c) => ({ value: c, label: c }))}
-            placeholder="渠道"
-            ariaLabel="渠道筛选"
-            inlineTokens
-          />
-          <DateRangePicker
-            value={range}
-            onChange={({ detail }) => setRange(detail.value)}
-            dateOnly
-            placeholder="日期范围"
-            relativeOptions={[
-              { key: "7d", amount: 7, unit: "day", type: "relative" },
-              { key: "30d", amount: 30, unit: "day", type: "relative" },
-            ]}
-            isValidRange={() => ({ valid: true })}
-            expandToViewport
-          />
-        </Grid>
-      }
-      pagination={<Pagination {...paginationProps} />}
-      preferences={
-        <CollectionPreferences
-          title="表格偏好"
-          confirmLabel="确认"
-          cancelLabel="取消"
-          preferences={prefs}
-          onConfirm={({ detail }) => setPrefs(detail)}
-          pageSizePreference={{
-            title: "每页条数",
-            options: [5, 10, 20].map((n) => ({ value: n, label: `${n} 条` })),
-          }}
-          wrapLinesPreference={{ label: "自动换行", description: "单元格文本换行显示" }}
-          stripedRowsPreference={{ label: "斑马纹", description: "交替行背景" }}
-          contentDisplayPreference={{
-            title: "列显示",
-            options: columnDefinitions.map((c) => ({ id: c.id!, label: typeof c.header === "string" ? c.header : "金额" })),
-          }}
-        />
-      }
+            ),
+          },
+        ],
+      }}
     />
   )
 
   return (
     <ContentLayout
       notifications={flash.length ? <Flashbar items={flash} /> : undefined}
-      header={mode === "error" ? <PageHeader title="订单" /> : undefined}
+      header={mode === "error" ? <PageHeader title="订单" actions={modeSwitcher} /> : undefined}
     >
       {mode === "error" ? (
         <Alert
@@ -304,12 +379,13 @@ export function OrdersPage() {
           服务暂时不可用，请稍后重试。
         </Alert>
       ) : (
-        table
+        isMobile ? cards : table
       )}
 
       <Drawer
         position="fixed"
         placement="end"
+        zIndex={2000}
         open={!!selected}
         backdrop
         onClose={() => setSelected(null)}

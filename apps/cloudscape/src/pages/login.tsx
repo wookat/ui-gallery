@@ -95,23 +95,20 @@ export function LoginPage() {
                   label="密码"
                   errorText={passwordError}
                   stretch
-                  secondaryControl={
-                    <Button
-                      variant="icon"
-                      ariaLabel={showPassword ? "隐藏密码" : "显示密码"}
-                      {...iconProps(showPassword ? "lock" : "circle-help")}
-                      onClick={() => setShowPassword((v) => !v)}
-                    />
-                  }
                 >
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    placeholder="至少 8 位"
-                    onChange={({ detail }) => setPassword(detail.value)}
-                    prefix={<AppIcon name="lock" />}
-                    autoComplete="current-password"
-                  />
+                  <div className="gallery-input-row">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      placeholder="至少 8 位"
+                      onChange={({ detail }) => setPassword(detail.value)}
+                      prefix={<AppIcon name="lock" />}
+                      autoComplete="current-password"
+                    />
+                    <Button formAction="none" ariaLabel={showPassword ? "隐藏密码" : "显示密码"} onClick={() => setShowPassword((v) => !v)}>
+                      {showPassword ? "隐藏" : "显示"}
+                    </Button>
+                  </div>
                 </FormField>
                 <SpaceBetween direction="horizontal" size="l" alignItems="center">
                   <Checkbox checked={remember} onChange={({ detail }) => setRemember(detail.checked)}>

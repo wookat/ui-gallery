@@ -108,15 +108,15 @@ export function LandingPage() {
         />
       </div>
 
-      <div className="gallery-hero">
+      <div className="gallery-hero awsui-context-content-header">
         <Box padding={{ vertical: "xxxl", horizontal: "l" }}>
           <Grid gridDefinition={[{ colspan: { default: 12, m: 6 } }, { colspan: { default: 12, m: 6 } }]}>
             <SpaceBetween size="l">
               <Badge color="blue">{APP_TITLE} · 2026</Badge>
-              <Box variant="h1" fontSize="display-l" fontWeight="bold" color="inherit">
+              <Box variant="h1" fontSize="display-l" fontWeight="bold">
                 {landing.hero.title}
               </Box>
-              <Box fontSize="heading-m" color="inherit">
+              <Box fontSize="heading-m">
                 {landing.hero.subtitle}
               </Box>
               <SpaceBetween direction="horizontal" size="xs">
@@ -131,7 +131,7 @@ export function LandingPage() {
                     <PersonAvatar key={m.email} name={m.name} size="small" />
                   ))}
                 </span>
-                <Box color="inherit">{landing.hero.social}</Box>
+                <Box>{landing.hero.social}</Box>
               </SpaceBetween>
             </SpaceBetween>
             <Container>
@@ -192,15 +192,15 @@ export function LandingPage() {
         </SpaceBetween>
       </Section>
 
-      <div className="gallery-hero">
+      <div className="gallery-hero awsui-context-content-header">
         <Box padding={{ vertical: "xxl", horizontal: "l" }}>
           <ColumnLayout columns={4} minColumnWidth={140}>
             {landing.numbers.map((n) => (
-              <Box key={n.label} textAlign="center" color="inherit">
-                <Box variant="awsui-value-large" color="inherit">
+              <Box key={n.label} textAlign="center">
+                <Box variant="awsui-value-large">
                   {n.value}
                 </Box>
-                <Box color="inherit">{n.label}</Box>
+                <Box>{n.label}</Box>
               </Box>
             ))}
           </ColumnLayout>
@@ -291,13 +291,13 @@ export function LandingPage() {
       </Section>
 
       <Section id="cta">
-        <div className="gallery-hero" style={{ borderRadius: 16 }}>
-          <Box padding="xxl" textAlign="center" color="inherit">
+        <div className="gallery-hero awsui-context-content-header" style={{ borderRadius: 16 }}>
+          <Box padding="xxl" textAlign="center">
             <SpaceBetween size="m" alignItems="center">
-              <Box variant="h2" color="inherit">
+              <Box variant="h2">
                 {landing.hero.title}
               </Box>
-              <Box color="inherit">{landing.hero.social}</Box>
+              <Box>{landing.hero.social}</Box>
               <Button variant="primary" onClick={() => go("/login")}>
                 {landing.hero.primary}
               </Button>

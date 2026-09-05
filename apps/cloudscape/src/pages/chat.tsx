@@ -1,4 +1,4 @@
-import { useState, type ComponentProps } from "react"
+import { useEffect, useRef, useState, type ComponentProps } from "react"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { Avatar, ChatBubble, LoadingBar, SupportPromptGroup } from "@cloudscape-design/chat-components"
@@ -38,6 +38,7 @@ const mdComponents: ComponentProps<typeof Markdown>["components"] = {
       <CodeView
         content={text}
         lineNumbers
+        wrapLines
         actions={<CopyToClipboard copyButtonAriaLabel="复制代码" copyErrorText="复制失败" copySuccessText="已复制" textToCopy={text} variant="icon" />}
       />
     )
@@ -82,7 +83,7 @@ function MessageView({ msg, index }: { msg: Message; index: number }) {
       <SpaceBetween size="s">
         {tool && (
           <ExpandableSection headerText={`工具调用 · ${tool.name}`} variant="footer" headerActions={<StatusIndicator type={tool.status === "done" ? "success" : "in-progress"}>{tool.status === "done" ? "完成" : "运行中"}</StatusIndicator>}>
-            <CodeView content={JSON.stringify(tool.args, null, 2)} />
+            <CodeView content={JSON.stringify(tool.args, null, 2)} wrapLines />
           </ExpandableSection>
         )}
         <div className="gallery-markdown">
@@ -148,7 +149,12 @@ export function ChatPage() {
   const [model, setModel] = useState<SelectProps.Option>({ value: chat.models[0] })
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>(chat.messages)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const empty = active === null
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
+  }, [messages, active])
 
   const send = (text: string) => {
     if (!text.trim()) return
@@ -242,7 +248,7 @@ export function ChatPage() {
               </SpaceBetween>
             </Box>
           ) : (
-            <div className="gallery-chat-scroll">
+            <div ref={scrollRef} className="gallery-chat-scroll">
               <SpaceBetween size="m">
                 {messages.map((m, i) => (
                   <MessageView key={i} msg={m} index={i} />
@@ -256,6 +262,7 @@ export function ChatPage() {
       <Drawer
         position="fixed"
         placement="start"
+        zIndex={2000}
         open={drawerOpen}
         backdrop
         onClose={() => setDrawerOpen(false)}

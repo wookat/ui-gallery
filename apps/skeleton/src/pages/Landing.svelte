@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Accordion, Avatar, Dialog, Portal } from "@skeletonlabs/skeleton-svelte"
   import landing from "@ui-gallery/spec/mock/landing.json"
+  import nav from "@ui-gallery/spec/mock/nav.json"
   import plans from "@ui-gallery/spec/mock/plans.json"
   import stats from "@ui-gallery/spec/mock/stats.json"
   import team from "@ui-gallery/spec/mock/team.json"
@@ -20,6 +21,11 @@
     ["#testimonials", "客户"],
     ["#faq", "FAQ"],
   ]
+  const footerColumns: [string, [string, string][]][] = [
+    ["产品", navLinks.map(([href, label]) => [href, label])],
+    ["控制台", nav.slice(0, 4).map((n) => [router.href(n.path), n.label])],
+    ["方案", plans.map((p) => ["#pricing", p.name])],
+  ]
 </script>
 
 <div class="min-h-screen bg-surface-50-950">
@@ -32,16 +38,16 @@
         {#each navLinks as [href, label] (href)}<li><a class="hover:text-primary-500" {href}>{label}</a></li>{/each}
       </ul>
       <div class="flex items-center gap-2">
-        <button type="button" class="btn-icon hover:preset-tonal" aria-label="切换主题" onclick={() => { dark = !dark; setDark(dark) }}><Icon name={dark ? "sun" : "moon"} class="size-5" /></button>
+        <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="切换主题" onclick={() => { dark = !dark; setDark(dark) }}><Icon name={dark ? "sun" : "moon"} class="size-5" /></button>
         <a class="btn btn-sm hover:preset-tonal hidden sm:inline-flex" href={router.href("/login")} use:link>登录</a>
         <a class="btn btn-sm preset-filled-primary-500 hidden sm:inline-flex" href={router.href("/login")} use:link>{landing.hero.primary}</a>
         <Dialog open={menuOpen} onOpenChange={(d) => (menuOpen = d.open)}>
-          <Dialog.Trigger class="btn-icon hover:preset-tonal md:hidden" aria-label="菜单"><Icon name="menu" class="size-5" /></Dialog.Trigger>
+          <Dialog.Trigger class="btn-icon min-w-10 min-h-10 hover:preset-tonal md:hidden" aria-label="菜单"><Icon name="menu" class="size-5" /></Dialog.Trigger>
           <Portal>
             <Dialog.Backdrop class="fixed inset-0 z-50 bg-surface-50-950/50" />
             <Dialog.Positioner class="fixed inset-0 z-50 flex justify-end">
               <Dialog.Content class="h-screen w-72 max-w-[85vw] bg-surface-50-950 p-4 shadow-xl space-y-4">
-                <div class="flex justify-between items-center"><Dialog.Title class="font-bold">菜单</Dialog.Title><Dialog.CloseTrigger class="btn-icon hover:preset-tonal" aria-label="关闭"><Icon name="x" /></Dialog.CloseTrigger></div>
+                <div class="flex justify-between items-center"><Dialog.Title class="font-bold">菜单</Dialog.Title><Dialog.CloseTrigger class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="关闭"><Icon name="x" /></Dialog.CloseTrigger></div>
                 <ul class="space-y-1">
                   {#each navLinks as [href, label] (href)}<li><a class="btn hover:preset-tonal w-full justify-start" {href} onclick={() => (menuOpen = false)}>{label}</a></li>{/each}
                 </ul>
@@ -198,10 +204,10 @@
         <p class="font-bold flex items-center gap-2"><span class="btn-icon btn-icon-sm preset-filled-primary-500">A</span>Acme Console</p>
         <p class="opacity-60">{landing.hero.subtitle}</p>
       </div>
-      {#each [["产品", ["功能", "定价", "更新日志", "路线图"]], ["资源", ["文档", "API", "状态页", "社区"]], ["公司", ["关于", "博客", "招聘", "联系我们"]]] as [title, links] (title)}
+      {#each footerColumns as [title, links] (title)}
         <div class="space-y-2">
           <p class="font-medium">{title}</p>
-          <ul class="space-y-1 opacity-70">{#each links as l (l)}<li><a class="hover:text-primary-500" href={router.href("/landing")} use:link>{l}</a></li>{/each}</ul>
+          <ul class="space-y-1 opacity-70">{#each links as [href, label] (label)}<li><a class="hover:text-primary-500" {href} use:link>{label}</a></li>{/each}</ul>
         </div>
       {/each}
     </div>

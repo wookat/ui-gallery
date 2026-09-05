@@ -49,7 +49,7 @@
           <p class="font-bold">登录失败</p>
           <p>{formError}</p>
         </div>
-        <button type="button" class="btn-icon btn-icon-sm hover:preset-tonal" aria-label="关闭" onclick={() => (formError = "")}><Icon name="x" /></button>
+        <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="关闭" onclick={() => (formError = "")}><Icon name="x" /></button>
       </div>
     {/if}
 
@@ -61,7 +61,10 @@
 
       <label class="label">
         <span class="label-text">邮箱</span>
-        <input class="input" class:!border-error-500={errors.email} type="email" placeholder="you@example.com" bind:value={email} autocomplete="email" aria-invalid={!!errors.email} aria-describedby="email-error" />
+        <span class="relative block">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 opacity-60 pointer-events-none"><Icon name="mail" class="size-4" /></span>
+          <input class="input pl-9" class:!border-error-500={errors.email} type="email" placeholder="you@example.com" bind:value={email} autocomplete="email" aria-invalid={!!errors.email} aria-describedby="email-error" />
+        </span>
         {#if errors.email}<p id="email-error" class="text-error-500 text-xs">{errors.email}</p>{/if}
       </label>
 
@@ -97,9 +100,10 @@
         <hr class="hr flex-1" /><span>或</span><hr class="hr flex-1" />
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-3 gap-3">
         <button type="button" class="btn preset-outlined-surface-500"><Icon name="globe" /><span>Google</span></button>
-        <button type="button" class="btn preset-outlined-surface-500"><Icon name="globe" /><span>GitHub</span></button>
+        <button type="button" class="btn preset-outlined-surface-500"><Icon name="link" /><span>GitHub</span></button>
+        <button type="button" class="btn preset-outlined-surface-500"><Icon name="message-circle" /><span>微信</span></button>
       </div>
 
       <p class="text-center text-sm opacity-70">

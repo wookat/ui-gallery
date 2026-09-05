@@ -56,7 +56,7 @@
 </header>
 
 <Tabs value={tab} onValueChange={(d) => (tab = d.value)} class="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6 items-start">
-  <Tabs.List class="lg:flex-col lg:items-stretch lg:border-0 overflow-x-auto">
+  <Tabs.List class="flex-wrap lg:flex-nowrap lg:flex-col lg:items-stretch lg:border-0">
     <Tabs.Trigger value="profile" class="lg:justify-start gap-2"><Icon name="user" />个人资料</Tabs.Trigger>
     <Tabs.Trigger value="security" class="lg:justify-start gap-2"><Icon name="shield" />账号安全</Tabs.Trigger>
     <Tabs.Trigger value="notifications" class="lg:justify-start gap-2"><Icon name="bell" />通知</Tabs.Trigger>
@@ -224,7 +224,7 @@
                   <td>{inv.date}</td>
                   <td><StatusBadge status={inv.status} /></td>
                   <td class="text-right tabular-nums">{money(inv.amount)}</td>
-                  <td class="text-right"><button type="button" class="btn-icon btn-icon-sm hover:preset-tonal" aria-label="下载发票"><Icon name="download" /></button></td>
+                  <td class="text-right"><button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="下载发票"><Icon name="download" /></button></td>
                 </tr>
               {/each}
             </tbody>

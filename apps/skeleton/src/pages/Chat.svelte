@@ -18,7 +18,9 @@
   let sidebarOpen = $state(false)
 
   const conversations = $derived(chat.conversations.filter((c) => c.title.toLowerCase().includes(query.trim().toLowerCase())))
-  const activeTitle = $derived(chat.conversations.find((c) => c.id === active)?.title ?? "新对话")
+  const activeConversation = $derived(chat.conversations.find((c) => c.id === active))
+  const activeTitle = $derived(activeConversation?.title ?? "新对话")
+  const stamp = $derived(activeConversation?.time ?? chat.conversations[0].time)
 
   marked.setOptions({ gfm: true, breaks: true })
   function render(md: string): string {
@@ -48,7 +50,7 @@
     <div class="p-3 space-y-2 border-b border-surface-200-800">
       <div class="flex items-center gap-2">
         <button type="button" class="btn preset-filled-primary-500 flex-1" onclick={newChat}><Icon name="plus" />新建对话</button>
-        <button type="button" class="btn-icon hover:preset-tonal lg:hidden" aria-label="关闭" onclick={() => (sidebarOpen = false)}><Icon name="x" /></button>
+        <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal lg:hidden" aria-label="关闭" onclick={() => (sidebarOpen = false)}><Icon name="x" /></button>
       </div>
       <label class="relative block">
         <span class="sr-only">搜索会话</span>
@@ -74,7 +76,7 @@
   <section class="flex flex-col min-h-0 min-w-0 bg-surface-50-950">
     <header class="flex items-center justify-between gap-2 px-4 py-3 border-b border-surface-200-800">
       <div class="flex items-center gap-2 min-w-0">
-        <button type="button" class="btn-icon hover:preset-tonal lg:hidden" aria-label="会话列表" onclick={() => (sidebarOpen = true)}><Icon name="list" /></button>
+        <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal lg:hidden" aria-label="会话列表" onclick={() => (sidebarOpen = true)}><Icon name="list" /></button>
         <h1 class="font-medium truncate">{activeTitle}</h1>
       </div>
       <select class="select w-40" bind:value={model} aria-label="模型">
@@ -98,7 +100,10 @@
         {#each messages as m, i (i)}
           {#if m.role === "user"}
             <div class="flex justify-end gap-3">
-              <div class="card preset-filled-primary-500 px-4 py-2 max-w-[85%] md:max-w-[70%] whitespace-pre-wrap">{m.content}</div>
+              <div class="space-y-1 max-w-[85%] md:max-w-[70%] flex flex-col items-end">
+                <div class="card preset-filled-primary-500 px-4 py-2 whitespace-pre-wrap">{m.content}</div>
+                <time class="text-xs opacity-60">{stamp}</time>
+              </div>
               <Avatar class="size-8 shrink-0"><Avatar.Fallback class="preset-filled-secondary-500 text-xs">{initials(me.name)}</Avatar.Fallback></Avatar>
             </div>
           {:else}
@@ -129,10 +134,11 @@
                     {#each m.sources as s (s)}<span class="chip preset-outlined-surface-500"><Icon name="file" class="size-3" />{s}</span>{/each}
                   </div>
                 {/if}
-                <div class="flex gap-1">
-                  <button type="button" class="btn-icon btn-icon-sm hover:preset-tonal" aria-label="复制" onclick={() => toaster.info({ title: "已复制" })}><Icon name="copy" class="size-3.5" /></button>
-                  <button type="button" class="btn-icon btn-icon-sm hover:preset-tonal" aria-label="重新生成"><Icon name="refresh" class="size-3.5" /></button>
-                  <button type="button" class="btn-icon btn-icon-sm hover:preset-tonal" aria-label="赞"><Icon name="heart" class="size-3.5" /></button>
+                <div class="flex items-center gap-1">
+                  <time class="text-xs opacity-60 mr-1">{stamp}</time>
+                  <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="复制" onclick={() => toaster.info({ title: "已复制" })}><Icon name="copy" class="size-4" /></button>
+                  <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="重新生成"><Icon name="refresh" class="size-4" /></button>
+                  <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="赞"><Icon name="heart" class="size-4" /></button>
                 </div>
               </div>
             </div>
@@ -143,19 +149,19 @@
 
     <footer class="border-t border-surface-200-800 p-3 space-y-2">
       {#if messages.length}
-        <div class="flex gap-2 overflow-x-auto pb-1">
-          {#each chat.suggestions as s (s)}<button type="button" class="chip preset-outlined-surface-500 hover:preset-tonal whitespace-nowrap" onclick={() => send(s)}>{s}</button>{/each}
+        <div class="flex flex-wrap gap-2 pb-1">
+          {#each chat.suggestions as s (s)}<button type="button" class="chip preset-outlined-surface-500 hover:preset-tonal" onclick={() => send(s)}>{s}</button>{/each}
         </div>
       {/if}
       <form class="card bg-surface-100-900 border border-surface-200-800 p-2 space-y-2" onsubmit={(e) => { e.preventDefault(); send() }}>
         <textarea class="w-full bg-transparent resize-none outline-none px-2 py-1 text-sm" rows="2" placeholder="输入消息，Enter 发送，Shift+Enter 换行" bind:value={draft} onkeydown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send() } }}></textarea>
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-1">
-            <button type="button" class="btn-icon btn-icon-sm hover:preset-tonal" aria-label="添加附件" onclick={() => toaster.info({ title: "附件", description: "已打开文件选择器" })}><Icon name="paperclip" /></button>
-            <button type="button" class="btn-icon btn-icon-sm hover:preset-tonal" aria-label="语音输入"><Icon name="mic" /></button>
+            <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="添加附件" onclick={() => toaster.info({ title: "附件", description: "已打开文件选择器" })}><Icon name="paperclip" /></button>
+            <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="语音输入"><Icon name="mic" /></button>
             <span class="text-xs opacity-60 hidden sm:inline">模型：{model}</span>
           </div>
-          <button type="submit" class="btn btn-sm preset-filled-primary-500" disabled={!draft.trim()}><Icon name="send" />发送</button>
+          <button type="submit" class="btn min-h-10 preset-filled-primary-500" disabled={!draft.trim()}><Icon name="send" />发送</button>
         </div>
       </form>
     </footer>
@@ -166,6 +172,6 @@
   .prose-chat :global(p + p) { margin-top: 0.5rem; }
   .prose-chat :global(table) { width: 100%; font-size: 0.875rem; margin-top: 0.5rem; border-collapse: collapse; }
   .prose-chat :global(th), .prose-chat :global(td) { padding: 0.375rem 0.5rem; border-bottom: 1px solid color-mix(in oklab, currentColor 15%, transparent); text-align: left; }
-  .prose-chat :global(pre) { margin-top: 0.5rem; padding: 0.75rem; border-radius: 0.5rem; background: color-mix(in oklab, currentColor 8%, transparent); overflow-x: auto; font-size: 0.8125rem; }
+  .prose-chat :global(pre) { margin-top: 0.5rem; padding: 0.75rem; border-radius: 0.5rem; background: color-mix(in oklab, currentColor 8%, transparent); white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.8125rem; }
   .prose-chat :global(code) { font-family: ui-monospace, monospace; }
 </style>

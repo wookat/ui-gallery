@@ -53,6 +53,15 @@
   let cmdOpen = $state(false)
   let cmdQuery = $state("")
   let drawerOpen = $state(false)
+  type DrawerSide = "left" | "right" | "top" | "bottom"
+  let drawerSide = $state<DrawerSide>("right")
+  const drawerSides: { side: DrawerSide; label: string; positioner: string; content: string }[] = [
+    { side: "left", label: "左", positioner: "justify-start items-stretch", content: "h-full w-full max-w-sm" },
+    { side: "right", label: "右", positioner: "justify-end items-stretch", content: "h-full w-full max-w-sm" },
+    { side: "top", label: "上", positioner: "items-start justify-stretch", content: "w-full max-h-[60vh]" },
+    { side: "bottom", label: "下", positioner: "items-end justify-stretch", content: "w-full max-h-[60vh]" },
+  ]
+  const drawerConfig = $derived(drawerSides.find((d) => d.side === drawerSide) ?? drawerSides[1])
   let progress = $state(64)
   let page = $state(2)
   let stepIdx = $state(1)
@@ -707,11 +716,15 @@
       </Dialog>
     </div>
   </Demo>
-  <Demo id="drawer" title="Drawer" status="composed" note="Dialog + 侧边 Positioner">
-    <button type="button" class="btn preset-filled-primary-500" onclick={() => (drawerOpen = true)}>打开抽屉</button>
+  <Demo id="drawer" title="Drawer" status="composed" note="Dialog + Positioner，四方向">
+    <div class="flex flex-wrap gap-2">
+      {#each drawerSides as d (d.side)}
+        <button type="button" class="btn preset-filled-primary-500" onclick={() => { drawerSide = d.side; drawerOpen = true }}>{d.label}侧抽屉</button>
+      {/each}
+    </div>
     <Dialog open={drawerOpen} onOpenChange={(d) => (drawerOpen = d.open)}>
-      <Portal><Dialog.Backdrop class="fixed inset-0 z-50 bg-surface-50-950/50" /><Dialog.Positioner class="fixed inset-0 z-50 flex justify-end"><Dialog.Content class="h-screen w-full max-w-sm bg-surface-50-950 p-4 shadow-xl space-y-4">
-        <header class="flex justify-between items-center"><Dialog.Title class="h5">抽屉</Dialog.Title><Dialog.CloseTrigger class="btn-icon hover:preset-tonal" aria-label="关闭"><Icon name="x" /></Dialog.CloseTrigger></header>
+      <Portal><Dialog.Backdrop class="fixed inset-0 z-50 bg-surface-50-950/50" /><Dialog.Positioner class="fixed inset-0 z-50 flex {drawerConfig.positioner}"><Dialog.Content class="{drawerConfig.content} bg-surface-50-950 p-4 shadow-xl space-y-4 overflow-y-auto">
+        <header class="flex justify-between items-center"><Dialog.Title class="h5">{drawerConfig.label}侧抽屉</Dialog.Title><Dialog.CloseTrigger class="btn-icon hover:preset-tonal" aria-label="关闭"><Icon name="x" /></Dialog.CloseTrigger></header>
         <ul class="divide-y divide-surface-200-800 text-sm">{#each tasks as t (t.title)}<li class="py-2 flex justify-between"><span>{t.title}</span><span class="opacity-60">{t.progress}%</span></li>{/each}</ul>
       </Dialog.Content></Dialog.Positioner></Portal>
     </Dialog>
@@ -796,7 +809,7 @@
     <Tabs defaultValue="v1" orientation="vertical" class="flex gap-4"><Tabs.List class="flex-col items-stretch"><Tabs.Trigger value="v1">通用</Tabs.Trigger><Tabs.Trigger value="v2">安全</Tabs.Trigger><Tabs.Indicator /></Tabs.List><Tabs.Content value="v1" class="text-sm opacity-70">通用设置</Tabs.Content><Tabs.Content value="v2" class="text-sm opacity-70">安全设置</Tabs.Content></Tabs>
   </Demo>
   <Demo id="pagination" title="Pagination" status="implemented" note="数字 / 首末页 / 简洁">
-    <Pagination count={orders.length} pageSize={5} {page} onPageChange={(d) => (page = d.page)} siblingCount={1} class="flex gap-1">
+    <Pagination count={orders.length} pageSize={5} {page} onPageChange={(d) => (page = d.page)} siblingCount={1} class="flex flex-wrap gap-1">
       <Pagination.FirstTrigger class="btn-icon btn-icon-sm preset-outlined-surface-500" aria-label="首页"><Icon name="chevrons-up-down" class="-rotate-90" /></Pagination.FirstTrigger>
       <Pagination.PrevTrigger class="btn-icon btn-icon-sm preset-outlined-surface-500" aria-label="上一页"><Icon name="chevron-left" /></Pagination.PrevTrigger>
       <Pagination.Context>{#snippet children(api)}{#each api().pages as p, i (i)}{#if p.type === "page"}<Pagination.Item {...p} class="btn-icon btn-icon-sm {p.value === page ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}">{p.value}</Pagination.Item>{:else}<Pagination.Ellipsis index={i} class="btn-icon btn-icon-sm">…</Pagination.Ellipsis>{/if}{/each}{/snippet}</Pagination.Context>
@@ -895,4 +908,4 @@
   <Demo id="float-button" title="FloatButton" status="composed" note="fixed 定位 btn-icon（见右下角）"><div class="relative h-24 card preset-tonal"><button type="button" class="btn-icon preset-filled-primary-500 rounded-full shadow-xl absolute bottom-3 right-3" aria-label="新建"><Icon name="plus" /></button><button type="button" class="btn-icon preset-filled-secondary-500 rounded-full shadow-xl absolute bottom-3 right-16" aria-label="帮助"><Icon name="circle-help" /></button></div></Demo>
 </div>
 
-<button type="button" class="btn-icon preset-filled-primary-500 rounded-full shadow-xl fixed bottom-6 right-6 z-30" aria-label="回到顶部" onclick={() => window.scrollTo({ top: 0, behavior: "smooth" })}><Icon name="arrow-up" /></button>
+<button type="button" class="btn-icon min-w-10 min-h-10 preset-filled-primary-500 rounded-full shadow-xl fixed bottom-6 right-6 z-30" aria-label="回到顶部" onclick={() => window.scrollTo({ top: 0, behavior: "smooth" })}><Icon name="arrow-up" /></button>

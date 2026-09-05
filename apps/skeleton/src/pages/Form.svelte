@@ -247,7 +247,7 @@
                       <Icon name="file" />
                       <FileUpload.ItemName class="flex-1 truncate" />
                       <FileUpload.ItemSizeText class="opacity-60 text-xs" />
-                      <FileUpload.ItemDeleteTrigger class="btn-icon btn-icon-sm hover:preset-tonal" aria-label="移除"><Icon name="x" class="size-3" /></FileUpload.ItemDeleteTrigger>
+                      <FileUpload.ItemDeleteTrigger class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="移除"><Icon name="x" class="size-3" /></FileUpload.ItemDeleteTrigger>
                     </FileUpload.Item>
                   {/each}
                 {/snippet}

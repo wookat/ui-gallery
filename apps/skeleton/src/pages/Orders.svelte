@@ -272,7 +272,7 @@
               {/each}
               <td>
                 <Menu positioning={{ placement: "bottom-end" }}>
-                  <Menu.Trigger class="btn-icon btn-icon-sm hover:preset-tonal" aria-label="操作"><Icon name="ellipsis-horizontal" /></Menu.Trigger>
+                  <Menu.Trigger class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="操作"><Icon name="ellipsis-horizontal" /></Menu.Trigger>
                   <Portal>
                     <Menu.Positioner class="z-40">
                       <Menu.Content class="card p-1 bg-surface-100-900 shadow-xl min-w-36">
@@ -319,19 +319,19 @@
         <span class="opacity-70">第 {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} / {total} 条</span>
       </div>
       <Pagination count={total} {pageSize} {page} onPageChange={(d) => (page = d.page)} siblingCount={1}>
-        <Pagination.PrevTrigger class="btn-icon btn-icon-sm preset-outlined-surface-500" aria-label="上一页"><Icon name="chevron-left" /></Pagination.PrevTrigger>
+        <Pagination.PrevTrigger class="btn-icon min-w-10 min-h-10 preset-outlined-surface-500" aria-label="上一页"><Icon name="chevron-left" /></Pagination.PrevTrigger>
         <Pagination.Context>
           {#snippet children(api)}
             {#each api().pages as p, i (i)}
               {#if p.type === "page"}
-                <Pagination.Item {...p} class="btn-icon btn-icon-sm {p.value === page ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}">{p.value}</Pagination.Item>
+                <Pagination.Item {...p} class="btn-icon min-w-10 min-h-10 {p.value === page ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}">{p.value}</Pagination.Item>
               {:else}
-                <Pagination.Ellipsis index={i} class="btn-icon btn-icon-sm">…</Pagination.Ellipsis>
+                <Pagination.Ellipsis index={i} class="btn-icon min-w-10 min-h-10">…</Pagination.Ellipsis>
               {/if}
             {/each}
           {/snippet}
         </Pagination.Context>
-        <Pagination.NextTrigger class="btn-icon btn-icon-sm preset-outlined-surface-500" aria-label="下一页"><Icon name="chevron-right" /></Pagination.NextTrigger>
+        <Pagination.NextTrigger class="btn-icon min-w-10 min-h-10 preset-outlined-surface-500" aria-label="下一页"><Icon name="chevron-right" /></Pagination.NextTrigger>
       </Pagination>
     </footer>
   {/if}
@@ -348,7 +348,7 @@
               <Dialog.Title class="h5">订单 {detail.id}</Dialog.Title>
               <Dialog.Description class="text-sm opacity-70">{detail.date} · {channelLabel(detail.channel)}</Dialog.Description>
             </div>
-            <Dialog.CloseTrigger class="btn-icon hover:preset-tonal" aria-label="关闭"><Icon name="x" /></Dialog.CloseTrigger>
+            <Dialog.CloseTrigger class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="关闭"><Icon name="x" /></Dialog.CloseTrigger>
           </header>
           <div class="flex-1 overflow-y-auto p-4">
             <Tabs defaultValue="detail">

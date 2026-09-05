@@ -26,7 +26,7 @@ function ToolCall({ tool }: { tool: NonNullable<Message["tool"]> }) {
   const [open, setOpen] = useState(false)
   return (
     <Card style={{ padding: 0 }}>
-      <Button minimal fill alignText="left" small icon={icon("plug")} rightIcon={icon(open ? "chevron-up" : "chevron-down")} onClick={() => setOpen(!open)}>
+      <Button minimal fill alignText="left" icon={icon("plug")} rightIcon={icon(open ? "chevron-up" : "chevron-down")} onClick={() => setOpen(!open)}>
         <span className="row" style={{ gap: 6 }}>调用工具 <Code>{tool.name}</Code> <Tag minimal intent={tool.status === "done" ? "success" : "primary"} round>{tool.status === "done" ? "完成" : "运行中"}</Tag></span>
       </Button>
       <Collapse isOpen={open}><Pre style={{ margin: 0, fontSize: 12 }}>{JSON.stringify(tool.args, null, 2)}</Pre></Collapse>

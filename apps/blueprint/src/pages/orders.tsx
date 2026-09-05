@@ -36,7 +36,7 @@ export function OrdersPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [page, setPage] = useState(1)
   const [active, setActive] = useState<Order | null>(null)
-  const [pendingDelete, setPendingDelete] = useState<Order | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<Order[] | null>(null)
 
   const load = (fail = false) => {
     setState("loading")
@@ -71,8 +71,10 @@ export function OrdersPage() {
   const toggleOne = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
   const confirmDelete = () => {
     if (!pendingDelete) return
-    setRows((r) => r.filter((o) => o.id !== pendingDelete.id))
-    void toast(`订单 ${pendingDelete.id} 已删除`, "success", { icon: icon("check") })
+    const ids = new Set(pendingDelete.map((o) => o.id))
+    setRows((r) => r.filter((o) => !ids.has(o.id)))
+    setSelected((s) => { const n = new Set(s); ids.forEach((id) => n.delete(id)); return n })
+    void toast(ids.size === 1 ? `订单 ${pendingDelete[0].id} 已删除` : `已删除 ${ids.size} 笔订单`, "success", { icon: icon("check") })
     setPendingDelete(null)
     setActive(null)
   }
@@ -109,8 +111,8 @@ export function OrdersPage() {
   )
 
   const actionMenu = (o: Order) => (
-    <Popover placement="bottom-end" content={<Menu><MenuItem icon={icon("eye")} text="查看详情" onClick={() => setActive(o)} /><MenuItem icon={icon("edit")} text="编辑" /><MenuItem icon={icon("trash")} intent="danger" text="删除" onClick={() => setPendingDelete(o)} /></Menu>}>
-      <Button minimal icon={icon("more-horizontal")} aria-label="更多操作" className="row-action" onClick={(e) => e.stopPropagation()} />
+    <Popover placement="bottom-end" content={<Menu><MenuItem icon={icon("eye")} text="查看详情" onClick={() => setActive(o)} /><MenuItem icon={icon("edit")} text="编辑" /><MenuItem icon={icon("trash")} intent="danger" text="删除" onClick={() => setPendingDelete([o])} /></Menu>}>
+      <Button minimal icon={icon("more-horizontal")} aria-label="更多操作" className="row-action" />
     </Popover>
   )
 
@@ -162,18 +164,27 @@ export function OrdersPage() {
                     {show("status") ? <td><StatusTag value={o.status} /></td> : null}
                     {show("date") ? <td className={Classes.TEXT_MUTED}>{o.date}</td> : null}
                     {show("amount") ? <td className="text-right">{money(o.amount)}</td> : null}
-                    <td className="text-right">{actionMenu(o)}</td>
+                    <td className="text-right" onClick={(e) => e.stopPropagation()}>{actionMenu(o)}</td>
                   </tr>
                 ))}
               </tbody>
             </HTMLTable>
           </div>
           <div className="mobile-cards" style={{ padding: 8 }}>
+            <div className="row-between" style={{ padding: "4px 12px" }}>
+              <Checkbox checked={allSelected} indeterminate={!allSelected && someSelected} onChange={toggleAll} style={{ margin: 0 }} label={selected.size ? `已选 ${selected.size}` : "全选本页"} />
+              <Button minimal intent="danger" icon={icon("trash")} disabled={selected.size === 0} onClick={() => setPendingDelete(rows.filter((o) => selected.has(o.id)))}>删除所选</Button>
+            </div>
             {pageRows.map((o) => (
               <Card key={o.id} interactive onClick={() => setActive(o)} className="stack-sm" style={{ padding: 12 }}>
-                <div className="row-between"><span className="row" style={{ flexWrap: "nowrap" }}><Checkbox checked={selected.has(o.id)} onChange={() => toggleOne(o.id)} onClick={(e) => e.stopPropagation()} style={{ margin: 0 }} /><strong>{o.id}</strong></span><StatusTag value={o.status} /></div>
+                <div className="row-between"><span className="row" style={{ flexWrap: "nowrap" }}><Checkbox checked={selected.has(o.id)} onChange={() => toggleOne(o.id)} onClick={(e) => e.stopPropagation()} style={{ margin: 0 }} aria-label={`选择 ${o.id}`} /><strong>{o.id}</strong></span><StatusTag value={o.status} /></div>
                 <div className="row-between"><span className="row" style={{ flexWrap: "nowrap" }}><Avatar name={o.customer} size="sm" />{o.customer}</span><strong>{money(o.amount)}</strong></div>
                 <div className={`row-between ${Classes.TEXT_MUTED} ${Classes.TEXT_SMALL}`}><span>{o.product} · {o.channel}</span><span>{o.date}</span></div>
+                <div className="row" style={{ justifyContent: "flex-end", gap: 4 }} onClick={(e) => e.stopPropagation()}>
+                  <Button minimal icon={icon("edit")} aria-label="编辑">编辑</Button>
+                  <Button minimal intent="danger" icon={icon("trash")} aria-label="删除" onClick={() => setPendingDelete([o])}>删除</Button>
+                  {actionMenu(o)}
+                </div>
               </Card>
             ))}
           </div>
@@ -208,14 +219,14 @@ export function OrdersPage() {
             </Tabs>
             <div className="row" style={{ justifyContent: "flex-end" }}>
               <Button icon={icon("edit")}>编辑</Button>
-              <Button intent="danger" icon={icon("trash")} onClick={() => setPendingDelete(active)}>删除</Button>
+              <Button intent="danger" icon={icon("trash")} onClick={() => setPendingDelete([active])}>删除</Button>
             </div>
           </div>
         ) : null}
       </Drawer>
 
       <Alert isOpen={pendingDelete !== null} intent="danger" icon={icon("trash", 40)} cancelButtonText="取消" confirmButtonText="删除" onCancel={() => setPendingDelete(null)} onConfirm={confirmDelete} canEscapeKeyCancel canOutsideClickCancel>
-        <p>确定要删除订单 <strong>{pendingDelete?.id}</strong> 吗？此操作不可撤销。</p>
+        <p>确定要删除订单 <strong>{pendingDelete?.map((o) => o.id).join("、")}</strong> 吗？此操作不可撤销。</p>
       </Alert>
     </>
   )

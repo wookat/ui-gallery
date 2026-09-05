@@ -132,7 +132,7 @@ export function LandingPage() {
           <div className="footer-grid">
             <div className="stack-sm"><strong>Acme Console</strong><span className={Classes.TEXT_MUTED}>{landing.hero.subtitle}</span><span className="row"><Button minimal icon={icon("github")} aria-label="GitHub" /><Button minimal icon={icon("globe")} aria-label="Website" /><Button minimal icon={icon("mail")} aria-label="Email" /></span></div>
             {[["产品", ["功能", "价格", "更新日志", "路线图"]], ["资源", ["文档", "API", "社区", "状态"]], ["公司", ["关于", "博客", "招聘", "联系我们"]]].map(([title, items]) => (
-              <div key={title as string} className="stack-sm"><strong>{title}</strong>{(items as string[]).map((i) => <a key={i} href="#" onClick={(e) => e.preventDefault()} className={Classes.TEXT_MUTED}>{i}</a>)}</div>
+              <div key={title as string} className="stack-sm footer-links"><strong>{title}</strong>{(items as string[]).map((i) => <a key={i} href="#" onClick={(e) => e.preventDefault()} className={Classes.TEXT_MUTED}>{i}</a>)}</div>
             ))}
           </div>
           <Divider />

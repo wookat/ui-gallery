@@ -1,6 +1,6 @@
 import { zhCN } from "date-fns/locale"
 import { useState, type ReactNode } from "react"
-import { AnchorButton, Blockquote, Breadcrumbs, Button, ButtonGroup, Callout, Card, CardList, Checkbox, Classes, Code, Collapse, ControlGroup, Dialog, DialogBody, DialogFooter, DialogStep, Divider, Drawer, EditableText, EntityTitle, FileInput, FormGroup, H1, H2, H3, H4, H5, H6, HTMLSelect, HTMLTable, Icon, InputGroup, KeyComboTag, Menu, MenuDivider, MenuItem, MultistepDialog, Navbar, NavbarDivider, NavbarGroup, NavbarHeading, NonIdealState, NumericInput, OL, Popover, Pre, ProgressBar, Radio, RadioGroup, RangeSlider, SegmentedControl, Slider, Spinner, Switch, Tab, Tabs, Tag, TagInput, Text, TextArea, Tooltip, Tree, UL, type TreeNodeInfo } from "@blueprintjs/core"
+import { Alert, AnchorButton, Blockquote, Breadcrumbs, Button, ButtonGroup, Callout, Card, CardList, Checkbox, Classes, Code, Collapse, ControlGroup, Dialog, DialogBody, DialogFooter, DialogStep, Divider, Drawer, EditableText, EntityTitle, FileInput, FormGroup, H1, H2, H3, H4, H5, H6, HTMLSelect, HTMLTable, Icon, InputGroup, KeyComboTag, Menu, MenuDivider, MenuItem, MultistepDialog, Navbar, NavbarDivider, NavbarGroup, NavbarHeading, NonIdealState, NumericInput, OL, Popover, Pre, ProgressBar, Radio, RadioGroup, RangeSlider, SegmentedControl, Slider, Spinner, Switch, Tab, Tabs, Tag, TagInput, Text, TextArea, Tooltip, Tree, UL, type TreeNodeInfo } from "@blueprintjs/core"
 import { DateInput, DatePicker, DateRangeInput, DateRangePicker, TimePicker, type DateRange } from "@blueprintjs/datetime"
 import { MultiSelect, Omnibar, Select, Suggest } from "@blueprintjs/select"
 import { Cell, Column, Table2 } from "@blueprintjs/table"
@@ -11,6 +11,7 @@ import activity from "@ui-gallery/spec/mock/activity.json"
 import nav from "@ui-gallery/spec/mock/nav.json"
 import { coverage, type CoverageStatus } from "@/coverage"
 import { icon } from "@/lib/icons"
+import { useContainerWidth } from "@/lib/layout"
 import { toast } from "@/lib/toaster"
 import { Avatar, PageHeader, StatusTag, money } from "@/pages/shared"
 
@@ -103,7 +104,7 @@ function Inputs() {
         <RangeSlider min={0} max={100} value={range} onChange={setRange} labelStepSize={25} />
       </Demo>
       <Demo name="Rating" note="由 Button + star/star-empty 图标组合">
-        <span className="row" style={{ gap: 0 }}>{[1, 2, 3, 4, 5].map((n) => <Button key={n} minimal small onClick={() => setRating(n)} icon={<Icon icon={n <= rating ? "star" : "star-empty"} intent={n <= rating ? "warning" : "none"} size={20} />} aria-label={`${n} 星`} />)}</span>
+        <span className="row" style={{ gap: 0 }}>{[1, 2, 3, 4, 5].map((n) => <Button key={n} minimal onClick={() => setRating(n)} icon={<Icon icon={n <= rating ? "star" : "star-empty"} intent={n <= rating ? "warning" : "none"} size={20} />} aria-label={`${n} 星`} />)}</span>
         <span className="row" style={{ gap: 0 }}>{[1, 2, 3, 4, 5].map((n) => <Icon key={n} icon={n <= 4 ? "star" : "star-empty"} className={Classes.TEXT_MUTED} />)}<span className={Classes.TEXT_MUTED} style={{ marginLeft: 6 }}>只读 4/5</span></span>
       </Demo>
       <Demo name="DatePicker">
@@ -120,7 +121,7 @@ function Inputs() {
       </Demo>
       <Demo name="ColorPicker" note="原生 color input + InputGroup 组合">
         <ControlGroup><input type="color" value={color} onChange={(e) => setColor(e.target.value)} aria-label="颜色" style={{ width: 40, height: 30, border: "none", background: "transparent", padding: 0 }} /><InputGroup value={color} onChange={(e) => setColor(e.target.value)} style={{ width: 120 }} /></ControlGroup>
-        <div className="row">{["#2d72d2", "#238551", "#c87619", "#cd4246", "#7961db"].map((c) => <Button key={c} small onClick={() => setColor(c)} active={color === c} icon={<span style={{ width: 14, height: 14, background: c, borderRadius: 3, display: "inline-block" }} />} />)}</div>
+        <div className="row">{["#2d72d2", "#238551", "#c87619", "#cd4246", "#7961db"].map((c) => <Button key={c} onClick={() => setColor(c)} active={color === c} icon={<span style={{ width: 14, height: 14, background: c, borderRadius: 3, display: "inline-block" }} />} />)}</div>
       </Demo>
       <Demo name="Upload">
         <FileInput text="选择文件…" buttonText="浏览" /><FileInput text="已选：report.pdf" hasSelection fill /><FileInput text="禁用" disabled /><FileInput text="large" large />
@@ -150,6 +151,27 @@ function Inputs() {
   )
 }
 
+const GRID_RATIOS = [0.28, 0.24, 0.26, 0.22]
+const GRID_ROW_HEADER = 30
+
+function DataGridDemo() {
+  const { ref, width } = useContainerWidth<HTMLDivElement>()
+  const inner = Math.max(width - GRID_ROW_HEADER - 2, 4 * 60)
+  const columnWidths = GRID_RATIOS.map((r) => Math.floor(inner * r))
+  return (
+    <div ref={ref} style={{ height: 200, overflow: "hidden" }}>
+      {width > 0 ? (
+        <Table2 key={width} numRows={orders.length} enableColumnResizing enableRowHeader columnWidths={columnWidths}>
+          <Column name="订单" cellRenderer={(r) => <Cell>{orders[r].id}</Cell>} />
+          <Column name="客户" cellRenderer={(r) => <Cell>{orders[r].customer}</Cell>} />
+          <Column name="产品" cellRenderer={(r) => <Cell>{orders[r].product}</Cell>} />
+          <Column name="金额" cellRenderer={(r) => <Cell style={{ textAlign: "right" }}>{money(orders[r].amount)}</Cell>} />
+        </Table2>
+      ) : null}
+    </div>
+  )
+}
+
 function DataDisplay() {
   const [nodes, setNodes] = useState<TreeNodeInfo[]>([
     { id: 1, hasCaret: true, isExpanded: true, icon: "folder-open", label: "src", childNodes: [{ id: 2, icon: "document", label: "main.tsx" }, { id: 3, icon: "document", label: "App.tsx", isSelected: true }, { id: 4, hasCaret: true, icon: "folder-close", label: "pages", childNodes: [{ id: 5, icon: "document", label: "login.tsx" }] }] },
@@ -164,8 +186,8 @@ function DataDisplay() {
       <Demo name="Table">
         <div className="scroll-x"><HTMLTable striped interactive bordered compact className="fill"><thead><tr><th>订单</th><th>客户</th><th>状态</th><th className="text-right">金额</th></tr></thead><tbody>{orders.slice(0, 4).map((o) => <tr key={o.id}><td>{o.id}</td><td>{o.customer}</td><td><StatusTag value={o.status} /></td><td className="text-right">{money(o.amount)}</td></tr>)}</tbody></HTMLTable></div>
       </Demo>
-      <Demo name="DataGrid" note="@blueprintjs/table Table2：虚拟滚动、列宽拖拽、区域选择">
-        <div className="scroll-x" style={{ height: 200 }}><Table2 numRows={orders.length} enableColumnResizing enableRowHeader columnWidths={[110, 100, 110, 100]}><Column name="订单" cellRenderer={(r) => <Cell>{orders[r].id}</Cell>} /><Column name="客户" cellRenderer={(r) => <Cell>{orders[r].customer}</Cell>} /><Column name="产品" cellRenderer={(r) => <Cell>{orders[r].product}</Cell>} /><Column name="金额" cellRenderer={(r) => <Cell style={{ textAlign: "right" }}>{money(orders[r].amount)}</Cell>} /></Table2></div>
+      <Demo name="DataGrid" note="@blueprintjs/table Table2：虚拟滚动、列宽拖拽、区域选择（列宽按容器自适应）">
+        <DataGridDemo />
       </Demo>
       <Demo name="Descriptions" note="HTMLTable 组合">
         <HTMLTable compact className="fill"><tbody>{[["客户", orders[0].customer], ["邮箱", orders[0].email], ["产品", orders[0].product], ["金额", money(orders[0].amount)]].map(([k, v]) => <tr key={k}><td className={Classes.TEXT_MUTED} style={{ width: 90 }}>{k}</td><td>{v}</td></tr>)}</tbody></HTMLTable>
@@ -213,9 +235,10 @@ function DataDisplay() {
 }
 
 function Feedback() {
-  const [dialog, setDialog] = useState(false)
+  const [dialog, setDialog] = useState<"basic" | "confirm" | "fullscreen" | "scroll" | null>(null)
   const [multistep, setMultistep] = useState(false)
-  const [drawer, setDrawer] = useState<"right" | "bottom" | null>(null)
+  const [drawer, setDrawer] = useState<"left" | "right" | "top" | "bottom" | null>(null)
+  const close = () => setDialog(null)
   const [popconfirm, setPopconfirm] = useState(false)
   return (
     <Group title="反馈与浮层">
@@ -228,13 +251,16 @@ function Feedback() {
       <Demo name="Toast"><div className="row">{INTENTS.map((i) => <Button key={i} intent={i} small onClick={() => void toast(`Toast intent=${i}`, i, { icon: icon("check") })}>{i}</Button>)}<Button small onClick={() => void toast("带操作的 Toast", "primary", { action: { text: "撤销" } })}>action</Button></div></Demo>
       <Demo name="Notification" note="OverlayToaster + 标题/正文组合"><Button icon={icon("bell")} onClick={() => void toast("新订单 ORD-2401 已支付 · 2 分钟前", "none", { icon: icon("bell"), action: { text: "查看" } })}>发送通知</Button></Demo>
       <Demo name="Dialog">
-        <div className="row"><Button onClick={() => setDialog(true)}>Dialog</Button><Button onClick={() => setMultistep(true)}>MultistepDialog</Button></div>
-        <Dialog isOpen={dialog} onClose={() => setDialog(false)} title="对话框标题" icon={icon("boxes")}><DialogBody><p>对话框正文内容。</p><FormGroup label="名称"><InputGroup /></FormGroup></DialogBody><DialogFooter actions={<><Button onClick={() => setDialog(false)}>取消</Button><Button intent="primary" onClick={() => setDialog(false)}>确定</Button></>} /></Dialog>
+        <div className="row"><Button onClick={() => setDialog("basic")}>普通</Button><Button onClick={() => setDialog("confirm")}>确认（Alert）</Button><Button onClick={() => setDialog("fullscreen")}>全屏</Button><Button onClick={() => setDialog("scroll")}>可滚动</Button><Button onClick={() => setMultistep(true)}>多步</Button></div>
+        <Dialog isOpen={dialog === "basic"} onClose={close} title="对话框标题" icon={icon("boxes")}><DialogBody><p>对话框正文内容。</p><FormGroup label="名称"><InputGroup /></FormGroup></DialogBody><DialogFooter actions={<><Button onClick={close}>取消</Button><Button intent="primary" onClick={close}>确定</Button></>} /></Dialog>
+        <Alert isOpen={dialog === "confirm"} intent="danger" icon={icon("trash", 40)} cancelButtonText="取消" confirmButtonText="删除" onCancel={close} onConfirm={close} canEscapeKeyCancel canOutsideClickCancel><p>确认删除该项？此操作不可撤销。</p></Alert>
+        <Dialog isOpen={dialog === "fullscreen"} onClose={close} title="全屏对话框" icon={icon("grid")} style={{ width: "100vw", height: "100vh", margin: 0, borderRadius: 0, paddingBottom: 0 }}><DialogBody><p>占满整个视口的对话框。</p></DialogBody><DialogFooter actions={<Button intent="primary" onClick={close}>关闭</Button>} /></Dialog>
+        <Dialog isOpen={dialog === "scroll"} onClose={close} title="可滚动对话框" icon={icon("clipboard")}><DialogBody useOverflowScrollContainer><div style={{ maxHeight: 240 }}>{orders.slice(0, 12).map((o) => <p key={o.id}>{o.id} · {o.customer} · {o.product} · {money(o.amount)}</p>)}</div></DialogBody><DialogFooter actions={<Button intent="primary" onClick={close}>关闭</Button>} /></Dialog>
         <MultistepDialog isOpen={multistep} onClose={() => setMultistep(false)} title="多步对话框" navigationPosition="top" finalButtonProps={{ text: "完成", onClick: () => setMultistep(false) }}><DialogStep id="a" title="选择" panel={<DialogBody><p>第一步</p></DialogBody>} /><DialogStep id="b" title="配置" panel={<DialogBody><p>第二步</p></DialogBody>} /><DialogStep id="c" title="确认" panel={<DialogBody><p>第三步</p></DialogBody>} /></MultistepDialog>
       </Demo>
       <Demo name="Drawer">
-        <div className="row"><Button onClick={() => setDrawer("right")}>右侧</Button><Button onClick={() => setDrawer("bottom")}>底部</Button></div>
-        <Drawer isOpen={drawer !== null} onClose={() => setDrawer(null)} position={drawer ?? "right"} size={drawer === "bottom" ? "40%" : "360px"} title="抽屉" icon={icon("menu")}><div className={Classes.DRAWER_BODY} style={{ padding: 20 }}>抽屉内容</div><div className={Classes.DRAWER_FOOTER}>底部</div></Drawer>
+        <div className="row"><Button onClick={() => setDrawer("left")}>左侧</Button><Button onClick={() => setDrawer("right")}>右侧</Button><Button onClick={() => setDrawer("top")}>顶部</Button><Button onClick={() => setDrawer("bottom")}>底部</Button></div>
+        <Drawer isOpen={drawer !== null} onClose={() => setDrawer(null)} position={drawer ?? "right"} size={drawer === "bottom" || drawer === "top" ? "40%" : "360px"} title="抽屉" icon={icon("menu")}><div className={Classes.DRAWER_BODY} style={{ padding: 20 }}>抽屉内容</div><div className={Classes.DRAWER_FOOTER}>底部</div></Drawer>
       </Demo>
       <Demo name="Progress">{INTENTS.map((i) => <ProgressBar key={i} intent={i} value={0.2 + INTENTS.indexOf(i) * 0.2} stripes={false} animate={false} />)}<ProgressBar intent="primary" value={0.6} /><ProgressBar intent="primary" /></Demo>
       <Demo name="Skeleton"><div className={Classes.SKELETON} style={{ height: 14, width: "60%" }} /><div className={Classes.SKELETON} style={{ height: 14 }} /><div className={Classes.SKELETON} style={{ height: 80 }} /><Button className={Classes.SKELETON}>按钮骨架</Button></Demo>
@@ -254,7 +280,11 @@ function NavigationDemos() {
   const [acc, setAcc] = useState<number | null>(0)
   return (
     <Group title="导航">
-      <Demo name="Menu"><Menu className={Classes.ELEVATION_1}><MenuDivider title="分组" /><MenuItem icon={icon("home")} text="首页" /><MenuItem icon={icon("settings")} text="设置" label="⌘," /><MenuItem icon={icon("users")} text="团队"><MenuItem text="成员" /><MenuItem text="邀请" /></MenuItem><MenuItem icon={icon("lock")} text="禁用" disabled /><MenuItem text="active" active /><MenuItem text="selected" roleStructure="listoption" selected /><MenuDivider /><MenuItem icon={icon("trash")} text="删除" intent="danger" /></Menu></Demo>
+      <Demo name="Menu" note="垂直 / 内嵌子菜单 / 折叠（仅图标）/ 水平（Navbar + minimal Button 组合）">
+        <Menu className={Classes.ELEVATION_1}><MenuDivider title="垂直" /><MenuItem icon={icon("home")} text="首页" /><MenuItem icon={icon("settings")} text="设置" label="⌘," /><MenuItem icon={icon("users")} text="团队（内嵌子菜单）"><MenuItem text="成员" /><MenuItem text="邀请" /></MenuItem><MenuItem icon={icon("lock")} text="禁用" disabled /><MenuItem text="active" active /><MenuItem text="selected" roleStructure="listoption" selected /><MenuDivider /><MenuItem icon={icon("trash")} text="删除" intent="danger" /></Menu>
+        <Menu className={Classes.ELEVATION_1} style={{ minWidth: 0, width: 56, padding: 8 }}>{["home", "shopping-cart", "users", "settings"].map((k) => <Tooltip key={k} content={k} placement="right"><MenuItem icon={icon(k)} text="" aria-label={k} active={k === "home"} style={{ justifyContent: "center", minHeight: 40 }} /></Tooltip>)}</Menu>
+        <Navbar style={{ boxShadow: "none", border: "1px solid rgba(17,20,24,0.15)" }}><NavbarGroup align="left"><Button minimal active icon={icon("home")}>首页</Button><Button minimal icon={icon("shopping-cart")}>订单</Button><Popover minimal placement="bottom-start" content={<Menu><MenuItem text="成员" /><MenuItem text="邀请" /></Menu>}><Button minimal icon={icon("users")} rightIcon={icon("chevron-down")}>团队</Button></Popover></NavbarGroup></Navbar>
+      </Demo>
       <Demo name="Dropdown" note="Popover + Menu 组合"><div className="row"><Popover content={<Menu><MenuItem text="编辑" icon={icon("edit")} /><MenuItem text="复制" icon={icon("copy")} /><MenuDivider /><MenuItem text="删除" icon={icon("trash")} intent="danger" /></Menu>} placement="bottom-start"><Button rightIcon={icon("chevron-down")}>操作</Button></Popover><Popover content={<Menu><MenuItem text="选项" /></Menu>} disabled><Button rightIcon={icon("chevron-down")} disabled>禁用</Button></Popover></div></Demo>
       <Demo name="Breadcrumb"><Breadcrumbs items={[{ icon: icon("home"), text: "首页" }, { text: "订单" }, { text: "ORD-2400", current: true }]} /><Breadcrumbs items={[{ text: "一" }, { text: "二" }, { text: "三" }, { text: "四" }, { text: "当前", current: true }]} collapseFrom="start" minVisibleItems={1} /></Demo>
       <Demo name="Tabs">
@@ -315,7 +345,7 @@ export function ComponentsPage() {
       <PageHeader title="组件全览" description={`Blueprint 6 · ${names.length} 个契约组件：${count("implemented")} 原生 / ${count("composed")} 组合 / ${count("missing")} 缺失`} />
       <Card className="stack-sm" style={{ position: "sticky", top: 58, zIndex: 4 }}>
         <div className="row"><strong>索引</strong>{(["implemented", "composed", "missing"] as CoverageStatus[]).map((s) => <Tag key={s} minimal round intent={STATUS_INTENT[s]}>{STATUS_LABEL[s]} {count(s)}</Tag>)}</div>
-        <div className="anchor-index">{names.map((n) => <AnchorButton key={n} small minimal href={`#${n}`} intent={coverage[n] === "missing" ? "danger" : "none"}>{n}</AnchorButton>)}</div>
+        <div className="anchor-index">{names.map((n) => <AnchorButton key={n} minimal href={`#${n}`} intent={coverage[n] === "missing" ? "danger" : "none"}>{n}</AnchorButton>)}</div>
       </Card>
       <Buttons />
       <Inputs />

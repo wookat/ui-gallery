@@ -33,7 +33,7 @@ function Rating({ value, onChange }: { value: number; onChange: (v: number) => v
   return (
     <span className="row" role="radiogroup" aria-label="评分" style={{ gap: 2 }}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <Button key={n} minimal small onClick={() => onChange(n)} aria-label={`${n} 星`} icon={<Icon icon={n <= value ? "star" : "star-empty"} intent={n <= value ? "warning" : "none"} />} />
+        <Button key={n} minimal onClick={() => onChange(n)} aria-label={`${n} 星`} icon={<Icon icon={n <= value ? "star" : "star-empty"} intent={n <= value ? "warning" : "none"} />} />
       ))}
     </span>
   )

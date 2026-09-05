@@ -37,6 +37,11 @@ export function DashboardPage() {
   }, [])
   const skeleton = loading ? Classes.SKELETON : ""
   const lineData = series.months.map((m, i) => ({ month: m, revenue: series.revenue[i], orders: series.orders[i] }))
+  const rowMenu = (
+    <Popover content={<Menu><MenuItem icon={icon("eye")} text="查看" onClick={() => navigate(withParams("/orders"))} /><MenuItem icon={icon("edit")} text="编辑" /><MenuItem icon={icon("trash")} text="删除" intent="danger" /></Menu>} placement="bottom-end">
+      <Button minimal icon={icon("more-horizontal")} aria-label="操作" className="row-action" />
+    </Popover>
+  )
 
   return (
     <>
@@ -82,7 +87,7 @@ export function DashboardPage() {
               <>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={series.byChannel} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80}>
+                    <Pie data={series.byChannel} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} isAnimationActive={false}>
                       {series.byChannel.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} />)}
                     </Pie>
                     <ChartTooltip />
@@ -100,9 +105,18 @@ export function DashboardPage() {
           </div>
         </SectionCard>
       </div>
-      <div className="grid-2" style={{ gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1fr)" }}>
+      <div className="grid-main">
         <SectionCard title="最近订单" description="最新 5 笔订单" action={<Button minimal rightIcon={icon("arrow-right")} onClick={() => navigate(withParams("/orders"))}>查看全部</Button>}>
-          <div className="scroll-x">
+          <div className="mobile-cards">
+            {orders.slice(0, 5).map((o) => (
+              <Card key={o.id} className={`stack-sm ${skeleton}`} style={{ padding: 12 }}>
+                <div className="row-between"><strong>{o.id}</strong><StatusTag value={o.status} /></div>
+                <div className="row-between"><span className="row min0" style={{ flexWrap: "nowrap" }}><Avatar name={o.customer} size="sm" /><span className="truncate">{o.customer}</span></span><strong>{money(o.amount)}</strong></div>
+                <div className="row-between"><span className={`${Classes.TEXT_MUTED} ${Classes.TEXT_SMALL} truncate`}>{o.product}</span>{rowMenu}</div>
+              </Card>
+            ))}
+          </div>
+          <div className="scroll-x desktop-only">
             <HTMLTable interactive striped className={`fill ${skeleton}`}>
               <thead><tr><th>订单</th><th>客户</th><th>产品</th><th>状态</th><th className="text-right">金额</th><th /></tr></thead>
               <tbody>
@@ -113,11 +127,7 @@ export function DashboardPage() {
                     <td>{o.product}</td>
                     <td><StatusTag value={o.status} /></td>
                     <td className="text-right">{money(o.amount)}</td>
-                    <td className="text-right">
-                      <Popover content={<Menu><MenuItem icon={icon("eye")} text="查看" /><MenuItem icon={icon("edit")} text="编辑" /><MenuItem icon={icon("trash")} text="删除" intent="danger" /></Menu>} placement="bottom-end">
-                        <Button minimal icon={icon("more-horizontal")} aria-label="操作" className="row-action" />
-                      </Popover>
-                    </td>
+                    <td className="text-right">{rowMenu}</td>
                   </tr>
                 ))}
               </tbody>

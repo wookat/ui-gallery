@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useMediaQuery, MOBILE_QUERY } from "@/lib/layout"
 import { Button, Card, Classes, Dialog, DialogBody, DialogFooter, Divider, FormGroup, H4, HTMLSelect, HTMLTable, InputGroup, MenuItem, SegmentedControl, Switch, Tab, Tabs, Tag, TextArea } from "@blueprintjs/core"
 import { Suggest } from "@blueprintjs/select"
 import invoices from "@ui-gallery/spec/mock/invoices.json"
@@ -50,7 +51,7 @@ function Security() {
           {sessions.map((s) => (
             <div key={s.device} className="row-between" style={{ padding: "6px 0" }}>
               <span className="row"><span className="avatar" style={{ background: "transparent", color: "inherit", border: "1px solid rgba(17,20,24,0.15)" }}>{icon("globe")}</span><span><div>{s.device} {s.current ? <Tag minimal intent="success" round>当前</Tag> : null}</div><div className={`${Classes.TEXT_MUTED} ${Classes.TEXT_SMALL}`}>{s.location} · {s.time}</div></span></span>
-              {s.current ? null : <Button minimal small icon={icon("x")}>登出</Button>}
+              {s.current ? null : <Button minimal icon={icon("x")}>登出</Button>}
             </div>
           ))}
         </div>
@@ -95,7 +96,7 @@ function Team() {
                 <td><span className="row" style={{ flexWrap: "nowrap" }}><Avatar name={m.name} size="sm" /><span><div>{m.name}</div><div className={`${Classes.TEXT_MUTED} ${Classes.TEXT_SMALL}`}>{m.email}</div></span></span></td>
                 <td><HTMLSelect minimal defaultValue={m.role} disabled={m.role === "owner"} options={Object.entries(ROLE_LABEL).map(([value, label]) => ({ value, label }))} /></td>
                 <td className={Classes.TEXT_MUTED}>{m.lastActive}</td>
-                <td className="text-right">{m.role === "owner" ? null : <Button minimal small intent="danger" icon={icon("trash")} onClick={() => setMembers((x) => x.filter((y) => y.email !== m.email))} aria-label="移除" />}</td>
+                <td className="text-right">{m.role === "owner" ? null : <Button minimal intent="danger" icon={icon("trash")} onClick={() => setMembers((x) => x.filter((y) => y.email !== m.email))} aria-label="移除" />}</td>
               </tr>
             ))}
           </tbody>
@@ -126,7 +127,7 @@ function Billing() {
         <div className="scroll-x">
           <HTMLTable className="fill" striped>
             <thead><tr><th>编号</th><th>日期</th><th>状态</th><th className="text-right">金额</th><th /></tr></thead>
-            <tbody>{invoices.map((i) => <tr key={i.id}><td><strong>{i.id}</strong></td><td className={Classes.TEXT_MUTED}>{i.date}</td><td><StatusTag value={i.status} /></td><td className="text-right">{money(i.amount)}</td><td className="text-right"><Button minimal small icon={icon("download")} aria-label="下载" /></td></tr>)}</tbody>
+            <tbody>{invoices.map((i) => <tr key={i.id}><td><strong>{i.id}</strong></td><td className={Classes.TEXT_MUTED}>{i.date}</td><td><StatusTag value={i.status} /></td><td className="text-right">{money(i.amount)}</td><td className="text-right"><Button minimal icon={icon("download")} aria-label="下载" /></td></tr>)}</tbody>
           </HTMLTable>
         </div>
       </SectionCard>
@@ -156,11 +157,12 @@ function DangerZone() {
 
 export function SettingsPage() {
   const [tab, setTab] = useState("profile")
+  const mobile = useMediaQuery(MOBILE_QUERY)
   return (
     <>
       <PageHeader title="设置" description="管理个人资料、安全、通知、团队与计费。" />
       <div className="tabs-wrap">
-        <Tabs id="settings" selectedTabId={tab} onChange={(id) => setTab(String(id))} animate={false} large renderActiveTabPanelOnly>
+        <Tabs id="settings" className="settings-tabs" vertical={!mobile} selectedTabId={tab} onChange={(id) => setTab(String(id))} animate={false} large renderActiveTabPanelOnly>
           <Tab id="profile" title="个人资料" icon={icon("user")} panel={<Profile />} />
           <Tab id="security" title="账户安全" icon={icon("shield")} panel={<Security />} />
           <Tab id="notifications" title="通知" icon={icon("bell")} panel={<Notifications />} />

@@ -27,6 +27,8 @@ img, svg { max-width: 100%; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .grid-2 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 .grid-3 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grid-main { display: grid; gap: 16px; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.grid > *, .grid-2 > *, .grid-3 > *, .grid-main > * { min-width: 0; }
 .container { max-width: 1120px; margin: 0 auto; padding: 0 20px; width: 100%; }
 .scroll-x { overflow-x: auto; max-width: 100%; }
 .muted { color: var(--bp-typography-color-muted); }
@@ -35,7 +37,12 @@ img, svg { max-width: 100%; }
 .fill { width: 100%; }
 .min0 { min-width: 0; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* ≥40px hit targets for horizontal Tabs and icon-only row actions. */
+/* ≥40px hit targets: every non-small Button (text, icon-only, minimal) uses the large footprint. */
+.bp6-button:not(.bp6-small):not(.bp6-input-group *):not(.bp6-control-group *):not(.bp6-datepicker *):not(.bp6-tag *):not(.bp6-multistep-dialog-left-panel *) { min-height: 40px; min-width: 40px; }
+.bp6-tabs.bp6-vertical > .bp6-tab-list > .bp6-tab { min-height: 40px; display: flex; align-items: center; }
+.settings-tabs.bp6-vertical > .bp6-tab-list { min-width: 200px; }
+.settings-tabs.bp6-vertical > .bp6-tab-panel { flex: 1; min-width: 0; margin-left: 24px; margin-top: 0; }
+.settings-tabs:not(.bp6-vertical) > .bp6-tab-list { flex-wrap: wrap; row-gap: 4px; }
 .bp6-tabs:not(.bp6-vertical) > .bp6-tab-list { column-gap: 4px; }
 .bp6-tabs:not(.bp6-vertical) > .bp6-tab-list > .bp6-tab { padding: 0 12px; min-width: 40px; min-height: 40px; justify-content: center; }
 .bp6-tabs:not(.bp6-vertical) > .bp6-tab-list > .bp6-tab-indicator-wrapper .bp6-tab-indicator { left: 0; right: 0; }
@@ -73,9 +80,9 @@ img, svg { max-width: 100%; }
 /* Login / landing */
 .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .login-card { width: 100%; max-width: 420px; }
-.hero { padding: 72px 0 48px; text-align: center; }
+.hero { padding-top: 72px; padding-bottom: 48px; text-align: center; }
 .hero h1 { font-size: 40px; line-height: 1.15; }
-.section { padding: 48px 0; }
+.section { padding-top: 48px; padding-bottom: 48px; }
 .logo-cloud { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
 .logo-cloud .bp6-card { text-align: center; opacity: 0.6; filter: grayscale(1); }
 .split { display: grid; gap: 32px; grid-template-columns: 1fr 1fr; align-items: center; }
@@ -84,6 +91,7 @@ img, svg { max-width: 100%; }
 .bp6-dark .placeholder { border-color: rgba(255, 255, 255, 0.3); color: var(--bp-palette-gray-4); }
 .numbers { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); text-align: center; }
 .footer-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.footer-links > a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 4px; margin: -8px 0; align-self: flex-start; }
 
 /* Chat */
 .chat { display: grid; grid-template-columns: 280px 1fr; gap: 16px; min-height: 70vh; }
@@ -103,7 +111,8 @@ img, svg { max-width: 100%; }
 
 /* Components page */
 .demo-section { scroll-margin-top: 72px; }
-.demo-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.demo-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+.demo-grid .bp6-table-container { width: 100%; }
 .demo-block { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .demo-block .bp6-control-group { min-width: 0; max-width: 100%; }
 .demo-block .bp6-control-group > .bp6-input-group { min-width: 0; width: auto; flex: 1 1 0; }
@@ -129,7 +138,8 @@ img, svg { max-width: 100%; }
   .split.reverse > :first-child { order: 0; }
   .chat { grid-template-columns: 1fr; }
   .chat-list-panel { display: none; }
-  .hero { padding: 40px 0 24px; }
+  .hero { padding-top: 40px; padding-bottom: 24px; }
+  .grid-main { grid-template-columns: 1fr; }
   .hero h1 { font-size: 28px; }
   .desktop-only { display: none !important; }
   .mobile-cards { display: flex; flex-direction: column; gap: 8px; }

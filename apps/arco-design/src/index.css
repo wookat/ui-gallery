@@ -1,0 +1,534 @@
+/* Only layout glue + gallery font switch. Visuals come from Arco's default theme (arco.css). */
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: var(--color-bg-1);
+  color: var(--color-text-1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ?font= switches to a self-hosted OFL font via CSS variable; default keeps Arco's own font stack. */
+html.gallery-font,
+html.gallery-font body,
+html.gallery-font .arco-typography,
+html.gallery-font [class^="arco-"] {
+  font-family: var(--gallery-font);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  padding: 24px;
+  overflow-x: hidden;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.grid > * {
+  min-width: 0;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.login-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 16px;
+  background: var(--color-fill-1);
+}
+
+.login-card {
+  width: min(100%, 460px);
+}
+
+.landing-page {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--color-bg-1);
+}
+
+.landing-nav,
+.landing-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px max(16px, calc((100vw - 1200px) / 2));
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.landing-footer {
+  border-top: 1px solid var(--color-border-2);
+  border-bottom: 0;
+}
+
+.landing-hero,
+.landing-section {
+  width: min(100% - 32px, 1200px);
+  margin: 0 auto;
+  padding: 80px 0;
+}
+
+.landing-hero {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 48px;
+}
+
+.landing-hero .arco-typography-title {
+  font-size: clamp(36px, 5vw, 72px);
+  line-height: 1.1;
+}
+
+.hero-preview,
+.aspect-box {
+  display: grid;
+  min-height: 280px;
+  place-items: center;
+  background: var(--color-fill-2);
+}
+
+.aspect-box {
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  border-radius: 8px;
+}
+
+.logo-cloud,
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  padding: 32px max(16px, calc((100vw - 1200px) / 2));
+  border-block: 1px solid var(--color-border-2);
+  text-align: center;
+}
+
+.numbers {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.feature-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: var(--color-fill-2);
+}
+
+.split-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+
+.recommended {
+  border: 1px solid rgb(var(--primary-6));
+}
+
+.carousel-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.landing-cta {
+  width: min(100% - 32px, 1200px);
+  margin: 24px auto 80px;
+  padding: 64px 24px;
+  border-radius: 16px;
+  background: var(--color-fill-2);
+  text-align: center;
+}
+
+.chat-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  min-height: 620px;
+  overflow: hidden;
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
+}
+
+.chat-sidebar,
+.chat-thread {
+  min-width: 0;
+  padding: 16px;
+}
+
+.chat-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-right: 1px solid var(--color-border-2);
+  background: var(--color-fill-1);
+}
+
+.chat-selected {
+  border-radius: 6px;
+  background: var(--color-fill-2);
+}
+
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.chat-thread-header,
+.chat-composer {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.chat-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--color-border-2);
+  border-bottom: 0;
+}
+
+.chat-messages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  padding: 20px;
+  overflow: auto;
+}
+
+.chat-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 80%;
+}
+
+.chat-message.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.chat-bubble {
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--color-fill-2);
+}
+
+.chat-message.user .chat-bubble {
+  background: rgb(var(--primary-1));
+}
+
+.chat-bubble pre {
+  max-width: 100%;
+  overflow: auto;
+}
+
+.chat-empty {
+  display: none;
+}
+
+.components-layout {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 24px;
+}
+
+.components-anchor {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+}
+
+.component-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.component-index a {
+  padding: 4px 10px;
+  border: 1px solid var(--color-border-2);
+  border-radius: 999px;
+  color: var(--color-text-2);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.component-card {
+  scroll-margin-top: 20px;
+}
+
+.scroll-area-demo {
+  height: 90px;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid var(--color-border-2);
+}
+
+.float-demo {
+  position: relative;
+}
+
+.danger-card {
+  border-color: rgb(var(--danger-6));
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.muted {
+  color: var(--color-text-3);
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scroll-x {
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.desktop-only {
+  display: none;
+}
+
+.mobile-only {
+  display: none;
+}
+
+.app-layout,
+.app-layout > .arco-layout {
+  min-height: 100vh;
+}
+
+.app-sider {
+  background: var(--color-bg-2);
+  border-right: 1px solid var(--color-border-2);
+}
+
+.sider-brand {
+  padding: 20px 18px;
+}
+
+.sider-label {
+  display: block;
+  padding: 0 20px 8px;
+  font-size: 12px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text-1);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 8px;
+  background: rgb(var(--primary-6));
+  color: #fff;
+}
+
+.nav-badge {
+  margin-left: auto;
+}
+
+.sider-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  margin-top: auto;
+}
+
+.sider-user .arco-typography {
+  display: block;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--color-border-2);
+  background: var(--color-bg-1);
+}
+
+.header-left,
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.header-search {
+  width: 240px;
+}
+
+.app-content {
+  min-width: 0;
+  overflow-x: hidden;
+  background: var(--color-bg-1);
+}
+
+.page-header {
+  align-items: flex-end;
+}
+
+.page-header .arco-typography-title {
+  margin: 4px 0;
+}
+
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: .16em;
+}
+
+.arco-card {
+  min-width: 0;
+}
+
+.grid > .arco-card {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .desktop-only {
+    display: block;
+  }
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .app-header {
+    padding: 0 12px;
+  }
+
+  .header-search,
+  .app-header .arco-breadcrumb {
+    display: none;
+  }
+
+  .mobile-only {
+    display: inline-flex;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .grid-3,
+  .landing-hero,
+  .carousel-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .logo-cloud {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .numbers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .landing-hero,
+  .landing-section {
+    padding: 48px 0;
+  }
+
+  .chat-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chat-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .chat-message {
+    max-width: 95%;
+  }
+
+  .components-layout {
+    display: block;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+}

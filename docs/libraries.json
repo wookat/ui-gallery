@@ -16,7 +16,7 @@
     { "slug": "primer-react", "name": "Primer React (GitHub)", "framework": "react", "repo": "primer/react", "pkg": "@primer/react", "round": 1 },
     { "slug": "fluent-ui", "name": "Fluent UI React v9", "framework": "react", "repo": "microsoft/fluentui", "pkg": "@fluentui/react-components", "round": 1 },
     { "slug": "semi-design", "name": "Semi Design", "framework": "react", "repo": "DouyinFE/semi-design", "pkg": "@douyinfe/semi-ui", "round": 1 },
-    { "slug": "arco-design", "name": "Arco Design", "framework": "react", "repo": "arco-design/arco-design", "pkg": "@arco-design/web-react", "round": 1 },
+    { "slug": "arco-design", "name": "Arco Design", "framework": "react", "repo": "arco-design/arco-design", "pkg": "@arco-design/web-react", "round": 1, "status": "built" },
     { "slug": "tdesign-react", "name": "TDesign React", "framework": "react", "repo": "Tencent/tdesign-react", "pkg": "tdesign-react", "round": 1 },
     { "slug": "rsuite", "name": "React Suite", "framework": "react", "repo": "rsuite/rsuite", "pkg": "rsuite", "round": 1 },
     { "slug": "react-bootstrap", "name": "React Bootstrap", "framework": "react", "repo": "react-bootstrap/react-bootstrap", "pkg": "react-bootstrap", "round": 1 },

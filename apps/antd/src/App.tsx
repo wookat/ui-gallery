@@ -1,164 +1,94 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react"
-import { createBrowserRouter, Link, RouterProvider, useLocation, useNavigate } from "react-router-dom"
-import {
-  Alert, App as AntApp, Avatar, Badge, Breadcrumb, Button, Card, Checkbox, Col, Collapse, ColorPicker, ConfigProvider, DatePicker, Descriptions, Divider, Drawer, Dropdown, Empty, Flex, FloatButton, Form, Grid, Image, Input, Layout, List, Menu, message, Modal, Pagination, Popconfirm, Popover, Progress, QRCode, Radio, Rate, Result, Row, Segmented, Select, Skeleton, Slider, Space, Spin, Statistic, Steps, Switch, Table, Tabs, Tag, Timeline, TimePicker, Tooltip, Typography, Upload, notification, theme, Watermark,
-} from "antd"
-import type { MenuProps, TableColumnsType } from "antd"
-import { ArrowDownOutlined, ArrowUpOutlined, CheckOutlined, DeleteOutlined, EditOutlined, GithubOutlined, GoogleOutlined, LoadingOutlined, MenuOutlined, MoonOutlined, PlusOutlined, SendOutlined, SunOutlined, WechatOutlined } from "@ant-design/icons"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from "recharts"
-import nav from "@ui-gallery/spec/mock/nav.json"
-import stats from "@ui-gallery/spec/mock/stats.json"
-import series from "@ui-gallery/spec/mock/series.json"
-import orders from "@ui-gallery/spec/mock/orders.json"
-import activity from "@ui-gallery/spec/mock/activity.json"
-import tasks from "@ui-gallery/spec/mock/tasks.json"
-import team from "@ui-gallery/spec/mock/team.json"
-import plans from "@ui-gallery/spec/mock/plans.json"
-import invoices from "@ui-gallery/spec/mock/invoices.json"
-import sessions from "@ui-gallery/spec/mock/sessions.json"
-import landing from "@ui-gallery/spec/mock/landing.json"
-import chat from "@ui-gallery/spec/mock/chat.json"
-import notifications from "@ui-gallery/spec/mock/notifications.json"
-import { Icon } from "./icons"
+import { useEffect, useState, type ReactNode } from "react"
+import { App as AntApp, ConfigProvider, theme } from "antd"
+import zhCN from "antd/locale/zh_CN"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { AppShell } from "@/layouts/app-shell"
+import { ThemeSettingsContext } from "@/pages/shared"
+import { LoginPage } from "@/pages/login"
+import { DashboardPage } from "@/pages/dashboard"
+import { OrdersPage } from "@/pages/orders"
+import { FormPage } from "@/pages/form"
+import { SettingsPage } from "@/pages/settings"
+import { ComponentsPage } from "@/pages/components"
+import { LandingPage } from "@/pages/landing"
+import { ChatPage } from "@/pages/chat"
 
-type Order = (typeof orders)[number]
-const statusColor: Record<string, string> = { paid: "success", shipped: "processing", pending: "warning", refunded: "default", failed: "error" }
-const statusLabel: Record<string, string> = { paid: "已支付", shipped: "已发货", pending: "待处理", refunded: "已退款", failed: "失败" }
-const avatar = (name: string) => <Avatar size="small">{name.slice(0, 1)}</Avatar>
-
-function useSettings() {
-  const params = useMemo(() => new URLSearchParams(window.location.search), [])
-  const [dark, setDark] = useState(params.get("theme") === "dark" || (!params.get("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches))
+function useUrlSettings() {
+  const read = () => {
+    const params = new URLSearchParams(window.location.search)
+    return (
+      params.get("theme") === "dark" ||
+      (!params.get("theme") &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    )
+  }
+  const [dark, setDark] = useState(read)
   useEffect(() => {
-    const fonts: Record<string, string> = { inter: "'Inter Variable', sans-serif", geist: "'Geist Variable', sans-serif", "noto-sans-sc": "'Noto Sans SC Variable', sans-serif", "lxgw-wenkai": "'LXGW WenKai Screen', serif" }
-    document.documentElement.style.setProperty("--font-sans", fonts[params.get("font") ?? ""] ?? "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif")
+    const params = new URLSearchParams(window.location.search)
+    const fonts: Record<string, string> = {
+      inter: "'Inter Variable', sans-serif",
+      geist: "'Geist Variable', sans-serif",
+      "noto-sans-sc": "'Noto Sans SC Variable', sans-serif",
+      "lxgw-wenkai": "'LXGW WenKai Screen', serif",
+    }
+    const defaultFont = theme.getDesignToken().fontFamily
+    document.documentElement.style.setProperty(
+      "--font-sans",
+      fonts[params.get("font") ?? ""] ?? defaultFont
+    )
     document.documentElement.style.colorScheme = dark ? "dark" : "light"
-  }, [dark, params])
+  }, [dark])
   useEffect(() => {
-    const syncTheme = () => setDark(new URLSearchParams(window.location.search).get("theme") === "dark")
-    window.addEventListener("themechange", syncTheme)
-    return () => window.removeEventListener("themechange", syncTheme)
+    const sync = () => setDark(read())
+    window.addEventListener("themechange", sync)
+    return () => window.removeEventListener("themechange", sync)
   }, [])
   return { dark, setDark }
 }
 
-function Shell({ children }: { children: ReactNode }) {
-  const { dark, setDark } = useSettings()
-  const [collapsed, setCollapsed] = useState(false)
-  const [drawer, setDrawer] = useState(false)
-  const navigate = useNavigate()
-  const location = useLocation()
-  const screens = Grid.useBreakpoint()
+function BodyBackground() {
   const { token } = theme.useToken()
-  useEffect(() => { document.body.style.background = token.colorBgLayout }, [token.colorBgLayout])
-  const items: MenuProps["items"] = nav.map((item) => ({ key: item.path, icon: <Icon name={item.icon} />, label: item.label, onClick: () => navigate(item.path) }))
-  const side = <><div style={{ padding: 20, fontWeight: 700, fontSize: 18 }}>Acme Console</div><Menu mode="inline" selectedKeys={[location.pathname]} items={items} /><div style={{ marginTop: "auto", padding: 16 }}><Card size="small"><Space>{avatar(team[0].name)}<span>{team[0].name}</span></Space></Card></div></>
-  const toggleTheme = () => { const next = !dark; setDark(next); const url = new URL(window.location.href); url.searchParams.set("theme", next ? "dark" : "light"); window.history.replaceState({}, "", url); window.dispatchEvent(new Event("themechange")); }
-  return <Layout style={{ minHeight: "100vh" }}><Layout.Sider breakpoint="md" collapsedWidth={0} collapsible collapsed={collapsed} onCollapse={setCollapsed} trigger={null} width={248} style={{ display: screens.md ? undefined : "none" }}><Flex vertical style={{ height: "100%" }}>{side}</Flex></Layout.Sider><Layout><Layout.Header style={{ paddingInline: 16, background: token.colorBgContainer, display: "flex", alignItems: "center", gap: 12 }}><Button className="mobile-only" icon={<MenuOutlined />} onClick={() => setDrawer(true)} /><Breadcrumb items={[{ title: <Link to="/">Acme Console</Link> }, { title: location.pathname === "/" ? "仪表盘" : nav.find((item) => item.path === location.pathname)?.label ?? "页面" }]} /><Input.Search className="desktop-only" placeholder="搜索..." style={{ maxWidth: 300, marginLeft: "auto" }} /><Space style={{ marginLeft: screens.md ? 0 : "auto" }}><Dropdown trigger={["click"]} menu={{ items: notifications.map((n, i) => ({ key: i, label: <Space direction="vertical" size={0}><span>{n.title}</span><Typography.Text type="secondary">{n.time}</Typography.Text></Space> })) }}><Badge count={notifications.filter((n) => n.unread).length}><Button type="text" icon={<Icon name="bell" />} /></Badge></Dropdown><Button type="text" icon={dark ? <SunOutlined /> : <MoonOutlined />} onClick={toggleTheme} /><Dropdown menu={{ items: ["个人资料", "账号设置", "快捷键", "帮助中心", "退出登录"].map((label) => ({ key: label, label })) }}><Avatar style={{ cursor: "pointer" }}>{team[0].name.slice(0, 1)}</Avatar></Dropdown></Space></Layout.Header><Layout.Content className="app-content" style={{ padding: 24 }}><div className="page">{children}</div></Layout.Content></Layout><Drawer title="Acme Console" placement="left" open={drawer} onClose={() => setDrawer(false)} styles={{ body: { padding: 0 } }}><Flex vertical style={{ height: "100%" }}>{side}</Flex></Drawer></Layout>
+  useEffect(() => {
+    document.body.style.background = token.colorBgLayout
+    return () => {
+      document.body.style.background = ""
+    }
+  }, [token.colorBgLayout])
+  return null
 }
 
-function Header({ title, description, extra }: { title: string; description?: string; extra?: ReactNode }) {
-  return <Flex justify="space-between" align="end" wrap gap={12} style={{ marginBottom: 24 }}><div><Typography.Text type="secondary">ACME CONSOLE</Typography.Text><Typography.Title level={2} style={{ margin: "4px 0" }}>{title}</Typography.Title>{description && <Typography.Paragraph type="secondary" style={{ margin: 0 }}>{description}</Typography.Paragraph>}</div>{extra}</Flex>
-}
+const shell = (element: ReactNode) => <AppShell>{element}</AppShell>
+const router = createBrowserRouter(
+  [
+    { path: "/login", element: <LoginPage /> },
+    { path: "/", element: shell(<DashboardPage />) },
+    { path: "/orders", element: shell(<OrdersPage />) },
+    { path: "/form", element: shell(<FormPage />) },
+    { path: "/settings", element: shell(<SettingsPage />) },
+    { path: "/components", element: shell(<ComponentsPage />) },
+    { path: "/landing", element: <LandingPage /> },
+    { path: "/chat", element: shell(<ChatPage />) },
+  ],
+  { basename: "/apps/antd" }
+)
 
-function Dashboard() {
-  const [loading, setLoading] = useState(true)
-  const { token } = theme.useToken()
-  useEffect(() => { const timer = window.setTimeout(() => setLoading(false), 600); return () => window.clearTimeout(timer) }, [])
-  const lineData = series.months.map((month, i) => ({ month, revenue: series.revenue[i], orders: series.orders[i] }))
-  if (loading) return <Space direction="vertical" style={{ width: "100%" }} size="large"><Skeleton active /><Skeleton active /><Skeleton active /></Space>
-  return <><Header title="仪表盘" description="查看业务健康度与团队进展。" /><Row gutter={[16, 16]}>{stats.map((stat) => <Col xs={24} sm={12} xl={6} key={stat.key}><Card><Statistic title={stat.label} value={stat.value} suffix={stat.unit === "CNY" ? "元" : stat.unit} /><Tag color={stat.delta >= 0 ? "success" : "error"} icon={stat.delta >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}>{Math.abs(stat.delta)}%</Tag><div className="mini-chart"><ResponsiveContainer><LineChart data={stat.trend.map((value, i) => ({ i, value }))}><Line type="monotone" dataKey="value" stroke={stat.delta >= 0 ? token.colorSuccess : token.colorError} dot={false} strokeWidth={2} /></LineChart></ResponsiveContainer></div></Card></Col>)}</Row><Row gutter={[16, 16]} style={{ marginTop: 16 }}><Col xs={24} xl={16}><Card title="业务趋势" extra={<Tabs size="small" defaultActiveKey="day" items={["日", "周", "月"].map((label) => ({ key: label, label }))} />}><div className="chart"><ResponsiveContainer><LineChart data={lineData}><XAxis dataKey="month" /><YAxis /><ChartTooltip /><Line dataKey="revenue" stroke={token.colorPrimary} strokeWidth={3} /><Line dataKey="orders" stroke={token.colorSuccess} /></LineChart></ResponsiveContainer></div></Card></Col><Col xs={24} xl={8}><Card title="渠道分布"><div className="chart"><ResponsiveContainer><PieChart><Pie data={series.byChannel} dataKey="value" nameKey="name" outerRadius={90} label>{series.byChannel.map((entry, i) => <Cell key={entry.name} fill={[token.colorPrimary, token.colorSuccess, token.colorWarning, token.colorError][i]} />)}</Pie><ChartTooltip /></PieChart></ResponsiveContainer></div></Card></Col></Row><Row gutter={[16, 16]} style={{ marginTop: 16 }}><Col xs={24} xl={15}><Card title="最近订单" extra={<Link to="/orders">查看全部</Link>}><Table rowKey="id" pagination={false} scroll={{ x: 620 }} dataSource={orders.slice(0, 5)} columns={orderColumns()} /></Card></Col><Col xs={24} xl={9}><Card title="团队动态"><Timeline items={activity.slice(0, 5).map((item) => ({ children: <><b>{item.user}</b> {item.action}<Typography.Text type="secondary" style={{ display: "block" }}>{item.time}</Typography.Text></> }))} /></Card></Col></Row><Card title="任务进度" style={{ marginTop: 16 }}><Row gutter={[16, 16]}>{tasks.map((task) => <Col xs={24} sm={12} xl={6} key={task.title}><Space direction="vertical" style={{ width: "100%" }}><Flex justify="space-between"><span>{task.title}</span><Typography.Text type="secondary">{task.owner}</Typography.Text></Flex><Progress percent={task.progress} /></Space></Col>)}</Row></Card></>
+export default function App() {
+  const { dark, setDark } = useUrlSettings()
+  return (
+    <ThemeSettingsContext.Provider value={{ dark, setDark }}>
+      <ConfigProvider
+        locale={zhCN}
+        theme={{
+          algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+          token: { fontFamily: "var(--font-sans)" },
+          cssVar: true as never,
+        }}
+      >
+        <BodyBackground />
+        <AntApp>
+          <RouterProvider router={router} />
+        </AntApp>
+      </ConfigProvider>
+    </ThemeSettingsContext.Provider>
+  )
 }
-
-function orderColumns(onSelect?: (order: Order) => void): TableColumnsType<Order> {
-  return [{ title: "订单号", dataIndex: "id", sorter: (a, b) => a.id.localeCompare(b.id) }, { title: "客户", dataIndex: "customer", render: (v) => <Space>{avatar(v)}{v}</Space> }, { title: "状态", dataIndex: "status", render: (v) => <Tag color={statusColor[v]}>{statusLabel[v]}</Tag> }, { title: "日期", dataIndex: "date", sorter: (a, b) => a.date.localeCompare(b.date) }, { title: "金额", dataIndex: "amount", align: "right", render: (v) => `¥${v.toLocaleString()}`, sorter: (a, b) => a.amount - b.amount }, { title: "操作", key: "actions", render: (_, record) => <Dropdown menu={{ items: [{ key: "edit", label: "编辑", icon: <EditOutlined /> }, { key: "delete", label: "删除", danger: true, icon: <DeleteOutlined /> }] }}><Button type="text" icon={<Icon name="more-horizontal" />} onClick={() => onSelect?.(record)} /></Dropdown> }]
-}
-
-function Orders() {
-  const [query, setQuery] = useState("")
-  const [status, setStatus] = useState("all")
-  const [state, setState] = useState("normal")
-  const [selected, setSelected] = useState<Order | null>(null)
-  const [removed, setRemoved] = useState<string[]>([])
-  const [modal, contextHolder] = Modal.useModal()
-  const filtered = orders.filter((o) => !removed.includes(o.id) && (!query || `${o.id}${o.customer}`.toLowerCase().includes(query.toLowerCase())) && (status === "all" || o.status === status))
-  const remove = (record: Order) => modal.confirm({ title: "确认删除订单？", content: "此操作无法撤销。", okButtonProps: { danger: true }, onOk: () => { setRemoved((current) => [...current, record.id]); message.success("订单已删除") } })
-  return <>{contextHolder}<Header title="订单" description="管理和追踪所有订单。" extra={<div className="header-extra"><Segmented value={state} onChange={(v) => setState(String(v))} options={[["normal", "正常"], ["empty", "空"], ["loading", "加载"], ["error", "错误"]].map(([value, label]) => ({ value, label: `状态演示：${label}` }))} /></div>} /><Card><Space wrap style={{ marginBottom: 16 }}><Input.Search value={query} onChange={(e) => setQuery(e.target.value)} placeholder="搜索订单或客户" /><Select value={status} onChange={setStatus} style={{ width: 130 }} options={[{ value: "all", label: "全部状态" }, ...Object.entries(statusLabel).map(([value, label]) => ({ value, label }))]} /><DatePicker.RangePicker /><Select mode="multiple" placeholder="渠道" style={{ minWidth: 180 }} options={["web", "ios", "android", "api"].map((value) => ({ value, label: value }))} /><Button icon={<Icon name="download" />}>导出</Button><Dropdown menu={{ items: [{ key: "customer", label: <Checkbox defaultChecked>客户</Checkbox> }, { key: "channel", label: <Checkbox>渠道</Checkbox> }] }}><Button>列显示</Button></Dropdown></Space>{state === "error" ? <Alert type="error" message="订单数据加载失败" action={<Button size="small" onClick={() => setState("normal")}>重试</Button>} /> : state === "empty" ? <Empty description="暂无订单" image={Empty.PRESENTED_IMAGE_SIMPLE}><Button onClick={() => setState("normal")}>返回正常</Button></Empty> : <div className="wide-table"><Table rowKey="id" loading={state === "loading"} rowSelection={{}} onRow={(record) => ({ onClick: () => setSelected(record) })} dataSource={filtered} columns={orderColumns(setSelected)} pagination={{ showSizeChanger: true }} scroll={{ x: 800 }} /></div>}</Card><Drawer title="订单详情" placement="right" width={480} open={!!selected} onClose={() => setSelected(null)}>{selected && <Space direction="vertical" style={{ width: "100%" }}><Descriptions column={1} bordered items={[{ label: "订单号", children: selected.id }, { label: "客户", children: selected.customer }, { label: "状态", children: <Tag color={statusColor[selected.status]}>{statusLabel[selected.status]}</Tag> }, { label: "金额", children: `¥${selected.amount}` }]} /><Tabs items={[{ key: "detail", label: "详情", children: <Typography.Paragraph>{selected.product} · {selected.date} · {selected.channel}</Typography.Paragraph> }, { key: "note", label: "备注", children: <Input.TextArea rows={4} placeholder="添加备注" /> }]} /><Button danger block onClick={() => remove(selected)}>删除订单</Button></Space>}</Drawer></>
-}
-
-function Login() {
-  const [form] = Form.useForm()
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
-  const submit = async () => { try { await form.validateFields(); setLoading(true); window.setTimeout(() => { setLoading(false); message.success("登录成功"); navigate("/") }, 1200) } catch { message.error("请检查邮箱和密码") } }
-  return <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 16 }}><Card style={{ width: "100%", maxWidth: 440 }}><Space direction="vertical" size="large" style={{ width: "100%" }}><div style={{ textAlign: "center" }}><Avatar size={48} icon={<Icon name="sparkles" />} /><Typography.Title level={2}>Acme Console</Typography.Title><Typography.Text type="secondary">登录你的工作空间</Typography.Text></div><Alert type="error" showIcon message="演示环境：请使用任意有效邮箱登录" /><Form form={form} layout="vertical"><Form.Item name="email" label="邮箱" rules={[{ required: true, message: "请输入邮箱" }, { type: "email", message: "请输入有效邮箱" }]}><Input prefix={<Icon name="user" />} placeholder="name@example.com" /></Form.Item><Form.Item name="password" label="密码" rules={[{ required: true, message: "请输入密码" }]}><Input.Password prefix={<Icon name="lock" />} iconRender={(visible) => visible ? <Icon name="eye" /> : <Icon name="eye-off" />} /></Form.Item><Flex justify="space-between"><Checkbox>记住我</Checkbox><Typography.Link>忘记密码？</Typography.Link></Flex><Button type="primary" block loading={loading} onClick={submit}>登录</Button></Form><Divider plain>或</Divider><Space direction="vertical" style={{ width: "100%" }}><Button block icon={<GoogleOutlined />}>使用 Google 登录</Button><Button block icon={<GithubOutlined />}>使用 GitHub 登录</Button><Button block icon={<WechatOutlined />}>使用微信登录</Button></Space><Typography.Text type="secondary" style={{ textAlign: "center", display: "block" }}>还没有账户？<Typography.Link>注册</Typography.Link></Typography.Text></Space></Card></div>
-}
-
-function FormPage() {
-  const [step, setStep] = useState(0)
-  const [done, setDone] = useState(false)
-  const [form] = Form.useForm()
-  const next = async () => { try { await form.validateFields(); setStep((s) => Math.min(2, s + 1)) } catch { message.error("请完善必填项") } }
-  if (done) return <Result status="success" title="提交成功" subTitle="你的项目已经创建。" extra={<Button type="primary" onClick={() => { setDone(false); setStep(0) }}>创建另一个</Button>} />
-  return <><Header title="新建项目" description="通过多步骤表单创建一个项目。" /><Steps current={step} responsive items={[{ title: "基本信息" }, { title: "详细配置" }, { title: "确认" }]} style={{ marginBottom: 24 }} /><Card><Form form={form} layout="vertical"><div style={{ display: step === 0 ? "block" : "none" }}><Row gutter={16}><Col xs={24} md={12}><Form.Item name="name" label="项目名称" rules={[{ required: true, message: "请输入项目名称" }]}><Input /></Form.Item></Col><Col xs={24} md={12}><Form.Item name="count" label="席位数量" rules={[{ required: true }]}><Input type="number" /></Form.Item></Col><Col xs={24} md={12}><Form.Item name="email" label="邮箱" rules={[{ required: true, type: "email" }]}><Input /></Form.Item></Col><Col xs={24} md={12}><Form.Item name="phone" label="联系电话"><Input addonBefore={<Select defaultValue="+86" options={[{ value: "+86", label: "+86" }, { value: "+1", label: "+1" }]} />} /></Form.Item></Col></Row><Form.Item name="description" label="项目描述"><Input.TextArea showCount maxLength={200} rows={4} /></Form.Item><Form.Item name="type" label="项目类型"><Radio.Group options={["内部项目", "客户项目", "实验项目"]} /></Form.Item><Form.Item name="features" label="启用功能"><Checkbox.Group options={["数据看板", "AI 助手", "通知中心"]} /></Form.Item><Form.Item name="active" label="立即启用" valuePropName="checked"><Switch /></Form.Item></div><div style={{ display: step === 1 ? "block" : "none" }}><Row gutter={16}><Col xs={24} md={12}><Form.Item name="plan" label="方案" rules={[{ required: true }]}><Select options={plans.map((p) => ({ value: p.name, label: p.name }))} /></Form.Item></Col><Col xs={24} md={12}><Form.Item name="tags" label="标签"><Select mode="tags" options={["重要", "季度", "增长"] .map((v) => ({ value: v }))} /></Form.Item></Col><Col xs={24} md={12}><Form.Item name="date" label="开始日期"><DatePicker style={{ width: "100%" }} /></Form.Item></Col><Col xs={24} md={12}><Form.Item name="time" label="提醒时间"><TimePicker style={{ width: "100%" }} /></Form.Item></Col></Row><Form.Item label="日期范围"><DatePicker.RangePicker /></Form.Item><Form.Item label="预算范围"><Slider range defaultValue={[20, 80]} /></Form.Item><Form.Item label="评分"><Rate /></Form.Item><Form.Item label="颜色"><ColorPicker defaultValue="#1677ff" /></Form.Item><Upload.Dragger beforeUpload={() => false} maxCount={1}><p className="ant-upload-drag-icon"><Icon name="upload" size={28} /></p><p>拖拽文件到此处或点击上传</p></Upload.Dragger></div><div style={{ display: step === 2 ? "block" : "none" }}><Descriptions bordered column={1} items={Object.entries(form.getFieldsValue()).filter(([, value]) => value !== undefined).map(([label, value]) => ({ label, children: Array.isArray(value) ? value.join("、") : String(value) }))} /><Form.Item name="agree" valuePropName="checked" rules={[{ validator: (_, value) => value ? Promise.resolve() : Promise.reject(new Error("请同意条款")) }]}><Checkbox>我同意服务条款</Checkbox></Form.Item></div><Divider /><Flex justify="end" gap={8}>{step > 0 && <Button onClick={() => setStep((s) => s - 1)}>上一步</Button>}{step < 2 ? <Button type="primary" onClick={next}>下一步</Button> : <Button type="primary" onClick={async () => { try { await form.validateFields(); setDone(true) } catch { message.error("请同意条款") } }}>提交</Button>}</Flex></Form></Card></>
-}
-
-function Settings() {
-  const [active, setActive] = useState("profile")
-  const [modal, contextHolder] = Modal.useModal()
-  const { token } = theme.useToken()
-  const tabs = [{ key: "profile", label: "个人资料", children: <Card title="个人资料"><Form layout="vertical"><Form.Item label="头像"><Upload showUploadList={false}><Avatar size={64}>{team[0].name.slice(0, 1)}</Avatar><Button type="link">更换头像</Button></Upload></Form.Item><Form.Item label="姓名"><Input defaultValue={team[0].name} /></Form.Item><Form.Item label="简介"><Input.TextArea rows={3} /></Form.Item><Form.Item label="语言"><Select defaultValue="中文" options={["中文", "English", "日本語"].map((v) => ({ value: v }))} /></Form.Item><Button type="primary">保存更改</Button></Form></Card> }, { key: "security", label: "账号安全", children: <Space direction="vertical" style={{ width: "100%" }}><Card title="安全设置"><Form layout="vertical"><Form.Item label="当前密码"><Input.Password /></Form.Item><Form.Item label="新密码"><Input.Password /></Form.Item><Switch checkedChildren="已开启 2FA" unCheckedChildren="开启 2FA" /><QRCode value="acme-console-2fa" /></Form></Card><Card title="活跃会话"><List dataSource={sessions} renderItem={(s) => <List.Item actions={[!s.current && <Button key="revoke">注销</Button>]}>{s.device} · {s.location} <Tag>{s.current ? "当前会话" : s.time}</Tag></List.Item>} /></Card></Space> }, { key: "notifications", label: "通知", children: <Card title="通知偏好"><Segmented options={["邮件", "推送", "站内"]} block /><List dataSource={["项目更新", "账单提醒", "团队活动", "产品新闻"]} renderItem={(item) => <List.Item extra={<Switch defaultChecked />}>{item}</List.Item>} /></Card> }, { key: "team", label: "团队", children: <Card title="团队成员"><Table rowKey="email" dataSource={team} columns={[{ title: "成员", dataIndex: "name", render: (v) => <Space>{avatar(v)}{v}</Space> }, { title: "角色", dataIndex: "role", render: (v) => <Select defaultValue={v} options={["owner", "admin", "member", "viewer"].map((x) => ({ value: x }))} /> }, { title: "操作", render: () => <Button danger>移除</Button> }]} /><Space><Input placeholder="输入邮箱" /><Button icon={<PlusOutlined />}>邀请</Button></Space></Card> }, { key: "billing", label: "计费", children: <Space direction="vertical" style={{ width: "100%" }}><Card title="当前计划"><Tag color="blue">Pro</Tag> 按月计费</Card><Row gutter={[16, 16]}>{plans.map((plan) => <Col xs={24} md={8} key={plan.name}><Badge.Ribbon text={plan.recommended ? "推荐" : ""}><Card title={plan.name}><Typography.Title level={3}>{plan.price === null ? "定制" : `¥${plan.price}`}</Typography.Title><List size="small" dataSource={plan.features} renderItem={(feature) => <List.Item><CheckOutlined /> {feature}</List.Item>} /></Card></Badge.Ribbon></Col>)}</Row><Card title="发票记录"><Table rowKey="id" dataSource={invoices} pagination={false} columns={[{ title: "编号", dataIndex: "id" }, { title: "日期", dataIndex: "date" }, { title: "金额", dataIndex: "amount", render: (v) => `¥${v}` }, { title: "状态", dataIndex: "status", render: (v) => <Tag color={v === "paid" ? "success" : "warning"}>{v}</Tag> }]} /></Card></Space> }]
-  return <>{contextHolder}<Header title="设置" description="管理账户、通知、团队与订阅。" /><Tabs tabPosition={Grid.useBreakpoint().md ? "left" : "top"} activeKey={active} onChange={setActive} items={tabs} /><Card title="危险区" style={{ borderColor: token.colorError, marginTop: 16 }}><Typography.Paragraph>删除账户会永久移除所有数据。</Typography.Paragraph><Button danger onClick={() => { let value = ""; modal.confirm({ title: "删除账户", content: <Input placeholder='输入 "DELETE"' onChange={(e) => { value = e.target.value }} />, okText: "删除", okButtonProps: { danger: true, disabled: value !== "DELETE" }, onOk: () => message.success("账户删除请求已提交") }) }}>删除账户</Button></Card></>
-}
-
-const componentDemos: Array<[string, ReactNode]> = [
-  ["Typography", <Space direction="vertical"><Typography.Title level={1}>标题一</Typography.Title><Typography.Text>正文文本</Typography.Text><Typography.Text code>code</Typography.Text><Typography.Text keyboard>⌘ K</Typography.Text><Typography.Link>链接</Typography.Link></Space>],
-  ["Button", <Space wrap>{["primary", "default", "dashed", "text", "link"].map((type) => <Button key={type} type={type as "primary"}>{type}</Button>)}<Button danger>危险操作</Button><Button loading>加载中</Button><Button icon={<Icon name="plus" />} /></Space>],
-  ["Input", <Space wrap><Input placeholder="输入内容" prefix={<Icon name="search" />} allowClear /><Input.Password /><Input.Search /><Input.TextArea rows={2} /><Input.OTP /></Space>],
-  ["Select", <Space wrap><Select defaultValue="one" options={["one", "two"].map((v) => ({ value: v }))} /><Select mode="multiple" defaultValue={["one"]} options={["one", "two", "three"].map((v) => ({ value: v }))} /><Select mode="tags" /></Space>],
-  ["Checkbox", <Space><Checkbox indeterminate>部分选择</Checkbox><Checkbox.Group options={["A", "B", "C"]} /></Space>],
-  ["Radio", <Radio.Group options={["日", "周", "月"]} defaultValue="日" optionType="button" />],
-  ["Switch / Slider / Rating", <Space><Switch defaultChecked /><Slider style={{ width: 120 }} defaultValue={40} /><Rate defaultValue={4} /></Space>],
-  ["DatePicker", <Space wrap><DatePicker /><TimePicker /><DatePicker.RangePicker /><ColorPicker /></Space>],
-  ["Upload / Transfer / Cascader", <Upload><Button icon={<Icon name="upload" />}>上传</Button></Upload>],
-  ["Table / DataGrid", <Table size="small" pagination={false} rowKey="id" dataSource={orders.slice(0, 3)} columns={orderColumns()} scroll={{ x: 600 }} />],
-  ["Descriptions / List", <Descriptions items={[{ label: "状态", children: "正常" }, { label: "版本", children: "6.6.2" }]} />],
-  ["Card / Avatar / Badge / Tag", <Space><Avatar.Group>{team.slice(0, 4).map((m) => <Avatar key={m.email}>{m.name.slice(0, 1)}</Avatar>)}</Avatar.Group><Badge count={5}><Avatar shape="square" icon={<Icon name="inbox" />} /></Badge><Tag color="success">已完成</Tag></Space>],
-  ["Statistic / Timeline / Progress", <Space wrap><Statistic title="收入" value={128430} /><Progress percent={72} /><Timeline items={activity.slice(0, 2).map((a) => ({ children: a.action }))} /></Space>],
-  ["Calendar / Image / Carousel", <Space wrap><DatePicker picker="month" /><Image width={120} src="https://placehold.co/240x120" preview /><Typography.Text>轮播占位</Typography.Text></Space>],
-  ["Empty / Tooltip / Popover / QRCode", <Space><Tooltip title="帮助"><Button>Tooltip</Button></Tooltip><Popover content="Popover 内容"><Button>Popover</Button></Popover><QRCode value="acme-console" size={80} /></Space>],
-  ["Alert / Toast / Notification", <Space wrap><Alert message="信息" type="info" /><Button onClick={() => message.success("操作成功")}>消息</Button><Button onClick={() => notification.info({ message: "通知", description: "通知内容" })}>通知</Button></Space>],
-  ["Modal / Drawer / Popconfirm", <Space><Button onClick={() => Modal.info({ title: "普通弹窗", content: "弹窗内容" })}>Modal</Button><Button onClick={() => message.info("抽屉示例")}>Drawer</Button><Popconfirm title="确认操作？"><Button>Popconfirm</Button></Popconfirm></Space>],
-  ["Skeleton / Spinner / Result", <Space direction="vertical"><Skeleton active paragraph={{ rows: 1 }} /><Spin indicator={<LoadingOutlined />} /><Result status="success" title="成功" /></Space>],
-  ["Menu / Dropdown / Breadcrumb / Tabs", <Space direction="vertical" style={{ width: "100%" }}><Menu mode="horizontal" items={nav.slice(0, 4).map((n) => ({ key: n.key, label: n.label }))} /><Dropdown menu={{ items: [{ key: "a", label: "菜单项" }] }}><Button>Dropdown</Button></Dropdown><Breadcrumb items={[{ title: "首页" }, { title: "组件" }]} /><Tabs items={[{ key: "1", label: "标签一", children: "内容一" }, { key: "2", label: "标签二", children: "内容二" }]} /></Space>],
-  ["Pagination / Steps / Anchor", <Space direction="vertical"><Pagination defaultCurrent={1} total={50} /><Steps size="small" current={1} items={[{ title: "完成" }, { title: "进行中" }, { title: "待开始" }]} /><Typography.Link href="#component-Button">跳转到按钮</Typography.Link></Space>],
-  ["Layout / Grid / Flex / Space", <Flex gap="small" wrap><Card size="small">Flex</Card><Card size="small">Grid Row/Col</Card><Card size="small">Space</Card></Flex>],
-  ["Collapse / ThemeProvider / Watermark / Tour", <Space direction="vertical"><Collapse items={[{ key: "1", label: "展开面板", children: "面板内容" }]} /><Watermark content="Acme Console"><div style={{ height: 60 }} /></Watermark><Button onClick={() => message.info("Tour 已开启")}>Tour</Button></Space>],
-  ["FloatButton / BackTop / Affix / Divider", <Space><FloatButton icon={<Icon name="plus" />} /><FloatButton.BackTop /><Divider type="vertical" /><Button>Affix</Button></Space>],
-]
-function Components() {
-  return <><Header title="组件全集" description="Ant Design 官方组件与组合模式。" /><Flex gap={8} wrap style={{ marginBottom: 24 }}>{componentDemos.map(([name]) => <Typography.Link key={name} href={`#component-${name.split(" / ")[0]}`}>#{name.split(" / ")[0]}</Typography.Link>)}</Flex><div className="component-grid">{componentDemos.map(([name, demo]) => <Card id={`component-${name.split(" / ")[0]}`} key={name} title={<Space wrap>{name}<Badge status="success" text="implemented" /></Space>}>{demo}</Card>)}</div></>
-}
-
-function Landing() {
-  const [annual, setAnnual] = useState(false)
-  return <div><Layout.Header style={{ display: "flex", alignItems: "center", gap: 24, background: "transparent" }}><Typography.Title level={4} style={{ margin: 0 }}>Acme Console</Typography.Title><Menu className="desktop-only" mode="horizontal" style={{ flex: 1, border: 0, background: "transparent" }} items={["产品", "方案", "定价", "文档", "关于"].map((label) => ({ key: label, label: <a href={`#${label}`}>{label}</a> }))} /><Button type="primary" onClick={() => window.location.href = "/apps/antd/login"}>免费开始</Button></Layout.Header><main className="page" style={{ paddingInline: 24 }}><section className="landing-section"><Row gutter={[32, 32]} align="middle"><Col xs={24} lg={13}><Typography.Title style={{ fontSize: "clamp(36px, 6vw, 64px)" }}>{landing.hero.title}</Typography.Title><Typography.Paragraph style={{ fontSize: 18 }}>{landing.hero.subtitle}</Typography.Paragraph><Space><Button type="primary" size="large">免费开始</Button><Button size="large">查看演示</Button></Space><Typography.Paragraph type="secondary" style={{ marginTop: 20 }}>{landing.hero.social}</Typography.Paragraph></Col><Col xs={24} lg={11}><Card><Skeleton.Image active style={{ width: "100%", height: 280 }} /></Card></Col></Row></section><section className="landing-section"><Row gutter={[16, 16]}>{landing.features.map((feature) => <Col xs={24} sm={12} lg={8} key={feature.title}><Card hoverable><Icon name={feature.icon} size={28} /><Typography.Title level={4}>{feature.title}</Typography.Title><Typography.Paragraph>{feature.desc}</Typography.Paragraph></Card></Col>)}</Row></section><section className="landing-section"><Row gutter={[16, 16]}>{landing.numbers.map((number) => <Col xs={12} md={6} key={number.label}><Statistic title={number.label} value={number.value} /></Col>)}</Row></section><section className="landing-section"><Flex justify="space-between" align="center" wrap gap={12}><Typography.Title level={2}>选择适合你的计划</Typography.Title><Switch checked={annual} onChange={setAnnual} checkedChildren="年付" unCheckedChildren="月付" /></Flex><Row gutter={[16, 16]}>{plans.map((plan) => <Col xs={24} md={8} key={plan.name}><Badge.Ribbon text={plan.recommended ? "推荐" : ""}><Card title={plan.name}><Typography.Title level={2}>{plan.price === null ? "定制" : `¥${annual ? plan.price * 10 : plan.price}`}</Typography.Title><List dataSource={plan.features} renderItem={(f) => <List.Item><CheckOutlined /> {f}</List.Item>} /><Button type={plan.recommended ? "primary" : "default"} block>选择方案</Button></Card></Badge.Ribbon></Col>)}</Row></section><section className="landing-section"><Typography.Title level={2}>用户评价</Typography.Title><Row gutter={[16, 16]}>{landing.testimonials.map((t) => <Col xs={24} sm={12} lg={8} key={t.name}><Card><Space>{avatar(t.name)}<b>{t.name}</b><Typography.Text type="secondary">{t.company}</Typography.Text></Space><Typography.Paragraph style={{ marginTop: 16 }}>“{t.quote}”</Typography.Paragraph></Card></Col>)}</Row></section><section className="landing-section"><Typography.Title level={2}>常见问题</Typography.Title><Collapse accordion items={landing.faq.map((f) => ({ key: f.q, label: f.q, children: f.a }))} /></section><Card style={{ marginBottom: 48 }}><Flex justify="space-between" align="center" wrap gap={16}><div><Typography.Title level={3}>准备好开始了吗？</Typography.Title><Typography.Text type="secondary">在一个控制台里推进下一步。</Typography.Text></div><Button type="primary">创建工作空间</Button></Flex></Card></main><Layout.Footer style={{ textAlign: "center" }}>© 2026 Acme Console · <Select size="small" defaultValue="中文" options={[{ value: "中文" }, { value: "English" }]} /></Layout.Footer></div>
-}
-
-function Chat() {
-  const [empty, setEmpty] = useState(false)
-  const [text, setText] = useState("")
-  const [drawer, setDrawer] = useState(false)
-  const conversation = <><Input.Search placeholder="搜索会话" /><Button type="primary" block icon={<PlusOutlined />} style={{ marginBlock: 12 }}>新建会话</Button><List dataSource={chat.conversations} renderItem={(item) => <List.Item><List.Item.Meta title={item.title} description={item.time} /><Badge count={item.unread || 0} /></List.Item>} /></>
-  return <Layout style={{ minHeight: "calc(100vh - 64px)" }}><Layout.Sider width={280} breakpoint="md" collapsedWidth={0} style={{ padding: 16 }} className="desktop-only">{conversation}</Layout.Sider><Layout.Content style={{ padding: 16 }}><Flex vertical style={{ height: "100%" }} gap={16}><Flex justify="space-between"><Typography.Title level={3} style={{ margin: 0 }}>AI 助手</Typography.Title><Space><Button onClick={() => setEmpty((v) => !v)}>清空对话</Button><Button className="mobile-only" icon={<MenuOutlined />} onClick={() => setDrawer(true)} /></Space></Flex>{empty ? <Card style={{ flex: 1, display: "grid", placeItems: "center" }}><Space direction="vertical" align="center"><Typography.Title>你好，我是 Acme 助手</Typography.Title><Typography.Text type="secondary">选择一个建议开始对话</Typography.Text><Space wrap>{chat.suggestions.map((s) => <Button key={s} onClick={() => setText(s)}>{s}</Button>)}</Space></Space></Card> : <Card style={{ flex: 1 }}><Space direction="vertical" size="large" style={{ width: "100%" }}>{chat.messages.map((item, i) => <Flex key={`${item.role}-${i}`} gap={12} align="start" justify={item.role === "user" ? "end" : "start"}><Avatar>{item.role === "user" ? "我" : "A"}</Avatar><div style={{ maxWidth: "80%" }}><Card size="small" style={{ background: item.role === "user" ? "var(--ant-color-primary-bg)" : undefined }}><ReactMarkdown remarkPlugins={[remarkGfm]}>{item.content}</ReactMarkdown>{item.sources && <Space wrap>{item.sources.map((source) => <Tag key={source}>{source}</Tag>)}</Space>}{item.tool && <Collapse items={[{ key: "tool", label: `工具调用 · ${item.tool.name}`, children: JSON.stringify(item.tool.args) }]} />}{item.streaming && <Space><Spin size="small" />生成中…</Space>}</Card></div></Flex>)}</Space></Card>}<Space.Compact block><Button icon={<Icon name="paperclip" />} /><Input.TextArea value={text} onChange={(e) => setText(e.target.value)} autoSize={{ minRows: 1, maxRows: 4 }} placeholder="输入消息..." /><Select defaultValue={chat.models[0]} options={chat.models.map((m) => ({ value: m }))} style={{ width: 140 }} /><Button type="primary" icon={<SendOutlined />} onClick={() => { if (text) { message.success("已发送"); setText("") } }}>发送</Button></Space.Compact><Flex justify="space-between"><Typography.Text type="secondary">Enter 发送 · Shift+Enter 换行</Typography.Text><Typography.Text type="secondary">{text.length}/2000</Typography.Text></Flex></Flex></Layout.Content><Drawer title="会话" placement="left" open={drawer} onClose={() => setDrawer(false)}>{conversation}</Drawer></Layout>
-}
-
-function AppRoot() {
-  const { dark } = useSettings()
-  return <ConfigProvider theme={{ algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm, token: { fontFamily: "var(--font-sans)" } }}><AntApp><RouterProvider router={router} /></AntApp></ConfigProvider>
-}
-const shell = (element: ReactNode) => <Shell>{element}</Shell>
-const router = createBrowserRouter([{ path: "/login", element: <Login /> }, { path: "/", element: shell(<Dashboard />) }, { path: "/orders", element: shell(<Orders />) }, { path: "/form", element: shell(<FormPage />) }, { path: "/settings", element: shell(<Settings />) }, { path: "/components", element: shell(<Components />) }, { path: "/landing", element: <Landing /> }, { path: "/chat", element: shell(<Chat />) }], { basename: "/apps/antd" })
-export default AppRoot

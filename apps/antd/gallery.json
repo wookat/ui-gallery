@@ -25,7 +25,7 @@
   "coverage": {
     "Typography": "implemented",
     "Button": "implemented",
-    "ButtonGroup": "composed",
+    "ButtonGroup": "implemented",
     "IconButton": "implemented",
     "Input": "implemented",
     "Textarea": "implemented",
@@ -85,7 +85,7 @@
     "Tabs": "implemented",
     "Pagination": "implemented",
     "Steps": "implemented",
-    "Anchor": "composed",
+    "Anchor": "implemented",
     "BackTop": "implemented",
     "Affix": "implemented",
     "Navbar": "composed",

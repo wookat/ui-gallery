@@ -59,7 +59,7 @@ export function SectionDivider({ label }: { label: string }) {
 }
 
 export function Logo({ compact = false }: { compact?: boolean }) {
-  return <Flex align="center" gap="2" fontWeight="semibold" whiteSpace="nowrap"><Flex boxSize="8" align="center" justify="center" rounded="l2" bg="colorPalette.solid" color="colorPalette.contrast">A</Flex>{compact ? null : <Text>Acme Console</Text>}</Flex>
+  return <Flex align="center" gap="2" minH="10" fontWeight="semibold" whiteSpace="nowrap"><Flex boxSize="8" align="center" justify="center" rounded="l2" bg="colorPalette.solid" color="colorPalette.contrast">A</Flex>{compact ? null : <Text>Acme Console</Text>}</Flex>
 }
 
 export function EmptyResult({ title, description, action }: { title: string; description: string; action?: ReactNode }) {

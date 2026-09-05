@@ -1,10 +1,20 @@
-import { Avatar, Badge, Box, Button, Card, Carousel, DataList, EmptyState, Flex, Image, Popover, QrCode, SegmentGroup, Stack, Stat, Table, Tag, Text, Timeline, Tooltip } from "@chakra-ui/react"
+import { Avatar, Badge, Box, Button, Card, Carousel, DataList, EmptyState, Flex, Image, Popover, QrCode, SegmentGroup, Stack, Stat, Table, Tag, Text, Timeline, Tooltip, TreeView, createTreeCollection } from "@chakra-ui/react"
 import type { ComponentDemo } from "./typography"
 import { Icon as GalleryIcon } from "@ui-gallery/icons-react"
 import { DatePickerField } from "../shared"
 
 function Icon({ name, size = "18" }: { name: string; size?: string }) { return <GalleryIcon name={name} size={size} /> }
 function People() { return <Flex gap="-2"><Avatar.Root size="sm"><Avatar.Fallback name="林晓" /></Avatar.Root><Avatar.Root size="sm"><Avatar.Fallback name="Alex Chen" /></Avatar.Root><Avatar.Root size="sm"><Avatar.Fallback name="Maria" /></Avatar.Root><Badge>+3</Badge></Flex> }
+
+interface TreeNode { id: string; name: string; children?: TreeNode[] }
+const treeCollection = createTreeCollection<TreeNode>({
+  nodeToValue: (node) => node.id,
+  nodeToString: (node) => node.name,
+  rootNode: { id: "root", name: "", children: [
+    { id: "team", name: "产品团队", children: [{ id: "growth", name: "增长分析" }, { id: "report", name: "季度报告" }] },
+    { id: "design", name: "设计", children: [{ id: "review", name: "设计评审" }] },
+  ] },
+})
 
 export const dataDisplayDemos: ComponentDemo[] = [
   { name: "Table", node: <Box overflowX="auto"><Table.ScrollArea><Table.Root variant="outline" size="sm" striped interactive minW="520px"><Table.Header><Table.Row><Table.ColumnHeader>项目</Table.ColumnHeader><Table.ColumnHeader>负责人</Table.ColumnHeader><Table.ColumnHeader>状态</Table.ColumnHeader></Table.Row></Table.Header><Table.Body>{["增长分析", "移动端改版", "季度报告"].map((item, index) => <Table.Row key={item}><Table.Cell>{item}</Table.Cell><Table.Cell>{["林晓", "Alex Chen", "Maria García"][index]}</Table.Cell><Table.Cell><Badge colorPalette={index === 1 ? "yellow" : "green"}>{index === 1 ? "进行中" : "已完成"}</Badge></Table.Cell></Table.Row>)}</Table.Body></Table.Root></Table.ScrollArea></Box> },
@@ -17,7 +27,7 @@ export const dataDisplayDemos: ComponentDemo[] = [
   { name: "Tag", node: <Flex gap="2" wrap="wrap"><Tag.Root size="sm"><Tag.StartElement><Icon name="check" size="12" /></Tag.StartElement><Tag.Label>已完成</Tag.Label><Tag.EndElement><Tag.CloseTrigger /></Tag.EndElement></Tag.Root><Tag.Root variant="outline" size="lg"><Tag.Label>设计</Tag.Label></Tag.Root><Tag.Root><Tag.StartElement><Avatar.Root size="2xs"><Avatar.Fallback name="林" /></Avatar.Root></Tag.StartElement><Tag.Label>林晓</Tag.Label></Tag.Root></Flex> },
   { name: "Statistic", node: <Flex gap="5" wrap="wrap"><Stat.Root><Stat.Label>总收入</Stat.Label><Stat.ValueText>¥128,430</Stat.ValueText><Stat.UpIndicator>12.4%</Stat.UpIndicator></Stat.Root><Stat.Root><Stat.Label>退款率</Stat.Label><Stat.ValueText>2.1%</Stat.ValueText><Stat.DownIndicator>0.8%</Stat.DownIndicator></Stat.Root></Flex> },
   { name: "Timeline", node: <Timeline.Root variant="subtle">{["林晓 创建了增长分析", "Alex 更新了季度报告", "Maria 完成了设计评审"].map((item, index) => <Timeline.Item key={item}><Timeline.Connector><Timeline.Separator /><Timeline.Indicator>{index + 1}</Timeline.Indicator></Timeline.Connector><Timeline.Content><Timeline.Title>{item}</Timeline.Title><Timeline.Description>{index + 1} 小时前</Timeline.Description></Timeline.Content></Timeline.Item>)}</Timeline.Root> },
-  { name: "Tree", node: <Stack gap="2"><Text fontWeight="medium">工作区</Text><Box pl="4"><Text>▾ 产品团队</Text><Text pl="4">• 增长分析</Text><Text pl="4">• 季度报告</Text></Box></Stack> },
+  { name: "Tree", node: <TreeView.Root collection={treeCollection} defaultExpandedValue={["team"]} size="sm" maxW="sm"><TreeView.Label>工作区</TreeView.Label><TreeView.Tree><TreeView.Node indentGuide={<TreeView.BranchIndentGuide />} render={({ node, nodeState }) => nodeState.isBranch ? <TreeView.BranchControl><Icon name="boxes" size="16" /><TreeView.BranchText>{node.name}</TreeView.BranchText><TreeView.BranchIndicator><Icon name="chevron-down" size="14" /></TreeView.BranchIndicator></TreeView.BranchControl> : <TreeView.Item><Icon name="clipboard" size="16" /><TreeView.ItemText>{node.name}</TreeView.ItemText></TreeView.Item>} /></TreeView.Tree></TreeView.Root> },
   { name: "Calendar", node: <DatePickerField inline /> },
   { name: "Image", node: <DialogImage /> },
   { name: "Carousel", node: <Carousel.Root slideCount={3} width="full"><Carousel.ItemGroup>{["仪表盘", "订单分析", "团队协作"].map((item, index) => <Carousel.Item key={item} index={index}><Box height="120px" bg="bg.subtle" display="grid" placeItems="center" width="full"><Text>{item}</Text></Box></Carousel.Item>)}</Carousel.ItemGroup><Flex mt="3" justify="center" gap="2"><Carousel.PrevTrigger /><Carousel.Indicators /><Carousel.NextTrigger /></Flex></Carousel.Root> },

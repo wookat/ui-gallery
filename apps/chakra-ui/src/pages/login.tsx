@@ -29,14 +29,14 @@ export function LoginPage() {
               <Stack gap="4">
                 <Field.Root invalid={submitted}><Field.Label>邮箱</Field.Label><InputGroup startElement={<Icon name="user" width="16" height="16" />}><Input type="email" placeholder="you@example.com" /></InputGroup>{submitted ? <Field.ErrorText>请输入邮箱</Field.ErrorText> : <Field.HelperText>使用工作邮箱登录。</Field.HelperText>}</Field.Root>
                 <Field.Root invalid={submitted}><Field.Label>密码</Field.Label><InputGroup endElement={<IconButton aria-label="切换密码可见性" variant="ghost" onClick={() => setVisible((value) => !value)}><Icon name={visible ? "eye-off" : "eye"} width="16" height="16" /></IconButton>}><Input type={visible ? "text" : "password"} placeholder="••••••••" /></InputGroup>{submitted ? <Field.ErrorText>请输入密码</Field.ErrorText> : null}</Field.Root>
-                <Flex justify="space-between" align="center" gap="3"><Checkbox.Root><Checkbox.HiddenInput /><Checkbox.Control /><Checkbox.Label fontSize="sm">记住我</Checkbox.Label></Checkbox.Root><Link asChild fontSize="sm"><RouterLink to="#forgot">忘记密码？</RouterLink></Link></Flex>
+                <Flex justify="space-between" align="center" gap="3"><Checkbox.Root><Checkbox.HiddenInput /><Checkbox.Control /><Checkbox.Label fontSize="sm">记住我</Checkbox.Label></Checkbox.Root><Link asChild fontSize="sm" minH="10" alignItems="center"><RouterLink to="#forgot">忘记密码？</RouterLink></Link></Flex>
                 <Button type="submit" width="full" loading={loading} loadingText="登录中">登录</Button>
               </Stack>
             </form>
             <SectionDivider label="或" />
             <Flex gap="2" direction={{ base: "column", sm: "row" }}><Button variant="outline" flex={{ base: "0 0 auto", sm: "1" }} width={{ base: "full", sm: "auto" }}><Icon name="globe" width="16" height="16" />Google</Button><Button variant="outline" flex={{ base: "0 0 auto", sm: "1" }} width={{ base: "full", sm: "auto" }}><Icon name="github" width="16" height="16" />GitHub</Button><Button variant="outline" flex={{ base: "0 0 auto", sm: "1" }} width={{ base: "full", sm: "auto" }}><Icon name="message-circle" width="16" height="16" />微信</Button></Flex>
             <Separator />
-            <Text textAlign="center" fontSize="sm" color="fg.muted">还没有账户？ <Link asChild color="fg"><RouterLink to="#register">立即注册</RouterLink></Link></Text>
+            <Text textAlign="center" fontSize="sm" color="fg.muted">还没有账户？ <Link asChild color="fg" minH="10" alignItems="center"><RouterLink to="#register">立即注册</RouterLink></Link></Text>
           </Stack>
         </Card.Body>
       </Card.Root>

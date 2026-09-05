@@ -22,10 +22,22 @@ const fonts: Record<string, string> = {
 
 function useUrlFont() {
   useEffect(() => {
-    const font = new URLSearchParams(window.location.search).get("font") ?? "default"
-    if (fonts[font]) document.documentElement.style.setProperty("--acme-font", fonts[font])
-    else document.documentElement.style.removeProperty("--acme-font")
+    const font = new URLSearchParams(window.location.search).get("font")
+    if (font && fonts[font]) {
+      document.documentElement.dataset.font = font
+      document.documentElement.style.setProperty("--acme-font", fonts[font])
+    } else {
+      delete document.documentElement.dataset.font
+      document.documentElement.style.removeProperty("--acme-font")
+    }
   }, [])
+}
+
+const initialUrl = new URL(window.location.href)
+if (initialUrl.searchParams.has("icon") && !initialUrl.searchParams.has("icons")) {
+  initialUrl.searchParams.set("icons", initialUrl.searchParams.get("icon") ?? "")
+  initialUrl.searchParams.delete("icon")
+  window.history.replaceState(null, "", initialUrl)
 }
 
 const shell = (element: ReactNode) => <AppShell>{element}</AppShell>

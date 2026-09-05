@@ -32,6 +32,7 @@ function Navigation({ collapsed, onNavigate, onCollapse }: { collapsed: boolean;
         if (item) navigate(item.path)
         onNavigate?.()
       }}
+      defaultOpenKeys={["workspace", "system"]}
       header={{ logo: <span className="acme-brand-mark">A</span>, text: "Acme Console" }}
       footer={{ collapseButton: Boolean(onCollapse), children: collapsed ? null : <Link className="acme-brand" to="/settings"><Avatar size="small" color="light-blue">林</Avatar><span>林晓</span></Link> }}
     >

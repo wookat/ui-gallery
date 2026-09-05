@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Avatar, Button, Card, Progress, Skeleton, Table, Tabs, Timeline, Typography } from "@douyinfe/semi-ui"
+import { Avatar, Button, Card, Progress, Skeleton, Table, Tabs, Tag, Timeline, Typography } from "@douyinfe/semi-ui"
 import { Area, AreaChart, Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from "recharts"
 import activity from "@ui-gallery/spec/mock/activity.json"
 import orders from "@ui-gallery/spec/mock/orders.json"
@@ -22,7 +22,7 @@ function formatStat(stat: (typeof stats)[number]) {
 export function DashboardPage() {
   const [loading, setLoading] = useState(true)
   useEffect(() => {
-    const timer = window.setTimeout(() => setLoading(false), 600)
+    const timer = window.setTimeout(() => setLoading(false), 250)
     return () => window.clearTimeout(timer)
   }, [])
 
@@ -33,7 +33,7 @@ export function DashboardPage() {
         {stats.map((stat) => (
           <Card key={stat.key} bodyStyle={{ padding: 16 }}>
             <Skeleton loading={loading} active placeholder={<><Skeleton.Title style={{ width: 120, marginBottom: 12 }} /><Skeleton.Paragraph rows={2} /></>}>
-              <div className="acme-between"><Text type="tertiary">{stat.label}</Text><Text type={stat.delta >= 0 ? "success" : "danger"} size="small"><Icon name={stat.delta >= 0 ? "trending-up" : "trending-down"} size={12} /> {stat.delta > 0 ? "+" : ""}{stat.delta}%</Text></div>
+              <div className="acme-between"><Text type="tertiary">{stat.label}</Text><Tag color={stat.delta >= 0 ? "green" : "red"} type="light" size="small"><Icon name={stat.delta >= 0 ? "trending-up" : "trending-down"} size={12} /> {stat.delta > 0 ? "+" : ""}{stat.delta}%</Tag></div>
               <Title heading={3} style={{ margin: "6px 0 8px" }}>{formatStat(stat)}</Title>
               <div className="acme-sparkline">
                 <ResponsiveContainer width="100%" height={36}><AreaChart data={stat.trend.map((value, index) => ({ index, value }))}><Area type="monotone" dataKey="value" stroke="var(--semi-color-primary)" fill="var(--semi-color-primary-light-default)" strokeWidth={2} isAnimationActive={false} /></AreaChart></ResponsiveContainer>
@@ -46,15 +46,15 @@ export function DashboardPage() {
         <SectionCard title="收入趋势" description="近 7 个月收入（千元）">
           <Tabs type="line" size="small">
             <Tabs.TabPane tab="收入" itemKey="revenue">
-              <div style={{ height: 260 }}><ResponsiveContainer width="100%" height="100%"><AreaChart data={trend}><XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={12} /><YAxis width={32} tickLine={false} axisLine={false} fontSize={12} /><ChartTooltip /><Area type="monotone" dataKey="revenue" stroke="var(--semi-color-primary)" fill="var(--semi-color-primary-light-default)" strokeWidth={2} /></AreaChart></ResponsiveContainer></div>
+              <div style={{ height: 260 }}><ResponsiveContainer width="100%" height="100%"><AreaChart data={trend}><XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={12} /><YAxis width={32} tickLine={false} axisLine={false} fontSize={12} /><ChartTooltip /><Area type="monotone" dataKey="revenue" stroke="var(--semi-color-primary)" fill="var(--semi-color-primary-light-default)" strokeWidth={2} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>
             </Tabs.TabPane>
             <Tabs.TabPane tab="订单" itemKey="orders">
-              <div style={{ height: 260 }}><ResponsiveContainer width="100%" height="100%"><BarChart data={trend}><XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={12} /><YAxis width={40} tickLine={false} axisLine={false} fontSize={12} /><ChartTooltip /><Bar dataKey="orders" fill="var(--semi-color-primary)" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div>
+              <div style={{ height: 260 }}><ResponsiveContainer width="100%" height="100%"><BarChart data={trend}><XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={12} /><YAxis width={40} tickLine={false} axisLine={false} fontSize={12} /><ChartTooltip /><Bar dataKey="orders" fill="var(--semi-color-primary)" radius={[4, 4, 0, 0]} isAnimationActive={false} /></BarChart></ResponsiveContainer></div>
             </Tabs.TabPane>
           </Tabs>
         </SectionCard>
         <SectionCard title="渠道占比" description="按渠道的收入分布">
-          <div style={{ height: 200 }}><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={series.byChannel} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={3}>{series.byChannel.map((entry, index) => <Cell key={entry.name} fill={palette[index % palette.length]} />)}</Pie><ChartTooltip /></PieChart></ResponsiveContainer></div>
+          <div style={{ height: 200 }}><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={series.byChannel} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={3} isAnimationActive={false}>{series.byChannel.map((entry, index) => <Cell key={entry.name} fill={palette[index % palette.length]} />)}</Pie><ChartTooltip /></PieChart></ResponsiveContainer></div>
           <div className="acme-grid-2" style={{ gap: 6 }}>{series.byChannel.map((entry, index) => <Text key={entry.name} size="small" type="secondary"><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 4, background: palette[index % palette.length], marginRight: 6 }} />{entry.name} {entry.value}%</Text>)}</div>
         </SectionCard>
       </div>

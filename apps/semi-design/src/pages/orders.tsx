@@ -37,7 +37,7 @@ export function OrdersPage() {
 
   const columns = [
     { title: "订单号", dataIndex: "id", fixed: true as const, width: 120, sorter: (a?: Order, b?: Order) => (a?.id ?? "").localeCompare(b?.id ?? ""), render: (value: string) => <Text strong>{value}</Text> },
-    { title: "客户", dataIndex: "customer", render: (value: string, record: Order) => <div><Text>{value}</Text><br /><Text size="small" type="tertiary">{record.email}</Text></div> },
+    { title: "客户", dataIndex: "customer", width: 180, render: (value: string, record: Order) => <div><Text>{value}</Text><br /><Text size="small" type="tertiary" ellipsis={{ showTooltip: true }} style={{ maxWidth: 160 }}>{record.email}</Text></div> },
     { title: "商品", dataIndex: "product" },
     { title: "渠道", dataIndex: "channel" },
     { title: "日期", dataIndex: "date", sorter: (a?: Order, b?: Order) => (a?.date ?? "").localeCompare(b?.date ?? "") },

@@ -1,5 +1,6 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Avatar, AvatarGroup, Button, Card, Carousel, Collapse, Tag, Typography } from "@douyinfe/semi-ui"
+import { Avatar, AvatarGroup, Button, Card, Carousel, Collapse, SideSheet, Tag, Typography } from "@douyinfe/semi-ui"
 import landing from "@ui-gallery/spec/mock/landing.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import { Icon } from "@/icons"
@@ -12,19 +13,34 @@ const splits = ["看见全局", "自动化协作", "AI 就在身边"]
 
 export function LandingPage() {
   const { theme, setTheme } = useTheme()
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const links = [
+    { href: "#features", label: "产品" },
+    { href: "#numbers", label: "数据" },
+    { href: "#pricing", label: "价格" },
+    { href: "#testimonials", label: "评价" },
+    { href: "#faq", label: "FAQ" },
+  ]
   return (
     <div style={{ background: "var(--semi-color-bg-0)" }}>
       <header className="acme-landing-section" style={{ padding: "12px 24px", borderBottom: "1px solid var(--semi-color-border)", position: "sticky", top: 0, zIndex: 10, background: "var(--semi-color-bg-1)" }}>
         <div className="acme-landing-inner acme-between" style={{ flexWrap: "nowrap" }}>
           <Brand />
-          <nav className="acme-row acme-desktop-only" style={{ gap: 20 }}><a href="#features">产品</a><a href="#pricing">价格</a><a href="#faq">FAQ</a></nav>
+          <nav className="acme-row acme-desktop-only" style={{ gap: 20 }}>{links.map((link) => <Typography.Text key={link.href} link={{ href: link.href }}>{link.label}</Typography.Text>)}</nav>
           <div className="acme-row" style={{ flexWrap: "nowrap" }}>
+            <Button className="acme-mobile-only" theme="borderless" type="tertiary" icon={<Icon name="menu" />} aria-label="打开菜单" onClick={() => setMobileOpen(true)} />
             <Button theme="borderless" type="tertiary" icon={<Icon name={theme === "dark" ? "sun" : "moon"} />} aria-label="切换主题" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} />
             <Link to="/login"><Button theme="borderless" type="tertiary" className="acme-desktop-only">登录</Button></Link>
             <Link to="/login"><Button theme="solid">开始使用</Button></Link>
           </div>
         </div>
       </header>
+      <SideSheet title="导航" placement="right" width={260} visible={mobileOpen} onCancel={() => setMobileOpen(false)}>
+        <div className="acme-page" style={{ gap: 8 }}>
+          {links.map((link) => <Typography.Text key={link.href} link={{ href: link.href }} onClick={() => setMobileOpen(false)}>{link.label}</Typography.Text>)}
+          <Link to="/login" onClick={() => setMobileOpen(false)}><Button theme="solid" block>登录</Button></Link>
+        </div>
+      </SideSheet>
       <main>
         <section className="acme-landing-section">
           <div className="acme-landing-inner acme-split">
@@ -57,7 +73,7 @@ export function LandingPage() {
             ))}
           </div>
         </section>
-        <section style={{ borderTop: "1px solid var(--semi-color-border)", borderBottom: "1px solid var(--semi-color-border)", padding: "40px 16px" }}>
+        <section id="numbers" style={{ borderTop: "1px solid var(--semi-color-border)", borderBottom: "1px solid var(--semi-color-border)", padding: "40px 16px" }}>
           <div className="acme-landing-inner acme-grid-4 acme-grid" style={{ textAlign: "center" }}>{landing.numbers.map((item) => <div key={item.label}><Title heading={2} style={{ margin: 0 }}>{item.value}</Title><Text type="tertiary">{item.label}</Text></div>)}</div>
         </section>
         <section id="pricing" className="acme-landing-section">
@@ -66,7 +82,7 @@ export function LandingPage() {
             <div className="acme-grid-3 acme-grid">{plans.map((plan) => <Card key={plan.name} style={plan.recommended ? { borderColor: "var(--semi-color-primary)" } : undefined} title={<div className="acme-between"><span>{plan.name}</span>{plan.recommended ? <Tag color="blue" type="solid">最受欢迎</Tag> : null}</div>}><Title heading={2} style={{ margin: "0 0 12px" }}>{plan.price === null ? "定制" : plan.price === 0 ? "免费" : `¥${plan.price}`}{plan.price ? <Text type="tertiary" size="normal"> / 月</Text> : null}</Title><Text type="secondary" style={{ display: "block", marginBottom: 16 }}>{plan.features.join(" · ")}</Text><Button block theme={plan.recommended ? "solid" : "light"}>开始使用</Button></Card>)}</div>
           </div>
         </section>
-        <section className="acme-landing-section" style={{ paddingTop: 0 }}>
+        <section id="testimonials" className="acme-landing-section" style={{ paddingTop: 0 }}>
           <div className="acme-landing-inner acme-page" style={{ maxWidth: 800 }}>
             <Title heading={2} style={{ textAlign: "center" }}>他们已经在改变工作方式</Title>
             <Carousel style={{ height: 200, borderRadius: 12 }} theme="dark" autoPlay={{ interval: 4000 }} showIndicator arrowType="hover" indicatorType="dot">
@@ -85,7 +101,7 @@ export function LandingPage() {
         </section>
       </main>
       <footer style={{ borderTop: "1px solid var(--semi-color-border)", padding: "24px 16px" }}>
-        <div className="acme-landing-inner acme-between"><Text type="tertiary">© 2026 Acme Console</Text><div className="acme-row" style={{ gap: 16 }}><a href="#features">产品</a><a href="#pricing">价格</a><a href="#faq">帮助中心</a></div></div>
+        <div className="acme-landing-inner acme-between"><Text type="tertiary">© 2026 Acme Console</Text><div className="acme-row" style={{ gap: 16 }}>{links.map((link) => <Typography.Text key={link.href} link={{ href: link.href }}>{link.label}</Typography.Text>)}</div></div>
       </footer>
     </div>
   )

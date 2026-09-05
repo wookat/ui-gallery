@@ -15,24 +15,13 @@ body,
 }
 
 body {
-  font-family: var(--acme-font);
   background-color: var(--semi-color-bg-0);
   color: var(--semi-color-text-0);
   overflow-x: hidden;
 }
 
-.semi-layout,
-.semi-typography,
-.semi-button,
-.semi-input,
-.semi-select,
-.semi-table,
-.semi-modal,
-.semi-sidesheet,
-.semi-popover,
-.semi-tooltip,
-.semi-dropdown,
-.semi-portal {
+html[data-font] body,
+html[data-font] body *:not(code, pre, kbd, .semi-typography-code, .semi-codehighlight, .semi-codehighlight *, .semi-icon, .semi-icon *) {
   font-family: var(--acme-font);
 }
 
@@ -85,9 +74,10 @@ body {
 }
 
 .acme-shell-sider {
-  position: sticky;
+  position: sticky !important;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
 }
 
 .acme-shell-header {
@@ -143,7 +133,8 @@ body {
 .acme-chat-layout {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
-  min-height: 620px;
+  height: calc(100vh - 60px - 48px);
+  min-height: 480px;
   border: 1px solid var(--semi-color-border);
   border-radius: var(--semi-border-radius-medium);
   overflow: hidden;
@@ -182,6 +173,11 @@ body {
 .acme-bubble.user {
   background: var(--semi-color-primary);
   color: var(--semi-color-white);
+}
+
+body[theme-mode="dark"] .acme-bubble.user {
+  background: var(--semi-color-primary-light-default);
+  color: var(--semi-color-text-0);
 }
 
 .acme-bubble pre {
@@ -246,15 +242,17 @@ body {
 
 .acme-components-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  grid-template-columns: 220px minmax(0, 1fr);
   gap: 16px;
   align-items: start;
 }
 
 .acme-anchor-index {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  position: sticky;
+  top: 76px;
+  align-self: start;
+  max-height: calc(100vh - 92px);
+  overflow-y: auto;
 }
 
 .acme-demo-block {
@@ -312,6 +310,7 @@ body {
 
   .acme-chat-layout {
     grid-template-columns: minmax(0, 1fr);
+    height: calc(100vh - 60px - 32px);
   }
 
   .acme-chat-aside {
@@ -320,5 +319,33 @@ body {
 
   .acme-landing-section {
     padding: 40px 16px;
+  }
+
+  .acme-components-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .acme-shell-header .semi-button,
+  .acme-chat-main .semi-button,
+  .acme-login .semi-button {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .acme-login .semi-input-wrapper,
+  .acme-login .semi-select {
+    min-height: 40px;
+  }
+
+  .acme-login .semi-input-modebtn,
+  .acme-login .semi-input-clearbtn {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .semi-tabs-tab {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
   }
 }

@@ -168,14 +168,17 @@ const native: Record<string, SemiIcon> = {
 export type IconFamily = "native" | "lucide" | "tabler" | "phosphor" | "heroicons"
 
 export function iconFamily(): IconFamily {
-  if (typeof window === "undefined") return "native"
+  if (typeof window === "undefined") return "lucide"
   const params = new URLSearchParams(window.location.search)
-  const value = params.get("icons") ?? params.get("icon")
-  return value === "lucide" || value === "tabler" || value === "phosphor" || value === "heroicons" ? value : "native"
+  const value = params.get("icons")
+  return value === "native" || value === "lucide" || value === "tabler" || value === "phosphor" || value === "heroicons" ? value : "lucide"
 }
 
 export function Icon({ name, size = 16, className, spin }: { name: string; size?: number; className?: string; spin?: boolean }) {
-  if (iconFamily() !== "native") return <GalleryIcon name={name} size={size} className={className} />
+  if (iconFamily() !== "native") {
+    const normalizedSize = typeof size === "number" ? size : size === "large" ? 24 : size === "small" ? 14 : 16
+    return <GalleryIcon name={name} size={normalizedSize} className={className} />
+  }
   const Component = native[name] ?? IconHelpCircle
   return <Component className={className} spin={spin} style={{ fontSize: size }} />
 }

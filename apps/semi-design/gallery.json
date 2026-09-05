@@ -112,5 +112,5 @@
     "chart": "recharts",
     "markdown": "react-markdown"
   },
-  "notes": "Semi Design official default theme (@douyinfe/semi-theme-default via semi-ui built-in CSS). Dark mode via body[theme-mode=dark]. Native icons from @douyinfe/semi-icons by default; ?icons=lucide|tabler|phosphor|heroicons switches to @ui-gallery/icons-react. Fonts via ?font= over self-hosted OFL fontsource packages."
+  "notes": "Semi Design official default theme (@douyinfe/semi-theme-default via semi-ui built-in CSS). Dark mode via body[theme-mode=dark]. Default lucide via @ui-gallery/icons-react; ?icons=native switches to @douyinfe/semi-icons. Fonts via ?font= over self-hosted OFL fontsource packages."
 }

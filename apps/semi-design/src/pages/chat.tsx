@@ -1,7 +1,7 @@
 import { useState } from "react"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Avatar, Badge, Button, Card, Empty, Input, List, Select, Spin, Tag, TextArea, Toast, Tooltip, Typography } from "@douyinfe/semi-ui"
+import { Avatar, Badge, Button, Card, Empty, Input, List, Select, SideSheet, Spin, Tag, TextArea, Toast, Tooltip, Typography } from "@douyinfe/semi-ui"
 import { IllustrationConstruction, IllustrationConstructionDark } from "@douyinfe/semi-illustrations"
 import chat from "@ui-gallery/spec/mock/chat.json"
 import { Icon } from "@/icons"
@@ -16,7 +16,7 @@ function Bubble({ message }: { message: Message }) {
     <div className="acme-row" style={{ flexWrap: "nowrap", alignItems: "flex-start", flexDirection: isUser ? "row-reverse" : "row" }}>
       <Avatar size="small" color={isUser ? "light-blue" : "violet"}>{isUser ? "林" : <Icon name="bot" size={14} />}</Avatar>
       <div style={{ minWidth: 0, maxWidth: "min(720px, 100%)" }}>
-        {message.tool ? <Card bodyStyle={{ padding: "6px 10px" }} style={{ marginBottom: 8 }}><span className="acme-row" style={{ flexWrap: "nowrap" }}><Icon name="wrench" size={14} /><Text code>{message.tool.name}({JSON.stringify(message.tool.args)})</Text><Tag size="small" color="green">{message.tool.status}</Tag></span></Card> : null}
+        {message.tool ? <Card bodyStyle={{ padding: "6px 10px" }} style={{ marginBottom: 8 }}><span className="acme-row" style={{ flexWrap: "nowrap" }}><Icon name="wrench" size={14} /><span style={{ overflowX: "auto", minWidth: 0 }}><Text code>{message.tool.name}({JSON.stringify(message.tool.args)})</Text></span><Tag size="small" color="green" style={{ flexShrink: 0 }}>{message.tool.status}</Tag></span></Card> : null}
         <div className={`acme-bubble${isUser ? " user" : ""}`}>
           <Markdown remarkPlugins={[remarkGfm]}>{message.content}</Markdown>
           {message.streaming ? <span className="acme-row" style={{ gap: 6 }}><Spin size="small" /><Text type="tertiary" size="small">生成中…</Text></span> : null}
@@ -28,28 +28,40 @@ function Bubble({ message }: { message: Message }) {
   )
 }
 
+function ConversationList({ active, search, onSearch, onSelect, onNew }: { active: string; search: string; onSearch: (value: string) => void; onSelect: (id: string) => void; onNew: () => void }) {
+  return (
+    <>
+      <Button theme="solid" block icon={<Icon name="plus" />} onClick={onNew}>新对话</Button>
+      <Input prefix={<Icon name="search" />} placeholder="搜索对话" value={search} onChange={onSearch} showClear />
+      <div style={{ overflowY: "auto", flex: 1 }}>
+        {groups.map((group) => {
+          const items = chat.conversations.filter((item) => group.ids.includes(item.id) && item.title.includes(search))
+          if (!items.length) return null
+          return <div key={group.label}><Text type="tertiary" size="small" style={{ display: "block", padding: "8px 8px 4px" }}>{group.label}</Text><List size="small" dataSource={items} split={false} renderItem={(item) => <List.Item style={{ padding: "8px", borderRadius: 6, cursor: "pointer", background: item.id === active ? "var(--semi-color-fill-0)" : undefined }} onClick={() => onSelect(item.id)} main={<div className="acme-between" style={{ flexWrap: "nowrap" }}><span style={{ minWidth: 0 }}><Text ellipsis style={{ maxWidth: 160 }}>{item.title}</Text><br /><Text type="tertiary" size="small">{item.time}</Text></span>{item.unread ? <Badge count={item.unread} type="primary" /> : null}</div>} />} /></div>
+        })}
+      </div>
+    </>
+  )
+}
+
 export function ChatPage() {
   const [active, setActive] = useState("c1")
   const [draft, setDraft] = useState("")
   const [model, setModel] = useState(chat.models[0])
   const [search, setSearch] = useState("")
+  const [asideOpen, setAsideOpen] = useState(false)
   const messages = active === "c1" ? (chat.messages as Message[]) : []
   return (
     <div className="acme-chat-layout">
       <Card className="acme-chat-aside" bodyStyle={{ padding: 12, display: "flex", flexDirection: "column", gap: 12, height: "100%" }}>
-        <Button theme="solid" block icon={<Icon name="plus" />} onClick={() => setActive("new")}>新对话</Button>
-        <Input prefix={<Icon name="search" />} placeholder="搜索对话" value={search} onChange={setSearch} showClear />
-        <div style={{ overflowY: "auto", flex: 1 }}>
-          {groups.map((group) => {
-            const items = chat.conversations.filter((item) => group.ids.includes(item.id) && item.title.includes(search))
-            if (!items.length) return null
-            return <div key={group.label}><Text type="tertiary" size="small" style={{ display: "block", padding: "8px 8px 4px" }}>{group.label}</Text><List size="small" dataSource={items} split={false} renderItem={(item) => <List.Item style={{ padding: "8px", borderRadius: 6, cursor: "pointer", background: item.id === active ? "var(--semi-color-fill-0)" : undefined }} onClick={() => setActive(item.id)} main={<div className="acme-between" style={{ flexWrap: "nowrap" }}><span style={{ minWidth: 0 }}><Text ellipsis style={{ maxWidth: 160 }}>{item.title}</Text><br /><Text type="tertiary" size="small">{item.time}</Text></span>{item.unread ? <Badge count={item.unread} type="primary" /> : null}</div>} />} /></div>
-          })}
-        </div>
+        <ConversationList active={active} search={search} onSearch={setSearch} onSelect={setActive} onNew={() => setActive("new")} />
       </Card>
+      <SideSheet title="对话列表" placement="left" width={280} visible={asideOpen} onCancel={() => setAsideOpen(false)} bodyStyle={{ padding: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+        <ConversationList active={active} search={search} onSearch={setSearch} onSelect={(id) => { setActive(id); setAsideOpen(false) }} onNew={() => { setActive("new"); setAsideOpen(false) }} />
+      </SideSheet>
       <Card className="acme-chat-main" bodyStyle={{ padding: 0, display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
         <div className="acme-between" style={{ padding: "10px 16px", borderBottom: "1px solid var(--semi-color-border)", flexWrap: "nowrap" }}>
-          <div className="acme-row" style={{ flexWrap: "nowrap", minWidth: 0 }}><Button className="acme-mobile-only" theme="borderless" type="tertiary" icon={<Icon name="menu" />} aria-label="对话列表" /><Text strong ellipsis>{chat.conversations.find((item) => item.id === active)?.title ?? "新对话"}</Text></div>
+          <div className="acme-row" style={{ flexWrap: "nowrap", minWidth: 0 }}><Button className="acme-mobile-only" theme="borderless" type="tertiary" icon={<Icon name="menu" />} aria-label="对话列表" onClick={() => setAsideOpen(true)} /><Text strong ellipsis>{chat.conversations.find((item) => item.id === active)?.title ?? "新对话"}</Text></div>
           <Select value={model} onChange={(value) => setModel(String(value))} size="small" style={{ width: 150 }} optionList={chat.models.map((value) => ({ value, label: value }))} aria-label="模型" />
         </div>
         <div className="acme-chat-stream">

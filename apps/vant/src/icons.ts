@@ -33,15 +33,15 @@ export type IconName = string
 export type IconSet = "native" | "lucide" | "tabler" | "phosphor" | "heroicons"
 
 const nativeMap: Record<string, string> = {
-  search: "search", bell: "bell", menu: "wap-nav", sun: "bulb-o", moon: "closed-eye", "chevron-down": "arrow-down",
+  search: "search", bell: "bell", menu: "wap-nav", sun: "bulb-o", moon: "star-o", "chevron-down": "arrow-down",
   "chevron-right": "arrow", "chevron-left": "arrow-left", plus: "plus", trash: "delete-o", edit: "edit", eye: "eye-o",
   "eye-off": "closed-eye", mail: "envelop-o", lock: "lock", user: "contact", logout: "revoke", "log-in": "logistics",
   settings: "setting-o", download: "down", filter: "filter-o", send: "guide-o", paperclip: "photo-o", copy: "description",
   check: "success", x: "cross", "layout-dashboard": "apps-o", "shopping-cart": "shopping-cart-o", "file-plus": "description",
-  "message-square": "chat-o", boxes: "apps-o", globe: "location-o", zap: "fire", shield: "shield-o", star: "star-o",
+  "message-square": "chat-o", boxes: "apps-o", globe: "map-marked", zap: "fire", shield: "shield-o", star: "star-o",
   home: "wap-home-o", clock: "clock-o", more: "ellipsis", calendar: "calendar-o", link: "link-o", loader: "replay",
   sparkles: "gem-o", "arrow-right": "arrow", info: "info-o", upload: "upgrade", sliders: "setting-o", "bar-chart": "bar-chart-o",
-  github: "link-o", wechat: "wechat", bot: "smile-o", plug: "cluster-o",
+  github: "cluster-o", google: "search", wechat: "wechat", bot: "smile-o", plug: "cluster-o",
 }
 
 const lucide: Record<string, Component> = {
@@ -51,7 +51,7 @@ const lucide: Record<string, Component> = {
   copy: Copy, check: Check, x: X, "layout-dashboard": LayoutDashboard, "shopping-cart": ShoppingCart, "file-plus": FilePlus2,
   "message-square": MessageSquare, boxes: Boxes, globe: Globe2, zap: Zap, shield: Shield, star: Star, home: Home, clock: Clock3,
   more: MoreHorizontal, calendar: CalendarDays, link: LucideLinkIcon, loader: LoaderCircle, sparkles: Sparkles, "arrow-right": ArrowRight,
-  info: CircleHelp, upload: Upload, sliders: SlidersHorizontal, "bar-chart": BarChart3, github: Github, wechat: MessageCircle, bot: Bot, plug: Plug,
+  info: CircleHelp, upload: Upload, sliders: SlidersHorizontal, "bar-chart": BarChart3, github: Github, google: Globe2, wechat: MessageCircle, bot: Bot, plug: Plug,
 }
 const tabler: Record<string, Component> = {
   search: IconSearch, bell: IconBell, menu: IconMenu2, sun: IconSun, moon: IconMoon, "chevron-down": IconChevronDown,
@@ -62,7 +62,7 @@ const tabler: Record<string, Component> = {
   "message-square": IconMessage, boxes: IconBox, globe: IconWorld, zap: IconBolt, shield: IconShield, star: IconStar,
   home: IconHome, clock: IconClock, more: IconDots, calendar: IconCalendar, link: IconLink, loader: IconLoader2, sparkles: IconSparkles,
   "arrow-right": IconArrowRight, info: IconHelpCircle, upload: IconUpload, sliders: IconAdjustmentsHorizontal, "bar-chart": IconChartBar,
-  github: IconBrandGithub, wechat: IconBrandWechat, bot: IconRobot, plug: IconPlug,
+  github: IconBrandGithub, google: IconWorld, wechat: IconBrandWechat, bot: IconRobot, plug: IconPlug,
 }
 const phosphor: Record<string, Component> = {
   search: PhMagnifyingGlass, bell: PhBell, menu: PhList, sun: PhSun, moon: PhMoon, "chevron-down": PhCaretDown,
@@ -72,7 +72,7 @@ const phosphor: Record<string, Component> = {
   x: PhX, "layout-dashboard": PhSquaresFour, "shopping-cart": PhShoppingCart, "file-plus": PhFilePlus, "message-square": PhChatCircle,
   boxes: PhCube, globe: PhGlobe, zap: PhLightning, shield: PhShield, star: PhStar, home: PhHouse, clock: PhClock, more: PhDotsThree,
   calendar: PhCalendar, link: PhLink, loader: PhCircleNotch, sparkles: PhSparkle, "arrow-right": PhArrowRight, info: PhQuestion,
-  upload: PhUploadSimple, sliders: PhSliders, "bar-chart": PhChartBar, github: PhGithubLogo, wechat: PhWechatLogo, bot: PhRobot, plug: PhPlug,
+  upload: PhUploadSimple, sliders: PhSliders, "bar-chart": PhChartBar, github: PhGithubLogo, google: PhGlobe, wechat: PhWechatLogo, bot: PhRobot, plug: PhPlug,
 }
 const heroicons: Record<string, Component> = {
   search: MagnifyingGlassIcon, bell: BellIcon, menu: Bars3Icon, sun: SunIcon, moon: MoonIcon, "chevron-down": ChevronDownIcon,
@@ -84,7 +84,7 @@ const heroicons: Record<string, Component> = {
   globe: GlobeAltIcon, zap: BoltIcon, shield: ShieldCheckIcon, star: StarIcon, home: HomeIcon, clock: ClockIcon,
   more: EllipsisHorizontalIcon, calendar: CalendarDaysIcon, link: HeroLinkIcon, loader: ArrowPathIcon, sparkles: SparklesIcon,
   "arrow-right": ArrowRightIcon, info: QuestionMarkCircleIcon, upload: ArrowUpTrayIcon, sliders: AdjustmentsHorizontalIcon,
-  "bar-chart": ChartBarIcon, github: CodeBracketIcon, wechat: ChatBubbleOvalLeftEllipsisIcon, bot: CpuChipIcon, plug: BoltSlashIcon,
+  "bar-chart": ChartBarIcon, github: CodeBracketIcon, google: GlobeAltIcon, wechat: ChatBubbleOvalLeftEllipsisIcon, bot: CpuChipIcon, plug: BoltSlashIcon,
 }
 
 const sets: Record<Exclude<IconSet, "native" | "lucide">, Record<string, Component>> = { tabler, phosphor, heroicons }

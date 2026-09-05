@@ -85,13 +85,6 @@ const longText = landing.testimonials[0].quote + " " + landing.hero.subtitle + "
 const highlightSource = landing.hero.subtitle
 const circleRate = ref(65)
 const circleRate2 = ref(72)
-const nestedDarkThemeVars = {
-  background: "#000",
-  background2: "#1c1c1e",
-  textColor: "#f5f5f5",
-  textColor2: "#707070",
-  borderColor: "#3a3a3c",
-}
 const floatingAnchors = [100, 200]
 const tooltipShown = ref(true)
 const barrageList = ref(chat.conversations.slice(0, 4).map((item, index) => ({ id: index, text: item.title })))
@@ -173,7 +166,7 @@ const previewImages = () => showImagePreview(imageSources)
             <van-field label="描述" type="textarea" autosize maxlength="80" show-word-limit />
             <van-field label="数字" type="digit" />
           </van-cell-group>
-          <van-stepper theme="round" button-size="28" />
+          <van-stepper theme="round" button-size="40" />
           <van-stepper disabled />
         </article>
         <article id="Checkbox" class="card component-demo">
@@ -185,7 +178,7 @@ const previewImages = () => showImagePreview(imageSources)
           <h3>Radio / RadioGroup</h3>
           <van-radio-group v-model="radio"><van-radio name="a">水平 A</van-radio><van-radio name="b">水平 B</van-radio><van-radio name="c" disabled>禁用</van-radio></van-radio-group>
         </article>
-        <article id="Switch" class="card component-demo"><h3>Switch</h3><van-switch v-model="switchValue" /><van-switch size="18px" loading /><van-switch disabled /></article>
+        <article id="Switch" class="card component-demo"><h3>Switch</h3><van-switch v-model="switchValue" /><van-switch loading /><van-switch disabled /></article>
         <article id="Slider" class="card component-demo"><h3>Slider</h3><van-slider v-model="slider" step="5" /><van-slider v-model="range" range /><van-slider vertical :model-value="40" disabled class="vertical-slider" /></article>
         <article id="Rate" class="card component-demo"><h3>Rate</h3><van-rate v-model="rate" allow-half /><van-rate :model-value="3" readonly /><van-rate :model-value="2" :count="7" disabled /></article>
         <article id="Picker" class="card component-demo"><h3>Select / MultiSelect / Combobox / Autocomplete</h3><van-picker :columns="[{ text: '选项 A', value: 'a' }, { text: '选项 B', value: 'b' }]" /><van-checkbox-group><van-checkbox name="one">多选 A</van-checkbox><van-checkbox name="two">多选 B</van-checkbox></van-checkbox-group><van-search placeholder="输入以筛选建议" /></article>
@@ -202,7 +195,7 @@ const previewImages = () => showImagePreview(imageSources)
       <div class="component-grid">
         <article id="Table" class="card component-demo"><h3>Table / Descriptions</h3><div class="data-table"><div>名称</div><div>状态</div><div>金额</div><div>项目 A</div><div><van-tag type="success">完成</van-tag></div><div>¥120</div><div>项目 B</div><div><van-tag type="warning">处理中</van-tag></div><div>¥80</div><div>项目 C</div><div><van-tag>草稿</van-tag></div><div>¥50</div></div><van-cell-group inset><van-cell title="描述" value="组合的 cell-group" /><van-cell title="负责人" value="团队成员" /></van-cell-group></article>
         <article id="List" class="card component-demo"><h3>List / Card</h3><van-list><van-cell title="列表项一" value="详情" /><van-cell title="列表项二" value="详情" /><van-cell title="列表项三" value="详情" /></van-list><van-card num="2" price="10.00" desc="示例描述" title="示例商品" tag="标签"><template #thumb><div class="thumb-placeholder">图片</div></template></van-card></article>
-        <article id="Avatar" class="card component-demo"><h3>Avatar / AvatarGroup / Badge</h3><div class="avatar-group"><van-image v-for="member in team.slice(0, 3)" :key="member.email" round width="40" height="40" :src="`data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='20' fill='#1989fa'/><text x='20' y='25' text-anchor='middle' fill='white'>${member.name.slice(0, 1)}</text></svg>`)}`" /></div><van-badge content="5" /><van-badge dot /><van-badge content="99+" max="9" color="#07c160" /></article>
+        <article id="Avatar" class="card component-demo"><h3>Avatar / AvatarGroup / Badge</h3><div class="avatar-group"><van-image v-for="member in team.slice(0, 3)" :key="member.email" round width="40" height="40" :src="`data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='20' fill='#1989fa'/><text x='20' y='25' text-anchor='middle' fill='white'>${member.name.slice(0, 1)}</text></svg>`)}`" /></div><van-badge content="5" /><van-badge dot /><van-badge content="99+" max="9" /></article>
         <article id="Tag" class="card component-demo"><h3>Tag</h3><van-space wrap><van-tag v-for="type in ['primary', 'success', 'warning', 'danger']" :key="type" :type="type as 'primary'">{{ type }}</van-tag><van-tag plain round type="primary">plain round</van-tag><van-tag mark type="success">mark</van-tag><van-tag closeable>关闭</van-tag></van-space></article>
         <article id="Statistic" class="card component-demo"><h3>Statistic / CountDown / RollingText</h3><van-rolling-text :start-num="100" :target-num="128430" /><van-count-down time="3600000" format="HH:mm:ss" /></article>
         <article id="Timeline" class="card component-demo"><h3>Timeline / Steps</h3><van-steps direction="vertical" :active="2"><van-step>创建订单</van-step><van-step>审核通过</van-step><van-step>完成支付</van-step></van-steps></article>
@@ -291,7 +284,7 @@ const previewImages = () => showImagePreview(imageSources)
     <section id="category-other" class="demo-category">
       <h2>其他</h2>
       <div class="component-grid">
-        <article id="ThemeProvider" class="card component-demo"><span id="vant-ConfigProvider" class="anchor-target" /><h3>ConfigProvider</h3><van-config-provider :theme-vars="nestedDarkThemeVars"><div class="nested-dark"><van-button type="primary">Dark Button</van-button><van-field label="Dark Field" /><van-cell title="Dark Cell" /></div></van-config-provider><van-config-provider :theme-vars="{ primaryColor: '#07c160' }"><van-button type="primary">主题变量</van-button></van-config-provider></article>
+        <article id="ThemeProvider" class="card component-demo"><span id="vant-ConfigProvider" class="anchor-target" /><h3>ConfigProvider</h3><van-config-provider><div class="nested-dark van-theme-dark"><van-button type="primary">Dark Button</van-button><van-field label="Dark Field" /><van-cell title="Dark Cell" /></div></van-config-provider></article>
         <article id="FloatButton" class="card component-demo"><span id="vant-FloatingBubble" class="anchor-target" /><h3>FloatingBubble</h3><van-floating-bubble axis="xy" icon="plus" /></article>
         <article id="vant-Form" class="card component-demo"><h3>Form</h3><van-form><van-field label="表单字段" placeholder="示例" /><van-button block type="primary">提交</van-button></van-form></article>
         <article id="vant-Icon" class="card component-demo"><h3>Icon</h3><van-icon name="success" size="28" /><van-icon name="warning-o" size="28" /><van-icon name="fail" size="28" /></article>
@@ -367,7 +360,7 @@ const previewImages = () => showImagePreview(imageSources)
         <section id="vant-Input" class="card component-demo"><h3>Input</h3><van-field placeholder="Input 组合示例" /></section>
         <section id="vant-Result" class="card component-demo"><h3>Result</h3><van-empty description="完成" /></section>
         <section id="vant-Layout" class="card component-demo"><h3>Layout</h3><div class="layout-box"><main>布局组合示例</main></div></section>
-        <section id="vant-Link" class="card component-demo"><h3>Link</h3><a href="#vant-Button">组合链接</a></section>
+        <section id="vant-Link" class="card component-demo"><h3>Link</h3><a class="text-link" href="#vant-Button">组合链接</a></section>
       </div>
     </section>
 
@@ -382,8 +375,8 @@ const previewImages = () => showImagePreview(imageSources)
 
 <style scoped>
 .components-page { min-width: 0; }
-.component-index { display: grid; gap: 8px; position: sticky; top: 72px; z-index: 2; max-height: 40vh; overflow: auto; }
-.component-index-links a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 2px; }
+.component-index { display: grid; gap: 8px; }
+.component-index-links a { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; padding: 0 2px; }
 .component-index-links { gap: 2px 6px; }
 .barrage-box { background: var(--van-background); }
 .barrage-stage { display: grid; place-items: center; height: 96px; }
@@ -414,8 +407,8 @@ const previewImages = () => showImagePreview(imageSources)
 .submit-bar-box { position: relative; min-height: 140px; }
 .submit-bar-box :deep(.van-submit-bar) { position: static; }
 .watermark-box { position: relative; height: 120px; overflow: hidden; }
-.nested-dark { padding: 12px; background: #1d1d1f; }
-.overlay-content { display: grid; place-items: center; height: 100%; color: #fff; font-size: 24px; }
+.nested-dark { padding: 12px; margin-bottom: 8px; background: var(--van-background); color: var(--van-text-color); }
+.overlay-content { display: grid; place-items: center; height: 100%; color: var(--van-white); font-size: 24px; }
 .command-palette { padding: 12px; }
 .popover-actions { display: flex; gap: 8px; padding: 8px; }
 pre.code-demo { overflow: auto; padding: 12px; background: var(--van-background); }

@@ -22,22 +22,39 @@ const visible = computed(() => {
   return { months: series.months.slice(-count), revenue: series.revenue.slice(-count), orders: series.orders.slice(-count) }
 })
 const dark = computed(() => urlSettings.theme === "dark")
+const token = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+const palette = computed(() => {
+  void dark.value
+  return {
+    colors: ["--van-primary-color", "--van-success-color", "--van-warning-color", "--van-danger-color", "--van-blue", "--van-orange"].map(token),
+    text: token("--van-text-color"),
+    text2: token("--van-text-color-2"),
+    border: token("--van-border-color"),
+    background: token("--van-background-2"),
+  }
+})
+const chartBase = computed(() => ({
+  color: palette.value.colors,
+  backgroundColor: "transparent",
+  textStyle: { color: palette.value.text },
+  legend: { top: 0, textStyle: { color: palette.value.text } },
+}))
 const chartOption = computed(() => ({
-  textStyle: { color: dark.value ? "#f5f5f5" : "#323233" },
+  ...chartBase.value,
   tooltip: { trigger: "axis" },
-  legend: { top: 0, textStyle: { color: dark.value ? "#f5f5f5" : "#323233" } },
+  axisLine: { lineStyle: { color: palette.value.border } },
   grid: { left: 56, right: 48, top: 36, bottom: 24 },
-  xAxis: { type: "category", data: visible.value.months },
+  xAxis: { type: "category", data: visible.value.months, axisLabel: { color: palette.value.text2 }, axisLine: { lineStyle: { color: palette.value.border } } },
   yAxis: [
-    { type: "value", name: "收入 (k)", axisLabel: { formatter: (value: number) => `¥${value}k` } },
-    { type: "value", name: "订单", splitLine: { show: false } },
+    { type: "value", name: "收入 (k)", axisLabel: { color: palette.value.text2, formatter: (value: number) => `¥${value}k` }, splitLine: { lineStyle: { color: palette.value.border } } },
+    { type: "value", name: "订单", axisLabel: { color: palette.value.text2 }, splitLine: { show: false } },
   ],
   series: [
     { name: "订单", type: "bar", yAxisIndex: 1, barMaxWidth: 28, data: visible.value.orders },
     { name: "收入", type: "line", smooth: true, yAxisIndex: 0, data: visible.value.revenue },
   ],
 }))
-const pieOption = computed(() => ({ tooltip: { trigger: "item" }, series: [{ type: "pie", radius: ["42%", "70%"], data: series.byChannel }] }))
+const pieOption = computed(() => ({ ...chartBase.value, tooltip: { trigger: "item" }, series: [{ type: "pie", radius: ["42%", "70%"], itemStyle: { borderColor: palette.value.background, borderWidth: 2 }, label: { color: palette.value.text }, data: series.byChannel }] }))
 const statusText: Record<string, string> = { paid: "已支付", pending: "待处理", refunded: "已退款", failed: "失败", shipped: "已发货" }
 </script>
 
@@ -57,11 +74,11 @@ const statusText: Record<string, string> = { paid: "已支付", pending: "待处
         </van-cell>
       </div>
       <div class="grid grid-2 section-heading-grid">
-        <div class="card"><h2>收入趋势</h2><VChart class="chart" :option="chartOption" :theme="dark ? 'dark' : undefined" autoresize /></div>
-        <div class="card"><h2>渠道分布</h2><VChart class="chart" :option="pieOption" :theme="dark ? 'dark' : undefined" autoresize /></div>
+        <div class="card"><h2>收入趋势</h2><VChart class="chart" :option="chartOption" autoresize /></div>
+        <div class="card"><h2>渠道分布</h2><VChart class="chart" :option="pieOption" autoresize /></div>
       </div>
       <div class="grid grid-2">
-        <div class="card"><div class="between"><h2>最近订单</h2><RouterLink to="/orders">查看全部</RouterLink></div><div class="data-row head"><span>订单</span><span>客户</span><span>状态</span><span>金额</span><span /></div><div v-for="order in orders.slice(0, 5)" :key="order.id" class="data-row"><strong>{{ order.id }}</strong><span>{{ order.customer }}</span><van-tag :type="order.status === 'paid' ? 'success' : order.status === 'failed' ? 'danger' : 'primary'">{{ statusText[order.status] }}</van-tag><span>¥{{ order.amount.toLocaleString() }}</span><van-popover placement="left"><van-cell title="编辑" /><van-cell title="删除" /><template #reference><van-button plain size="small" aria-label="更多操作"><AppIcon name="more" /></van-button></template></van-popover></div></div>
+        <div class="card"><div class="between"><h2>最近订单</h2><RouterLink class="text-link" to="/orders">查看全部</RouterLink></div><div class="data-row head"><span>订单</span><span>客户</span><span>状态</span><span>金额</span><span /></div><div v-for="order in orders.slice(0, 5)" :key="order.id" class="data-row"><strong>{{ order.id }}</strong><span>{{ order.customer }}</span><van-tag :type="order.status === 'paid' ? 'success' : order.status === 'failed' ? 'danger' : 'primary'">{{ statusText[order.status] }}</van-tag><span>¥{{ order.amount.toLocaleString() }}</span><van-popover placement="left"><van-cell title="编辑" /><van-cell title="删除" /><template #reference><van-button plain size="small" aria-label="更多操作"><AppIcon name="more" /></van-button></template></van-popover></div></div>
         <div class="card"><h2>团队动态</h2><van-steps direction="vertical" :active="activity.length"><van-step v-for="item in activity" :key="`${item.user}-${item.time}`"><strong>{{ item.user }}</strong> {{ item.action }}<span class="muted">{{ item.time }}</span></van-step></van-steps><h2 class="section-heading">任务进度</h2><div v-for="task in tasks" :key="task.title" class="task-row"><div class="between"><span>{{ task.title }}</span><span class="muted">{{ task.progress }}%</span></div><van-progress :percentage="task.progress" /></div></div>
       </div>
     </template>

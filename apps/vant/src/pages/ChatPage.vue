@@ -41,7 +41,7 @@ const copy = async (value: string) => {
         </van-cell>
       </aside>
       <section class="chat-main">
-        <header class="between" style="padding: 14px 18px; border-bottom: 1px solid var(--van-border-color)"><div><strong>{{ activeConversation.title }}</strong><small class="muted"> · {{ model }}</small></div><van-field :model-value="model" readonly is-link @click="modelPopup = true" /></header>
+        <header class="between" style="padding: 14px 18px; border-bottom: 1px solid var(--van-border-color)"><div class="chat-title"><strong>{{ activeConversation.title }}</strong><small class="muted">{{ activeConversation.time }}</small></div><van-button plain class="model-button" @click="modelPopup = true"><AppIcon name="bot" :size="16" />{{ model }}<AppIcon name="chevron-down" :size="14" /></van-button></header>
         <div v-if="empty" class="chat-messages"><van-empty description="开始一段新对话"><div class="suggestion-grid"><van-button v-for="item in chat.suggestions" :key="item" plain @click="draft = item; empty = false">{{ item }}</van-button></div></van-empty></div>
         <div v-else class="chat-messages">
           <article v-for="(message, index) in chat.messages" :key="`${message.role}-${index}`" class="message" :class="{ user: message.role === 'user' }">
@@ -61,7 +61,13 @@ const copy = async (value: string) => {
 .new-chat { margin: 10px 0; }
 .chat-sidebar .van-cell.active { background: var(--van-primary-color-light); }
 .chat-sidebar .van-cell { border-radius: 8px; margin: 2px 0; }
-.chat-main > header .van-field { width: 130px; padding: 0; }
+.chat-title { display: grid; min-width: 0; }
+.chat-title strong { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.model-button { flex: 0 0 auto; }
+.model-button .van-button__text { display: inline-flex; align-items: center; gap: 6px; }
+.chat-sidebar .van-cell__title { flex: 1 1 auto; min-width: 0; }
+.chat-sidebar .van-cell__title span { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.chat-sidebar .van-cell__value { flex: 0 0 auto; display: inline-flex; align-items: center; margin-right: 6px; }
 .suggestion-row { margin-bottom: 10px; overflow-x: auto; flex-wrap: nowrap; }
 .suggestion-row .van-tag { cursor: pointer; white-space: nowrap; }
 .suggestion-grid { display: grid; gap: 8px; max-width: 320px; }

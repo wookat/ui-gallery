@@ -26,7 +26,7 @@ const doAction = (label: string) => { profileOpen.value = false; showNotify({ ty
         <span class="brand-mark"><AppIcon name="zap" :size="18" /></span>
         <span v-if="!collapsed">Acme Console</span>
       </RouterLink>
-      <van-button class="desktop-only" plain block size="small" @click="collapsed = !collapsed">
+      <van-button class="desktop-only collapse-button" plain block size="small" @click="collapsed = !collapsed">
         <AppIcon :name="collapsed ? 'chevron-right' : 'chevron-left'" />
         <span v-if="!collapsed">收起导航</span>
       </van-button>
@@ -51,7 +51,7 @@ const doAction = (label: string) => { profileOpen.value = false; showNotify({ ty
           <AppIcon class="desktop-only" name="chevron-right" :size="14" />
           <span class="breadcrumb-current">{{ currentLabel }}</span>
         </div>
-        <van-search v-model="search" class="desktop-search" shape="round" placeholder="搜索..." />
+        <van-search v-model="search" class="desktop-search" shape="round" background="transparent" placeholder="搜索..." />
         <div class="top-actions">
           <van-popover v-model:show="notificationsOpen" placement="bottom-end">
             <div class="popover-list">
@@ -84,13 +84,16 @@ const doAction = (label: string) => { profileOpen.value = false; showNotify({ ty
 </template>
 
 <style scoped>
-.desktop-search { max-width: 280px; flex: 1; }
+.desktop-search { max-width: 280px; flex: 1; padding: 0; }
+.collapse-button { margin-top: 8px; }
 .top-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; flex: 0 0 auto; }
 .top-actions :deep(.van-button__text) { display: inline-flex; align-items: center; gap: 4px; }
 .theme-label { font-size: 13px; }
 .breadcrumb { min-width: 0; flex-wrap: nowrap; }
+.breadcrumb a.desktop-only { display: inline-flex; align-items: center; min-height: 40px; }
+@media (max-width: 767px) { .breadcrumb a.desktop-only { display: none; } }
 .breadcrumb-current { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--van-text-color); }
-.avatar-button { width: 34px; height: 34px; background: var(--van-primary-color); color: #fff; border: 0; }
+.avatar-button { width: 40px; height: 40px; background: var(--van-primary-color); color: #fff; border: 0; }
 .popover-list { width: 280px; padding: 8px; }
 .popover-item { display: grid; gap: 3px; padding: 9px; border-bottom: 1px solid var(--van-border-color); }
 .popover-item:last-child { border-bottom: 0; }

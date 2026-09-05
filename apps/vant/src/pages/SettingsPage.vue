@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { showConfirmDialog, showToast } from "vant"
 import invoices from "@ui-gallery/spec/mock/invoices.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
@@ -18,6 +18,10 @@ const timezones = ["Asia/Shanghai", "Asia/Tokyo", "America/Los_Angeles", "Europe
 const roles = ["管理员", "成员", "访客"].map((text) => ({ text, value: text }))
 const filteredTimezones = () => timezones.filter((item) => item.toLowerCase().includes(timezoneQuery.value.toLowerCase()))
 const sections = [{ text: "个人资料", value: "profile" }, { text: "账号安全", value: "security" }, { text: "通知", value: "notifications" }, { text: "团队", value: "team" }, { text: "计费", value: "billing" }]
+const activeIndex = computed({
+  get: () => Math.max(0, sections.findIndex((section) => section.value === active.value)),
+  set: (index: number) => { active.value = sections[index]?.value ?? "profile" },
+})
 const removeAccount = async () => { if (deleteText.value !== "DELETE") return; await showConfirmDialog({ title: "删除账号", message: "此操作无法撤销" }); showToast("账号删除请求已提交"); showDelete.value = false }
 const allowDelete = () => deleteText.value === "DELETE"
 </script>
@@ -29,9 +33,9 @@ const allowDelete = () => deleteText.value === "DELETE"
       <van-tab v-for="section in sections" :key="section.value" :title="section.text" :name="section.value" />
     </van-tabs>
     <div class="settings-layout">
-      <van-sidebar v-model="active" class="settings-sidebar"><van-sidebar-item v-for="section in sections" :key="section.value" :title="section.text" :name="section.value" /></van-sidebar>
+      <van-sidebar v-model="activeIndex" class="settings-sidebar"><van-sidebar-item v-for="section in sections" :key="section.value" :title="section.text" /></van-sidebar>
       <section class="settings-content">
-        <div v-if="active === 'profile'" class="card stack"><h2>个人资料</h2><van-uploader preview-size="64" /><van-field label="姓名" model-value="林晓" /><van-field label="简介" type="textarea" /><van-field label="语言" model-value="中文" is-link readonly /><van-field label="时区" model-value="Asia/Shanghai" is-link readonly @click="timezonePopup = true" /><van-button type="primary">保存更改</van-button></div>
+        <div v-if="active === 'profile'" class="grid grid-2 profile-grid"><div class="card stack"><h2>个人资料</h2><van-uploader preview-size="64" /><van-field label="姓名" model-value="林晓" /><van-field label="简介" type="textarea" /><van-field label="语言" model-value="中文" is-link readonly /><van-field label="时区" model-value="Asia/Shanghai" is-link readonly @click="timezonePopup = true" /><van-button type="primary">保存更改</van-button></div><div class="stack"><div class="card"><h2>登录会话</h2><van-cell v-for="session in sessions" :key="session.device" :title="session.device" :label="`${session.location} · ${session.time}`"><template #value><van-tag v-if="session.current" type="success">当前</van-tag></template></van-cell></div><div class="card"><h2>团队</h2><van-cell v-for="member in team" :key="member.email" :title="member.name" :label="member.email" :value="member.role"><template #icon><span class="avatar-placeholder">{{ member.name.slice(0, 1) }}</span></template></van-cell></div></div></div>
         <div v-else-if="active === 'security'" class="stack"><div class="card stack"><h2>账号安全</h2><van-field label="当前密码" type="password" /><van-field label="新密码" type="password" /><van-button type="primary">修改密码</van-button><div class="qr-placeholder">二维码占位</div><van-cell title="两步验证" label="登录时要求额外验证码"><template #value><van-switch /></template></van-cell></div><div class="card"><h2>登录会话</h2><van-cell v-for="session in sessions" :key="session.device" :title="session.device" :label="`${session.location} · ${session.time}`"><template #value><van-tag :type="session.current ? 'success' : 'default'">{{ session.current ? "当前会话" : "注销" }}</van-tag></template></van-cell></div></div>
         <div v-else-if="active === 'notifications'" class="card"><h2>通知偏好</h2><van-tabs type="card"><van-tab title="邮件"><van-cell v-for="item in ['项目更新', '账单提醒', '每周摘要']" :key="item" :title="item"><template #right-icon><van-switch /></template></van-cell></van-tab><van-tab title="推送"><van-cell v-for="item in ['团队活动', '评论回复', '安全提醒']" :key="item" :title="item"><template #right-icon><van-switch /></template></van-cell></van-tab><van-tab title="站内"><van-cell v-for="item in ['产品新闻', '功能提示', '系统公告']" :key="item" :title="item"><template #right-icon><van-switch /></template></van-cell></van-tab></van-tabs></div>
         <div v-else-if="active === 'team'" class="card"><h2>团队成员</h2><div class="table-wrap"><div class="data-table"><div class="data-row head"><span>成员</span><span>邮箱</span><span>角色</span><span>活跃</span><span /></div><div v-for="member in team" :key="member.email" class="data-row"><span class="inline"><span class="avatar-placeholder">{{ member.name.slice(0, 1) }}</span>{{ member.name }}</span><span>{{ member.email }}</span><van-tag>{{ member.role }}</van-tag><span>{{ member.lastActive }}</span><van-button plain size="small">移除</van-button></div></div></div><van-field label="角色" :model-value="role" readonly is-link @click="rolePopup = true" /><van-field label="邀请" placeholder="邮箱"><template #button><van-button type="primary" size="small">邀请</van-button></template></van-field></div>
@@ -47,6 +51,12 @@ const allowDelete = () => deleteText.value === "DELETE"
 <style scoped>
 .settings-layout { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 16px; margin-top: 16px; }
 .settings-content { min-width: 0; }
+.settings-sidebar { --van-sidebar-width: 160px; align-self: start; border-radius: 8px; overflow: hidden; border: 1px solid var(--van-border-color); }
+.settings-sidebar :deep(.van-sidebar-item) { background: var(--van-background); }
+.settings-sidebar :deep(.van-sidebar-item--select) { background: var(--van-background-2); color: var(--van-primary-color); }
+.settings-sidebar :deep(.van-sidebar-item--select::before) { background: var(--van-primary-color); }
+.profile-grid { align-items: start; }
+.profile-grid .avatar-placeholder { margin-right: 10px; }
 
 .qr-placeholder { display: grid; place-items: center; width: 140px; height: 140px; border: 1px dashed var(--van-border-color); margin: 10px auto; color: var(--van-text-color-2); }
 .plan-price { display: block; font-size: 24px; margin: 12px 0; }

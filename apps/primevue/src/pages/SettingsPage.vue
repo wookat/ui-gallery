@@ -52,7 +52,7 @@ function confirmDelete() { deleteDialog.value = false; toast.add({ severity: "su
 <template>
   <div class="page">
     <PageHeader title="设置" description="管理个人资料、团队与订阅" />
-    <Tabs value="0" class="settings-tabs">
+    <Tabs value="0" scrollable class="settings-tabs">
       <TabList><Tab value="0">个人资料</Tab><Tab value="1">账号安全</Tab><Tab value="2">通知</Tab><Tab value="3">团队</Tab><Tab value="4">计费</Tab></TabList>
       <TabPanels>
         <TabPanel value="0">

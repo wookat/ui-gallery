@@ -80,9 +80,9 @@ function retry() { demoState.value = "normal"; loading.value = false }
         <IconField class="grow"><InputIcon class="pi pi-search" /><InputText v-model="search" placeholder="搜索订单、客户或商品" fluid /></IconField>
         <Select v-model="status" :options="statuses" placeholder="全部状态" show-clear class="filter-control" />
         <DatePicker v-model="dateRange" selection-mode="range" date-format="yy-mm-dd" placeholder="日期范围" show-icon class="filter-control" />
-        <MultiSelect v-model="channels" :options="channelOptions" option-label="label" option-value="value" placeholder="渠道" display="chip" class="filter-control" />
+        <MultiSelect v-model="channels" :options="channelOptions" option-label="label" option-value="value" placeholder="渠道" display="chip" :max-selected-labels="1" selected-items-label="已选 {0} 项" class="filter-control" />
         <Button label="导出" icon="pi pi-download" severity="secondary" outlined @click="exportOrders" />
-        <MultiSelect v-model="visibleColumns" :options="columns" option-label="header" option-value="field" placeholder="列显示" display="chip" class="filter-control" />
+        <MultiSelect v-model="visibleColumns" :options="columns" option-label="header" option-value="field" placeholder="列显示" display="chip" :max-selected-labels="1" selected-items-label="已选 {0} 项" class="filter-control" />
       </div>
     </SectionCard>
     <SectionCard title="订单列表" flush>
@@ -103,7 +103,7 @@ function retry() { demoState.value = "normal"; loading.value = false }
       </div>
     </SectionCard>
 
-    <Drawer v-model:visible="drawerVisible" position="right" header="订单详情" class="order-drawer" :modal="true">
+    <Drawer v-model:visible="drawerVisible" position="right" header="订单详情" class="order-drawer" :style="{ width: 'min(100vw, 480px)' }" :modal="true">
       <template v-if="selectedOrder">
         <dl class="details-list"><div><dt>订单号</dt><dd class="mono">{{ selectedOrder.id }}</dd></div><div><dt>客户</dt><dd>{{ selectedOrder.customer }}</dd></div><div><dt>邮箱</dt><dd>{{ selectedOrder.email }}</dd></div><div><dt>商品</dt><dd>{{ selectedOrder.product }}</dd></div><div><dt>金额</dt><dd class="tabular">¥{{ selectedOrder.amount.toLocaleString() }}</dd></div><div><dt>状态</dt><dd><StatusTag :status="selectedOrder.status" /></dd></div></dl>
         <Tabs value="0" class="mt-6"><TabList><Tab value="0">详情</Tab><Tab value="1">物流</Tab><Tab value="2">备注</Tab></TabList><TabPanels><TabPanel value="0"><p class="muted text-sm">订单来自 {{ selectedOrder.channel }} 渠道，创建于 {{ selectedOrder.date }}。</p></TabPanel><TabPanel value="1"><div class="empty-state p-3"><i class="pi pi-truck" /><span class="text-sm muted">物流信息将在发货后更新</span></div></TabPanel><TabPanel value="2"><Textarea v-model="note" rows="5" fluid placeholder="添加订单备注" /></TabPanel></TabPanels></Tabs>
@@ -115,9 +115,9 @@ function retry() { demoState.value = "normal"; loading.value = false }
 
 <style scoped>
 .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-.filter-control { min-width: 150px; max-width: 220px; }
+.filter-control { min-width: 150px; max-width: 240px; }
 .details-list { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 0; }
 .details-list > div { display: grid; grid-template-columns: 72px 1fr; gap: 10px; }
 dt { color: var(--p-text-muted-color); } dd { margin: 0; overflow-wrap: anywhere; }
-@media (max-width: 767px) { .filter-control { max-width: none; width: 100%; } .toolbar > .grow { flex-basis: 100%; } .order-drawer { width: min(100vw, 420px) !important; } }
+@media (max-width: 767px) { .filter-control { max-width: none; width: 100%; } .toolbar > .grow { flex-basis: 100%; } }
 </style>

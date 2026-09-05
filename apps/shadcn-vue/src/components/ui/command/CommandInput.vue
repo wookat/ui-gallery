@@ -13,11 +13,14 @@ defineOptions({
   inheritAttrs: false,
 })
 
-const props = defineProps<ListboxFilterProps & {
+const props = withDefaults(defineProps<ListboxFilterProps & {
   class?: HTMLAttributes['class']
-}>()
+  autoFocus?: boolean
+}>(), {
+  autoFocus: true,
+})
 
-const delegatedProps = reactiveOmit(props, 'class')
+const delegatedProps = reactiveOmit(props, 'class', 'autoFocus')
 
 const forwardedProps = useForwardProps(delegatedProps)
 
@@ -34,7 +37,7 @@ const { filterState } = useCommand()
         v-bind="{ ...forwardedProps, ...$attrs }"
         v-model="filterState.search"
         data-slot="command-input"
-        auto-focus
+        :auto-focus="props.autoFocus"
         :class="cn('w-full text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50', props.class)"
       />
       <InputGroupAddon>

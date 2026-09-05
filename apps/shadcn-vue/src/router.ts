@@ -11,6 +11,7 @@ import SettingsPage from '@/pages/SettingsPage.vue'
 
 const router = createRouter({
   history: createWebHistory('/apps/shadcn-vue/'),
+  scrollBehavior: (to, _from, saved) => saved ?? (to.hash ? { el: to.hash } : { top: 0 }),
   routes: [
     { path: '/login', component: LoginPage },
     { path: '/landing', component: LandingPage },

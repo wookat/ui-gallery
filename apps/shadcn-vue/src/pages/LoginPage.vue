@@ -35,7 +35,7 @@ function submit() {
       </CardHeader>
       <CardContent class="space-y-6">
         <Alert v-if="error" variant="destructive"><Icon name="alert-circle" /><AlertTitle>邮箱或密码不正确</AlertTitle><AlertDescription>请检查登录信息后重试。</AlertDescription></Alert>
-        <form class="space-y-5" @submit.prevent="submit">
+        <form class="space-y-5" novalidate @submit.prevent="submit">
           <FieldSet>
             <Field><FieldLabel for="email">邮箱</FieldLabel><FieldContent><Input id="email" v-model="email" class="h-10" type="email" placeholder="you@example.com" required :aria-invalid="!!emailError" /><p v-if="emailError" class="text-sm text-destructive">{{ emailError }}</p><FieldDescription>使用工作邮箱登录。</FieldDescription></FieldContent></Field>
             <Field><FieldLabel for="password">密码</FieldLabel><FieldContent><InputGroup><InputGroupAddon><Icon name="lock" :size="16" /></InputGroupAddon><InputGroupInput id="password" v-model="password" class="h-10" :type="visible ? 'text' : 'password'" placeholder="••••••••" required :aria-invalid="!!passwordError" /><InputGroupButton type="button" size="icon-sm" class="min-h-10 min-w-10" variant="ghost" @click="visible = !visible"><Icon :name="visible ? 'eye-off' : 'eye'" /></InputGroupButton></InputGroup><p v-if="passwordError" class="text-sm text-destructive">{{ passwordError }}</p></FieldContent></Field>

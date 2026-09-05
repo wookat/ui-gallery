@@ -111,7 +111,7 @@ const descriptions: Record<string, string> = {
       <CollapsibleTrigger as-child><button class="mt-2 min-h-10 text-sm underline">{{ indexExpanded ? '收起' : '展开全部' }}</button></CollapsibleTrigger>
     </Collapsible>
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      <Card v-for="(name, index) in names" :id="`component-${name}`" :key="name" class="scroll-mt-20">
+      <Card v-for="(name, index) in names" :id="`component-${name}`" :key="name" class="scroll-mt-20 min-w-0">
         <CardHeader>
           <div class="flex items-center justify-between gap-2">
             <CardTitle class="text-base">{{ name }}</CardTitle>

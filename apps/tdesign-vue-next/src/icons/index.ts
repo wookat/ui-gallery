@@ -1,0 +1,108 @@
+// Icon adapter for Vue: native TDesign icons by default, switchable via ?icons= (or ?icon=) to lucide/tabler/phosphor/heroicons.
+import type { Component } from "vue"
+import * as T from "tdesign-icons-vue-next"
+import * as L from "lucide-vue-next"
+import * as Tb from "@tabler/icons-vue"
+import * as Ph from "@phosphor-icons/vue"
+import * as H from "@heroicons/vue/24/outline"
+
+export type IconSet = "native" | "lucide" | "tabler" | "phosphor" | "heroicons"
+export const iconSets: IconSet[] = ["native", "lucide", "tabler", "phosphor", "heroicons"]
+
+const table: Record<string, [Component, Component, Component, Component, Component]> = {
+  "layout-dashboard": [T.DashboardIcon, L.LayoutDashboard, Tb.IconLayoutDashboard, Ph.PhSquaresFour, H.Squares2X2Icon],
+  "shopping-cart": [T.CartIcon, L.ShoppingCart, Tb.IconShoppingCart, Ph.PhShoppingCart, H.ShoppingCartIcon],
+  "file-plus": [T.FileAddIcon, L.FilePlus, Tb.IconFilePlus, Ph.PhFilePlus, H.DocumentPlusIcon],
+  "message-square": [T.ChatIcon, L.MessageSquare, Tb.IconMessage, Ph.PhChatText, H.ChatBubbleLeftRightIcon],
+  "message-circle": [T.ChatBubbleSmileIcon, L.MessageCircle, Tb.IconMessageCircle, Ph.PhChatCircle, H.ChatBubbleOvalLeftIcon],
+  boxes: [T.LayersIcon, L.Boxes, Tb.IconBox, Ph.PhCube, H.CubeIcon],
+  globe: [T.InternetIcon, L.Globe, Tb.IconWorld, Ph.PhGlobe, H.GlobeAltIcon],
+  settings: [T.SettingIcon, L.Settings, Tb.IconSettings, Ph.PhGear, H.Cog6ToothIcon],
+  "log-in": [T.LoginIcon, L.LogIn, Tb.IconLogin, Ph.PhSignIn, H.ArrowRightEndOnRectangleIcon],
+  "log-out": [T.LogoutIcon, L.LogOut, Tb.IconLogout, Ph.PhSignOut, H.ArrowLeftStartOnRectangleIcon],
+  zap: [T.FlashlightIcon, L.Zap, Tb.IconBolt, Ph.PhLightning, H.BoltIcon],
+  shield: [T.SecuredIcon, L.Shield, Tb.IconShield, Ph.PhShield, H.ShieldCheckIcon],
+  "bar-chart": [T.ChartBarIcon, L.BarChart3, Tb.IconChartBar, Ph.PhChartBar, H.ChartBarIcon],
+  bot: [T.ChatBubbleSmileIcon, L.Bot, Tb.IconRobot, Ph.PhRobot, H.CpuChipIcon],
+  plug: [T.LinkIcon, L.Plug, Tb.IconPlug, Ph.PhPlugs, H.PuzzlePieceIcon],
+  link: [T.LinkIcon, L.Link2, Tb.IconLink, Ph.PhLink, H.LinkIcon],
+  search: [T.SearchIcon, L.Search, Tb.IconSearch, Ph.PhMagnifyingGlass, H.MagnifyingGlassIcon],
+  bell: [T.NotificationIcon, L.Bell, Tb.IconBell, Ph.PhBell, H.BellIcon],
+  sun: [T.SunnyIcon, L.Sun, Tb.IconSun, Ph.PhSun, H.SunIcon],
+  moon: [T.MoonIcon, L.Moon, Tb.IconMoon, Ph.PhMoon, H.MoonIcon],
+  menu: [T.ViewListIcon, L.Menu, Tb.IconMenu2, Ph.PhList, H.Bars3Icon],
+  "panel-left": [T.MenuFoldIcon, L.PanelLeft, Tb.IconLayoutSidebar, Ph.PhSidebar, H.Bars3BottomLeftIcon],
+  user: [T.UserIcon, L.User, Tb.IconUser, Ph.PhUser, H.UserIcon],
+  users: [T.UsergroupIcon, L.Users, Tb.IconUsers, Ph.PhUsers, H.UserGroupIcon],
+  mail: [T.MailIcon, L.Mail, Tb.IconMail, Ph.PhEnvelope, H.EnvelopeIcon],
+  lock: [T.LockOnIcon, L.Lock, Tb.IconLock, Ph.PhLock, H.LockClosedIcon],
+  eye: [T.BrowseIcon, L.Eye, Tb.IconEye, Ph.PhEye, H.EyeIcon],
+  "eye-off": [T.BrowseOffIcon, L.EyeOff, Tb.IconEyeOff, Ph.PhEyeSlash, H.EyeSlashIcon],
+  "chevron-down": [T.ChevronDownIcon, L.ChevronDown, Tb.IconChevronDown, Ph.PhCaretDown, H.ChevronDownIcon],
+  "chevron-left": [T.ChevronLeftIcon, L.ChevronLeft, Tb.IconChevronLeft, Ph.PhCaretLeft, H.ChevronLeftIcon],
+  "chevron-right": [T.ChevronRightIcon, L.ChevronRight, Tb.IconChevronRight, Ph.PhCaretRight, H.ChevronRightIcon],
+  "chevron-up": [T.ChevronUpIcon, L.ChevronUp, Tb.IconChevronUp, Ph.PhCaretUp, H.ChevronUpIcon],
+  plus: [T.AddIcon, L.Plus, Tb.IconPlus, Ph.PhPlus, H.PlusIcon],
+  minus: [T.MinusIcon, L.Minus, Tb.IconMinus, Ph.PhMinus, H.MinusIcon],
+  download: [T.DownloadIcon, L.Download, Tb.IconDownload, Ph.PhDownloadSimple, H.ArrowDownTrayIcon],
+  upload: [T.UploadIcon, L.Upload, Tb.IconUpload, Ph.PhUploadSimple, H.ArrowUpTrayIcon],
+  "more-horizontal": [T.EllipsisIcon, L.Ellipsis, Tb.IconDots, Ph.PhDotsThree, H.EllipsisHorizontalIcon],
+  trash: [T.DeleteIcon, L.Trash2, Tb.IconTrash, Ph.PhTrash, H.TrashIcon],
+  pencil: [T.EditIcon, L.Pencil, Tb.IconPencil, Ph.PhPencil, H.PencilIcon],
+  check: [T.CheckIcon, L.Check, Tb.IconCheck, Ph.PhCheck, H.CheckIcon],
+  "check-circle": [T.CheckCircleIcon, L.CircleCheck, Tb.IconCircleCheck, Ph.PhCheckCircle, H.CheckCircleIcon],
+  x: [T.CloseIcon, L.X, Tb.IconX, Ph.PhX, H.XMarkIcon],
+  paperclip: [T.AttachIcon, L.Paperclip, Tb.IconPaperclip, Ph.PhPaperclip, H.PaperClipIcon],
+  send: [T.SendIcon, L.Send, Tb.IconSend, Ph.PhPaperPlaneTilt, H.PaperAirplaneIcon],
+  copy: [T.CopyIcon, L.Copy, Tb.IconCopy, Ph.PhCopy, H.DocumentDuplicateIcon],
+  refresh: [T.RefreshIcon, L.RefreshCw, Tb.IconRefresh, Ph.PhArrowsClockwise, H.ArrowPathIcon],
+  info: [T.InfoCircleIcon, L.Info, Tb.IconInfoCircle, Ph.PhInfo, H.InformationCircleIcon],
+  "alert-circle": [T.ErrorCircleIcon, L.CircleAlert, Tb.IconAlertCircle, Ph.PhWarningCircle, H.ExclamationCircleIcon],
+  "circle-help": [T.HelpCircleIcon, L.CircleHelp, Tb.IconHelpCircle, Ph.PhQuestion, H.QuestionMarkCircleIcon],
+  star: [T.StarIcon, L.Star, Tb.IconStar, Ph.PhStar, H.StarIcon],
+  heart: [T.HeartIcon, L.Heart, Tb.IconHeart, Ph.PhHeart, H.HeartIcon],
+  filter: [T.FilterIcon, L.Filter, Tb.IconFilter, Ph.PhFunnel, H.FunnelIcon],
+  calendar: [T.CalendarIcon, L.CalendarDays, Tb.IconCalendar, Ph.PhCalendar, H.CalendarDaysIcon],
+  clock: [T.TimeIcon, L.Clock3, Tb.IconClock, Ph.PhClock, H.ClockIcon],
+  inbox: [T.FolderOpenIcon, L.Inbox, Tb.IconInbox, Ph.PhTray, H.InboxIcon],
+  image: [T.ImageIcon, L.Image, Tb.IconPhoto, Ph.PhImage, H.PhotoIcon],
+  sparkles: [T.StarFilledIcon, L.Sparkles, Tb.IconSparkles, Ph.PhSparkle, H.SparklesIcon],
+  home: [T.HomeIcon, L.Home, Tb.IconHome, Ph.PhHouse, H.HomeIcon],
+  github: [T.LogoGithubIcon, L.Github, Tb.IconBrandGithub, Ph.PhGithubLogo, H.CodeBracketIcon],
+  google: [T.InternetIcon, L.Globe, Tb.IconBrandGoogle, Ph.PhGoogleLogo, H.GlobeAltIcon],
+  wechat: [T.LogoWechatStrokeIcon, L.MessageCircle, Tb.IconBrandWechat, Ph.PhWechatLogo, H.ChatBubbleOvalLeftIcon],
+  "arrow-up": [T.ArrowUpIcon, L.ArrowUp, Tb.IconArrowUp, Ph.PhArrowUp, H.ArrowUpIcon],
+  "arrow-down": [T.ArrowDownIcon, L.ArrowDown, Tb.IconArrowDown, Ph.PhArrowDown, H.ArrowDownIcon],
+  "arrow-right": [T.ArrowRightIcon, L.ArrowRight, Tb.IconArrowRight, Ph.PhArrowRight, H.ArrowRightIcon],
+  loader: [T.LoadingIcon, L.LoaderCircle, Tb.IconLoader2, Ph.PhCircleNotch, H.ArrowPathIcon],
+  languages: [T.TranslateIcon, L.Languages, Tb.IconLanguage, Ph.PhTranslate, H.LanguageIcon],
+  code: [T.CodeIcon, L.Code, Tb.IconCode, Ph.PhCode, H.CommandLineIcon],
+  keyboard: [T.KeyboardIcon, L.Keyboard, Tb.IconKeyboard, Ph.PhKeyboard, H.CommandLineIcon],
+  tool: [T.ToolsIcon, L.Wrench, Tb.IconTool, Ph.PhWrench, H.WrenchIcon],
+  location: [T.LocationIcon, L.Globe, Tb.IconWorld, Ph.PhGlobe, H.GlobeAltIcon],
+  list: [T.RootListIcon, L.Menu, Tb.IconMenu2, Ph.PhList, H.Bars3Icon],
+  "credit-card": [T.CreditcardIcon, L.CreditCard, Tb.IconCreditCard, Ph.PhCreditCard, H.CreditCardIcon],
+  smartphone: [T.MobileIcon, L.Smartphone, Tb.IconDeviceMobile, Ph.PhDeviceMobile, H.DevicePhoneMobileIcon],
+  monitor: [T.DesktopIcon, L.Monitor, Tb.IconDeviceDesktop, Ph.PhDesktop, H.ComputerDesktopIcon],
+  "arrow-left": [T.ArrowLeftIcon, L.ArrowLeft, Tb.IconArrowLeft, Ph.PhArrowLeft, H.ArrowLeftIcon],
+  "thumbs-up": [T.ThumbUpIcon, L.ThumbsUp, Tb.IconThumbUp, Ph.PhThumbsUp, H.HandThumbUpIcon],
+  "thumbs-down": [T.ThumbDownIcon, L.ThumbsDown, Tb.IconThumbDown, Ph.PhThumbsDown, H.HandThumbDownIcon],
+  twitter: [T.LogoTwitterIcon, L.Twitter, Tb.IconBrandTwitter, Ph.PhTwitterLogo, H.AtSymbolIcon],
+  rocket: [T.RocketIcon, L.Rocket, Tb.IconRocket, Ph.PhRocket, H.RocketLaunchIcon],
+  quote: [T.QuoteIcon, L.Quote, Tb.IconQuote, Ph.PhQuotes, H.ChatBubbleBottomCenterTextIcon],
+  "trending-up": [T.TrendingUpIcon, L.TrendingUp, Tb.IconTrendingUp, Ph.PhTrendUp, H.ArrowTrendingUpIcon],
+  "trending-down": [T.TrendingDownIcon, L.TrendingDown, Tb.IconTrendingDown, Ph.PhTrendDown, H.ArrowTrendingDownIcon],
+  layout: [T.LayoutIcon, L.LayoutTemplate, Tb.IconLayout, Ph.PhLayout, H.RectangleGroupIcon],
+  cloud: [T.CloudIcon, L.Cloud, Tb.IconCloud, Ph.PhCloud, H.CloudIcon],
+  server: [T.ServerIcon, L.Server, Tb.IconServer, Ph.PhHardDrives, H.ServerStackIcon],
+  lightbulb: [T.LightbulbIcon, L.Lightbulb, Tb.IconBulb, Ph.PhLightbulb, H.LightBulbIcon],
+  bold: [T.FormatVerticalAlignCenterIcon, L.Bold, Tb.IconBold, Ph.PhTextB, H.BoldIcon],
+  wallet: [T.WalletIcon, L.Wallet, Tb.IconWallet, Ph.PhWallet, H.WalletIcon],
+}
+
+export const iconNames = Object.keys(table)
+
+export function resolveIcon(name: string, set: IconSet): Component {
+  const row = table[name] ?? table.info!
+  return row[iconSets.indexOf(set)]!
+}

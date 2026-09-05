@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import sessions from '@ui-gallery/spec/mock/sessions.json';
@@ -40,16 +40,21 @@ import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
     </section>
     <nz-modal [(nzVisible)]="deleteVisible" nzTitle="删除账号" [nzOkDisabled]="deletePhrase !== '删除'" (nzOnCancel)="deleteVisible=false" (nzOnOk)="deleteAccount()"><ng-container *nzModalContent><p>请输入「删除」以确认此操作。</p><input nz-input [(ngModel)]="deletePhrase" placeholder="删除" /></ng-container></nz-modal>
   `,
-  styles: `.settings-page{display:grid;gap:16px}.settings-tabs{min-height:560px}.security-row{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0;padding:12px 0}.session,.member{display:flex;align-items:center;justify-content:space-between;gap:12px}.member{justify-content:flex-start}.member small{display:block;color:#8c8c8c}.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0}.price{font-size:20px;font-weight:600;margin:12px 0}.notify-segment{margin-top:16px}.danger-zone{border:1px solid var(--ant-error-color,#ff4d4f)}@media(max-width:767px){.plans{grid-template-columns:1fr}.settings-tabs{min-height:0}}`,
+  styles: `.settings-page{display:grid;gap:16px}.settings-tabs{min-height:560px}.security-row{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0;padding:12px 0}.session,.member{display:flex;align-items:center;justify-content:space-between;gap:12px}.member{justify-content:flex-start}.member small{display:block;color:rgba(0,0,0,.45)}.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0}.price{font-size:20px;font-weight:600;margin:12px 0}.notify-segment{margin-top:16px}.danger-zone{border:1px solid #ff4d4f}:host-context(.dark) .security-row{border-color:#303030}:host-context(.dark) .member small{color:rgba(255,255,255,.45)}@media(max-width:767px){.plans{grid-template-columns:1fr}.settings-tabs{min-height:0}}`,
 })
-export class SettingsPage {
+export class SettingsPage implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   readonly sessions = sessions; readonly team = team; readonly plans = plans; readonly invoices = invoices; isMobile = window.matchMedia('(max-width: 767px)').matches;
   twoFactor = false; deleteVisible = false; deletePhrase = ''; fileList: NzUploadFile[] = [];
   profile = this.fb.group({ name: ['林晓', Validators.required], description: [''], language: ['zh'], timezone: ['Asia/Shanghai'] });
   password = this.fb.group({ current: ['', Validators.required], next: ['', [Validators.required, Validators.minLength(8)]], confirm: ['', Validators.required] });
   notificationGroups = [{ title: '工作动态', items: [{ label: '订单更新', enabled: true }, { label: '团队活动', enabled: true }] }, { title: '系统', items: [{ label: '产品公告', enabled: false }, { label: '安全提醒', enabled: true }] }];
-  constructor(private readonly message: NzMessageService) {}
+  private readonly mediaQuery = window.matchMedia('(max-width: 767px)');
+  private readonly mediaChange = (event: MediaQueryListEvent): void => { this.isMobile = event.matches; };
+  constructor(private readonly message: NzMessageService) {
+    this.mediaQuery.addEventListener('change', this.mediaChange);
+  }
+  ngOnDestroy(): void { this.mediaQuery.removeEventListener('change', this.mediaChange); }
   beforeUpload = (): boolean => false;
   deleteAccount(): void { this.deleteVisible = false; this.deletePhrase = ''; this.message.success('账号已删除'); }
 }

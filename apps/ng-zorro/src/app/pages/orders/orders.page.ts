@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import orders from '@ui-gallery/spec/mock/orders.json';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -94,7 +94,7 @@ type PageState = 'normal' | 'loading' | 'empty' | 'error';
       }
     </section>
     <nz-dropdown-menu #rowMenu="nzDropdownMenu"><ul nz-menu><li nz-menu-item>编辑</li><li nz-menu-item (click)="deleteSelected()">删除</li></ul></nz-dropdown-menu>
-    <nz-drawer [nzVisible]="drawerOpen" nzPlacement="right" [nzWidth]="480" (nzOnClose)="drawerOpen = false" nzTitle="订单详情">
+    <nz-drawer [nzVisible]="drawerOpen" nzPlacement="right" [nzWidth]="drawerWidth()" (nzOnClose)="drawerOpen = false" nzTitle="订单详情">
       @if (selected) { <ng-container *nzDrawerContent>
         <nz-descriptions nzBordered [nzColumn]="1">
           <nz-descriptions-item nzTitle="订单号">{{ selected.id }}</nz-descriptions-item><nz-descriptions-item nzTitle="客户">{{ selected.customer }} · {{ selected.email }}</nz-descriptions-item>
@@ -113,15 +113,21 @@ type PageState = 'normal' | 'loading' | 'empty' | 'error';
     nz-checkbox { display: inline-block; margin-bottom: 8px; } @media (max-width: 767px) { .page-heading { flex-direction: column; }.search { width: 100%; }.table-footer { align-items: flex-start; flex-direction: column; } }
   `,
 })
-export class OrdersPage {
+export class OrdersPage implements OnDestroy {
   readonly allRows = signal<Order[]>(orders.map((row) => ({ ...row, checked: false })));
   readonly stateOptions = [{ value: 'normal', label: '正常' }, { value: 'loading', label: '加载' }, { value: 'empty', label: '空' }, { value: 'error', label: '错误' }];
   state: PageState = 'normal'; query = ''; status: string | null = null; channels: string[] = []; dateRange: unknown;
   page = 1; pageSize = 10; drawerOpen = false; selected?: Order; allChecked = false; indeterminate = false;
+  readonly drawerWidth = signal<number | string>(window.matchMedia('(max-width: 767px)').matches ? '100%' : 480);
   columns = [{ key: 'id', label: '订单', visible: true }, { key: 'customer', label: '客户', visible: true }, { key: 'product', label: '产品', visible: true }, { key: 'status', label: '状态', visible: true }, { key: 'amount', label: '金额', visible: true }, { key: 'date', label: '日期', visible: true }, { key: 'channel', label: '渠道', visible: true }];
   readonly filteredRows = computed(() => this.allRows().filter((row) => { const text = `${row.id} ${row.customer} ${row.email} ${row.product}`.toLowerCase(); return (!this.query || text.includes(this.query.toLowerCase())) && (!this.status || row.status === this.status) && (!this.channels.length || this.channels.includes(row.channel)); }));
   readonly pagedRows = computed(() => this.filteredRows().slice((this.page - 1) * this.pageSize, this.page * this.pageSize));
-  constructor(private readonly modal: NzModalService, private readonly message: NzMessageService) {}
+  private readonly drawerMedia = window.matchMedia('(max-width: 767px)');
+  private readonly drawerMediaChange = (event: MediaQueryListEvent): void => this.drawerWidth.set(event.matches ? '100%' : 480);
+  constructor(private readonly modal: NzModalService, private readonly message: NzMessageService) {
+    this.drawerMedia.addEventListener('change', this.drawerMediaChange);
+  }
+  ngOnDestroy(): void { this.drawerMedia.removeEventListener('change', this.drawerMediaChange); }
   columnVisible(key: string): boolean { return this.columns.find((column) => column.key === key)?.visible ?? true; }
   statusLabel(status: Order['status']): string { return ({ paid: '已支付', pending: '处理中', refunded: '已退款', failed: '失败', shipped: '已发货' })[status] ?? status; }
   statusColor(status: Order['status']): string { return ({ paid: 'success', pending: 'processing', refunded: 'warning', failed: 'error', shipped: 'blue' })[status] ?? 'default'; }

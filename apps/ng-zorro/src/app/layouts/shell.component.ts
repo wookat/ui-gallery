@@ -141,6 +141,7 @@ import { UrlSettings } from '../core/url-settings';
     .sider-content { display: flex; min-height: 100dvh; flex-direction: column; padding: 16px 12px; }
     .brand-wrap { padding: 0 8px 20px; }
     .header { display: flex; align-items: center; gap: 16px; padding: 0 24px; background: #fff; border-bottom: 1px solid #f0f0f0; }
+    :host-context(.dark) .header { background: #141414; border-bottom-color: #303030; }
     .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .global-search { width: 220px; }
     .mobile-menu { display: none; }

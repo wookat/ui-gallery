@@ -26,7 +26,7 @@
     { "slug": "vuetify", "name": "Vuetify", "framework": "vue", "repo": "vuetifyjs/vuetify", "pkg": "vuetify", "round": 1 },
     { "slug": "primevue", "name": "PrimeVue", "framework": "vue", "repo": "primefaces/primevue", "pkg": "primevue", "round": 1 },
     { "slug": "quasar", "name": "Quasar", "framework": "vue", "repo": "quasarframework/quasar", "pkg": "quasar", "round": 1 },
-    { "slug": "ant-design-vue", "name": "Ant Design Vue", "framework": "vue", "repo": "vueComponent/ant-design-vue", "pkg": "ant-design-vue", "round": 1 },
+    { "slug": "ant-design-vue", "name": "Ant Design Vue", "framework": "vue", "repo": "vueComponent/ant-design-vue", "pkg": "ant-design-vue", "round": 1, "status": "built" },
     { "slug": "shadcn-vue", "name": "shadcn-vue", "framework": "vue", "repo": "unovue/shadcn-vue", "pkg": "shadcn-vue", "round": 1 },
     { "slug": "arco-design-vue", "name": "Arco Design Vue", "framework": "vue", "repo": "arco-design/arco-design-vue", "pkg": "@arco-design/web-vue", "round": 1 },
     { "slug": "tdesign-vue-next", "name": "TDesign Vue Next", "framework": "vue", "repo": "Tencent/tdesign-vue-next", "pkg": "tdesign-vue-next", "round": 1 },

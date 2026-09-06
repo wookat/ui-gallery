@@ -79,7 +79,13 @@ export function LandingPage() {
     <Box sx={{ minHeight: "100vh" }}>
       <AppBar position="sticky" color="inherit" elevation={0}>
         <Toolbar sx={{ justifyContent: "space-between", gap: 2 }}>
-          <Link component={RouterLink} to="/" color="inherit" underline="none">
+          <Link
+            component={RouterLink}
+            to="/"
+            color="inherit"
+            underline="none"
+            sx={{ display: "flex", alignItems: "center", minHeight: 40 }}
+          >
             <Stack direction="row" spacing={1} alignItems="center">
               <Box
                 sx={{
@@ -104,9 +110,14 @@ export function LandingPage() {
             sx={{ display: { xs: "none", md: "flex" } }}
           >
             {NAV_LINKS.map(([label, href]) => (
-              <Link key={href} href={href} underline="none">
+              <Button
+                key={href}
+                href={href}
+                color="inherit"
+                sx={{ minHeight: 40 }}
+              >
                 {label}
-              </Link>
+              </Button>
             ))}
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
@@ -115,10 +126,15 @@ export function LandingPage() {
               spacing={1}
               sx={{ display: { xs: "none", md: "flex" } }}
             >
-              <Button component={RouterLink} to="/login">
+              <Button component={RouterLink} to="/login" sx={{ minHeight: 40 }}>
                 登录
               </Button>
-              <Button component={RouterLink} to="/login" variant="contained">
+              <Button
+                component={RouterLink}
+                to="/login"
+                variant="contained"
+                sx={{ minHeight: 40 }}
+              >
                 开始使用
               </Button>
             </Stack>

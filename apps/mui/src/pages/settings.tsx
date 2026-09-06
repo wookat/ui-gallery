@@ -32,6 +32,8 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material"
 import sessions from "@ui-gallery/spec/mock/sessions.json"
 import team from "@ui-gallery/spec/mock/team.json"
@@ -47,6 +49,8 @@ export function SettingsPage() {
   const [danger, setDanger] = useState(false)
   const [dangerText, setDangerText] = useState("")
   const [channel, setChannel] = useState("email")
+  const theme = useTheme()
+  const compact = useMediaQuery(theme.breakpoints.down("sm"))
   const channelLabels: Record<string, string> = {
     email: "邮件",
     push: "推送",
@@ -58,8 +62,11 @@ export function SettingsPage() {
       <Tabs
         value={tab}
         onChange={(_, value: string) => setTab(value)}
-        variant="scrollable"
+        variant={compact ? "fullWidth" : "scrollable"}
         scrollButtons="auto"
+        sx={
+          compact ? { "& .MuiTab-root": { minWidth: 0, px: 0.5 } } : undefined
+        }
       >
         <Tab value="profile" label="个人资料" />
         <Tab value="security" label="安全" />

@@ -102,7 +102,7 @@ import { coverage } from "@/coverage"
 import { PageHeader } from "./shared"
 
 const descriptions: Record<string, string> = {
-  Typography: "标题、正文与辅助文本层级。",
+  Typography: "h1–h6、副标题、正文、caption/overline、行内代码、引用与列表。",
   Button: "文字、描边、填充、颜色、尺寸、禁用与加载。",
   ButtonGroup: "相邻操作按钮组合。",
   IconButton: "图标操作按钮与禁用状态。",
@@ -388,7 +388,9 @@ function TableDemo() {
           <TableHead>
             <TableRow>
               <TableCell>订单号</TableCell>
-              <TableCell>客户</TableCell>
+              <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>
+                客户
+              </TableCell>
               <TableCell>状态</TableCell>
               <TableCell align="right">金额</TableCell>
             </TableRow>
@@ -404,7 +406,9 @@ function TableDemo() {
               orders.slice(0, 5).map((order) => (
                 <TableRow hover key={order.id}>
                   <TableCell>{order.id}</TableCell>
-                  <TableCell>{order.customer}</TableCell>
+                  <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>
+                    {order.customer}
+                  </TableCell>
                   <TableCell>
                     <Chip size="small" label={order.status} />
                   </TableCell>
@@ -432,13 +436,13 @@ function DataGridDemo() {
         }
         label="loading"
       />
-      <Box sx={{ height: 300, minWidth: 0, width: "100%", overflowX: "auto" }}>
+      <Box sx={{ height: 300, minWidth: 0, width: "100%" }}>
         <DataGrid
           rows={orders.slice(0, 12)}
           columns={[
-            { field: "id", headerName: "订单", width: 130 },
-            { field: "customer", headerName: "客户", width: 120 },
-            { field: "status", headerName: "状态", width: 110 },
+            { field: "id", headerName: "订单", flex: 1.2, minWidth: 90 },
+            { field: "customer", headerName: "客户", flex: 1, minWidth: 70 },
+            { field: "status", headerName: "状态", flex: 1, minWidth: 70 },
           ]}
           getRowId={(row) => row.id}
           checkboxSelection
@@ -830,7 +834,11 @@ function ColorPickerDemo() {
             }}
           >
             {color === theme.palette[key].main ? (
-              <Icon name="check" size={20} sx={{ color: `${key}.contrastText` }} />
+              <Icon
+                name="check"
+                size={20}
+                sx={{ color: `${key}.contrastText` }}
+              />
             ) : null}
           </IconButton>
         ))}
@@ -926,7 +934,11 @@ function NotificationDemo() {
           variant="filled"
           action={
             <Stack direction="row" gap={0.5} alignItems="center">
-              <Button color="inherit" size="small" onClick={() => setOpen(null)}>
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => setOpen(null)}
+              >
                 查看
               </Button>
               <IconButton
@@ -965,7 +977,11 @@ function ToastDemo() {
             {severity}
           </Button>
         ))}
-        <Button size="small" variant="contained" onClick={() => setOpen("action")}>
+        <Button
+          size="small"
+          variant="contained"
+          onClick={() => setOpen("action")}
+        >
           带操作
         </Button>
       </Stack>
@@ -1097,7 +1113,10 @@ function MenuDemo({ dropdown = false }: { dropdown?: boolean }) {
                     <Icon name="settings" size={18} />
                   </ListItemIcon>
                   <ListItemText primary="更多" />
-                  <Icon name={subOpen ? "chevron-down" : "chevron-right"} size={18} />
+                  <Icon
+                    name={subOpen ? "chevron-down" : "chevron-right"}
+                    size={18}
+                  />
                 </MenuItem>
                 {subOpen
                   ? nav.slice(5, 7).map((item) => (
@@ -1333,9 +1352,44 @@ function Demo({ name }: { name: string }) {
   if (name === "Typography")
     return (
       <Stack spacing={1}>
-        <Typography variant="h5">标题文字</Typography>
-        <Typography>正文、辅助说明与链接样式。</Typography>
-        <Typography color="text.secondary">辅助说明</Typography>
+        {(["h1", "h2", "h3", "h4", "h5", "h6"] as const).map((variant) => (
+          <Typography key={variant} variant={variant}>
+            标题 {variant}
+          </Typography>
+        ))}
+        <Typography variant="subtitle1">subtitle1 副标题</Typography>
+        <Typography variant="subtitle2">subtitle2 副标题</Typography>
+        <Typography>body1 正文、辅助说明与链接样式。</Typography>
+        <Typography variant="body2">body2 正文</Typography>
+        <Typography variant="caption" color="text.secondary">
+          caption 辅助说明
+        </Typography>
+        <Typography variant="overline">overline 顶线</Typography>
+        <Typography>
+          行内代码{" "}
+          <Typography
+            component="code"
+            sx={{ bgcolor: "action.hover", borderRadius: 1, px: 0.5 }}
+          >
+            createTheme()
+          </Typography>{" "}
+          与 <MuiLink href="#component-Link">链接</MuiLink>
+        </Typography>
+        <Typography
+          component="blockquote"
+          color="text.secondary"
+          sx={{ m: 0, pl: 2, borderLeft: 4, borderColor: "divider" }}
+        >
+          引用：把工作放进一个控制台。
+        </Typography>
+        <Typography component="ul" sx={{ m: 0, pl: 3 }}>
+          <li>无序列表项一</li>
+          <li>无序列表项二</li>
+        </Typography>
+        <Typography component="ol" sx={{ m: 0, pl: 3 }}>
+          <li>有序列表项一</li>
+          <li>有序列表项二</li>
+        </Typography>
       </Stack>
     )
   if (name === "Code")
@@ -1402,7 +1456,38 @@ function Demo({ name }: { name: string }) {
           <Button>medium</Button>
           <Button size="large">large</Button>
           <Button disabled>disabled</Button>
-          <Button loading>loading</Button>
+        </Stack>
+        <Stack direction="row" gap={1} flexWrap="wrap">
+          <Button
+            loading
+            loadingIndicator={<CircularProgress color="primary" size={16} />}
+          >
+            loading
+          </Button>
+          <Button
+            loading
+            variant="contained"
+            loadingIndicator={<CircularProgress color="primary" size={16} />}
+          >
+            loading
+          </Button>
+          <Button
+            loading
+            variant="outlined"
+            loadingPosition="start"
+            loadingIndicator={<CircularProgress color="primary" size={16} />}
+          >
+            loading
+          </Button>
+          <Button
+            loading
+            variant="contained"
+            loadingPosition="end"
+            endIcon={<Icon name="arrow-right" />}
+            loadingIndicator={<CircularProgress color="primary" size={16} />}
+          >
+            提交中
+          </Button>
         </Stack>
       </Stack>
     )

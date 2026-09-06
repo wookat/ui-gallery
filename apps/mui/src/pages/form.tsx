@@ -31,6 +31,7 @@ import {
   Step,
   StepLabel,
   Stepper,
+  Switch,
   TextField,
   Tooltip,
   Typography,
@@ -134,6 +135,13 @@ export function FormPage() {
                 )}
               />
               <TextField
+                label="团队人数"
+                type="number"
+                defaultValue={5}
+                slotProps={{ htmlInput: { min: 1, max: 500 } }}
+                helperText="1–500 人"
+              />
+              <TextField
                 required
                 label="邮箱"
                 type="email"
@@ -207,19 +215,6 @@ export function FormPage() {
               {touched && !checks.length ? (
                 <FormHelperText error>至少选择一项功能</FormHelperText>
               ) : null}
-              <Stack direction="row" justifyContent="flex-end">
-                <Button
-                  variant="contained"
-                  onClick={next}
-                  endIcon={<Icon name="arrow-right" />}
-                >
-                  下一步
-                </Button>
-              </Stack>
-            </Stack>
-          ) : null}
-          {step === 1 ? (
-            <Stack spacing={2.5}>
               <FormControl>
                 <Typography variant="subtitle2">计划</Typography>
                 <RadioGroup defaultValue="team" row>
@@ -235,6 +230,23 @@ export function FormPage() {
                   />
                 </RadioGroup>
               </FormControl>
+              <FormControlLabel
+                control={<Switch defaultChecked />}
+                label="公开项目"
+              />
+              <Stack direction="row" justifyContent="flex-end">
+                <Button
+                  variant="contained"
+                  onClick={next}
+                  endIcon={<Icon name="arrow-right" />}
+                >
+                  下一步
+                </Button>
+              </Stack>
+            </Stack>
+          ) : null}
+          {step === 1 ? (
+            <Stack spacing={2.5}>
               <FormControl fullWidth>
                 <InputLabel>通知频率</InputLabel>
                 <Select defaultValue="daily" label="通知频率">

@@ -11,6 +11,10 @@ import {
   Grid,
   IconButton,
   LinearProgress,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
   Menu,
   MenuItem,
   Skeleton,
@@ -191,7 +195,59 @@ export function DashboardPage() {
             <Grid size={{ xs: 12, xl: 7 }}>
               <Card>
                 <CardHeader title="最近订单" subheader="最新的业务交易" />
-                <TableContainer sx={{ overflowX: "auto" }}>
+                <List
+                  dense
+                  disablePadding
+                  sx={{ display: { xs: "block", sm: "none" }, px: 1 }}
+                >
+                  {orders.slice(0, 5).map((order) => (
+                    <ListItem
+                      key={order.id}
+                      secondaryAction={
+                        <IconButton
+                          edge="end"
+                          aria-label="操作"
+                          onClick={(event) => setAnchor(event.currentTarget)}
+                        >
+                          <Icon name="more-horizontal" size={24} />
+                        </IconButton>
+                      }
+                    >
+                      <ListItemAvatar>
+                        <Avatar
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            bgcolor: "primary.main",
+                            color: "primary.contrastText",
+                          }}
+                        >
+                          {order.customer.slice(0, 1)}
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        slotProps={{ primary: { component: "div" } }}
+                        primary={
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                          >
+                            <span>{order.customer}</span>
+                            <StatusBadge value={order.status} />
+                          </Stack>
+                        }
+                        secondary={`${order.id} · ¥${order.amount.toLocaleString()}`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+                <TableContainer
+                  sx={{
+                    overflowX: "auto",
+                    display: { xs: "none", sm: "block" },
+                  }}
+                >
                   <Table size="small">
                     <TableHead>
                       <TableRow>

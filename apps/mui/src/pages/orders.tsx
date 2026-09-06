@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react"
 import type { Dayjs } from "dayjs"
 import dayjs from "dayjs"
-import { DataGrid, type GridColDef } from "@mui/x-data-grid"
+import {
+  DataGrid,
+  GRID_CHECKBOX_SELECTION_COL_DEF,
+  type GridColDef,
+} from "@mui/x-data-grid"
 import { DatePicker } from "@mui/x-date-pickers"
 import {
   Alert,
@@ -130,6 +134,7 @@ export function OrdersPage() {
         <IconButton
           aria-label="操作"
           onClick={(event) => {
+            event.stopPropagation()
             setMenuOrder(row)
             setMenuAnchor(event.currentTarget)
           }}
@@ -226,7 +231,9 @@ export function OrdersPage() {
                       size="small"
                       checked={channelFilter.includes(channel)}
                     />
-                    <ListItemText primary={CHANNEL_LABELS[channel] ?? channel} />
+                    <ListItemText
+                      primary={CHANNEL_LABELS[channel] ?? channel}
+                    />
                   </MenuItem>
                 ))}
               </Select>
@@ -302,7 +309,9 @@ export function OrdersPage() {
                 setEmpty(value === "empty")
                 setError(value === "error")
               }}
-              sx={{ "& .MuiToggleButton-root": { minWidth: 48, minHeight: 40 } }}
+              sx={{
+                "& .MuiToggleButton-root": { minWidth: 48, minHeight: 40 },
+              }}
             >
               <ToggleButton value="normal">正常</ToggleButton>
               <ToggleButton value="loading">加载</ToggleButton>
@@ -358,6 +367,13 @@ export function OrdersPage() {
               getRowId={(row) => row.id}
               checkboxSelection
               disableRowSelectionOnClick
+              onCellClick={(params) => {
+                if (
+                  params.field !== GRID_CHECKBOX_SELECTION_COL_DEF.field &&
+                  params.field !== "actions"
+                )
+                  setSelected(params.row)
+              }}
               initialState={{
                 pagination: { paginationModel: { pageSize: 10 } },
               }}

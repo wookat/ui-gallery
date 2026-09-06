@@ -2,13 +2,15 @@
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/noto-sans-sc";
-@import "lxgw-wenkai-screen-webfont/style.css";
+@import "lxgw-wenkai-screen-webfont/lxgwwenkaiscreen.css";
 
 :root {
   --font-sans: "Roboto Variable", "Helvetica", "Arial", sans-serif;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   min-height: 100%;
 }
 

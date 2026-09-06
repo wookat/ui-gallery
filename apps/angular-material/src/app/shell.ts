@@ -22,8 +22,10 @@ import { IconService, UrlSettingsService } from './core';
   template: `
     <mat-sidenav-container class="shell-container">
       <mat-sidenav #sidenav [mode]="mobile() ? 'over' : 'side'" [opened]="!mobile() || drawerOpen()" [fixedInViewport]="true" (closedStart)="drawerOpen.set(false)" class="shell-sidenav" [class.shell-sidenav-collapsed]="collapsed()">
-        <div class="brand"><span class="brand-mark">A</span>@if (!collapsed()) {<span>Acme Console</span>}</div>
-        <button mat-icon-button class="collapse" (click)="collapsed.set(!collapsed())" [attr.aria-label]="collapsed() ? '展开导航' : '折叠导航'"><mat-icon svgIcon="chevron-left"></mat-icon></button>
+        <div class="brand-row">
+          <div class="brand"><span class="brand-mark">A</span>@if (!collapsed()) {<span>Acme Console</span>}</div>
+          @if (!mobile()) {<button mat-icon-button class="collapse" (click)="collapsed.set(!collapsed())" [attr.aria-label]="collapsed() ? '展开导航' : '折叠导航'" [matTooltip]="collapsed() ? '展开导航' : '折叠导航'"><mat-icon [svgIcon]="collapsed() ? 'chevron-right' : 'chevron-left'"></mat-icon></button>}
+        </div>
         <mat-nav-list class="sidenav-nav">
           @for (item of navItems; track item.path) {
             <a mat-list-item [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.path === '/'}" queryParamsHandling="preserve" (click)="mobile() && drawerOpen.set(false)" [matTooltip]="collapsed() ? item.label : ''">
@@ -51,8 +53,9 @@ import { IconService, UrlSettingsService } from './core';
   `,
   styles: [`
     :host { display:block; min-height:100vh; }.shell-container { min-height:100vh; }.shell-sidenav { width:260px; border-right:1px solid var(--mat-sys-outline-variant); transition:width 180ms ease; }.shell-sidenav ::ng-deep .mat-drawer-inner-container { display:flex; flex-direction:column; overflow:hidden; }.sidenav-nav { flex:1; min-height:0; overflow:auto; }.shell-sidenav-collapsed { width:72px; }
-    .brand { height:64px; display:flex; align-items:center; gap:10px; padding:0 20px; font-weight:700; letter-spacing:-.02em; }.brand-mark { width:32px; height:32px; display:grid; place-items:center; border-radius:9px; background:var(--mat-sys-primary); color:var(--mat-sys-on-primary); }
-    .collapse { position:absolute; top:16px; right:-20px; z-index:3; background:var(--mat-sys-surface-container); }.active { background:var(--mat-sys-secondary-container); color:var(--mat-sys-on-secondary-container); }
+    .brand-row { display:flex; align-items:center; justify-content:space-between; gap:4px; min-height:64px; padding:0 12px 0 20px; }.brand { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:-.02em; }
+    .shell-sidenav-collapsed .brand-row { flex-direction:column; justify-content:center; gap:4px; padding:12px 0 8px; }.brand-mark { width:32px; height:32px; display:grid; place-items:center; border-radius:9px; background:var(--mat-sys-primary); color:var(--mat-sys-on-primary); }
+    .collapse { flex:0 0 auto; background:var(--mat-sys-surface-container); }.active { background:var(--mat-sys-secondary-container); color:var(--mat-sys-on-secondary-container); }
     .topbar { position:sticky; top:0; z-index:4; height:64px; border-bottom:1px solid var(--mat-sys-outline-variant); background:color-mix(in srgb,var(--mat-sys-surface) 90%,transparent); backdrop-filter:blur(10px); }
     .breadcrumb { font-size:14px; font-weight:600; }.breadcrumb span { margin:0 8px; color:var(--mat-sys-outline); }.topbar-spacer { flex:1; }.search-field { width:220px; margin:20px 8px 0; }.search-field ::ng-deep .mat-mdc-form-field-subscript-wrapper { display:none; }
     .top-avatar { background:var(--mat-sys-primary-container); color:var(--mat-sys-on-primary-container); font-weight:700; }.sidenav-user { flex:0 0 auto; margin:14px; display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; background:var(--mat-sys-surface-container); }

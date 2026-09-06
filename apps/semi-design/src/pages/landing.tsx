@@ -92,14 +92,14 @@ export function LandingPage() {
         <section id="pricing" className="acme-landing-section">
           <div className="acme-landing-inner acme-page">
             <div style={{ textAlign: "center" }}><Title heading={2}>选择适合你的方案</Title><Text type="secondary">简单透明，随时升级。</Text></div>
-            <div className="acme-grid-3 acme-grid">{plans.map((plan) => <Card key={plan.name} style={plan.recommended ? { borderColor: "var(--semi-color-primary)" } : undefined} title={<div className="acme-between"><span>{plan.name}</span>{plan.recommended ? <Tag color="blue" type="solid">最受欢迎</Tag> : null}</div>}><Title heading={2} style={{ margin: "0 0 12px" }}>{plan.price === null ? "定制" : plan.price === 0 ? "免费" : `¥${plan.price}`}{plan.price ? <Text type="tertiary" size="normal"> / 月</Text> : null}</Title><Text type="secondary" style={{ display: "block", marginBottom: 16 }}>{plan.features.join(" · ")}</Text><Button block theme={plan.recommended ? "solid" : "light"}>开始使用</Button></Card>)}</div>
+            <div className="acme-grid-3 acme-grid">{plans.map((plan) => <Card key={plan.name} style={plan.recommended ? { borderColor: "var(--semi-color-primary)" } : undefined} title={<div className="acme-between"><span>{plan.name}</span>{plan.recommended ? <Tag color="blue" type="light">最受欢迎</Tag> : null}</div>}><Title heading={2} style={{ margin: "0 0 12px" }}>{plan.price === null ? "定制" : plan.price === 0 ? "免费" : `¥${plan.price}`}{plan.price ? <Text type="tertiary" size="normal"> / 月</Text> : null}</Title><Text type="secondary" style={{ display: "block", marginBottom: 16 }}>{plan.features.join(" · ")}</Text><Button block theme={plan.recommended ? "solid" : "light"}>开始使用</Button></Card>)}</div>
           </div>
         </section>
         <section id="testimonials" className="acme-landing-section" style={{ paddingTop: 0 }}>
           <div className="acme-landing-inner acme-page" style={{ maxWidth: 800 }}>
             <Title heading={2} style={{ textAlign: "center" }}>他们已经在改变工作方式</Title>
             <Carousel style={{ height: 200, borderRadius: 12 }} theme="primary" autoPlay={{ interval: 4000 }} showIndicator arrowType="hover" indicatorType="dot">
-              {landing.testimonials.map((item) => <div key={item.name} style={{ height: "100%", display: "grid", placeItems: "center", padding: "24px 56px", background: "var(--semi-color-bg-1)", border: "1px solid var(--semi-color-border)", textAlign: "center" }}><div><Text style={{ fontSize: 18 }}>“{item.quote}”</Text><div className="acme-row" style={{ justifyContent: "center", marginTop: 16 }}><Avatar size="small" color="light-blue">{item.name.slice(0, 1)}</Avatar><Text type="secondary">{item.name} · {item.company}</Text></div></div></div>)}
+              {landing.testimonials.map((item) => <div key={item.name} className="acme-testimonial"><div><Text style={{ fontSize: 18 }}>“{item.quote}”</Text><div className="acme-row" style={{ justifyContent: "center", marginTop: 16 }}><Avatar size="small" color="light-blue">{item.name.slice(0, 1)}</Avatar><Text type="secondary">{item.name} · {item.company}</Text></div></div></div>)}
             </Carousel>
           </div>
         </section>

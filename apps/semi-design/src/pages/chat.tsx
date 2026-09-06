@@ -74,7 +74,7 @@ export function ChatPage() {
           )}
         </div>
         <div style={{ padding: 12, borderTop: "1px solid var(--semi-color-border)" }}>
-          {messages.length ? <div className="acme-row" style={{ marginBottom: 8 }}>{chat.suggestions.map((item) => <Tag key={item} style={{ cursor: "pointer" }} onClick={() => setDraft(item)}>{item}</Tag>)}</div> : null}
+          {messages.length ? <div className="acme-row" style={{ marginBottom: 8 }}>{chat.suggestions.map((item) => <Button key={item} theme="light" type="tertiary" className="acme-touch-target" onClick={() => setDraft(item)}>{item}</Button>)}</div> : null}
           <TextArea value={draft} onChange={setDraft} placeholder="输入问题，Shift + Enter 换行" autosize={{ minRows: 1, maxRows: 5 }} />
           <div className="acme-between" style={{ marginTop: 8, flexWrap: "nowrap" }}>
             <div className="acme-row" style={{ flexWrap: "nowrap" }}><Tooltip content="附件"><Button theme="borderless" type="tertiary" icon={<Icon name="paperclip" />} aria-label="附件" /></Tooltip><Tooltip content="语音"><Button theme="borderless" type="tertiary" icon={<Icon name="mic" />} aria-label="语音" /></Tooltip><Text type="tertiary" size="small" className="acme-desktop-only">{model}</Text></div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import { Avatar, Button, Card, Progress, Skeleton, Table, Tabs, Tag, Timeline, Typography } from "@douyinfe/semi-ui"
 import { Area, AreaChart, Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from "recharts"
 import activity from "@ui-gallery/spec/mock/activity.json"
@@ -59,7 +60,7 @@ export function DashboardPage() {
         </SectionCard>
       </div>
       <div className="acme-grid" style={{ gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1fr)" }}>
-        <SectionCard title="最近订单" extra={<Button theme="borderless" size="small">查看全部</Button>}>
+        <SectionCard title="最近订单" extra={<Link to="/orders"><Button theme="borderless" className="acme-touch-target">查看全部</Button></Link>}>
           <div className="acme-scroll-x">
             <Table scroll={{ x: 600 }}
               size="small"

@@ -178,10 +178,7 @@ const galleryAlias: Record<string, string> = {
   chrome: "globe",
   "circle-check": "check",
   columns: "list",
-  "credit-card": "tag",
   ellipsis: "more-horizontal",
-  github: "link",
-  mail: "message-square",
   "refresh-cw": "refresh",
   "thumbs-up": "heart",
   "trending-up": "arrow-up",
@@ -190,12 +187,15 @@ const galleryAlias: Record<string, string> = {
   wrench: "settings",
 }
 
+// 共享 icons-react 各图标族均无这些名称（会退化成语义错误的替代图形），改用 Semi 自带同义图标
+const sharedMissing = new Set(["credit-card", "github", "mail"])
+
 const semiIconSizes: Record<string, number> = { "extra-small": 8, small: 12, default: 16, large: 20, "extra-large": 24 }
 
 // Semi Button/Input clone the `icon` element and inject a string size ("large"/"small")
 export function Icon({ name, size = 16, className, spin }: { name: string; size?: number | string; className?: string; spin?: boolean }) {
   const px = typeof size === "number" ? size : semiIconSizes[size] ?? 16
-  if (iconFamily() !== "native") return <GalleryIcon name={galleryAlias[name] ?? name} size={px} className={className} />
+  if (iconFamily() !== "native" && !sharedMissing.has(name)) return <GalleryIcon name={galleryAlias[name] ?? name} size={px} className={className} />
   const Component = native[name] ?? IconHelpCircle
   return <Component className={className} spin={spin} style={{ fontSize: px }} />
 }

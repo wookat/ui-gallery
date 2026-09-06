@@ -32,7 +32,7 @@ export function LoginPage() {
         {error ? <Banner type="danger" description={error} closeIcon={null} style={{ marginBottom: 12 }} /> : null}
         <Form<{ email: string; password: string }> layout="vertical" onSubmit={submit} initValues={{ email: "m0@acme.dev", password: "" }}>
           <Form.Input field="email" label="邮箱" size="large" placeholder="name@company.com" prefix={<Icon name="mail" />} rules={[{ required: true, message: "请输入邮箱" }, { type: "email", message: "邮箱格式不正确" }]} />
-          <Form.Input field="password" label={{ text: "密码", extra: <Typography.Text link={{ href: "#" }}>忘记密码？</Typography.Text> }} size="large" mode="password" placeholder="至少 8 位" prefix={<Icon name="lock" />} rules={[{ required: true, message: "请输入密码" }, { min: 8, message: "密码至少 8 位（输入 wrong 可查看错误态）" }]} />
+          <Form.Input field="password" label={{ text: "密码", extra: <Typography.Text link={{ href: "#" }} className="acme-touch-link">忘记密码？</Typography.Text> }} size="large" mode="password" placeholder="至少 8 位" prefix={<Icon name="lock" />} rules={[{ required: true, message: "请输入密码" }, { min: 8, message: "密码至少 8 位（输入 wrong 可查看错误态）" }]} />
           <Checkbox defaultChecked style={{ margin: "4px 0 16px" }}>记住我</Checkbox>
           <Button htmlType="submit" theme="solid" type="primary" block size="large" loading={loading}>登录</Button>
         </Form>
@@ -42,7 +42,7 @@ export function LoginPage() {
           <Button theme="light" type="tertiary" size="large" icon={<Icon name="github" />}>GitHub</Button>
           <Button theme="light" type="tertiary" size="large" icon={<Icon name="message-circle" />}>微信</Button>
         </div>
-        <Text type="tertiary" style={{ display: "block", textAlign: "center", marginTop: 20 }}>还没有账号？<Typography.Text link={{ href: "#" }}>注册</Typography.Text></Text>
+        <Text type="tertiary" style={{ display: "block", textAlign: "center", marginTop: 20 }}>还没有账号？<Typography.Text link={{ href: "#" }} className="acme-touch-link">注册</Typography.Text></Text>
       </Card>
     </div>
   )

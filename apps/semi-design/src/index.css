@@ -224,7 +224,18 @@ body[theme-mode="dark"] .acme-bubble.user {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 16px;
-  opacity: 0.6;
+}
+
+/* Semi Carousel 会把 slide 根节点设为 width:100%（content-box），内边距需计入宽度才能跟随容器 */
+.acme-testimonial {
+  box-sizing: border-box;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px 56px;
+  background: var(--semi-color-bg-1);
+  border: 1px solid var(--semi-color-border);
+  text-align: center;
 }
 
 .acme-logo-cloud > div {
@@ -272,6 +283,33 @@ body[theme-mode="dark"] .acme-bubble.user {
 
 .acme-mobile-only {
   display: none !important;
+}
+
+/* 默认 mark 不指定文字色（继承黑色），暗色下叠在 primary-light 底上不可读；改用文字 token，code 文字提到 text-1 满足 4.5:1 */
+.semi-typography mark {
+  color: var(--semi-color-text-0);
+}
+
+.semi-typography code {
+  color: var(--semi-color-text-1);
+}
+
+/* 暗色下 Semi 的 X-5 实心标签底色偏亮，白字不足 4.5:1 */
+body[theme-mode="dark"] .semi-tag-solid {
+  color: var(--semi-color-bg-0);
+}
+
+/* 文字链接：保持行内排版，用内边距撑开热区 */
+.acme-touch-link.semi-typography {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 4px;
+}
+
+.acme-touch-target.semi-button,
+.acme-touch-target.semi-select {
+  min-height: 40px;
 }
 
 /* 状态文本改用 Semi 调色板中同色系更深一档（-active）的官方 token，满足正文 4.5:1 */
@@ -404,6 +442,18 @@ body[theme-mode="dark"] .semi-button-danger.semi-button-borderless {
 
 .acme-footer-link.semi-typography {
   font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  align-self: flex-start;
+}
+
+.acme-footer-grid > .acme-page {
+  gap: 0 !important;
+}
+
+.acme-footer-grid > .acme-page > .semi-typography:first-child {
+  margin-bottom: 4px;
 }
 
 .acme-login {
@@ -449,6 +499,10 @@ body[theme-mode="dark"] .semi-button-danger.semi-button-borderless {
 
   .acme-landing-section {
     padding: 40px 16px;
+  }
+
+  .acme-testimonial {
+    padding: 20px 28px;
   }
 
   .acme-components-grid {

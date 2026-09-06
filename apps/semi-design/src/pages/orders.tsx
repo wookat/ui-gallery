@@ -68,7 +68,7 @@ export function OrdersPage() {
 
   return (
     <div className="acme-page">
-      <PageHeader title="订单" description={`共 ${filtered.length} 条记录${selected.length ? `，已选 ${selected.length} 条` : ""}`} action={<div className="acme-row"><Select value={mode} onChange={(value) => setMode(value as Mode)} size="small" optionList={[{ value: "ready", label: "状态：正常" }, { value: "loading", label: "状态：加载中" }, { value: "empty", label: "状态：空" }, { value: "error", label: "状态：错误" }]} aria-label="演示状态" /><Button theme="solid" icon={<Icon name="download" />} onClick={() => Toast.info("已开始导出 CSV")}>导出</Button></div>} />
+      <PageHeader title="订单" description={`共 ${filtered.length} 条记录${selected.length ? `，已选 ${selected.length} 条` : ""}`} action={<div className="acme-row"><Select value={mode} onChange={(value) => setMode(value as Mode)} className="acme-touch-target" optionList={[{ value: "ready", label: "状态：正常" }, { value: "loading", label: "状态：加载中" }, { value: "empty", label: "状态：空" }, { value: "error", label: "状态：错误" }]} aria-label="演示状态" /><Button theme="solid" icon={<Icon name="download" />} onClick={() => Toast.info("已开始导出 CSV")}>导出</Button></div>} />
       {mode === "error" ? <Banner type="danger" description="订单加载失败，请稍后重试。" closeIcon={null} /> : null}
       <SectionCard title="全部订单">
         <div className="acme-row" style={{ marginBottom: 12 }}>

@@ -42,10 +42,12 @@ const pin = ref("")
 const cascader = ref("")
 const autoValue = ref("")
 const isMobile = useIsMobile()
+const indexKeys = ref<string[]>(["index"])
 const backtopDemo = ref<HTMLElement>()
 const alwaysOpen = ref(false)
 
 onMounted(() => {
+  if (window.matchMedia("(max-width: 767px)").matches) indexKeys.value = []
   if (backtopDemo.value) backtopDemo.value.scrollTop = 120
   setTimeout(() => (alwaysOpen.value = true), 400)
 })
@@ -105,13 +107,15 @@ function notify() {
       </a-space>
     </PageHeader>
 
-    <a-card :bordered="true" class="components-index">
-      <a-anchor :change-hash="false" direction="horizontal" line-less :boundary="80" smooth>
-        <a-anchor-link v-for="name in names" :key="name" :href="`#${name}`">
-          <a-space size="mini"><span>{{ name }}</span><a-tag v-if="coverage[name] !== 'implemented'" :color="coverage[name] === 'composed' ? 'orange' : 'red'" size="small">{{ coverage[name] }}</a-tag></a-space>
-        </a-anchor-link>
-      </a-anchor>
-    </a-card>
+    <a-collapse v-model:active-key="indexKeys" class="components-index" :bordered="true">
+      <a-collapse-item key="index" :header="`组件索引（${names.length}）`">
+        <a-anchor :change-hash="false" line-less :boundary="80" smooth>
+          <a-anchor-link v-for="name in names" :key="name" :href="`#${name}`">
+            <a-space size="mini"><span>{{ name }}</span><a-tag v-if="coverage[name] !== 'implemented'" :color="coverage[name] === 'composed' ? 'orange' : 'red'" size="small">{{ coverage[name] }}</a-tag></a-space>
+          </a-anchor-link>
+        </a-anchor>
+      </a-collapse-item>
+    </a-collapse>
 
     <div class="stack" style="gap: 16px; min-width: 0">
         <DemoBlock name="Typography" arco="a-typography">
@@ -846,9 +850,25 @@ createApp(App).use(ArcoVue).mount("#app")</code></pre>
 </template>
 
 <style scoped>
+.components-index :deep(.arco-anchor) {
+  width: 100%;
+  overflow: visible;
+}
+
 .components-index :deep(.arco-anchor-list) {
   display: flex;
   flex-wrap: wrap;
+  gap: 0 4px;
+  margin-left: 0;
+}
+
+.components-index :deep(.arco-anchor-link-item) {
+  padding: 0;
+  margin: 0;
+}
+
+.components-index :deep(.arco-collapse-item-header) {
+  min-height: 40px;
 }
 
 .components-index :deep(.arco-anchor-link) {

@@ -873,10 +873,13 @@ createApp(App).use(ArcoVue).mount("#app")</code></pre>
 }
 
 .components-anchor :deep(.arco-anchor-link-item) {
-  padding: 2px 0;
+  padding: 0;
 }
 
 .components-anchor :deep(.arco-anchor-link) {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
   font-size: 12px;
 }
 

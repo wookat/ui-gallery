@@ -175,9 +175,16 @@ function go(key: string) {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 40px;
   color: inherit;
   text-decoration: none;
   font-size: 13px;
+}
+
+.shell-header :deep(.arco-breadcrumb-item a) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
 }
 
 .shell-main {

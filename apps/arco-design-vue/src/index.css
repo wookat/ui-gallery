@@ -123,8 +123,74 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
 .arco-select-view-single:not(.demo .arco-select-view-single),
 .arco-select-view-multiple:not(.demo .arco-select-view-multiple),
 .arco-input-tag:not(.demo .arco-input-tag),
-.arco-picker:not(.demo .arco-picker) {
+.arco-picker:not(.demo .arco-picker),
+.arco-textarea-wrapper:not(.demo .arco-textarea-wrapper) {
   min-height: 40px;
+}
+
+.arco-textarea-wrapper:not(.demo .arco-textarea-wrapper) .arco-textarea {
+  min-height: 40px;
+}
+
+.demo .arco-input-wrapper,
+.demo .arco-select-view,
+.demo .arco-input-tag,
+.demo .arco-picker,
+.demo .arco-textarea-wrapper,
+.demo .arco-icon-hover,
+.demo .arco-tag-close-btn {
+  position: relative;
+}
+
+.demo .arco-input-wrapper::after,
+.demo .arco-select-view::after,
+.demo .arco-input-tag::after,
+.demo .arco-picker::after,
+.demo .arco-textarea-wrapper::after,
+.demo .arco-icon-hover::after,
+.demo .arco-tag-close-btn::after,
+.demo .arco-anchor-link::after,
+.demo .arco-breadcrumb-item a::after,
+.demo .arco-link::after {
+  content: "";
+  position: absolute;
+  inset: -8px 0;
+}
+
+.demo .arco-anchor-link,
+.demo .arco-breadcrumb-item a,
+.demo .arco-link {
+  position: relative;
+}
+
+.demo .arco-input-wrapper.arco-input-size-mini::after,
+.demo .arco-input-number-size-mini::after,
+.demo .arco-picker-size-mini::after,
+.demo .arco-select-view.arco-select-view-size-mini::after {
+  inset: -8px 0;
+}
+
+.demo .arco-input-wrapper.arco-input-size-small::after,
+.demo .arco-input-number-size-small::after,
+.demo .arco-picker-size-small::after,
+.demo .arco-select-view.arco-select-view-size-small::after {
+  inset: -6px 0;
+}
+
+.demo .arco-input-wrapper.arco-input-size-large::after,
+.demo .arco-input-number-size-large::after,
+.demo .arco-picker-size-large::after,
+.demo .arco-select-view.arco-select-view-size-large::after {
+  inset: -2px 0;
+}
+
+.demo .arco-verification-code .arco-input-wrapper::after {
+  inset: -4px;
+}
+
+.demo .arco-icon-hover::after,
+.demo .arco-tag-close-btn::after {
+  inset: -14px;
 }
 
 .arco-checkbox:not(.demo .arco-checkbox),
@@ -156,7 +222,7 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
   position: relative;
 }
 
-.arco-switch:not(.demo .arco-switch)::after {
+.arco-switch:not(.demo .arco-switch)::before {
   content: "";
   position: absolute;
   inset: -8px;
@@ -172,7 +238,9 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
 .demo .arco-btn-size-large::after,
 .demo .arco-checkbox::after,
 .demo .arco-radio::after,
-.demo .arco-switch::after {
+.demo .arco-switch::before,
+.demo .arco-table-expand-btn::after,
+.demo .arco-calendar-header-icon::after {
   content: "";
   position: absolute;
 }
@@ -189,20 +257,44 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
   inset: -4px;
 }
 
-.demo .arco-btn-size-large::after,
-.demo .arco-switch::after {
+.demo .arco-btn-size-large::after {
   inset: -2px;
+}
+
+.demo .arco-switch::before {
+  inset: -8px -2px;
+}
+
+.demo .arco-switch-small::before {
+  inset: -12px -6px;
 }
 
 .demo .arco-checkbox,
 .demo .arco-radio,
-.demo .arco-switch {
+.demo .arco-switch,
+.demo .arco-table-expand-btn,
+.demo .arco-calendar-header-icon {
   position: relative;
 }
 
 .demo .arco-checkbox::after,
-.demo .arco-radio::after {
-  inset: -12px;
+.demo .arco-radio::after,
+.demo .arco-table-expand-btn::after {
+  inset: -13px;
+}
+
+.demo .arco-calendar-header-icon::after {
+  inset: -8px;
+}
+
+.arco-drawer-close-btn {
+  position: relative;
+}
+
+.arco-drawer-close-btn::after {
+  content: "";
+  position: absolute;
+  inset: -14px;
 }
 
 .arco-alert-close-btn {
@@ -317,4 +409,9 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
   .grid-4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+.demo .arco-breadcrumb-item a {
+  justify-content: center;
+  min-width: 40px;
 }

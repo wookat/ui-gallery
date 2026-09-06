@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue"
-import { RouterLink, useRoute } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 import type { FieldRule } from "@arco-design/web-vue"
 import { Icon } from "@/lib/icons"
 import { theme, toggleTheme } from "@/lib/settings"
 
 const route = useRoute()
+const router = useRouter()
 const form = reactive({ email: "", password: "", remember: true })
 const loading = ref(false)
 const failed = ref(true)
@@ -65,7 +66,7 @@ function submit() {
       </a-space>
       <div style="text-align: center; margin-top: 12px">
         <a-typography-text type="secondary">还没有账号？</a-typography-text>
-        <RouterLink :to="{ path: '/', query: route.query }"><a-link>注册</a-link></RouterLink>
+        <a-link @click="router.push({ path: '/', query: route.query })">注册</a-link>
       </div>
     </a-card>
   </div>

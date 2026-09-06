@@ -99,7 +99,7 @@ export function ChatPage() {
                           <Collapse expanded={!!open[i]}><CodeHighlight mt="xs" code={JSON.stringify(m.tool.args, null, 2)} language="json" radius="sm" /></Collapse>
                         </Card>
                       ) : null}
-                      <Paper radius="md" px="md" py="sm" bg={user ? "var(--mantine-primary-color-filled)" : "var(--mantine-color-default)"} c={user ? "white" : undefined} style={{ maxWidth: "100%", overflow: "hidden" }}>
+                      <Paper radius="md" px="md" py="sm" bg={user ? "var(--mantine-primary-color-8)" : "var(--mantine-color-default)"} c={user ? "white" : undefined} style={{ maxWidth: "100%", overflow: "hidden" }}>
                         {user ? <Text size="sm">{m.content}</Text> : <Markdown content={m.content} />}
                         {m.streaming ? <Group gap={6} mt={4}><Loader size={12} type="dots" /><Text size="xs" c={muted}>正在生成...</Text></Group> : null}
                       </Paper>

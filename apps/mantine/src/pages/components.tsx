@@ -87,7 +87,7 @@ export function ComponentsPage() {
           {sections.map((s) => (
             <Group key={s.id} gap={6} wrap="wrap">
               <Anchor href={`#${s.id}`} size="sm" fw={600} w={72}>{s.title}</Anchor>
-              {s.items.map((i) => <Anchor key={i} href={`#c-${i}`} size="xs" c={covColor[coverage[i]]}>{i}</Anchor>)}
+              {s.items.map((i) => <Anchor key={i} href={`#c-${i}`} size="xs" c={`var(--ug-cov-${coverage[i]})`}>{i}</Anchor>)}
             </Group>
           ))}
         </Stack>

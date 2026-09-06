@@ -80,7 +80,7 @@ export function SettingsPage() {
                   <List.Item key={s.device}>
                     <Group justify="space-between" wrap="nowrap">
                       <Group gap="sm" wrap="nowrap"><ThemeIcon variant="light" color="gray"><Icon name={s.device.includes("iPhone") ? "smartphone" : "monitor"} size={16} /></ThemeIcon><div><Text size="sm" fw={500}>{s.device} {s.current ? <Badge size="sm" variant="light" color="green" ml={4}>当前</Badge> : null}</Text><Text size="xs" c={muted}>{s.location} · {s.time}</Text></div></Group>
-                      {s.current ? null : <Button size="xs" variant="subtle" color="red">注销</Button>}
+                      {s.current ? null : <Button size="xs" variant="subtle" color="var(--mantine-color-error)">注销</Button>}
                     </Group>
                   </List.Item>
                 ))}
@@ -167,8 +167,8 @@ export function SettingsPage() {
       <Divider />
       <Card withBorder radius="md" padding="lg" style={{ borderColor: "var(--mantine-color-red-filled)" }}>
         <Group justify="space-between" wrap="wrap">
-          <div><Title order={5} c="red">危险区</Title><Text size="sm" c={muted}>删除账号将永久移除所有数据，不可恢复。</Text></div>
-          <Button color="red" variant="outline" onClick={() => setDeleteOpen(true)}>删除账号</Button>
+          <div><Title order={5} c="var(--mantine-color-error)">危险区</Title><Text size="sm" c={muted}>删除账号将永久移除所有数据，不可恢复。</Text></div>
+          <Button color="var(--mantine-color-error)" variant="outline" onClick={() => setDeleteOpen(true)}>删除账号</Button>
         </Group>
       </Card>
 

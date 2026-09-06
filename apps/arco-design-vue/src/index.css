@@ -139,6 +139,15 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
   margin: -13px -6px;
 }
 
+.arco-alert-close-btn:not(.demo .arco-alert-close-btn) .arco-icon-hover,
+.arco-checkbox:not(.demo .arco-checkbox) .arco-checkbox-icon-hover {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
 .arco-empty-description:not(.demo .arco-empty-description) {
   color: var(--color-text-2);
 }

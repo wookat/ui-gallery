@@ -2119,6 +2119,7 @@ export function ComponentsPage() {
             clickable
             label={name}
             variant="outlined"
+            sx={{ height: 40, borderRadius: 20 }}
           />
         ))}
       </Box>

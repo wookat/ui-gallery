@@ -44,14 +44,14 @@ const toggleTheme = () => {
     </el-drawer>
     <el-container>
       <el-header class="topbar">
-        <el-button v-if="mobile" text @click="drawer = true"><Icon name="menu" :size="20" /></el-button>
+        <el-button v-if="mobile" text class="icon-btn" aria-label="菜单" @click="drawer = true"><Icon name="menu" :size="20" /></el-button>
         <el-breadcrumb><el-breadcrumb-item><router-link to="/">Acme Console</router-link></el-breadcrumb-item><el-breadcrumb-item>{{ current }}</el-breadcrumb-item></el-breadcrumb>
         <el-input class="global-search" placeholder="搜索..." :prefix-icon="undefined"><template #prefix><Icon name="search" /></template></el-input>
         <el-popover placement="bottom-end" width="300" trigger="click">
-          <template #reference><el-badge :value="notifications.filter((n) => n.unread).length"><el-button text><Icon name="bell" /></el-button></el-badge></template>
+          <template #reference><el-badge :value="notifications.filter((n) => n.unread).length"><el-button text class="icon-btn" aria-label="通知"><Icon name="bell" :size="20" /></el-button></el-badge></template>
           <div v-for="note in notifications" :key="note.title" class="notification"><b>{{ note.title }}</b><span class="muted">{{ note.time }}</span></div>
         </el-popover>
-        <el-button text @click="toggleTheme"><Icon :name="dark ? 'sun' : 'moon'" /></el-button>
+        <el-button text class="icon-btn" aria-label="切换主题" @click="toggleTheme"><Icon :name="dark ? 'sun' : 'moon'" :size="20" /></el-button>
         <el-dropdown>
           <span class="avatar-trigger"><el-avatar size="small">林</el-avatar></span>
           <template #dropdown><el-dropdown-menu><el-dropdown-item>个人资料</el-dropdown-item><el-dropdown-item>偏好设置</el-dropdown-item><el-dropdown-item divided>帮助中心</el-dropdown-item><el-dropdown-item>快捷键</el-dropdown-item><el-dropdown-item>退出登录</el-dropdown-item></el-dropdown-menu></template>
@@ -66,7 +66,7 @@ const toggleTheme = () => {
 .shell { min-height: 100vh; }
 .sidebar { position: relative; display: flex; flex-direction: column; border-right: 1px solid var(--el-border-color); background: var(--el-bg-color); transition: width .2s; }
 .brand { display: flex; align-items: center; gap: 10px; height: 64px; padding: 0 18px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; color: var(--el-color-white); background: var(--el-color-primary); }
+.brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; background: var(--el-color-primary); }
 .sidebar :deep(.el-menu) { border-right: 0; flex: 1; }
 .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 18px; border-top: 1px solid var(--el-border-color); cursor: pointer; }
 .collapse-button { position: absolute; right: 8px; bottom: 80px; }

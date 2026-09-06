@@ -23,4 +23,4 @@ const submit = () => { if (!agreed.value) return ElMessage.warning("请先同意
   </div>
 </template>
 
-<style scoped>.wizard-form { width: 100%; max-width: 900px; margin: 36px auto 0; overflow: hidden; }.wizard-form :deep(.el-row) { margin: 0 !important; }.wizard-form :deep(.el-steps) { display: flex; width: 100%; }.wizard-form :deep(.el-step) { flex: 1; width: 0; }.wizard-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 28px; }.confirm-alert { margin: 24px 0; }</style>
+<style scoped>.wizard-form { max-width: 900px; margin: 36px auto 0; }.wizard-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 28px; }.confirm-alert { margin: 24px 0; }</style>

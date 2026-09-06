@@ -112,5 +112,5 @@
     "chart": "echarts",
     "markdown": "marked"
   },
-  "notes": "使用 Element Plus 官方默认色板（light/dark），仅覆盖中性文本 token（secondary/placeholder）以提升可读性，并将填充色表面（primary/success/warning/danger/info 按钮、选中态、徽标、头像等）的前景改为深色文字以满足 4.5:1；全局 size=large，locale zh-cn。"
+  "notes": "使用 Element Plus 官方默认色板（light/dark），仅覆盖中性文本 token（secondary/placeholder）以提升可读性，并将填充色表面（primary/success/warning/danger/info 按钮、选中态、徽标、头像等）的前景改为深色文字以满足 4.5:1；未改动的官方色板文字（链接、激活 tab/菜单、typed el-text/tag 等在白底上约 2.2–3.1:1）保持官方默认；全局 size=large，locale zh-cn。"
 }

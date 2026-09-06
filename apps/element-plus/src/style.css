@@ -1,22 +1,23 @@
 * { box-sizing: border-box; }
-html, body, #app { min-height: 100%; margin: 0; overflow-x: hidden; }
+html, body, #app { min-height: 100%; margin: 0; }
 body { background: var(--el-bg-color-page); color: var(--el-text-color-primary); font-family: var(--el-font-family); }
 h1, h2, h3, h4, h5, h6, kbd { font-family: inherit; }
 a { color: var(--el-color-primary); text-decoration: none; }
-.page { width: 100%; max-width: 1440px; margin: 0 auto; }
-.page { min-width: 0; overflow: hidden; }
-.page { max-width: 100%; }
-.page > .el-row, .page > .el-card, .page .el-row { min-width: 0; }
-.page .el-row { margin-left: 0 !important; margin-right: 0 !important; }
+.page { width: 100%; max-width: 1440px; min-width: 0; margin: 0 auto; }
 .page-title { margin: 0; font-size: 24px; }
 .page-subtitle { margin: 6px 0 0; color: var(--el-text-color-secondary); }
 .page-header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 22px; }
 .card-grid { display: grid; gap: 16px; }
-.scroll-x { overflow-x: auto; }
 .muted { color: var(--el-text-color-secondary); }
 .full-width { width: 100%; }
-:root { --ug-on-color: #0f172a; }
+
+/* Official Element Plus palette is untouched. Only neutral text tokens are darkened in light mode so
+   placeholders / secondary text / inactive steps reach 4.5:1 on white. */
 html:not(.dark) { --el-text-color-secondary: #5f6368; --el-text-color-placeholder: #6b6f76; }
+
+/* Filled surfaces (primary/success/warning/danger/info) use a dark foreground instead of white:
+   white on the official palette is ~2.2–3:1, dark text on it is ≥6:1 in both themes. */
+:root { --ug-on-color: #0f172a; }
 .el-button--primary:not(.is-plain):not(.is-text):not(.is-link),
 .el-button--success:not(.is-plain):not(.is-text):not(.is-link),
 .el-button--warning:not(.is-plain):not(.is-text):not(.is-link),
@@ -28,127 +29,41 @@ html:not(.dark) { --el-text-color-secondary: #5f6368; --el-text-color-placeholde
 }
 .el-radio-button { --el-radio-button-checked-text-color: var(--ug-on-color); }
 .el-checkbox-button { --el-checkbox-button-checked-text-color: var(--ug-on-color); }
-.el-tag--dark { --el-tag-text-color: var(--ug-on-color); }
+.el-tag--dark, .el-tag--dark.el-tag--primary, .el-tag--dark.el-tag--success, .el-tag--dark.el-tag--warning,
+.el-tag--dark.el-tag--danger, .el-tag--dark.el-tag--info { --el-tag-text-color: var(--ug-on-color); }
 .el-segmented { --el-segmented-item-selected-color: var(--ug-on-color); }
 .el-badge__content { color: var(--ug-on-color); }
-.el-alert.is-dark { color: var(--ug-on-color); }
-.el-alert.is-dark .el-alert__title, .el-alert.is-dark .el-alert__description { color: inherit; }
+.el-alert.is-dark, .el-alert.is-dark .el-alert__title, .el-alert.is-dark .el-alert__description { color: var(--ug-on-color); }
 .el-pagination.is-background .el-pager li.is-active { color: var(--ug-on-color); }
-.el-date-table td.current:not(.disabled) .el-date-table-cell__text,
-.el-date-table td.today .el-date-table-cell__text { color: var(--ug-on-color); }
-.el-switch__inner .is-text, .el-switch__inner .is-icon { color: var(--ug-on-color); }
+.el-date-table td.current:not(.disabled) .el-date-table-cell__text { color: var(--ug-on-color); }
+.el-switch__core .el-switch__inner-wrapper { color: var(--ug-on-color); }
 .el-avatar { --el-avatar-bg-color: var(--el-color-primary); --el-avatar-text-color: var(--ug-on-color); }
-html:not(.dark) .el-tag--success.el-tag--light { --el-tag-text-color: #4a8f2c; }
-html:not(.dark) .el-tag--warning.el-tag--light { --el-tag-text-color: #a56d1d; }
-html:not(.dark) .el-tag--danger.el-tag--light { --el-tag-text-color: #c94747; }
-html:not(.dark) .el-tag--info.el-tag--light { --el-tag-text-color: #5e6166; }
-.brand-mark, .user .bubble { color: var(--ug-on-color); }
-body .brand-mark { color: var(--ug-on-color) !important; }
-.el-menu-item.is-active, .el-tabs__item.is-active, .el-radio.is-checked .el-radio__label { color: #276aa3 !important; }
-.el-link--primary { color: #276aa3 !important; }
-.el-input__count { color: #5f6368 !important; }
-.el-tag--primary.el-tag--light, .el-tag--primary.el-tag--plain { --el-tag-text-color: #276aa3; color: #276aa3; }
-.el-tag--success.el-tag--light { --el-tag-text-color: #356b20; color: #356b20; }
-.el-tag--warning.el-tag--light { --el-tag-text-color: #7f4d00; color: #7f4d00; }
-.el-tag--danger.el-tag--light { --el-tag-text-color: #a52f2f; color: #a52f2f; }
-.el-tag--info.el-tag--light { --el-tag-text-color: #4a4d50; color: #4a4d50; }
-.el-tag--success.el-tag--plain { color: #356b20 !important; }
-.el-tag--warning.el-tag--plain { color: #7f4d00 !important; }
-.el-tag--danger.el-tag--plain { color: #a52f2f !important; }
-.el-tag--info.el-tag--plain { color: #4a4d50 !important; }
-.el-tag:not(.el-tag--dark) .el-tag__content { color: #334155 !important; }
-.el-button--primary.is-plain { color: #276aa3 !important; }
-.el-button--success.is-plain { color: #356b20 !important; }
-.el-button--warning.is-plain { color: #7f4d00 !important; }
-.el-button--danger.is-plain { color: #a52f2f !important; }
-.el-button--info.is-plain { color: #4a4d50 !important; }
-.el-tag--dark .el-tag__content { color: var(--ug-on-color) !important; }
-.el-avatar { color: var(--ug-on-color) !important; }
-.el-text--primary { color: #276aa3 !important; }
-.el-text--success { color: #356b20 !important; }
-.el-text--warning { color: #7f4d00 !important; }
-.el-text--danger { color: #a52f2f !important; }
-.el-text--info { color: #4a4d50 !important; }
-html.dark .el-menu-item.is-active, html.dark .el-tabs__item.is-active, html.dark .el-radio.is-checked .el-radio__label { color: #dbeafe !important; }
-html.dark .el-link--primary { color: #b9dcff !important; }
-html.dark .el-tag--primary.el-tag--light { --el-tag-text-color: #b9dcff; color: #b9dcff; }
-html.dark .el-tag--success.el-tag--light { --el-tag-text-color: #c4f0ad; color: #c4f0ad; }
-html.dark .el-tag--warning.el-tag--light { --el-tag-text-color: #ffd28a; color: #ffd28a; }
-html.dark .el-tag--danger.el-tag--light { --el-tag-text-color: #ffb4b4; color: #ffb4b4; }
-html.dark .el-tag--info.el-tag--light { --el-tag-text-color: #d0d0d0; color: #d0d0d0; }
-html.dark .el-tag:not(.el-tag--dark) .el-tag__content { color: #e2e8f0 !important; }
-html.dark .el-text--primary { color: #dbeafe !important; }
-html.dark .el-text--success { color: #c4f0ad !important; }
-html.dark .el-text--warning { color: #ffd28a !important; }
-html.dark .el-text--danger { color: #ffb4b4 !important; }
-html.dark .el-text--info { color: #d0d0d0 !important; }
-html.dark .el-input__count { color: #cbd5e1 !important; }
-html.dark .el-button--primary.is-plain { color: #b9dcff !important; }
-html.dark .el-button--success.is-plain { color: #c4f0ad !important; }
-html.dark .el-button--warning.is-plain { color: #ffd28a !important; }
-html.dark .el-button--danger.is-plain { color: #ffb4b4 !important; }
-html.dark .el-button--info.is-plain { color: #d0d0d0 !important; }
-.table-scroll { width: 100%; overflow-x: auto; }
-[data-scroll-x] { overflow-x: auto; scrollbar-width: thin; }
+.brand-mark { color: var(--ug-on-color); }
+
+/* Checked checkbox/radio labels: regular text color instead of the palette color. */
+.el-checkbox__input.is-checked + .el-checkbox__label,
+.el-radio__input.is-checked + .el-radio__label { color: var(--el-text-color-regular); }
+html:not(.dark) .el-form-item__error { color: #b93838; }
+html:not(.dark) .el-check-tag.is-checked { color: #1d5fa8; }
+.el-step__title.is-finish, .el-step__description.is-finish { color: var(--el-text-color-regular); }
+
+/* Intentional horizontal scroll regions: always show a thin scrollbar so the affordance is visible. */
+[data-scroll-x] { width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--el-border-color-darker) transparent; }
 [data-scroll-x]::-webkit-scrollbar { height: 8px; }
 [data-scroll-x]::-webkit-scrollbar-thumb { background: var(--el-border-color-darker); border-radius: 4px; }
+
+/* Hit targets ≥ 40px (global component size is "large"; the rest is handled here). */
 .icon-btn { width: 40px; height: 40px; padding: 0; }
 .el-table .caret-wrapper { height: 40px; width: 24px; justify-content: center; }
-.el-table .el-checkbox { min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; }
+.el-table .el-checkbox { display: inline-flex; min-width: 40px; min-height: 40px; align-items: center; justify-content: center; }
 .el-checkbox, .el-radio { min-height: 40px; }
 .el-carousel__indicator { padding: 19px 6px; }
-.el-link { min-height: 40px; display: inline-flex; align-items: center; }
-.el-tag.is-closable .el-tag__close { min-width: 24px; min-height: 24px; }
+.el-link { display: inline-flex; min-height: 40px; align-items: center; }
 .el-menu-item { min-height: 40px; }
-.topbar .el-badge { width: 40px; min-width: 40px; overflow: clip; }
-.topbar .el-badge__content { display: none; }
-.topbar { overflow: hidden; }
-.el-switch__inner { color: var(--ug-on-color) !important; }
-.el-switch__core .el-switch__inner-wrapper { color: var(--ug-on-color) !important; }
-.el-checkbox__input.is-checked + .el-checkbox__label,
-.el-radio__input.is-checked + .el-radio__label {
-  color: var(--el-text-color-regular) !important;
-}
-.el-badge__content,
-.el-pager li.is-active {
-  color: var(--ug-on-color) !important;
-}
-html:not(.dark) .el-form-item__error { color: #b93838 !important; }
-html:not(.dark) .el-check-tag.is-checked { color: #1d5fa8 !important; }
-html:not(.dark) .el-switch__label.is-active { color: var(--el-text-color-regular) !important; }
-html:not(.dark) .el-alert.is-light .el-alert__title,
-html:not(.dark) .el-alert.is-light .el-alert__description { color: var(--el-text-color-regular) !important; }
-html:not(.dark) .el-pager li.is-active .number { color: var(--ug-on-color) !important; }
-html.dark .el-pager li.is-active,
-html.dark .el-pager li.is-active .number { color: #e2e8f0 !important; }
-.el-pagination .el-pager li.is-active * { color: var(--ug-on-color) !important; }
-.el-pagination .el-pager .number.is-active,
-.el-pagination .el-pager .number.is-active * { color: var(--ug-on-color) !important; }
-html:not(.dark) .el-pagination .number,
-html:not(.dark) .el-pagination .number * { color: var(--ug-on-color) !important; }
-html:not(.dark) .el-calendar td.is-selected .el-calendar-day,
-html:not(.dark) .el-calendar td.is-selected .el-calendar-day * { color: var(--ug-on-color) !important; }
-.el-step__icon-inner, .el-step__title.is-finish { color: var(--el-text-color-regular) !important; }
-.grid-cell, .container-demo .el-main { color: #276aa3 !important; }
-.container-demo .el-header, .container-demo .el-footer, .container-demo .el-aside { color: var(--ug-on-color) !important; }
-html.dark .el-pagination .el-pager li.is-active * { color: #e2e8f0 !important; }
-html.dark .el-pagination .el-pager .number.is-active,
-html.dark .el-pagination .el-pager .number.is-active * { color: #e2e8f0 !important; }
-html:not(.dark) .el-link--success { color: #356b20 !important; }
-html:not(.dark) .el-link--warning { color: #7f4d00 !important; }
-html:not(.dark) .el-link--danger { color: #a52f2f !important; }
-html:not(.dark) .el-link--info { color: #4a4d50 !important; }
-html.dark .grid-cell, html.dark .container-demo .el-main { color: #e2e8f0 !important; }
-html.dark .container-demo .el-header, html.dark .container-demo .el-footer, html.dark .container-demo .el-aside { color: #fff !important; }
-.el-steps, .el-step, .el-step__head { overflow: hidden !important; }
-.conversation-pane { overflow: hidden; }
-.conversation-list > * { min-width: 0; max-width: 100%; }
-.conversation-list > .el-input { width: 100%; }
-.conversation-list { width: calc(100% + 12px); max-width: none; }
-.el-step, .el-step__head, .el-step__main { min-width: 0; overflow: hidden; }
-.el-steps { max-width: 100%; overflow: hidden; }
-.el-step__head { width: 100% !important; }
+
+/* Deterministic screenshots: no entrance animation on tags. */
 .el-zoom-in-center-enter-active, .el-zoom-in-center-leave-active { transition: none; }
+
 @media (max-width: 767px) {
   .page { padding: 0; }
   .page-header { flex-direction: column; }

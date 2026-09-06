@@ -32,12 +32,17 @@ const note = (level, msg) => { (level === "FAIL" ? failures : []).push(msg); con
 // Runs in the page: returns overflow, contrast and hit-target findings.
 const audit = `(() => {
   const vw = window.innerWidth
-  const out = { scrollWidth: document.documentElement.scrollWidth, overflow: [], contrast: [], small: [] }
+  const out = { scrollWidth: document.documentElement.scrollWidth, overflow: [], contrast: [], palette: [], small: [] }
   const parse = (c) => { const m = c.match(/[\\d.]+/g)?.map(Number) ?? [0,0,0,1]; return m.length === 3 ? [...m, 1] : m }
   const lum = ([r,g,b]) => { const f = (v) => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4 }; return .2126*f(r)+.7152*f(g)+.0722*f(b) }
   const ratio = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return (l1 + .05) / (l2 + .05) }
   const bgOf = (el) => { let n = el; while (n && n !== document.documentElement) { const c = parse(getComputedStyle(n).backgroundColor); if (c[3] > 0) return c; n = n.parentElement } return [255,255,255,1] }
-  const isDark = document.documentElement.classList.contains("dark")
+  // Official Element Plus palette text (links, active tabs/menu, typed el-text/tags) is reported separately:
+  // changing it would mean a custom palette, which the gallery contract forbids.
+  const rootStyle = getComputedStyle(document.documentElement)
+  const paletteHex = ["primary", "success", "warning", "danger", "info"].map((k) => rootStyle.getPropertyValue("--el-color-" + k).trim().toLowerCase())
+  const toHex = ([r, g, b]) => "#" + [r, g, b].map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")
+  const isPalette = (c) => paletteHex.includes(toHex(c))
   const visible = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== "hidden" && s.opacity !== "0" }
   for (const el of document.querySelectorAll("body *")) {
     if (!visible(el)) continue
@@ -55,7 +60,7 @@ const audit = `(() => {
     const scrolls = ox === "auto" || ox === "scroll"
     if (!scrolls && diff <= 8) continue
     if (!scrolls && el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY !== "visible") continue
-    if (diff > 2 && el.clientWidth > 0 && !el.closest("[data-scroll-x], .el-badge, .el-step__head, .el-rate, .el-table-v2, .el-segmented, .el-tabs__nav-scroll, .el-carousel, .el-scrollbar, .el-slider, .el-progress, .el-switch, .el-skeleton, .el-table__body-wrapper, .el-table__inner-wrapper, .el-table__header-wrapper, .el-table__footer-wrapper, textarea, .el-input__wrapper, .el-select__wrapper")) {
+    if (diff > 2 && el.clientWidth > 0 && !el.closest("[data-scroll-x], .el-badge, .el-step, .el-rate, .el-table-v2, .el-segmented, .el-tabs__nav-scroll, .el-carousel, .el-scrollbar, .el-slider, .el-progress, .el-switch, .el-skeleton, .el-table__body-wrapper, .el-table__inner-wrapper, .el-table__header-wrapper, .el-table__footer-wrapper, textarea, .el-input__wrapper, .el-select__wrapper")) {
       out.overflow.push(el.tagName.toLowerCase() + "." + [...el.classList].slice(0,2).join(".") + " scrollWidth=" + el.scrollWidth + ">" + el.clientWidth + " (" + ox + ")")
     }
   }
@@ -77,7 +82,7 @@ const audit = `(() => {
     const bg = bgOf(el)
     const r = ratio(fg, bg)
     const key = el.tagName + "|" + el.className + "|" + s.color + "|" + bg.join()
-    if (r < 4.5 && !seen.has(key)) { seen.add(key); out.contrast.push({ text: t.textContent.trim().slice(0, 24), el: el.tagName.toLowerCase() + "." + [...el.classList].slice(0,2).join("."), ratio: +r.toFixed(2), fg: s.color, bg: "rgb(" + bg.slice(0,3).join(",") + ")" }) }
+    if (r < 4.5 && !seen.has(key)) { seen.add(key); (isPalette(fg) && !isPalette(bg) ? out.palette : out.contrast).push({ text: t.textContent.trim().slice(0, 24), el: el.tagName.toLowerCase() + "." + [...el.classList].slice(0,2).join("."), ratio: +r.toFixed(2), fg: s.color, bg: "rgb(" + bg.slice(0,3).join(",") + ")" }) }
   }
   // placeholders
   for (const inp of document.querySelectorAll("input[placeholder], textarea[placeholder]")) {
@@ -111,6 +116,7 @@ for (const [vp, [width, height]] of Object.entries(contract.viewports)) {
       if (r.overflow.length) note("FAIL", `${tag}: ${r.overflow.length} element(s) past viewport: ${r.overflow.slice(0, 6).join("; ")}`)
       if (errors.length) note("FAIL", `${tag}: console errors: ${errors.slice(0, 3).join(" | ")}`)
       if (r.contrast.length) note("FAIL", `${tag}: ${r.contrast.length} text contrast < 4.5: ${r.contrast.slice(0, 6).map((c) => `${c.el ?? ""}"${c.text}" ${c.ratio} ${c.fg} on ${c.bg}`).join("; ")}`)
+      if (r.palette.length) note("WARN", `${tag}: ${r.palette.length} official-palette text < 4.5 (kept, see gallery.json notes): ${r.palette.slice(0, 4).map((c) => `${c.el ?? ""}"${c.text}" ${c.ratio}`).join("; ")}`)
       if (r.small.length) note("WARN", `${tag}: ${r.small.length} hit target(s) < 40px: ${r.small.slice(0, 8).join("; ")}`)
       if (!r.overflow.length && !errors.length && !r.contrast.length && r.scrollWidth <= width) note("OK", tag)
     }

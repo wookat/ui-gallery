@@ -61,6 +61,31 @@ body[arco-theme="dark"] .arco-tag-checked.arco-tag-red .arco-tag-icon {
   color: rgb(var(--red-8));
 }
 
+body:not([arco-theme="dark"]) .arco-typography.arco-typography-success,
+body:not([arco-theme="dark"]) .arco-link-status-success:not(.arco-link-disabled),
+body:not([arco-theme="dark"]) .arco-btn-status-success:not(.arco-btn-primary):not(:disabled) {
+  color: rgb(var(--green-8));
+}
+
+body:not([arco-theme="dark"]) .arco-typography.arco-typography-warning,
+body:not([arco-theme="dark"]) .arco-link-status-warning:not(.arco-link-disabled),
+body:not([arco-theme="dark"]) .arco-btn-status-warning:not(.arco-btn-primary):not(:disabled) {
+  color: rgb(var(--orange-8));
+}
+
+body:not([arco-theme="dark"]) .arco-typography.arco-typography-danger,
+body:not([arco-theme="dark"]) .arco-link-status-danger:not(.arco-link-disabled),
+body:not([arco-theme="dark"]) .arco-btn-status-danger:not(.arco-btn-primary):not(:disabled),
+body:not([arco-theme="dark"]) .arco-upload-list-item-error .arco-upload-list-item-name,
+body:not([arco-theme="dark"]) .arco-upload-list-item-error .arco-upload-list-item-name-link,
+body:not([arco-theme="dark"]) .arco-upload-list-item-error .arco-upload-list-item-name-text {
+  color: rgb(var(--red-7));
+}
+
+body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disabled) {
+  border-color: rgb(var(--red-7));
+}
+
 .arco-input-word-limit,
 .arco-textarea-word-limit,
 .arco-input-wrapper .arco-input-word-limit,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { Message, Notification, type TableColumnData, type TableData } from "@arco-design/web-vue"
 import contract from "@ui-gallery/spec/contract.json"
 import nav from "@ui-gallery/spec/mock/nav.json"
@@ -41,6 +41,11 @@ const pin = ref("")
 const cascader = ref("")
 const autoValue = ref("")
 const isMobile = useIsMobile()
+const backtopDemo = ref<HTMLElement>()
+
+onMounted(() => {
+  if (backtopDemo.value) backtopDemo.value.scrollTop = 120
+})
 
 const paletteItems = computed(() => nav.filter((item) => item.label.includes(paletteQuery.value) || item.key.includes(paletteQuery.value.toLowerCase())))
 
@@ -652,9 +657,11 @@ function notify() {
         </DemoBlock>
 
         <DemoBlock name="BackTop" arco="a-back-top">
-          <a-back-top :visible-height="300" target-container="html" :style="{ position: 'absolute', right: '24px', bottom: '80px' }" />
-          <div class="block" style="position: relative; height: 140px; overflow: auto; border: 1px solid var(--color-border-2); border-radius: 6px" id="backtop-demo">
-            <div style="height: 480px; padding: 12px">滚动此区域后右下角出现 BackTop。页面右下角也有全局 BackTop（滚动超过 300px 可见）。</div>
+          <a-back-top :visible-height="300" />
+          <div class="block" style="position: relative">
+            <div id="backtop-demo" ref="backtopDemo" style="height: 140px; overflow: auto; border: 1px solid var(--color-border-2); border-radius: 6px">
+              <div style="height: 480px; padding: 12px">滚动此区域后右下角出现 BackTop。页面右下角也有全局 BackTop（滚动超过 300px 可见）。</div>
+            </div>
             <a-back-top target-container="#backtop-demo" :visible-height="40" :style="{ position: 'absolute', right: '12px', bottom: '12px' }"><a-button type="primary" shape="circle"><template #icon><Icon name="arrow-up" /></template></a-button></a-back-top>
           </div>
         </DemoBlock>

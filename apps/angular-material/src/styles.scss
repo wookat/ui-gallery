@@ -46,7 +46,11 @@ a { color: inherit; }
 .chip.negative { background: color-mix(in srgb, var(--mat-sys-error) 14%, transparent); color: var(--mat-sys-error); }
 .chip.chip-composed { background: color-mix(in srgb, var(--mat-sys-tertiary) 14%, transparent); color: var(--mat-sys-tertiary); }
 .chip.chip-missing { background: color-mix(in srgb, var(--mat-sys-error) 14%, transparent); color: var(--mat-sys-error); text-decoration: line-through; }
-.status { text-transform: capitalize; }
+.status { display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: capitalize; background: var(--mat-sys-surface-container-high); color: var(--mat-sys-on-surface-variant); }
+.status-success { background: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); }
+.status-warning { background: var(--mat-sys-tertiary-container); color: var(--mat-sys-on-tertiary-container); }
+.status-error { background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); }
+.status-info { background: var(--mat-sys-secondary-container); color: var(--mat-sys-on-secondary-container); }
 .table-wrap { min-width: 0; overflow-x: auto; }
 table { width: 100%; }
 .avatar { display: inline-grid; width: 34px; height: 34px; place-items: center; flex: 0 0 auto; border-radius: 50%; background: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); font-weight: 700; }
@@ -86,6 +90,8 @@ table { width: 100%; }
 .chat-sessions-header { margin-bottom: 16px; }
 .chat-sessions-header b { font-size: 18px; }
 .new-chat { width: 100%; margin-bottom: 12px; }
+.session-search { margin-bottom: 12px; }
+.toolbar-model.chip { white-space: nowrap; }
 .active-chat { border-radius: 10px; background: var(--mat-sys-secondary-container); }
 .chat-toolbar { min-height: 84px; gap: 16px; padding: 16px 28px; border-bottom: 1px solid var(--mat-sys-outline-variant); }
 .chat-title-row, .chat-toolbar-actions, .composer-actions { gap: 12px; }
@@ -267,6 +273,11 @@ fieldset.field-group legend { display: flex; align-items: center; gap: 4px; min-
 .dashboard-lower-grid > mat-card, .components-page mat-card { min-width: 0; overflow: hidden; }
 .dashboard-lower-grid mat-card-content.table-wrap { min-width: 0; overflow-x: auto; }
 .dashboard-lower-grid .table-wrap table, .components-page .table-wrap table { width: 100%; min-width: 0; max-width: 100%; table-layout: fixed; }
+.components-page .table-wrap table, .dashboard-lower-grid .table-wrap table, .orders-page .table-wrap table { table-layout: auto; max-width: none; }
+.components-page .table-wrap table { min-width: 560px; }
+.components-page .grid-scroll table { min-width: 760px; }
+.dashboard-lower-grid .table-wrap table { min-width: 640px; }
+.table-wrap th.mat-mdc-header-cell, .table-wrap td.mat-mdc-cell { white-space: nowrap; }
 .components-page .demo-row { flex-wrap: wrap; }
 .components-page mat-button-toggle-group { max-width: 100%; flex-wrap: wrap; }
 .components-page mat-chip-set { max-width: 100%; }
@@ -281,8 +292,10 @@ fieldset.field-group legend { display: flex; align-items: center; gap: 4px; min-
 .mat-mdc-snack-bar-actions { flex: 0 0 auto; }
 button, a[mat-button], a[mat-stroked-button], a[mat-flat-button], a.mat-mdc-button-base, [role='tab'], .mat-mdc-paginator-page-size-select, .mdc-tab { min-height: 40px; }
 mat-button-toggle-group { --mat-button-toggle-height: 40px; --mat-standard-button-toggle-height: 40px; }
-.suggestion-row mat-chip, .suggestion-row .mat-mdc-chip, .sources mat-chip { --mat-chip-container-height: 40px; --mdc-chip-container-height: 40px; }
-.suggestion-row .mat-mdc-chip-action, .sources .mat-mdc-chip-action { min-height: 40px; }
+.mat-mdc-chip.mat-mdc-standard-chip { --mat-chip-container-height: 40px; --mdc-chip-container-height: 40px; }
+.mat-mdc-chip .mat-mdc-chip-action { min-height: 40px; }
+.mat-mdc-chip .mat-mdc-chip-remove.mat-mdc-chip-trailing-icon { width: 40px; height: 40px; min-width: 40px; padding: 8px; box-sizing: border-box; }
+.landing-nav .mat-mdc-button-base, .mobile-menu .mat-mdc-button-base, .footer-links a { min-width: 44px; min-height: 40px; }
 
 /* orders states */
 .state-card { padding: 28px 20px; margin-bottom: 20px; }
@@ -545,3 +558,13 @@ mat-button-toggle-group { --mat-button-toggle-height: 40px; --mat-standard-butto
 }
 
 .mat-step-icon .mat-icon { width: 16px; height: 16px; font-size: 16px; line-height: 16px; }
+
+.auth-card .btn-content { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.auth-card .btn-content .mat-mdc-progress-spinner { --mdc-circular-progress-active-indicator-color: currentColor; }
+
+@media (max-width: 599px) {
+  .mat-stepper-horizontal .mat-horizontal-stepper-header-container { overflow-x: auto; }
+  .mat-stepper-horizontal .mat-horizontal-stepper-header { padding: 0 12px; flex-shrink: 0; }
+  .mat-stepper-horizontal .mat-step-label { min-width: 0; white-space: nowrap; overflow: visible; text-overflow: clip; }
+  .mat-stepper-horizontal .mat-stepper-horizontal-line { min-width: 16px; }
+}

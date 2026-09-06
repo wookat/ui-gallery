@@ -3,6 +3,8 @@ import alertCircle from 'heroicons/24/outline/exclamation-circle.svg';
 import archive from 'heroicons/24/outline/archive-box.svg';
 import arrowLeft from 'heroicons/24/outline/arrow-left.svg';
 import arrowRight from 'heroicons/24/outline/arrow-right.svg';
+import trendingUp from 'heroicons/24/outline/arrow-trending-up.svg';
+import trendingDown from 'heroicons/24/outline/arrow-trending-down.svg';
 import bell from 'heroicons/24/outline/bell.svg';
 import barChart from 'heroicons/24/outline/chart-bar.svg';
 import calendar from 'heroicons/24/outline/calendar-days.svg';
@@ -78,5 +80,5 @@ export const heroicons = {
   phone, play, plus, plug, refresh, search, send, settings, shield, 'shopping-cart': shoppingCart,
   'sliders-horizontal': sliders, sparkles, star, sun, tag, trash, upload, users, x, zap, bot, boxes,
   'message-square': messageSquare, paper: file,
-  'trending-up': arrowRight, 'trending-down': arrowLeft,
+  'trending-up': trendingUp, 'trending-down': trendingDown,
 };

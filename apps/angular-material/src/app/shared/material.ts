@@ -90,3 +90,7 @@ export const SHARED_IMPORTS = [
 ];
 
 export { moveItemInArray };
+
+export function statusTone(status: string): string {
+  return { paid: 'status-success', shipped: 'status-info', pending: 'status-warning', refunded: 'status-error', failed: 'status-error' }[status] ?? '';
+}

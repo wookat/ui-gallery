@@ -63,6 +63,8 @@ import upload from 'lucide-static/icons/upload.svg';
 import users from 'lucide-static/icons/users.svg';
 import x from 'lucide-static/icons/x.svg';
 import zap from 'lucide-static/icons/zap.svg';
+import trendingUp from 'lucide-static/icons/trending-up.svg';
+import trendingDown from 'lucide-static/icons/trending-down.svg';
 import barChart from 'lucide-static/icons/chart-bar.svg';
 import bot from 'lucide-static/icons/bot.svg';
 import messageSquare from 'lucide-static/icons/message-square.svg';
@@ -138,6 +140,6 @@ export const lucideIcons = {
   bot,
   'message-square': messageSquare,
   paper,
-  'trending-up': arrowRight,
-  'trending-down': arrowLeft,
+  'trending-up': trendingUp,
+  'trending-down': trendingDown,
 };

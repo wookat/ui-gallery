@@ -20,11 +20,11 @@ type Segment = { kind: 'text'; html: SafeHtml } | { kind: 'code'; lang: string; 
       <mat-sidenav-container class="chat-container">
         <mat-sidenav #sessionsDrawer class="chat-sessions" [mode]="mobile ? 'over' : 'side'" [opened]="mobile ? sessionsOpen : true" (closed)="sessionsOpen = false">
           <div class="chat-sessions-header"><b>会话</b><button mat-icon-button (click)="sessionsDrawer.close()" matTooltip="关闭会话列表"><mat-icon svgIcon="x"></mat-icon></button></div>
-          <button mat-flat-button color="primary" class="new-chat" (click)="newConversation()"><mat-icon svgIcon="plus"></mat-icon>新建会话</button>
-          <mat-nav-list>@for (conversation of conversations; track conversation.id) {<a mat-list-item [class.active-chat]="conversation.id === activeConversation"><mat-icon matListItemIcon svgIcon="message-square"></mat-icon><span matListItemTitle>{{ conversation.title }}</span><span matListItemLine>{{ conversation.time }}</span>@if (conversation.unread) {<span matListItemMeta class="unread">{{ conversation.unread }}</span>}</a>}</mat-nav-list>
+          <button mat-flat-button color="primary" class="new-chat" (click)="newConversation()"><mat-icon svgIcon="plus"></mat-icon>新建会话</button><mat-form-field appearance="outline" class="full session-search" subscriptSizing="dynamic"><mat-icon matPrefix svgIcon="search"></mat-icon><input matInput [formControl]="sessionQuery" placeholder="搜索会话"></mat-form-field>
+          <mat-nav-list>@for (conversation of filteredConversations(); track conversation.id) {<a mat-list-item [class.active-chat]="conversation.id === activeConversation"><mat-icon matListItemIcon svgIcon="message-square"></mat-icon><span matListItemTitle>{{ conversation.title }}</span><span matListItemLine>{{ conversation.time }}</span>@if (conversation.unread) {<span matListItemMeta class="unread">{{ conversation.unread }}</span>}</a>}</mat-nav-list>
         </mat-sidenav>
         <mat-sidenav-content>
-          <header class="chat-toolbar"><div class="chat-title-row"><button mat-icon-button class="chat-session-toggle" (click)="sessionsOpen = true; sessionsDrawer.open()" aria-label="打开会话列表"><mat-icon svgIcon="menu"></mat-icon></button><div><p class="eyebrow">AI WORKSPACE</p><h1>智能助手</h1></div></div><div class="chat-toolbar-actions"><mat-form-field class="toolbar-model" appearance="outline" subscriptSizing="dynamic"><mat-label>模型</mat-label><mat-select [(value)]="selectedModel">@for (model of models; track model) {<mat-option [value]="model">{{ model }}</mat-option>}</mat-select></mat-form-field><button mat-icon-button matTooltip="新建对话" (click)="newConversation()"><mat-icon svgIcon="edit"></mat-icon></button></div></header>
+          <header class="chat-toolbar"><div class="chat-title-row"><button mat-icon-button class="chat-session-toggle" (click)="sessionsOpen = true; sessionsDrawer.open()" aria-label="打开会话列表"><mat-icon svgIcon="menu"></mat-icon></button><div><p class="eyebrow">AI WORKSPACE</p><h1>智能助手</h1></div></div><div class="chat-toolbar-actions"><span class="chip toolbar-model">{{ selectedModel }}</span><button mat-icon-button matTooltip="新建对话" (click)="newConversation()"><mat-icon svgIcon="edit"></mat-icon></button></div></header>
           <section class="chat-content">
             @if (emptyState) {
               <div class="chat-empty"><span class="chat-orb"><mat-icon svgIcon="sparkles"></mat-icon></span><h2>今天我能帮你做什么？</h2><p class="muted">分析业务数据、写作和自动化工作都可以交给我。</p><div class="suggestion-cards">@for (suggestion of suggestions; track suggestion) {<button mat-stroked-button (click)="prompt.setValue(suggestion)"><mat-icon svgIcon="sparkles"></mat-icon>{{ suggestion }}</button>}</div></div>
@@ -47,6 +47,8 @@ export class ChatPage {
   readonly suggestions = chatData.suggestions.slice(0, 4);
   readonly models = chatData.models;
   readonly prompt = new FormControl('');
+  readonly sessionQuery = new FormControl('');
+  filteredConversations(): typeof chatData.conversations { const q = (this.sessionQuery.value ?? '').trim().toLowerCase(); return q ? this.conversations.filter((item) => item.title.toLowerCase().includes(q)) : this.conversations; }
   readonly emptyState = new URLSearchParams(window.location.search).get('state') === 'empty';
   selectedModel = this.models[0];
   sessionsOpen = false;

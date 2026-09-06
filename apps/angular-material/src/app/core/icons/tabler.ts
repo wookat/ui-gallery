@@ -3,6 +3,8 @@ import alertCircle from '@tabler/icons/outline/alert-circle.svg';
 import archive from '@tabler/icons/outline/archive.svg';
 import arrowLeft from '@tabler/icons/outline/arrow-left.svg';
 import arrowRight from '@tabler/icons/outline/arrow-right.svg';
+import trendingUp from '@tabler/icons/outline/trending-up.svg';
+import trendingDown from '@tabler/icons/outline/trending-down.svg';
 import bell from '@tabler/icons/outline/bell.svg';
 import barChart from '@tabler/icons/outline/chart-bar.svg';
 import calendar from '@tabler/icons/outline/calendar.svg';
@@ -78,5 +80,5 @@ export const tablerIcons = {
   phone, play, plus, plug, refresh, search, send, settings, shield, 'shopping-cart': shoppingCart,
   'sliders-horizontal': sliders, sparkles, star, sun, tag, trash, upload, users, x, zap, bot,
   boxes, 'message-square': messageSquare, paper: file,
-  'trending-up': arrowRight, 'trending-down': arrowLeft,
+  'trending-up': trendingUp, 'trending-down': trendingDown,
 };

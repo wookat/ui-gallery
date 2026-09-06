@@ -38,6 +38,8 @@ import error from '@material-design-icons/svg/outlined/error.svg';
 import help from '@material-design-icons/svg/outlined/help.svg';
 import arrowBack from '@material-design-icons/svg/outlined/arrow_back.svg';
 import arrowForward from '@material-design-icons/svg/outlined/arrow_forward.svg';
+import trendingUp from '@material-design-icons/svg/outlined/trending_up.svg';
+import trendingDown from '@material-design-icons/svg/outlined/trending_down.svg';
 import chevronDown from '@material-design-icons/svg/outlined/expand_more.svg';
 import chevronUp from '@material-design-icons/svg/outlined/expand_less.svg';
 import clear from '@material-design-icons/svg/outlined/clear.svg';
@@ -49,6 +51,7 @@ import creditCard from '@material-design-icons/svg/outlined/credit_card.svg';
 import image from '@material-design-icons/svg/outlined/image.svg';
 import inbox from '@material-design-icons/svg/outlined/inbox.svg';
 import mail from '@material-design-icons/svg/outlined/mail.svg';
+import lock from '@material-design-icons/svg/outlined/lock.svg';
 import phone from '@material-design-icons/svg/outlined/phone.svg';
 
 export const nativeIcons = {
@@ -123,6 +126,7 @@ export const nativeIcons = {
   image,
   inbox,
   mail,
+  lock,
   phone,
   plug: link,
   user: group,
@@ -131,7 +135,7 @@ export const nativeIcons = {
   'format-quote': info,
   tune,
   'star-outline': star,
-  'trending-up': arrowForward,
-  'trending-down': arrowBack,
+  'trending-up': trendingUp,
+  'trending-down': trendingDown,
   paper: copy,
 };

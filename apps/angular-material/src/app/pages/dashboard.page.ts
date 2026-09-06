@@ -5,7 +5,7 @@ import stats from '@ui-gallery/spec/mock/stats.json';
 import activity from '@ui-gallery/spec/mock/activity.json';
 import orders from '@ui-gallery/spec/mock/orders.json';
 import tasks from '@ui-gallery/spec/mock/tasks.json';
-import { SHARED_IMPORTS } from '../shared/material';
+import { SHARED_IMPORTS, statusTone } from '../shared/material';
 
 Chart.register(...registerables);
 
@@ -76,7 +76,7 @@ type DashboardChart = Chart<'line' | 'bar' | 'doughnut'>;
               <table mat-table [dataSource]="recentOrders">
                 <ng-container matColumnDef="order"><th mat-header-cell *matHeaderCellDef>订单</th><td mat-cell *matCellDef="let order"><div class="row"><span class="avatar">{{ order.customer.slice(0, 1) }}</span><span><b>{{ order.id }}</b><small class="muted">{{ order.customer }}</small></span></div></td></ng-container>
                 <ng-container matColumnDef="amount"><th mat-header-cell *matHeaderCellDef>金额</th><td mat-cell *matCellDef="let order">¥{{ order.amount.toLocaleString() }}</td></ng-container>
-                <ng-container matColumnDef="status"><th mat-header-cell *matHeaderCellDef>状态</th><td mat-cell *matCellDef="let order"><span class="status" [class.status-success]="order.status === 'paid'">{{ statusLabel(order.status) }}</span></td></ng-container>
+                <ng-container matColumnDef="status"><th mat-header-cell *matHeaderCellDef>状态</th><td mat-cell *matCellDef="let order"><span class="status" [class]="statusTone(order.status)">{{ statusLabel(order.status) }}</span></td></ng-container>
                 <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef></th><td mat-cell *matCellDef="let order"><button mat-icon-button [matMenuTriggerFor]="orderMenu" aria-label="订单操作"><mat-icon svgIcon="more-vertical"></mat-icon></button><mat-menu #orderMenu="matMenu"><button mat-menu-item><mat-icon svgIcon="edit"></mat-icon>编辑 {{ order.id }}</button><button mat-menu-item><mat-icon svgIcon="download"></mat-icon>导出</button></mat-menu></td></ng-container>
                 <tr mat-header-row *matHeaderRowDef="orderColumns"></tr><tr mat-row *matRowDef="let row; columns: orderColumns"></tr>
               </table>
@@ -104,6 +104,7 @@ type DashboardChart = Chart<'line' | 'bar' | 'doughnut'>;
   `,
 })
 export class DashboardPage implements AfterViewInit, OnDestroy {
+  readonly statusTone = statusTone;
   @ViewChild('revenueCanvas') revenueCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('ordersCanvas') ordersCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('channelCanvas') channelCanvas?: ElementRef<HTMLCanvasElement>;

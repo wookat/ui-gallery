@@ -8,7 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import orders from '@ui-gallery/spec/mock/orders.json';
-import { SHARED_IMPORTS } from '../shared/material';
+import { SHARED_IMPORTS, statusTone } from '../shared/material';
 
 type Order = (typeof orders)[number];
 type OrderStatus = Order['status'];
@@ -52,7 +52,7 @@ export class DeleteOrderDialog {
       <mat-sidenav #drawer position="end" mode="over" fixedInViewport [opened]="!!selectedOrder" (closed)="selectedOrder = undefined" class="details-drawer">
         @if (selectedOrder; as order) {
           <div class="drawer-header"><h2>{{ order.id }}</h2><button mat-icon-button (click)="drawer.close()"><mat-icon svgIcon="close"></mat-icon></button></div>
-          <div class="stack drawer-content"><span class="status status-success">{{ statusLabel(order.status) }}</span><mat-list><mat-list-item><span matListItemTitle>客户</span><span matListItemLine>{{ order.customer }} · {{ order.email }}</span></mat-list-item><mat-list-item><span matListItemTitle>产品</span><span matListItemLine>{{ order.product }}</span></mat-list-item><mat-list-item><span matListItemTitle>金额</span><span matListItemLine>¥{{ order.amount.toLocaleString() }}</span></mat-list-item><mat-list-item><span matListItemTitle>日期 / 渠道</span><span matListItemLine>{{ order.date }} · {{ order.channel }}</span></mat-list-item></mat-list><mat-tab-group><mat-tab label="详情"><p class="muted">订单已通过风控检查，发票将于付款完成后发送。</p></mat-tab><mat-tab label="备注"><mat-form-field appearance="outline" class="full"><mat-label>添加备注</mat-label><textarea matInput rows="4"></textarea></mat-form-field></mat-tab></mat-tab-group></div>
+          <div class="stack drawer-content"><span class="status" [class]="statusTone(order.status)">{{ statusLabel(order.status) }}</span><mat-list><mat-list-item><span matListItemTitle>客户</span><span matListItemLine>{{ order.customer }} · {{ order.email }}</span></mat-list-item><mat-list-item><span matListItemTitle>产品</span><span matListItemLine>{{ order.product }}</span></mat-list-item><mat-list-item><span matListItemTitle>金额</span><span matListItemLine>¥{{ order.amount.toLocaleString() }}</span></mat-list-item><mat-list-item><span matListItemTitle>日期 / 渠道</span><span matListItemLine>{{ order.date }} · {{ order.channel }}</span></mat-list-item></mat-list><mat-tab-group><mat-tab label="详情"><p class="muted">订单已通过风控检查，发票将于付款完成后发送。</p></mat-tab><mat-tab label="备注"><mat-form-field appearance="outline" class="full"><mat-label>添加备注</mat-label><textarea matInput rows="4"></textarea></mat-form-field></mat-tab></mat-tab-group></div>
         }
       </mat-sidenav>
       <mat-sidenav-content>
@@ -86,7 +86,7 @@ export class DeleteOrderDialog {
                   @for (row of pagedRows(); track row.id) {
                     <mat-card class="order-card" (click)="openDetails(row)">
                       <div class="order-card-top"><mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)" [attr.aria-label]="'选择 ' + row.id"></mat-checkbox><div><b>{{ row.id }}</b><small class="sub-info">{{ row.date }}</small></div><span class="amount">¥{{ row.amount.toLocaleString() }}</span><button mat-icon-button [matMenuTriggerFor]="mobileRowMenu" (click)="$event.stopPropagation()" aria-label="订单操作"><mat-icon svgIcon="more-vertical"></mat-icon></button><mat-menu #mobileRowMenu="matMenu"><button mat-menu-item (click)="edit(row)"><mat-icon svgIcon="edit"></mat-icon>编辑</button><button mat-menu-item (click)="remove(row)"><mat-icon svgIcon="trash"></mat-icon>删除</button></mat-menu></div>
-                      <div class="order-card-customer"><span class="avatar">{{ row.customer.slice(0, 1) }}</span><span>{{ row.customer }}</span><span class="status" [class.status-success]="row.status === 'paid'">{{ statusLabel(row.status) }}</span></div>
+                      <div class="order-card-customer"><span class="avatar">{{ row.customer.slice(0, 1) }}</span><span>{{ row.customer }}</span><span class="status" [class]="statusTone(row.status)">{{ statusLabel(row.status) }}</span></div>
                     </mat-card>
                   }
                 </mat-card-content>
@@ -98,7 +98,7 @@ export class DeleteOrderDialog {
               <ng-container matColumnDef="customer"><th mat-header-cell *matHeaderCellDef mat-sort-header>客户</th><td mat-cell *matCellDef="let row"><div class="row"><span class="avatar">{{ row.customer.slice(0, 1) }}</span><span><span class="cell-primary">{{ row.customer }}</span><small class="sub-info">{{ row.email }}</small></span></div></td></ng-container>
               <ng-container matColumnDef="product"><th mat-header-cell *matHeaderCellDef>产品</th><td mat-cell *matCellDef="let row">{{ row.product }}</td></ng-container>
               <ng-container matColumnDef="amount"><th mat-header-cell *matHeaderCellDef mat-sort-header>金额</th><td mat-cell *matCellDef="let row" class="amount">¥{{ row.amount.toLocaleString() }}</td></ng-container>
-              <ng-container matColumnDef="status"><th mat-header-cell *matHeaderCellDef>状态</th><td mat-cell *matCellDef="let row"><span class="status" [class.status-success]="row.status === 'paid'">{{ statusLabel(row.status) }}</span></td></ng-container>
+              <ng-container matColumnDef="status"><th mat-header-cell *matHeaderCellDef>状态</th><td mat-cell *matCellDef="let row"><span class="status" [class]="statusTone(row.status)">{{ statusLabel(row.status) }}</span></td></ng-container>
               <ng-container matColumnDef="channel"><th mat-header-cell *matHeaderCellDef>渠道</th><td mat-cell *matCellDef="let row">{{ row.channel }}</td></ng-container>
               <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef></th><td mat-cell *matCellDef="let row"><button mat-icon-button [matMenuTriggerFor]="rowMenu" (click)="$event.stopPropagation()" aria-label="订单操作"><mat-icon svgIcon="more-vertical"></mat-icon></button><mat-menu #rowMenu="matMenu"><button mat-menu-item (click)="edit(row)"><mat-icon svgIcon="edit"></mat-icon>编辑</button><button mat-menu-item (click)="remove(row)"><mat-icon svgIcon="trash"></mat-icon>删除</button></mat-menu></td></ng-container>
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr><tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="openDetails(row)"></tr>
@@ -114,6 +114,7 @@ export class DeleteOrderDialog {
   `,
 })
 export class OrdersPage implements AfterViewInit {
+  readonly statusTone = statusTone;
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
 

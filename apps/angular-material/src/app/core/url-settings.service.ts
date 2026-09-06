@@ -14,7 +14,7 @@ const fontStacks: Record<string, string> = {
 export class UrlSettingsService {
   readonly theme = signal<'light' | 'dark'>('light');
   readonly font = signal('default');
-  readonly iconSet = signal<IconSetName>('native');
+  readonly iconSet = signal<IconSetName>('lucide');
 
   constructor(private readonly router: Router) {
     this.read();
@@ -28,10 +28,10 @@ export class UrlSettingsService {
       (!requestedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
     const theme = dark ? 'dark' : 'light';
     const font = fontStacks[params.get('font') ?? 'default'] ? params.get('font') ?? 'default' : 'default';
-    const requestedIcons = params.get('icons') ?? params.get('icon') ?? 'native';
+    const requestedIcons = params.get('icons') ?? params.get('icon') ?? 'lucide';
     const iconSet: IconSetName = ['native', 'lucide', 'tabler', 'phosphor', 'heroicons'].includes(requestedIcons)
       ? (requestedIcons as IconSetName)
-      : 'native';
+      : 'lucide';
 
     this.theme.set(theme);
     this.font.set(font);

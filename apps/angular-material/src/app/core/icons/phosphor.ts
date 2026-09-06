@@ -3,6 +3,8 @@ import alertCircle from '@phosphor-icons/core/assets/regular/warning-circle.svg'
 import archive from '@phosphor-icons/core/assets/regular/archive.svg';
 import arrowLeft from '@phosphor-icons/core/assets/regular/arrow-left.svg';
 import arrowRight from '@phosphor-icons/core/assets/regular/arrow-right.svg';
+import trendingUp from '@phosphor-icons/core/assets/regular/trend-up.svg';
+import trendingDown from '@phosphor-icons/core/assets/regular/trend-down.svg';
 import bell from '@phosphor-icons/core/assets/regular/bell.svg';
 import barChart from '@phosphor-icons/core/assets/regular/chart-bar.svg';
 import calendar from '@phosphor-icons/core/assets/regular/calendar.svg';
@@ -78,5 +80,5 @@ export const phosphorIcons = {
   phone, play, plus, plug, refresh, search, send, settings, shield, 'shopping-cart': shoppingCart,
   'sliders-horizontal': sliders, sparkles, star, sun, tag, trash, upload, users, x, zap, bot, boxes,
   'message-square': messageSquare, paper: file,
-  'trending-up': arrowRight, 'trending-down': arrowLeft,
+  'trending-up': trendingUp, 'trending-down': trendingDown,
 };

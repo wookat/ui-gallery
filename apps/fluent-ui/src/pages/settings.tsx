@@ -60,6 +60,7 @@ const useStyles = makeStyles({
   plan: { padding: tokens.spacingHorizontalL, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalS, height: "100%" },
   planActive: { ...shorthands.borderColor(tokens.colorBrandStroke1), boxShadow: `0 0 0 1px ${tokens.colorBrandStroke1}` },
   switchRow: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: tokens.spacingHorizontalM, padding: `${tokens.spacingVerticalS} 0`, borderBottom: `1px solid ${tokens.colorNeutralStroke2}`, ":last-child": { borderBottom: "none" } },
+  memberCard: { padding: tokens.spacingHorizontalM, border: `1px solid ${tokens.colorNeutralStroke2}`, borderRadius: tokens.borderRadiusMedium, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalXS, backgroundColor: tokens.colorNeutralBackground1 },
 })
 
 const sections = [
@@ -81,12 +82,15 @@ export function SettingsPage() {
   const [twoFactor, setTwoFactor] = useState(true)
   const [digest, setDigest] = useState("daily")
   const [confirmText, setConfirmText] = useState("")
-  const [inviteOpen, setInviteOpen] = useState(false)
+  const [roles, setRoles] = useState<Record<string, string>>(() => Object.fromEntries(team.map((m) => [m.email, m.role])))
+  const [inviteEmail, setInviteEmail] = useState("")
+  const [inviteRole, setInviteRole] = useState("member")
+  const inviteValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(inviteEmail)
   const notify = (title: string) => dispatchToast(<Toast><ToastTitle>{title}</ToastTitle></Toast>, { intent: "success" })
 
   const nav = (
-    <TabList vertical={!isMobile} selectedValue={section} onTabSelect={(_, d) => setSection(String(d.value))} className={isMobile ? undefined : s.side} size={isMobile ? "large" : "medium"} style={isMobile ? { overflowX: "auto", flexWrap: "nowrap" } : undefined}>
-      {sections.map((item) => <Tab key={item.key} value={item.key} icon={<Icon name={item.icon} size={18} />}>{item.label}</Tab>)}
+    <TabList vertical={!isMobile} selectedValue={section} onTabSelect={(_, d) => setSection(String(d.value))} className={isMobile ? undefined : s.side} size="medium" style={isMobile ? { overflowX: "auto", flexWrap: "nowrap" } : undefined}>
+      {sections.map((item) => <Tab key={item.key} value={item.key} icon={isMobile ? undefined : <Icon name={item.icon} size={18} />}>{item.label}</Tab>)}
     </TabList>
   )
 
@@ -130,7 +134,19 @@ export function SettingsPage() {
                   <div><Body1>启用两步验证</Body1><Caption1 className={l.muted} block>使用 Authenticator 应用生成验证码</Caption1></div>
                   <Switch checked={twoFactor} onChange={(_, d) => setTwoFactor(d.checked)} aria-label="两步验证" />
                 </div>
-                {twoFactor ? <Badge appearance="tint" color="success" icon={<Icon name="check" size={12} />}>已启用</Badge> : <Badge appearance="tint" color="warning">未启用</Badge>}
+                {twoFactor ? (
+                  <div className={l.row} style={{ alignItems: "flex-start" }}>
+                    <div style={{ width: 160, height: 160, flexShrink: 0, border: `1px dashed ${tokens.colorNeutralStroke1}`, borderRadius: tokens.borderRadiusMedium, display: "grid", placeItems: "center", color: tokens.colorNeutralForeground3 }}>
+                      <Icon name="qr-code" size={48} />
+                    </div>
+                    <div className={l.stackS}>
+                      <Badge appearance="tint" color="success" icon={<Icon name="check" size={12} />}>已启用</Badge>
+                      <Caption1 className={l.muted}>使用 Authenticator 扫码绑定</Caption1>
+                    </div>
+                  </div>
+                ) : (
+                  <Badge appearance="tint" color="warning">未启用</Badge>
+                )}
               </SectionCard>
               <SectionCard title="登录设备" description="当前登录中的会话" action={<Button appearance="subtle" size={ctl} onClick={() => notify("已退出其他设备")}>退出其他设备</Button>}>
                 <div className={l.stackS}>
@@ -165,44 +181,67 @@ export function SettingsPage() {
             </>
           ) : null}
           {section === "team" ? (
-            <SectionCard title="团队成员" description={`${team.length} 位成员`} action={<Button appearance="primary" size={ctl} icon={<Icon name="user-plus" />} onClick={() => setInviteOpen(true)}>邀请成员</Button>}>
-              <div className={l.scrollX}>
-                <Table aria-label="团队成员" size={isMobile ? "small" : "medium"}>
-                  <TableHeader><TableRow><TableHeaderCell>成员</TableHeaderCell><TableHeaderCell>角色</TableHeaderCell><TableHeaderCell>最近活跃</TableHeaderCell><TableHeaderCell style={{ width: 48 }} /></TableRow></TableHeader>
-                  <TableBody>
+            <SectionCard title="团队成员" description={`${team.length} 位成员`}>
+              <div className={l.stackM}>
+                <Field label="邀请成员">
+                  <div className={l.row}>
+                    <Input size={ctl} type="email" placeholder="teammate@acme.dev" value={inviteEmail} onChange={(_, d) => setInviteEmail(d.value)} style={{ flex: "1 1 200px", minWidth: 0 }} />
+                    <Dropdown size={ctl} value={roleLabel[inviteRole]} selectedOptions={[inviteRole]} onOptionSelect={(_, d) => setInviteRole(d.optionValue ?? "member")} style={{ minWidth: 110 }}>
+                      {Object.entries(roleLabel).filter(([k]) => k !== "owner").map(([k, v]) => <Option key={k} value={k}>{v}</Option>)}
+                    </Dropdown>
+                    <Button appearance="primary" size={ctl} icon={<Icon name="user-plus" />} disabled={!inviteValid} onClick={() => { notify(`邀请已发送至 ${inviteEmail}`); setInviteEmail("") }}>发送邀请</Button>
+                  </div>
+                </Field>
+                {isMobile ? (
+                  <div className={l.stackS}>
                     {team.map((m) => (
-                      <TableRow key={m.email}>
-                        <TableCell><TableCellLayout media={<Avatar name={m.name} color="colorful" size={32} />} description={m.email} truncate>{m.name}</TableCellLayout></TableCell>
-                        <TableCell><Badge appearance="outline" color={m.role === "owner" ? "brand" : "informative"}>{roleLabel[m.role]}</Badge></TableCell>
-                        <TableCell>{m.lastActive}</TableCell>
-                        <TableCell>
+                      <div key={m.email} className={s.memberCard}>
+                        <div className={l.rowBetween}>
+                          <div className={l.row} style={{ flexWrap: "nowrap", minWidth: 0 }}>
+                            <Avatar name={m.name} color="colorful" size={32} />
+                            <div style={{ minWidth: 0 }}><Body1>{m.name}</Body1><Caption1 className={l.muted} block>{m.email}</Caption1></div>
+                          </div>
                           <Menu>
                             <MenuTrigger disableButtonEnhancement><Button appearance="subtle" size={ctl} icon={<Icon name="more-horizontal" />} aria-label={`${m.name} 操作`} /></MenuTrigger>
-                            <MenuPopover><MenuList><MenuItem>更改角色</MenuItem><MenuItem>重发邀请</MenuItem><MenuItem onClick={() => notify(`已移除 ${m.name}`)}>移除</MenuItem></MenuList></MenuPopover>
+                            <MenuPopover><MenuList><MenuItem onClick={() => notify(`已移除 ${m.name}`)}>移除</MenuItem></MenuList></MenuPopover>
                           </Menu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <Dialog open={inviteOpen} onOpenChange={(_, d) => setInviteOpen(d.open)}>
-                <DialogSurface>
-                  <DialogBody>
-                    <DialogTitle>邀请成员</DialogTitle>
-                    <DialogContent>
-                      <div className={l.stackM}>
-                        <Field label="邮箱" required><Input size={ctl} type="email" placeholder="teammate@acme.dev" /></Field>
-                        <Field label="角色"><Dropdown size={ctl} defaultValue="成员" defaultSelectedOptions={["member"]}>{Object.entries(roleLabel).map(([k, v]) => <Option key={k} value={k}>{v}</Option>)}</Dropdown></Field>
+                        </div>
+                        <div className={l.rowBetween}>
+                          <Dropdown size={ctl} value={roleLabel[roles[m.email] ?? m.role]} selectedOptions={[roles[m.email] ?? m.role]} disabled={m.role === "owner"} onOptionSelect={(_, d) => d.optionValue && setRoles((prev) => ({ ...prev, [m.email]: d.optionValue! }))} style={{ minWidth: 110 }}>
+                            {Object.entries(roleLabel).map(([k, v]) => <Option key={k} value={k}>{v}</Option>)}
+                          </Dropdown>
+                          <Caption1 className={l.muted}>{m.lastActive}</Caption1>
+                        </div>
                       </div>
-                    </DialogContent>
-                    <DialogActions>
-                      <DialogTrigger disableButtonEnhancement><Button size={ctl}>取消</Button></DialogTrigger>
-                      <Button appearance="primary" size={ctl} onClick={() => { setInviteOpen(false); notify("邀请已发送") }}>发送邀请</Button>
-                    </DialogActions>
-                  </DialogBody>
-                </DialogSurface>
-              </Dialog>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={l.scrollX}>
+                    <Table aria-label="团队成员">
+                      <TableHeader><TableRow><TableHeaderCell>成员</TableHeaderCell><TableHeaderCell>角色</TableHeaderCell><TableHeaderCell>最近活跃</TableHeaderCell><TableHeaderCell style={{ width: 48 }} /></TableRow></TableHeader>
+                      <TableBody>
+                        {team.map((m) => (
+                          <TableRow key={m.email}>
+                            <TableCell><TableCellLayout media={<Avatar name={m.name} color="colorful" size={32} />} description={m.email} truncate>{m.name}</TableCellLayout></TableCell>
+                            <TableCell>
+                              <Dropdown size="small" value={roleLabel[roles[m.email] ?? m.role]} selectedOptions={[roles[m.email] ?? m.role]} disabled={m.role === "owner"} onOptionSelect={(_, d) => d.optionValue && setRoles((prev) => ({ ...prev, [m.email]: d.optionValue! }))} style={{ minWidth: 110 }}>
+                                {Object.entries(roleLabel).map(([k, v]) => <Option key={k} value={k}>{v}</Option>)}
+                              </Dropdown>
+                            </TableCell>
+                            <TableCell>{m.lastActive}</TableCell>
+                            <TableCell>
+                              <Menu>
+                                <MenuTrigger disableButtonEnhancement><Button appearance="subtle" size={ctl} icon={<Icon name="more-horizontal" />} aria-label={`${m.name} 操作`} /></MenuTrigger>
+                                <MenuPopover><MenuList><MenuItem onClick={() => notify(`已移除 ${m.name}`)}>移除</MenuItem></MenuList></MenuPopover>
+                              </Menu>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </div>
             </SectionCard>
           ) : null}
           {section === "billing" ? (
@@ -220,22 +259,34 @@ export function SettingsPage() {
                 </div>
               </SectionCard>
               <SectionCard title="账单历史">
-                <div className={l.scrollX}>
-                  <Table aria-label="账单" size="small">
-                    <TableHeader><TableRow><TableHeaderCell>编号</TableHeaderCell><TableHeaderCell>日期</TableHeaderCell><TableHeaderCell>状态</TableHeaderCell><TableHeaderCell style={{ textAlign: "right" }}>金额</TableHeaderCell><TableHeaderCell /></TableRow></TableHeader>
-                    <TableBody>
-                      {invoices.map((inv) => (
-                        <TableRow key={inv.id}>
-                          <TableCell><Text weight="semibold">{inv.id}</Text></TableCell>
-                          <TableCell>{inv.date}</TableCell>
-                          <TableCell><StatusBadge value={inv.status} /></TableCell>
-                          <TableCell style={{ textAlign: "right" }}><Money value={inv.amount} /></TableCell>
-                          <TableCell><Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="download" />}>PDF</Button></TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                {isMobile ? (
+                  <div className={l.stackS}>
+                    {invoices.map((inv) => (
+                      <div key={inv.id} className={s.memberCard}>
+                        <div className={l.rowBetween}><Text weight="semibold">{inv.id}</Text><StatusBadge value={inv.status} /></div>
+                        <div className={l.rowBetween}><Caption1 className={l.muted}>{inv.date}</Caption1><Money value={inv.amount} /></div>
+                        <Button appearance="subtle" size={ctl} icon={<Icon name="download" />} style={{ alignSelf: "flex-start" }}>PDF</Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={l.scrollX}>
+                    <Table aria-label="账单" size="small">
+                      <TableHeader><TableRow><TableHeaderCell>编号</TableHeaderCell><TableHeaderCell>日期</TableHeaderCell><TableHeaderCell>状态</TableHeaderCell><TableHeaderCell style={{ textAlign: "right" }}>金额</TableHeaderCell><TableHeaderCell /></TableRow></TableHeader>
+                      <TableBody>
+                        {invoices.map((inv) => (
+                          <TableRow key={inv.id}>
+                            <TableCell><Text weight="semibold">{inv.id}</Text></TableCell>
+                            <TableCell>{inv.date}</TableCell>
+                            <TableCell><StatusBadge value={inv.status} /></TableCell>
+                            <TableCell style={{ textAlign: "right" }}><Money value={inv.amount} /></TableCell>
+                            <TableCell><Button appearance="subtle" size="small" icon={<Icon name="download" />}>PDF</Button></TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </SectionCard>
             </>
           ) : null}

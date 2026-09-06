@@ -10,8 +10,12 @@ import {
   Caption1,
   Card,
   CardHeader,
+  DrawerBody,
+  DrawerHeader,
+  DrawerHeaderTitle,
   Dropdown,
   Option,
+  OverlayDrawer,
   SearchBox,
   Spinner,
   Table,
@@ -36,23 +40,24 @@ import { useControlSize, useIsMobile, useLayoutStyles } from "./shared"
 type Message = (typeof chat.messages)[number] & { sources?: string[]; tool?: { name: string; args: Record<string, string>; status: string }; streaming?: boolean }
 
 const useStyles = makeStyles({
-  root: { display: "grid", gridTemplateColumns: "280px minmax(0, 1fr)", gap: tokens.spacingHorizontalM, minHeight: "calc(100vh - 140px)", "@media (max-width: 1023px)": { gridTemplateColumns: "minmax(0, 1fr)", minHeight: "auto" } },
+  root: { display: "grid", gridTemplateColumns: "280px minmax(0, 1fr)", gap: tokens.spacingHorizontalM, height: ["calc(100vh - 56px - 32px)", "calc(100dvh - 56px - 32px)"], "@media (max-width: 1023px)": { gridTemplateColumns: "minmax(0, 1fr)" }, "@media (max-width: 767px)": { height: ["calc(100vh - 56px - 24px)", "calc(100dvh - 56px - 24px)"] } },
   list: { display: "flex", flexDirection: "column", gap: tokens.spacingVerticalS, padding: tokens.spacingHorizontalM, border: `1px solid ${tokens.colorNeutralStroke2}`, borderRadius: tokens.borderRadiusLarge, backgroundColor: tokens.colorNeutralBackground1 },
   conv: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: tokens.spacingHorizontalS, padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalS}`, borderRadius: tokens.borderRadiusMedium, cursor: "pointer", border: "none", background: "transparent", textAlign: "left", width: "100%", color: "inherit", ":hover": { backgroundColor: tokens.colorNeutralBackground1Hover } },
   convActive: { backgroundColor: tokens.colorNeutralBackground1Selected },
-  panel: { display: "flex", flexDirection: "column", border: `1px solid ${tokens.colorNeutralStroke2}`, borderRadius: tokens.borderRadiusLarge, backgroundColor: tokens.colorNeutralBackground1, minWidth: 0 },
+  panel: { display: "flex", flexDirection: "column", border: `1px solid ${tokens.colorNeutralStroke2}`, borderRadius: tokens.borderRadiusLarge, backgroundColor: tokens.colorNeutralBackground1, minWidth: 0, minHeight: 0, overflow: "hidden" },
   head: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: tokens.spacingHorizontalS, padding: tokens.spacingHorizontalM, borderBottom: `1px solid ${tokens.colorNeutralStroke2}`, flexWrap: "wrap" },
-  stream: { flex: 1, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalL, padding: tokens.spacingHorizontalM, overflowY: "auto" },
+  stream: { flex: 1, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalL, padding: tokens.spacingHorizontalM, overflowY: "auto", minHeight: 0 },
   msg: { display: "flex", gap: tokens.spacingHorizontalS, maxWidth: "min(100%, 720px)", minWidth: 0 },
   msgUser: { alignSelf: "flex-end", flexDirection: "row-reverse" },
   bubble: { padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`, borderRadius: tokens.borderRadiusLarge, backgroundColor: tokens.colorNeutralBackground3, minWidth: 0, overflowX: "auto", "& p": { margin: `0 0 ${tokens.spacingVerticalXS}` }, "& p:last-child": { margin: 0 } },
   bubbleUser: { backgroundColor: tokens.colorBrandBackground, color: tokens.colorNeutralForegroundOnBrand },
-  code: { position: "relative", backgroundColor: tokens.colorNeutralBackgroundInverted, color: tokens.colorNeutralForegroundInverted, borderRadius: tokens.borderRadiusMedium, padding: tokens.spacingHorizontalM, paddingRight: "48px", fontFamily: tokens.fontFamilyMonospace, fontSize: tokens.fontSizeBase200, overflowX: "auto", margin: 0 },
+  code: { position: "relative", backgroundColor: tokens.colorNeutralBackgroundInverted, color: tokens.colorNeutralForegroundInverted, borderRadius: tokens.borderRadiusMedium, padding: tokens.spacingHorizontalM, paddingRight: "48px", fontFamily: tokens.fontFamilyMonospace, fontSize: tokens.fontSizeBase200, overflowX: "auto", whiteSpace: "pre-wrap", overflowWrap: "anywhere", margin: 0 },
   copy: { position: "absolute", top: "4px", right: "4px", color: tokens.colorNeutralForegroundInverted },
   composer: { borderTop: `1px solid ${tokens.colorNeutralStroke2}`, padding: tokens.spacingHorizontalM, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalS },
   box: { border: `1px solid ${tokens.colorNeutralStroke1}`, borderRadius: tokens.borderRadiusLarge, padding: tokens.spacingHorizontalS, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalXS },
   attachment: { display: "inline-flex", alignItems: "center", gap: tokens.spacingHorizontalXS, padding: `${tokens.spacingVerticalXS} ${tokens.spacingHorizontalS}`, border: `1px solid ${tokens.colorNeutralStroke2}`, borderRadius: tokens.borderRadiusMedium, alignSelf: "flex-start" },
-  empty: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: tokens.spacingVerticalM, padding: tokens.spacingVerticalXXXL, textAlign: "center", color: tokens.colorNeutralForeground3 },
+  empty: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: tokens.spacingVerticalM, padding: tokens.spacingVerticalXXXL, textAlign: "center", color: tokens.colorNeutralForeground3, minHeight: 0, overflowY: "auto" },
+  chips: { display: "flex", alignItems: "center", gap: tokens.spacingHorizontalS, "@media (max-width: 767px)": { flexWrap: "nowrap", overflowX: "auto" } },
   cursor: { display: "inline-block", width: "8px", height: "1em", backgroundColor: "currentColor", verticalAlign: "text-bottom", marginLeft: "2px", animationName: { from: { opacity: 1 }, to: { opacity: 0 } }, animationDuration: "0.8s", animationIterationCount: "infinite", animationDirection: "alternate" },
 })
 
@@ -87,11 +92,20 @@ export function ChatPage() {
 
   return (
     <div className={s.root}>
-      {!isMobile || showList ? list : null}
+      {isMobile ? (
+        <OverlayDrawer open={showList} onOpenChange={(_, d) => setShowList(d.open)} position="start" size="small">
+          <DrawerHeader>
+            <DrawerHeaderTitle action={<Button appearance="subtle" size={ctl} icon={<Icon name="x" />} aria-label="关闭" onClick={() => setShowList(false)} />}>对话</DrawerHeaderTitle>
+          </DrawerHeader>
+          <DrawerBody>{list}</DrawerBody>
+        </OverlayDrawer>
+      ) : (
+        list
+      )}
       <section className={s.panel}>
         <header className={s.head}>
           <div className={l.row}>
-            {isMobile ? <Button appearance="subtle" size={ctl} icon={<Icon name="menu" />} aria-label="对话列表" onClick={() => setShowList((v) => !v)} /> : null}
+            {isMobile ? <Button appearance="subtle" size={ctl} icon={<Icon name="menu" />} aria-label="对话列表" onClick={() => setShowList(true)} /> : null}
             <div><Text weight="semibold" block>{chat.conversations.find((c) => c.id === active)?.title ?? "新对话"}</Text><Caption1 className={l.muted}>{model} · 已连接</Caption1></div>
           </div>
           <Dropdown size={isMobile ? "large" : "small"} value={model} selectedOptions={[model]} onOptionSelect={(_, d) => setModel(d.optionValue ?? model)} style={{ minWidth: 150 }}>
@@ -165,10 +179,10 @@ export function ChatPage() {
           </div>
         )}
         <div className={s.composer}>
-          {messages.length > 0 ? <div className={l.row}>{chat.suggestions.map((sg) => <Button key={sg} size={isMobile ? "large" : "small"} shape="circular" onClick={() => setDraft(sg)}>{sg}</Button>)}</div> : null}
+          {messages.length > 0 ? <div className={s.chips}>{chat.suggestions.map((sg) => <Button key={sg} size={isMobile ? "medium" : "small"} shape="circular" style={{ flexShrink: 0 }} onClick={() => setDraft(sg)}>{sg}</Button>)}</div> : null}
           <span className={s.attachment}><Icon name="paperclip" size={14} /><Caption1>project-notes.md · 12 KB</Caption1><Button appearance="transparent" size={ctl} icon={<Icon name="x" size={12} />} aria-label="移除附件" /></span>
           <div className={s.box}>
-            <Textarea appearance="filled-lighter" value={draft} onChange={(_, d) => setDraft(d.value)} placeholder="向 AI 助手提问..." resize="none" rows={2} />
+            <Textarea appearance="filled-lighter" value={draft} onChange={(_, d) => setDraft(d.value)} placeholder="向 AI 助手提问..." resize="none" rows={isMobile ? 1 : 2} />
             <div className={l.rowBetween}>
               <div className={l.row}>
                 <Tooltip content="添加附件" relationship="label"><Button appearance="subtle" size={ctl} icon={<Icon name="paperclip" />} /></Tooltip>

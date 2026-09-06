@@ -31,4 +31,26 @@ body {
   [data-touch] .fui-SpinButton__input {
     min-height: 44px;
   }
+
+  [data-touch] .fui-Link {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  [data-touch] .fui-Tab {
+    min-height: 44px;
+  }
+
+  [data-touch] .fui-InfoButton,
+  [data-touch] .fui-InfoLabel__infoButton,
+  [data-touch] button[class*="fui-InfoButton"] {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  [data-touch] .fui-legend button,
+  [data-touch] [class*="legend"] button {
+    min-height: 40px;
+  }
 }

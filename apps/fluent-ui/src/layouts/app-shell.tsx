@@ -76,6 +76,8 @@ const useStyles = makeStyles({
   notificationList: { display: "flex", flexDirection: "column", gap: tokens.spacingVerticalS, width: "280px", maxWidth: "80vw" },
   notification: { display: "flex", flexDirection: "column", gap: tokens.spacingVerticalXXS },
   desktopOnly: { "@media (max-width: 767px)": { display: "none" } },
+  rail: { width: "56px", flexShrink: 0, position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", gap: tokens.spacingVerticalS, paddingBlock: tokens.spacingVerticalM, backgroundColor: tokens.colorNeutralBackground1, borderRight: `1px solid ${tokens.colorNeutralStroke2}` },
+  railSpacer: { flex: 1 },
   search: { width: "220px" },
   footerPersona: { paddingInline: tokens.spacingHorizontalS },
 })
@@ -116,6 +118,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   const drawerOpen = isMobile ? mobileOpen : !collapsed
+  const rail = !isMobile && collapsed
 
   return (
     <div className={s.root}>
@@ -157,11 +160,34 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Persona className={s.footerPersona} name="林晓" secondaryText="owner@acme.dev" avatar={{ color: "colorful" }} presence={{ status: "available" }} />
         </NavDrawerFooter>
       </NavDrawer>
+      {rail ? (
+        <nav className={s.rail} aria-label="导航">
+          <RouterLink to={`/${window.location.search}`} aria-label="Acme Console">
+            <span className={s.brandMark}>A</span>
+          </RouterLink>
+          <Tooltip content="展开导航" relationship="label">
+            <Hamburger onClick={() => setCollapsed(false)} aria-label="展开导航" />
+          </Tooltip>
+          {nav.map((item) => (
+            <Tooltip key={item.key} content={item.label} relationship="label" positioning="after">
+              <Button
+                appearance={current?.key === item.key ? "primary" : "subtle"}
+                size="medium"
+                icon={<Icon name={item.icon} />}
+                aria-label={item.label}
+                onClick={() => go(item.path)}
+              />
+            </Tooltip>
+          ))}
+          <div className={s.railSpacer} />
+          <Avatar name="林晓" size={32} color="colorful" />
+        </nav>
+      ) : null}
       <div className={s.main}>
         <header className={s.header} data-touch="">
-          {(isMobile || collapsed) && (
+          {isMobile && (
             <Tooltip content="打开导航" relationship="label">
-              <Hamburger size={ctl} onClick={() => (isMobile ? setMobileOpen(true) : setCollapsed(false))} />
+              <Hamburger size={ctl} onClick={() => setMobileOpen(true)} />
             </Tooltip>
           )}
           <Breadcrumb aria-label="面包屑" className={s.desktopOnly}>

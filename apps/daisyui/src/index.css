@@ -1,0 +1,104 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-sc";
+/* style.css 只含嵌套 @import url()，打包时不会展开，直接引入字体定义文件 */
+@import "lxgw-wenkai-screen-webfont/lxgwwenkaiscreen.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --app-font: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+html,
+body {
+  font-family: var(--app-font);
+}
+
+.chat-start {
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: 2rem minmax(0, 1fr);
+}
+
+.chat-end {
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) 2rem;
+}
+
+.chat-start .chat-bubble {
+  width: fit-content;
+  min-width: 60%;
+  max-width: 85%;
+  min-height: 0;
+  overflow-wrap: anywhere;
+}
+
+.chat-start .chat-bubble > div {
+  max-width: 100%;
+}
+
+.chat-start .chat-bubble h1,
+.chat-start .chat-bubble h2,
+.chat-start .chat-bubble h3 {
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+}
+
+.chat-start .chat-bubble p {
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+}
+
+.chat-start .chat-bubble p:last-child,
+.chat-start .chat-bubble ul:last-child,
+.chat-start .chat-bubble ol:last-child {
+  margin-bottom: 0;
+}
+
+.chat-start .chat-bubble ul,
+.chat-start .chat-bubble ol {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.chat-start .chat-bubble ul {
+  list-style: disc;
+}
+
+.chat-start .chat-bubble ol {
+  list-style: decimal;
+}
+
+.chat-start .chat-bubble li {
+  padding-left: 0.25rem;
+}
+
+.chat-start .chat-bubble blockquote {
+  margin: 0.75rem 0;
+  border-left: 2px solid color-mix(in srgb, currentColor 30%, transparent);
+  padding-left: 0.75rem;
+  font-style: italic;
+}
+
+.chat-start .chat-bubble table {
+  min-width: max-content;
+  margin: 0.75rem 0;
+}
+
+.chat-start .chat-bubble pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 639px) {
+  .chat-start .chat-image {
+    width: 2rem;
+    flex-shrink: 0;
+  }
+}

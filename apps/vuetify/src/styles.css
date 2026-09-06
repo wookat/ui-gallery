@@ -4,6 +4,30 @@
 .v-application {
   font-family: var(--app-font) !important;
 }
+.v-application [class*="text-h"], .v-application [class*="text-body-"], .v-application [class*="text-subtitle-"],
+.v-application [class*="text-caption"], .v-application [class*="text-overline"], .v-application [class*="text-button"] {
+  font-family: var(--app-font) !important;
+}
+.v-application .v-badge__badge, .v-application .v-kbd {
+  font-family: var(--app-font) !important;
+}
+.v-application .v-btn {
+  min-height: 40px;
+}
+.v-application .v-btn--icon, .v-application .v-pagination .v-btn {
+  min-width: 40px;
+}
+.v-application .v-chip--link {
+  min-height: 40px;
+}
+.v-application .v-breadcrumbs-item--link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
+.v-application .v-pagination .v-btn {
+  min-width: 40px !important;
+}
 html {
   overflow-x: hidden;
 }

@@ -8,6 +8,7 @@ import orders from "@ui-gallery/spec/mock/orders.json"
 import activity from "@ui-gallery/spec/mock/activity.json"
 import tasks from "@ui-gallery/spec/mock/tasks.json"
 import Icon from "@/components/Icon.vue"
+import { resolveIcon } from "@/icons"
 
 const route = useRoute()
 const theme = useTheme()
@@ -15,6 +16,7 @@ const period = ref("月")
 const state = computed(() => route.query.state)
 const statusColor = (status: string) => ({ paid: theme.global.current.value.dark ? "success" : "success-darken-2", pending: theme.global.current.value.dark ? "warning" : "warning-darken-3", refunded: theme.global.current.value.dark ? "info-lighten-1" : "info-darken-2", failed: "error", shipped: "primary" }[status] ?? "secondary")
 const statusLabel = (status: string) => ({ paid: "已支付", pending: "处理中", refunded: "已退款", failed: "失败", shipped: "已发货" }[status] ?? status)
+const piePalette = ["primary", "secondary", "info", "warning"].map((name) => `rgb(var(--v-theme-${name}))`)
 const money = (value: number) => new Intl.NumberFormat("zh-CN").format(value)
 </script>
 
@@ -24,7 +26,7 @@ const money = (value: number) => new Intl.NumberFormat("zh-CN").format(value)
       <v-skeleton-loader type="heading, paragraph, card@4, table" />
     </template>
     <template v-else-if="state === 'empty'">
-      <v-empty-state icon="$vuetify" title="暂时没有仪表盘数据" text="稍后再回来查看最新业务概览。" />
+      <v-empty-state :icon="resolveIcon('layout-dashboard')" title="暂时没有仪表盘数据" text="稍后再回来查看最新业务概览。" />
     </template>
     <template v-else-if="state === 'error'">
       <v-alert type="error" variant="tonal" title="数据加载失败" text="请稍后重试。"><template #append><v-btn variant="outlined">重试</v-btn></template></v-alert>
@@ -50,7 +52,7 @@ const money = (value: number) => new Intl.NumberFormat("zh-CN").format(value)
       </v-row>
       <v-row class="mt-1">
         <v-col cols="12" md="7"><v-card title="收入趋势" subtitle="过去 7 个月"><v-card-text><v-sparkline :model-value="series.revenue" :labels="series.months" color="primary" height="220" smooth padding="8" line-width="3" fill /></v-card-text></v-card></v-col>
-        <v-col cols="12" md="5"><v-card title="订单与渠道" subtitle="订单量及来源分布"><v-card-text><v-sparkline :model-value="series.orders" type="bar" color="secondary" height="100" padding="8" /><div class="d-flex justify-center mt-2"><v-pie :items="series.byChannel" :inner-cut="60" :size="150" /></div></v-card-text></v-card></v-col>
+        <v-col cols="12" md="5"><v-card title="订单与渠道" subtitle="订单量及来源分布"><v-card-text><v-sparkline :model-value="series.orders" type="bar" color="secondary" height="100" padding="8" /><div class="d-flex justify-center mt-2"><v-pie :items="series.byChannel" :palette="piePalette" item-key="name" item-title="name" legend :inner-cut="60" :size="150" /></div></v-card-text></v-card></v-col>
       </v-row>
       <v-row class="mt-1">
         <v-col cols="12" lg="8">

@@ -17,6 +17,8 @@ const rail = ref(false)
 const isDark = computed(() => theme.global.current.value.dark)
 const current = computed(() => nav.find((item) => item.path === route.path)?.label ?? "仪表盘")
 const unread = computed(() => notifications.filter((n) => n.unread).length)
+const workspaceNav = computed(() => nav.filter((item) => ["dashboard", "orders", "form", "chat"].includes(item.key)))
+const moreNav = computed(() => nav.filter((item) => !["dashboard", "orders", "form", "chat"].includes(item.key)))
 
 function toggleTheme() {
   const next = isDark.value ? "light" : "dark"
@@ -31,22 +33,28 @@ function toggleNav() {
 
 <template>
   <v-navigation-drawer v-model="drawer" :rail="rail && mdAndUp" :permanent="mdAndUp" :temporary="!mdAndUp" width="256">
-    <v-list nav density="compact">
+    <v-list nav density="default">
       <v-list-item :to="{ path: '/', query: route.query }" title="Acme Console" subtitle="Vuetify">
         <template #prepend><v-avatar color="primary" size="32" rounded="lg">A</v-avatar></template>
       </v-list-item>
     </v-list>
     <v-divider />
     <v-list nav density="compact">
-      <v-list-subheader>工作区</v-list-subheader>
-      <v-list-item v-for="item in nav" :key="item.key" :to="{ path: item.path, query: route.query }" :title="item.label" :active="route.path === item.path" color="primary" rounded="lg">
+      <v-list-subheader v-if="!(rail && mdAndUp)">工作区</v-list-subheader>
+      <v-list-item v-for="item in workspaceNav" :key="item.key" :to="{ path: item.path, query: route.query }" :title="item.label" :active="route.path === item.path" color="primary" rounded="lg" density="comfortable">
+        <template #prepend><Icon :name="item.icon as IconName" size="20" /></template>
+        <template v-if="item.badge" #append><v-badge :content="item.badge" color="primary" inline /></template>
+      </v-list-item>
+      <v-divider class="my-2" />
+      <v-list-subheader v-if="!(rail && mdAndUp)">更多</v-list-subheader>
+      <v-list-item v-for="item in moreNav" :key="item.key" :to="{ path: item.path, query: route.query }" :title="item.label" :active="route.path === item.path" color="primary" rounded="lg" density="comfortable">
         <template #prepend><Icon :name="item.icon as IconName" size="20" /></template>
         <template v-if="item.badge" #append><v-badge :content="item.badge" color="primary" inline /></template>
       </v-list-item>
     </v-list>
     <template #append>
       <v-divider />
-      <v-list nav density="compact">
+      <v-list nav density="default">
         <v-list-item :to="{ path: '/settings', query: route.query }" title="林晓" subtitle="owner@acme.dev">
           <template #prepend><v-avatar color="secondary" size="28">林</v-avatar></template>
         </v-list-item>
@@ -56,7 +64,7 @@ function toggleNav() {
 
   <v-app-bar flat border="b" density="comfortable">
     <v-app-bar-nav-icon aria-label="切换导航" @click="toggleNav" />
-    <v-breadcrumbs class="d-none d-sm-flex pl-0" :items="[{ title: 'Acme Console', to: { path: '/', query: route.query } }, { title: current, disabled: true }]" />
+    <v-breadcrumbs class="d-none d-sm-flex pl-0" :items="[{ title: 'Acme Console', to: { path: '/', query: route.query } }, { title: current }]" />
     <v-spacer />
     <v-text-field class="d-none d-md-flex mr-2" style="max-width: 240px" density="compact" variant="outlined" hide-details placeholder="搜索..." aria-label="全局搜索">
       <template #prepend-inner><Icon name="search" size="18" /></template>

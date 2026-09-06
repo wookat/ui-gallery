@@ -4,6 +4,7 @@ import { useRoute } from "vue-router"
 import { useTheme } from "vuetify"
 import orders from "@ui-gallery/spec/mock/orders.json"
 import Icon from "@/components/Icon.vue"
+import { resolveIcon } from "@/icons"
 
 const route = useRoute()
 const theme = useTheme()
@@ -47,13 +48,13 @@ function removeOrder() {
 <template>
   <div>
     <template v-if="route.query.state === 'loading'"><v-skeleton-loader type="heading, paragraph, table" /></template>
-    <template v-else-if="route.query.state === 'empty'"><v-empty-state icon="mdi-cart-outline" title="暂无订单" text="调整筛选条件或创建一笔新订单。" /></template>
+    <template v-else-if="route.query.state === 'empty'"><v-empty-state :icon="resolveIcon('shopping-cart')" title="暂无订单" text="调整筛选条件或创建一笔新订单。"><template #actions><v-btn color="primary">新建订单</v-btn><v-btn variant="text">重置筛选</v-btn></template></v-empty-state></template>
     <template v-else-if="route.query.state === 'error'"><v-alert type="error" variant="tonal" title="订单加载失败">请检查网络后重试。<template #append><v-btn variant="outlined">重试</v-btn></template></v-alert></template>
     <template v-else>
       <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5"><div><h1 class="text-h5 text-sm-h4">订单</h1><p class="text-body-2 text-medium-emphasis mt-1">管理订单、付款状态与履约信息。</p></div><v-btn variant="outlined"><template #prepend><Icon name="download" /></template>导出</v-btn></div>
       <v-card>
         <v-card-text class="d-flex flex-wrap ga-3">
-          <v-text-field v-model="search" label="搜索订单或客户" prepend-inner-icon="mdi-magnify" density="compact" variant="outlined" hide-details class="filter-search" />
+          <v-text-field v-model="search" label="搜索订单或客户" :prepend-inner-icon="resolveIcon('search')" density="compact" variant="outlined" hide-details class="filter-search" />
           <v-select v-model="status" :items="states" label="状态" density="compact" variant="outlined" hide-details class="filter-select" />
           <v-date-input label="日期范围" multiple="range" density="compact" variant="outlined" hide-details class="filter-date" />
           <v-select v-model="channel" :items="channels" label="渠道" multiple chips density="compact" variant="outlined" hide-details class="filter-select" />

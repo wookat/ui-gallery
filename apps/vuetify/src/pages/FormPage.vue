@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import Icon from "@/components/Icon.vue"
+import { resolveIcon } from "@/icons"
 
 const form = ref()
 const step = ref(1)
@@ -37,7 +38,7 @@ function submit() {
 <template>
   <div>
     <div class="mb-6"><h1 class="text-h5 text-sm-h4">新建项目</h1><p class="text-body-2 text-medium-emphasis mt-1">分三步完成项目配置，所有字段都可以稍后修改。</p></div>
-    <v-empty-state v-if="done" icon="mdi-check-circle-outline" title="提交成功" text="项目已创建，团队成员将收到通知。"><template #actions><v-btn color="primary" @click="done = false">创建另一个项目</v-btn></template></v-empty-state>
+    <v-empty-state v-if="done" :icon="resolveIcon('check-circle')" title="提交成功" text="项目已创建，团队成员将收到通知。"><template #actions><v-btn color="primary" @click="done = false">创建另一个项目</v-btn></template></v-empty-state>
     <v-form v-else ref="form" @submit.prevent="step === 3 ? submit() : next()">
       <v-stepper v-model="step" alt-labels class="mb-5"><v-stepper-header><v-stepper-item :complete="step > 1" title="基本信息" :value="1" /><v-divider /><v-stepper-item :complete="step > 2" title="详细配置" :value="2" /><v-divider /><v-stepper-item title="确认" :value="3" /></v-stepper-header></v-stepper>
       <v-window v-model="step">

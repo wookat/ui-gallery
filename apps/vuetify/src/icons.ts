@@ -2,6 +2,7 @@
 // `native` uses Vuetify's bundled Material Design Icons (@mdi/font); the other sets
 // are rendered through their official Vue packages.
 import type { IconValue } from "vuetify/lib/composables/icons.mjs"
+import { aliases as mdiAliases } from "vuetify/iconsets/mdi"
 import * as L from "lucide-vue-next"
 import * as T from "@tabler/icons-vue"
 import * as P from "@phosphor-icons/vue"
@@ -21,6 +22,9 @@ export const icons = {
   "arrow-left": ["mdi-arrow-left", L.ArrowLeft, T.IconArrowLeft, P.PhArrowLeft, H.ArrowLeftIcon],
   "arrow-right": ["mdi-arrow-right", L.ArrowRight, T.IconArrowRight, P.PhArrowRight, H.ArrowRightIcon],
   "arrow-up": ["mdi-arrow-up", L.ArrowUp, T.IconArrowUp, P.PhArrowUp, H.ArrowUpIcon],
+  "chevrons-left": ["mdi-page-first", L.ChevronsLeft, T.IconChevronsLeft, P.PhCaretDoubleLeft, H.ChevronDoubleLeftIcon],
+  "chevrons-right": ["mdi-page-last", L.ChevronsRight, T.IconChevronsRight, P.PhCaretDoubleRight, H.ChevronDoubleRightIcon],
+  "chevrons-up-down": ["mdi-unfold-more-horizontal", L.ChevronsUpDown, T.IconArrowsUpDown, P.PhArrowsVertical, H.ChevronUpDownIcon],
   "bar-chart": ["mdi-chart-bar", L.ChartBar, T.IconChartBar, P.PhChartBar, H.ChartBarIcon],
   bell: ["mdi-bell-outline", L.Bell, T.IconBell, P.PhBell, H.BellIcon],
   bot: ["mdi-robot-outline", L.Bot, T.IconRobot, P.PhRobot, H.CpuChipIcon],
@@ -28,6 +32,8 @@ export const icons = {
   calendar: ["mdi-calendar-month-outline", L.CalendarDays, T.IconCalendar, P.PhCalendar, H.CalendarDaysIcon],
   check: ["mdi-check", L.Check, T.IconCheck, P.PhCheck, H.CheckIcon],
   "check-circle": ["mdi-check-circle-outline", L.CircleCheck, T.IconCircleCheck, P.PhCheckCircle, H.CheckCircleIcon],
+  circle: ["mdi-circle-outline", L.Circle, T.IconCircle, P.PhCircle, H.EllipsisHorizontalCircleIcon],
+  "circle-dot": ["mdi-circle-medium", L.CircleDot, T.IconCircleDot, P.PhDot, H.RadioIcon],
   "chevron-down": ["mdi-chevron-down", L.ChevronDown, T.IconChevronDown, P.PhCaretDown, H.ChevronDownIcon],
   "chevron-left": ["mdi-chevron-left", L.ChevronLeft, T.IconChevronLeft, P.PhCaretLeft, H.ChevronLeftIcon],
   "chevron-right": ["mdi-chevron-right", L.ChevronRight, T.IconChevronRight, P.PhCaretRight, H.ChevronRightIcon],
@@ -47,6 +53,7 @@ export const icons = {
   "eye-off": ["mdi-eye-off-outline", L.EyeOff, T.IconEyeOff, P.PhEyeSlash, H.EyeSlashIcon],
   "file-plus": ["mdi-file-plus-outline", L.FilePlus, T.IconFilePlus, P.PhFilePlus, H.FolderPlusIcon],
   filter: ["mdi-filter-variant", L.Filter, T.IconFilter, P.PhFunnel, H.FunnelIcon],
+  file: ["mdi-file-outline", L.File, T.IconFile, P.PhFile, H.DocumentIcon],
   github: ["mdi-github", L.Github, T.IconBrandGithub, P.PhGithubLogo, H.CodeBracketSquareIcon],
   globe: ["mdi-web", L.Globe, T.IconWorld, P.PhGlobe, H.GlobeAltIcon],
   google: ["mdi-google", L.Chrome, T.IconBrandGoogle, P.PhGoogleLogo, H.GlobeAltIcon],
@@ -62,11 +69,13 @@ export const icons = {
   link: ["mdi-link-variant", L.Link2, T.IconLink, P.PhLink, H.LinkIcon],
   list: ["mdi-format-list-bulleted", L.List, T.IconList, P.PhList, H.ListBulletIcon],
   loader: ["mdi-loading", L.LoaderCircle, T.IconLoader2, P.PhCircleNotch, H.ArrowPathIcon],
+  laptop: ["mdi-laptop", L.Laptop, T.IconDeviceLaptop, P.PhLaptop, H.ComputerDesktopIcon],
   lock: ["mdi-lock-outline", L.Lock, T.IconLock, P.PhLock, H.LockClosedIcon],
   "log-in": ["mdi-login", L.LogIn, T.IconLogin, P.PhSignIn, H.ArrowLeftOnRectangleIcon],
   "log-out": ["mdi-logout", L.LogOut, T.IconLogout, P.PhSignOut, H.ArrowRightOnRectangleIcon],
   mail: ["mdi-email-outline", L.Mail, T.IconMail, P.PhEnvelope, H.EnvelopeIcon],
   menu: ["mdi-menu", L.Menu, T.IconMenu2, P.PhListBullets, H.Bars3Icon],
+  monitor: ["mdi-monitor", L.Monitor, T.IconDeviceDesktop, P.PhMonitor, H.ComputerDesktopIcon],
   "message-circle": ["mdi-message-outline", L.MessageCircle, T.IconMessageCircle, P.PhChatCircle, H.ChatBubbleLeftIcon],
   "message-square": ["mdi-message-text-outline", L.MessageSquare, T.IconMessage, P.PhChatText, H.ChatBubbleLeftRightIcon],
   mic: ["mdi-microphone-outline", L.Mic, T.IconMicrophone, P.PhMicrophone, H.MicrophoneIcon],
@@ -74,6 +83,7 @@ export const icons = {
   moon: ["mdi-weather-night", L.Moon, T.IconMoon, P.PhMoon, H.MoonIcon],
   palette: ["mdi-palette-outline", L.Palette, T.IconPalette, P.PhPalette, H.SwatchIcon],
   paperclip: ["mdi-paperclip", L.Paperclip, T.IconPaperclip, P.PhPaperclip, H.PaperClipIcon],
+  pipette: ["mdi-eyedropper", L.Pipette, T.IconColorPicker, P.PhEyedropper, H.EyeDropperIcon],
   "pie-chart": ["mdi-chart-donut", L.PieChart, T.IconChartPie, P.PhChartPie, H.ChartPieIcon],
   play: ["mdi-play", L.Play, T.IconPlayerPlay, P.PhPlay, H.PlayIcon],
   plug: ["mdi-power-plug-outline", L.Plug, T.IconPlug, P.PhPlugs, H.PowerIcon],
@@ -87,8 +97,12 @@ export const icons = {
   "shopping-cart": ["mdi-cart-outline", L.ShoppingCart, T.IconShoppingCart, P.PhShoppingCart, H.ShoppingCartIcon],
   sliders: ["mdi-tune-variant", L.SlidersHorizontal, T.IconAdjustmentsHorizontal, P.PhSlidersHorizontal, H.AdjustmentsHorizontalIcon],
   smartphone: ["mdi-cellphone", L.Smartphone, T.IconDeviceMobile, P.PhDeviceMobile, H.DevicePhoneMobileIcon],
+  square: ["mdi-checkbox-blank-outline", L.Square, T.IconSquare, P.PhSquare, H.Square2StackIcon],
+  "square-check": ["mdi-checkbox-marked", L.SquareCheck, T.IconSquareCheck, P.PhCheckSquare, H.CheckIcon],
+  "square-minus": ["mdi-minus-box", L.SquareMinus, T.IconSquareMinus, P.PhSquareHalf, H.MinusIcon],
   sparkles: ["mdi-creation-outline", L.Sparkles, T.IconSparkles, P.PhSparkle, H.SparklesIcon],
   star: ["mdi-star-outline", L.Star, T.IconStar, P.PhStar, H.StarIcon],
+  "star-half": ["mdi-star-half-full", L.StarHalf, T.IconStarHalf, P.PhStarHalf, H.StarIcon],
   sun: ["mdi-white-balance-sunny", L.Sun, T.IconSun, P.PhSun, H.SunIcon],
   tag: ["mdi-tag-outline", L.Tag, T.IconTag, P.PhTag, H.TagIcon],
   terminal: ["mdi-console", L.Terminal, T.IconTerminal2, P.PhTerminal, H.CommandLineIcon],
@@ -101,6 +115,7 @@ export const icons = {
   wechat: ["mdi-wechat", L.MessageCircle, T.IconBrandWechat, P.PhWechatLogo, H.ChatBubbleLeftIcon],
   wrench: ["mdi-wrench-outline", L.Wrench, T.IconTool, P.PhWrench, H.WrenchIcon],
   x: ["mdi-close", L.X, T.IconX, P.PhX, H.XMarkIcon],
+  "x-circle": ["mdi-close-circle", L.CircleX, T.IconCircleX, P.PhXCircle, H.XCircleIcon],
   zap: ["mdi-flash-outline", L.Zap, T.IconBolt, P.PhLightning, H.BoltIcon],
 } satisfies Record<string, Entry>
 
@@ -123,4 +138,62 @@ export function resolveIcon(name: IconName, set: IconSet = currentIconSet()): Ic
     case "heroicons": return entry[4] as IconValue
     default: return entry[0]
   }
+}
+
+export function buildAliases(set: IconSet): Record<string, IconValue> {
+  const result = { ...mdiAliases } as Record<string, IconValue>
+  if (set === "native") return result
+  const replacements: Record<string, IconName> = {
+    collapse: "chevron-up",
+    complete: "check",
+    cancel: "x-circle",
+    delete: "x-circle",
+    clear: "x-circle",
+    error: "x-circle",
+    close: "x",
+    success: "check-circle",
+    info: "info",
+    warning: "alert-circle",
+    prev: "chevron-left",
+    next: "chevron-right",
+    checkboxOn: "square-check",
+    checkboxOff: "square",
+    checkboxIndeterminate: "square-minus",
+    delimiter: "circle",
+    sortAsc: "arrow-up",
+    sortDesc: "arrow-down",
+    expand: "chevron-down",
+    subgroup: "chevron-down",
+    dropdown: "chevron-down",
+    treeviewCollapse: "chevron-down",
+    tableGroupCollapse: "chevron-down",
+    treeviewExpand: "chevron-right",
+    tableGroupExpand: "chevron-right",
+    menu: "menu",
+    radioOn: "circle-dot",
+    radioOff: "circle",
+    edit: "edit",
+    ratingEmpty: "star",
+    ratingFull: "star",
+    ratingHalf: "star-half",
+    loading: "loader",
+    first: "chevrons-left",
+    last: "chevrons-right",
+    unfold: "chevrons-up-down",
+    file: "paperclip",
+    plus: "plus",
+    minus: "minus",
+    calendar: "calendar",
+    eyeDropper: "pipette",
+    upload: "upload",
+    color: "palette",
+    search: "search",
+    arrowup: "arrow-up",
+    arrowdown: "arrow-down",
+    arrowleft: "arrow-left",
+    arrowright: "arrow-right",
+    play: "play",
+  }
+  for (const [alias, name] of Object.entries(replacements)) result[alias] = resolveIcon(name, set)
+  return result
 }

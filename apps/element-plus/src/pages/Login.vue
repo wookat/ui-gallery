@@ -36,14 +36,8 @@ const submit = () => {
       </div>
       <p class="muted">登录控制台，管理你的团队工作。</p>
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="login-form" @submit.prevent="submit">
-        <el-form-item label="邮箱" prop="email"
-          ><el-input v-model="form.email" placeholder="you@example.com"
-            ><template #prefix><Icon name="user" /></template></el-input
-        ></el-form-item>
-        <el-form-item label="密码" prop="password"
-          ><el-input v-model="form.password" type="password" show-password placeholder="请输入密码"
-            ><template #prefix><Icon name="lock" /></template></el-input
-        ></el-form-item>
+        <el-form-item label="邮箱" prop="email"><el-input v-model="form.email" placeholder="you@example.com"><template #prefix><Icon name="user" /></template></el-input></el-form-item>
+        <el-form-item label="密码" prop="password"><el-input v-model="form.password" type="password" show-password placeholder="请输入密码"><template #prefix><Icon name="lock" /></template></el-input></el-form-item>
         <div class="login-options">
           <el-checkbox v-model="form.remember">记住我</el-checkbox><el-link type="primary">忘记密码？</el-link>
         </div>
@@ -51,8 +45,7 @@ const submit = () => {
       </el-form>
       <el-divider>或</el-divider>
       <div class="oauth">
-        <el-button plain><Icon name="google" /> Google</el-button><el-button plain><Icon name="github" /> GitHub</el-button
-        ><el-button plain><Icon name="wechat" /> 微信</el-button>
+        <el-button plain><Icon name="google" /> Google</el-button><el-button plain><Icon name="github" /> GitHub</el-button><el-button plain><Icon name="wechat" /> 微信</el-button>
       </div>
       <p class="register muted">还没有账号？<el-link type="primary">注册</el-link></p>
     </el-card>

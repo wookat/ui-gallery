@@ -13,37 +13,23 @@ const yearly = ref(false)
   <div class="landing">
     <header class="landing-nav">
       <div class="brand"><span class="brand-mark">A</span>Acme Console</div>
-      <el-menu mode="horizontal" ellipsis class="hide-mobile"
-        ><el-menu-item index="1">产品</el-menu-item><el-menu-item index="2">方案</el-menu-item><el-menu-item index="3">价格</el-menu-item
-        ><el-menu-item index="4">资源</el-menu-item><el-menu-item index="5">帮助</el-menu-item></el-menu
-      >
+      <el-menu mode="horizontal" ellipsis class="hide-mobile"><el-menu-item index="1">产品</el-menu-item><el-menu-item index="2">方案</el-menu-item><el-menu-item index="3">价格</el-menu-item><el-menu-item index="4">资源</el-menu-item><el-menu-item index="5">帮助</el-menu-item></el-menu>
       <div class="nav-actions">
-        <el-button text class="hide-mobile">登录</el-button><el-button type="primary" round>免费开始</el-button
-        ><el-button v-if="mobile" text class="icon-btn" @click="menu = true"><Icon name="menu" :size="20" /></el-button>
+        <el-button text class="hide-mobile">登录</el-button><el-button type="primary" round>免费开始</el-button><el-button v-if="mobile" text class="icon-btn" @click="menu = true"><Icon name="menu" :size="20" /></el-button>
       </div>
     </header>
-    <el-drawer v-model="menu" direction="rtl" size="260px"
-      ><el-menu
-        ><el-menu-item index="1">产品</el-menu-item><el-menu-item index="2">方案</el-menu-item><el-menu-item index="3">价格</el-menu-item
-        ><el-menu-item index="4">资源</el-menu-item><el-menu-item index="5">帮助</el-menu-item></el-menu
-      ></el-drawer
-    >
+    <el-drawer v-model="menu" direction="rtl" size="260px"><el-menu><el-menu-item index="1">产品</el-menu-item><el-menu-item index="2">方案</el-menu-item><el-menu-item index="3">价格</el-menu-item><el-menu-item index="4">资源</el-menu-item><el-menu-item index="5">帮助</el-menu-item></el-menu></el-drawer>
     <main>
       <section class="hero">
         <el-tag type="success" effect="plain">新一代团队控制台</el-tag>
         <h1>{{ landing.hero.title }}</h1>
         <p>{{ landing.hero.subtitle }}</p>
-        <el-space
-          ><el-button type="primary" size="large">{{ landing.hero.primary }}</el-button
-          ><el-button size="large">{{ landing.hero.secondary }}</el-button></el-space
-        >
+        <el-space><el-button type="primary" size="large">{{ landing.hero.primary }}</el-button><el-button size="large">{{ landing.hero.secondary }}</el-button></el-space>
         <div class="hero-shot"><el-skeleton animated :rows="5" /></div>
         <div class="social">
-          <el-avatar-group
-            ><el-avatar v-for="name in landing.testimonials.slice(0, 5)" :key="name.name">{{
-              name.name.slice(0, 1)
-            }}</el-avatar></el-avatar-group
-          ><span>{{ landing.hero.social }}</span>
+          <el-avatar-group><el-avatar v-for="name in landing.testimonials.slice(0, 5)" :key="name.name">{{
+            name.name.slice(0, 1)
+          }}</el-avatar></el-avatar-group><span>{{ landing.hero.social }}</span>
         </div>
       </section>
       <section class="logo-cloud">
@@ -52,15 +38,9 @@ const yearly = ref(false)
       <section id="features" class="section">
         <h2>为高效团队而生</h2>
         <p class="section-lead">从数据到协作，所有重要工作都在一个地方。</p>
-        <el-row :gutter="16"
-          ><el-col v-for="feature in landing.features" :key="feature.title" :xs="24" :sm="12" :lg="8"
-            ><el-card class="feature-card"
-              ><Icon :name="feature.icon" :size="24" />
-              <h3>{{ feature.title }}</h3>
-              <p>{{ feature.desc }}</p></el-card
-            ></el-col
-          ></el-row
-        >
+        <el-row :gutter="16"><el-col v-for="feature in landing.features" :key="feature.title" :xs="24" :sm="12" :lg="8"><el-card class="feature-card"><Icon :name="feature.icon" :size="24" />
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.desc }}</p></el-card></el-col></el-row>
       </section>
       <section class="section split" v-for="(feature, index) in landing.features.slice(0, 3)" :key="feature.title">
         <div><el-skeleton animated :rows="5" /></div>
@@ -73,8 +53,7 @@ const yearly = ref(false)
       </section>
       <section class="numbers">
         <div v-for="item in landing.numbers" :key="item.label">
-          <strong>{{ item.value }}</strong
-          ><span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong><span>{{ item.label }}</span>
         </div>
       </section>
       <section id="pricing" class="section">
@@ -85,44 +64,30 @@ const yearly = ref(false)
           </div>
           <el-switch v-model="yearly" active-text="按年付费" />
         </div>
-        <el-row :gutter="16"
-          ><el-col v-for="plan in plans" :key="plan.name" :xs="24" :md="8"
-            ><el-card :class="{ recommended: plan.recommended }" class="plan-card"
-              ><el-tag v-if="plan.recommended" type="success">推荐</el-tag>
-              <h3>{{ plan.name }}</h3>
-              <strong>{{
-                plan.price === null
-                  ? "联系销售"
-                  : plan.price === 0
-                    ? "免费"
-                    : `¥${yearly ? plan.price * 10 : plan.price} / ${yearly ? "年" : "月"}`
-              }}</strong>
-              <p v-for="item in plan.features" :key="item">✓ {{ item }}</p>
-              <el-button :type="plan.recommended ? 'primary' : 'default'" class="full-width">选择计划</el-button></el-card
-            ></el-col
-          ></el-row
-        >
+        <el-row :gutter="16"><el-col v-for="plan in plans" :key="plan.name" :xs="24" :md="8"><el-card :class="{ recommended: plan.recommended }" class="plan-card"><el-tag v-if="plan.recommended" type="success">推荐</el-tag>
+          <h3>{{ plan.name }}</h3>
+          <strong>{{
+            plan.price === null
+              ? "联系销售"
+              : plan.price === 0
+                ? "免费"
+                : `¥${yearly ? plan.price * 10 : plan.price} / ${yearly ? "年" : "月"}`
+          }}</strong>
+          <p v-for="item in plan.features" :key="item">✓ {{ item }}</p>
+          <el-button :type="plan.recommended ? 'primary' : 'default'" class="full-width">选择计划</el-button></el-card></el-col></el-row>
       </section>
       <section class="section">
         <h2>团队正在这样使用</h2>
         <div class="testimonials">
-          <el-carousel height="180px" :autoplay="false" arrow="always" indicator-position="outside"
-            ><el-carousel-item v-for="quote in landing.testimonials" :key="quote.name"
-              ><div class="quote">
-                <p>“{{ quote.quote }}”</p>
-                <span>{{ quote.name }} · {{ quote.company }}</span>
-              </div></el-carousel-item
-            ></el-carousel
-          >
+          <el-carousel height="180px" :autoplay="false" arrow="always" indicator-position="outside"><el-carousel-item v-for="quote in landing.testimonials" :key="quote.name"><div class="quote">
+            <p>“{{ quote.quote }}”</p>
+            <span>{{ quote.name }} · {{ quote.company }}</span>
+          </div></el-carousel-item></el-carousel>
         </div>
       </section>
       <section id="faq" class="section faq">
         <h2>常见问题</h2>
-        <el-collapse accordion
-          ><el-collapse-item v-for="item in landing.faq" :key="item.q" :title="item.q"
-            ><p>{{ item.a }}</p></el-collapse-item
-          ></el-collapse
-        >
+        <el-collapse accordion><el-collapse-item v-for="item in landing.faq" :key="item.q" :title="item.q"><p>{{ item.a }}</p></el-collapse-item></el-collapse>
       </section>
       <section class="cta">
         <h2>准备好让团队更高效了吗？</h2>
@@ -133,9 +98,7 @@ const yearly = ref(false)
     <footer>
       <div class="brand"><span class="brand-mark">A</span>Acme Console</div>
       <div class="footer-links"><el-link>产品</el-link><el-link>价格</el-link><el-link>帮助中心</el-link><el-link>隐私条款</el-link></div>
-      <span class="muted"
-        >© 2026 Acme Console · <el-select model-value="zh-CN" style="width: 110px"><el-option label="简体中文" value="zh-CN" /></el-select
-      ></span>
+      <span class="muted">© 2026 Acme Console · <el-select model-value="zh-CN" style="width: 110px"><el-option label="简体中文" value="zh-CN" /></el-select></span>
     </footer>
   </div>
 </template>

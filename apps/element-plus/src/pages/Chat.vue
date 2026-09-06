@@ -38,79 +38,56 @@ const copy = (text: string) => {
       </div>
       <el-button v-if="mobile" @click="conversationsOpen = true"><Icon name="message-square" />对话列表</el-button>
     </div>
-    <el-drawer v-if="mobile" v-model="conversationsOpen" title="对话" direction="ltr" size="290px"
-      ><div class="conversation-list">
-        <el-input placeholder="搜索对话"
-          ><template #prefix><Icon name="search" /></template></el-input
-        ><el-button type="primary" class="full-width new-chat"><Icon name="plus" />新建对话</el-button
-        ><el-button
-          v-for="item in chat.conversations"
-          :key="item.id"
-          class="conversation"
-          :type="active === item.id ? 'primary' : 'default'"
-          plain
-          @click="selectConversation(item.id, true)"
-          ><span
-            >{{ item.title }}<small>{{ item.time }}</small></span
-          ><el-badge v-if="item.unread" :value="item.unread"
-        /></el-button></div
-    ></el-drawer>
-    <el-card class="chat-card"
-      ><aside v-if="!mobile" class="conversation-pane">
-        <div class="conversation-heading">
-          <b>对话</b><el-button text><Icon name="plus" /></el-button>
-        </div>
-        <el-input placeholder="搜索对话"
-          ><template #prefix><Icon name="search" /></template></el-input
-        ><el-button type="primary" class="full-width new-chat"><Icon name="plus" />新建对话</el-button>
-        <div class="conversation-list">
-          <el-button
-            v-for="item in chat.conversations"
-            :key="item.id"
-            class="conversation"
-            :type="active === item.id ? 'primary' : 'default'"
-            plain
-            @click="active = item.id"
-            ><span
-              >{{ item.title }}<small>{{ item.time }}</small></span
-            ><el-badge v-if="item.unread" :value="item.unread"
-          /></el-button>
-        </div>
-      </aside>
+    <el-drawer v-if="mobile" v-model="conversationsOpen" title="对话" direction="ltr" size="290px"><div class="conversation-list">
+      <el-input placeholder="搜索对话"><template #prefix><Icon name="search" /></template></el-input><el-button type="primary" class="full-width new-chat"><Icon name="plus" />新建对话</el-button><el-button
+        v-for="item in chat.conversations"
+        :key="item.id"
+        class="conversation"
+        :type="active === item.id ? 'primary' : 'default'"
+        plain
+        @click="selectConversation(item.id, true)"
+      ><span>{{ item.title }}<small>{{ item.time }}</small></span><el-badge v-if="item.unread" :value="item.unread" /></el-button></div></el-drawer>
+    <el-card class="chat-card"><aside v-if="!mobile" class="conversation-pane">
+                                 <div class="conversation-heading">
+                                   <b>对话</b><el-button text><Icon name="plus" /></el-button>
+                                 </div>
+                                 <el-input placeholder="搜索对话"><template #prefix><Icon name="search" /></template></el-input><el-button type="primary" class="full-width new-chat"><Icon name="plus" />新建对话</el-button>
+                                 <div class="conversation-list">
+                                   <el-button
+                                     v-for="item in chat.conversations"
+                                     :key="item.id"
+                                     class="conversation"
+                                     :type="active === item.id ? 'primary' : 'default'"
+                                     plain
+                                     @click="active = item.id"
+                                   ><span>{{ item.title }}<small>{{ item.time }}</small></span><el-badge v-if="item.unread" :value="item.unread" /></el-button>
+                                 </div>
+                               </aside>
       <section class="chat-main">
         <header class="chat-header">
           <div>
-            <b>{{ selected?.title }}</b
-            ><small>GPT-5 · 已连接</small>
+            <b>{{ selected?.title }}</b><small>GPT-5 · 已连接</small>
           </div>
-          <el-select v-model="model" style="width: 150px"
-            ><el-option v-for="item in chat.models" :key="item" :label="item" :value="item"
-          /></el-select>
+          <el-select v-model="model" style="width: 150px"><el-option v-for="item in chat.models" :key="item" :label="item" :value="item" /></el-select>
         </header>
         <div class="messages">
-          <template v-if="selected?.id === chat.conversations[0].id"
-            ><div v-for="(message, index) in chat.messages" :key="index" class="message" :class="message.role">
-              <el-avatar>{{ message.role === "user" ? "林" : "AI" }}</el-avatar>
-              <div class="message-body">
-                <div class="message-meta">{{ message.role === "user" ? "林晓" : "AI 助手" }} · 刚刚</div>
-                <div v-if="message.role === 'assistant'" class="bubble markdown" v-html="render(message.content)" />
-                <div v-else class="bubble">{{ message.content }}</div>
-                <div v-if="message.role === 'assistant' && message.content.includes('```')" class="code-actions">
-                  <el-button @click="copy(message.content)"><Icon name="copy" />{{ copied ? "已复制" : "复制代码" }}</el-button>
-                </div>
-                <div v-if="message.sources" class="sources">
-                  <el-tag v-for="source in message.sources" :key="source" size="small" effect="plain"
-                    ><Icon name="paperclip" />{{ source }}</el-tag
-                  >
-                </div>
-                <el-collapse v-if="message.tool" class="tool"
-                  ><el-collapse-item :title="`工具调用 · ${message.tool.name}`">
-                    <pre>{{ JSON.stringify(message.tool.args, null, 2) }}</pre>
-                  </el-collapse-item></el-collapse
-                ><span v-if="message.streaming" class="typing">● ● ●</span>
+          <template v-if="selected?.id === chat.conversations[0].id"><div v-for="(message, index) in chat.messages" :key="index" class="message" :class="message.role">
+            <el-avatar>{{ message.role === "user" ? "林" : "AI" }}</el-avatar>
+            <div class="message-body">
+              <div class="message-meta">{{ message.role === "user" ? "林晓" : "AI 助手" }} · 刚刚</div>
+              <div v-if="message.role === 'assistant'" class="bubble markdown" v-html="render(message.content)" />
+              <div v-else class="bubble">{{ message.content }}</div>
+              <div v-if="message.role === 'assistant' && message.content.includes('```')" class="code-actions">
+                <el-button @click="copy(message.content)"><Icon name="copy" />{{ copied ? "已复制" : "复制代码" }}</el-button>
               </div>
-            </div></template
-          >
+              <div v-if="message.sources" class="sources">
+                <el-tag v-for="source in message.sources" :key="source" size="small" effect="plain"><Icon name="paperclip" />{{ source }}</el-tag>
+              </div>
+              <el-collapse v-if="message.tool" class="tool"><el-collapse-item :title="`工具调用 · ${message.tool.name}`">
+                <pre>{{ JSON.stringify(message.tool.args, null, 2) }}</pre>
+              </el-collapse-item></el-collapse><span v-if="message.streaming" class="typing">● ● ●</span>
+            </div>
+          </div></template>
           <div v-else class="chat-empty">
             <Icon name="sparkles" :size="36" />
             <h2>你好，林晓，今天想聊什么？</h2>
@@ -122,8 +99,7 @@ const copy = (text: string) => {
                 shadow="hover"
                 class="suggestion-card"
                 @click="draft = suggestion"
-                ><Icon name="message-square" /><span>{{ suggestion }}</span></el-card
-              >
+              ><Icon name="message-square" /><span>{{ suggestion }}</span></el-card>
             </div>
           </div>
         </div>

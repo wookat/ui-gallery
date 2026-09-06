@@ -194,36 +194,25 @@ const handlePin = (index: number, value: string) => {
       </div>
       <el-button type="primary" @click="showNotification('success')">发送通知</el-button>
     </div>
-    <el-card class="index-card"
-      ><div class="desktop-anchor">
-        <el-anchor direction="horizontal" type="underline"
-          ><el-anchor-link v-for="item in anchors" :key="item.value" :href="`#${item.value}`">{{ item.label }}</el-anchor-link></el-anchor
-        >
-      </div>
-      <el-select class="mobile-anchor" :model-value="activeSection" placeholder="跳转到组件分节" @change="jump"
-        ><el-option v-for="item in anchors" :key="item.value" :label="item.label" :value="item.value"
-      /></el-select>
+    <el-card class="index-card"><div class="desktop-anchor">
+                                  <el-anchor direction="horizontal" type="underline"><el-anchor-link v-for="item in anchors" :key="item.value" :href="`#${item.value}`">{{ item.label }}</el-anchor-link></el-anchor>
+                                </div>
+      <el-select class="mobile-anchor" :model-value="activeSection" placeholder="跳转到组件分节" @change="jump"><el-option v-for="item in anchors" :key="item.value" :label="item.label" :value="item.value" /></el-select>
       <div class="coverage">
         <el-tag
           v-for="[name, value] in Object.entries(coverage)"
           :key="name"
           :type="value === 'implemented' ? 'success' : 'warning'"
           :disable-transitions="true"
-          >{{ name }} · {{ value }}</el-tag
-        >
-      </div></el-card
-    >
+        >{{ name }} · {{ value }}</el-tag>
+      </div></el-card>
     <section v-for="section in sections" :id="sectionId(section.name)" :key="section.name" class="sink-section">
-      <el-card class="component-card"
-        ><template #header
-          ><div class="component-header">
-            <div>
-              <strong>{{ section.name }}</strong
-              ><span>{{ section.description }}</span>
-            </div>
-            <el-tag :type="status(section.name) === 'implemented' ? 'success' : 'warning'" size="small">{{ status(section.name) }}</el-tag>
-          </div></template
-        >
+      <el-card class="component-card"><template #header><div class="component-header">
+                                        <div>
+                                          <strong>{{ section.name }}</strong><span>{{ section.description }}</span>
+                                        </div>
+                                        <el-tag :type="status(section.name) === 'implemented' ? 'success' : 'warning'" size="small">{{ status(section.name) }}</el-tag>
+                                      </div></template>
         <div v-if="section.name === 'Typography'" class="demo-stack">
           <div class="heading-grid">
             <h1>Heading 1</h1>
@@ -242,39 +231,22 @@ const handlePin = (index: number, value: string) => {
             <li>有序列表项目</li>
           </ol>
           <div class="demo-row">
-            <el-text v-for="size in textSizes" :key="size" :size="size">{{ size }}</el-text
-            ><el-text v-for="type in types" :key="type" :type="type">{{ type }}</el-text>
+            <el-text v-for="size in textSizes" :key="size" :size="size">{{ size }}</el-text><el-text v-for="type in types" :key="type" :type="type">{{ type }}</el-text>
           </div>
         </div>
         <div v-else-if="section.name === 'Button'" class="demo-stack">
           <div class="demo-row" v-for="type in types" :key="type">
-            <el-button :type="type">default</el-button><el-button :type="type" plain>plain</el-button
-            ><el-button :type="type" round>round</el-button><el-button :type="type" circle><Plus /></el-button>
+            <el-button :type="type">default</el-button><el-button :type="type" plain>plain</el-button><el-button :type="type" round>round</el-button><el-button :type="type" circle><Plus /></el-button>
           </div>
           <div class="demo-row">
-            <el-button v-for="size in sizes" :key="size" :size="size" data-size-demo>size {{ size }}</el-button
-            ><el-button loading>loading</el-button
-            ><el-button loading
-              ><template #loading
-                ><el-icon class="is-loading"><Loading /></el-icon></template
-              >custom loading</el-button
-            ><el-button disabled>disabled</el-button><el-button text>text</el-button><el-button link>link</el-button
-            ><el-button bg>bg</el-button>
+            <el-button v-for="size in sizes" :key="size" :size="size" data-size-demo>size {{ size }}</el-button><el-button loading>loading</el-button><el-button loading><template #loading><el-icon class="is-loading"><Loading /></el-icon></template>custom loading</el-button><el-button disabled>disabled</el-button><el-button text>text</el-button><el-button link>link</el-button><el-button bg>bg</el-button>
           </div>
         </div>
         <div v-else-if="section.name === 'ButtonGroup'" class="demo-stack">
-          <el-button-group><el-button>上一页</el-button><el-button>下一页</el-button></el-button-group
-          ><el-button-group
-            ><el-button><Edit /></el-button><el-button><Delete /></el-button></el-button-group
-          ><el-button-group type="primary"><el-button>保存</el-button><el-button>发布</el-button></el-button-group
-          ><el-button-group v-for="size in sizes" :key="size" :size="size" data-size-demo
-            ><el-button>左</el-button><el-button>右</el-button></el-button-group
-          >
+          <el-button-group><el-button>上一页</el-button><el-button>下一页</el-button></el-button-group><el-button-group><el-button><Edit /></el-button><el-button><Delete /></el-button></el-button-group><el-button-group type="primary"><el-button>保存</el-button><el-button>发布</el-button></el-button-group><el-button-group v-for="size in sizes" :key="size" :size="size" data-size-demo><el-button>左</el-button><el-button>右</el-button></el-button-group>
         </div>
         <div v-else-if="section.name === 'IconButton'" class="demo-row">
-          <template v-for="type in types" :key="type"
-            ><el-button v-for="size in sizes" :key="size" :type="type" :size="size" circle data-size-demo><Plus /></el-button></template
-          ><el-button circle disabled><Plus /></el-button><el-button circle loading />
+          <template v-for="type in types" :key="type"><el-button v-for="size in sizes" :key="size" :type="type" :size="size" circle data-size-demo><Plus /></el-button></template><el-button circle disabled><Plus /></el-button><el-button circle loading />
         </div>
         <div v-else-if="section.name === 'Input'" class="demo-grid cols-3">
           <el-input v-model="input" prefix-icon="Search" suffix-icon="Edit" clearable placeholder="请输入内容" /><el-input
@@ -319,10 +291,7 @@ const handlePin = (index: number, value: string) => {
           /><el-input-number v-model="number" disabled />
         </div>
         <div v-else-if="section.name === 'Select'" class="demo-row">
-          <el-select v-model="selected"
-            ><el-option-group label="常用"
-              ><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-option-group></el-select
-          ><el-select v-model="selected" filterable clearable /><el-select
+          <el-select v-model="selected"><el-option-group label="常用"><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-option-group></el-select><el-select v-model="selected" filterable clearable /><el-select
             v-for="size in sizes"
             :key="size"
             v-model="selected"
@@ -331,16 +300,10 @@ const handlePin = (index: number, value: string) => {
           /><el-select v-model="selected" disabled />
         </div>
         <div v-else-if="section.name === 'MultiSelect'" class="demo-row">
-          <el-select v-model="selectedMany" multiple collapse-tags collapse-tags-tooltip :max-collapse-tags="1" multiple-limit="3"
-            ><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-select
-          ><el-select v-model="selectedMany" multiple disabled
-            ><el-option v-for="item in selectOptions" :key="item.value" v-bind="item"
-          /></el-select>
+          <el-select v-model="selectedMany" multiple collapse-tags collapse-tags-tooltip :max-collapse-tags="1" multiple-limit="3"><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-select><el-select v-model="selectedMany" multiple disabled><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-select>
         </div>
         <div v-else-if="section.name === 'Combobox'" class="demo-row">
-          <el-select v-model="selected" filterable allow-create default-first-option :filter-method="filterCombobox"
-            ><el-option v-for="item in selectOptions" :key="item.value" v-bind="item"
-          /></el-select>
+          <el-select v-model="selected" filterable allow-create default-first-option :filter-method="filterCombobox"><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-select>
         </div>
         <div v-else-if="section.name === 'Autocomplete'" class="demo-grid cols-2">
           <el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" placeholder="输入 a 试试" /><el-autocomplete
@@ -349,26 +312,15 @@ const handlePin = (index: number, value: string) => {
             trigger-on-focus
             clearable
             placeholder="输入 a 试试"
-          /><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" clearable placeholder="输入 a 试试"
-            ><template #default="{ item }"
-              ><span>{{ item.value }} · {{ item.email }}</span></template
-            ></el-autocomplete
-          ><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" disabled placeholder="输入 a 试试" />
+          /><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" clearable placeholder="输入 a 试试"><template #default="{ item }"><span>{{ item.value }} · {{ item.email }}</span></template></el-autocomplete><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" disabled placeholder="输入 a 试试" />
         </div>
         <div v-else-if="section.name === 'Checkbox'" class="demo-stack">
-          <el-checkbox v-model="checked">基础</el-checkbox
-          ><el-checkbox v-model="indeterminate" :indeterminate="indeterminate">indeterminate</el-checkbox
-          ><el-checkbox-group v-model="selectedMany"
-            ><el-checkbox v-for="item in ['one', 'two', 'three']" :key="item" :value="item" border>{{
-              item
-            }}</el-checkbox></el-checkbox-group
-          >
+          <el-checkbox v-model="checked">基础</el-checkbox><el-checkbox v-model="indeterminate" :indeterminate="indeterminate">indeterminate</el-checkbox><el-checkbox-group v-model="selectedMany"><el-checkbox v-for="item in ['one', 'two', 'three']" :key="item" :value="item" border>{{
+            item
+          }}</el-checkbox></el-checkbox-group>
         </div>
         <div v-else-if="section.name === 'Radio'" class="demo-stack">
-          <el-radio-group v-model="radio"><el-radio value="a">A</el-radio><el-radio value="b">B</el-radio></el-radio-group
-          ><el-radio-group v-model="radio"
-            ><el-radio-button value="a">A</el-radio-button><el-radio-button value="b">B</el-radio-button></el-radio-group
-          ><el-radio value="a" border>border</el-radio>
+          <el-radio-group v-model="radio"><el-radio value="a">A</el-radio><el-radio value="b">B</el-radio></el-radio-group><el-radio-group v-model="radio"><el-radio-button value="a">A</el-radio-button><el-radio-button value="b">B</el-radio-button></el-radio-group><el-radio value="a" border>border</el-radio>
         </div>
         <div v-else-if="section.name === 'Switch'" class="demo-row">
           <el-switch v-model="switched" size="large" active-text="是" inactive-text="否" /><el-switch
@@ -437,11 +389,7 @@ const handlePin = (index: number, value: string) => {
           />
         </div>
         <div v-else-if="section.name === 'Upload'" class="demo-row">
-          <el-upload action="#" :auto-upload="false" :file-list="uploadFiles"><el-button type="primary">点击上传</el-button></el-upload
-          ><el-upload drag action="#" :auto-upload="false">拖拽上传</el-upload
-          ><el-upload action="#" list-type="picture-card" :auto-upload="false"
-            ><el-icon><Plus /></el-icon
-          ></el-upload>
+          <el-upload action="#" :auto-upload="false" :file-list="uploadFiles"><el-button type="primary">点击上传</el-button></el-upload><el-upload drag action="#" :auto-upload="false">拖拽上传</el-upload><el-upload action="#" list-type="picture-card" :auto-upload="false"><el-icon><Plus /></el-icon></el-upload>
         </div>
         <div v-else-if="section.name === 'Cascader'" class="demo-row">
           <el-cascader :options="cascaderOptions" /><el-cascader :options="cascaderOptions" multiple collapse-tags filterable /><el-cascader
@@ -465,13 +413,7 @@ const handlePin = (index: number, value: string) => {
           />
         </div>
         <div v-else-if="section.name === 'Form'" class="demo-stack">
-          <el-form v-for="position in formPositions" :key="position" :model="formState" :label-position="position"
-            ><el-form-item label="姓名" required><el-input v-model="formState.name" /></el-form-item
-            ><el-form-item label="邮箱" error="校验错误示例"><el-input v-model="formState.email" /></el-form-item></el-form
-          ><el-form :model="formState" inline
-            ><el-form-item label="帮助文案"><el-input v-model="formState.name" /></el-form-item
-            ><el-form-item><el-checkbox v-model="formState.agreement">必填</el-checkbox></el-form-item></el-form
-          >
+          <el-form v-for="position in formPositions" :key="position" :model="formState" :label-position="position"><el-form-item label="姓名" required><el-input v-model="formState.name" /></el-form-item><el-form-item label="邮箱" error="校验错误示例"><el-input v-model="formState.email" /></el-form-item></el-form><el-form :model="formState" inline><el-form-item label="帮助文案"><el-input v-model="formState.name" /></el-form-item><el-form-item><el-checkbox v-model="formState.agreement">必填</el-checkbox></el-form-item></el-form>
         </div>
         <div v-else-if="section.name === 'Table'">
           <div class="table-scroll" data-scroll-x>
@@ -484,75 +426,49 @@ const handlePin = (index: number, value: string) => {
               sum-text="合计"
               @selection-change="tableSelection = $event"
               @sort-change="({ prop, order }) => (tableSort = `${prop} ${order ?? ''}`)"
-              ><el-table-column type="selection" width="55" /><el-table-column
-                prop="id"
-                label="订单号"
-                sortable
-                min-width="130"
-              /><el-table-column v-if="!mobile" prop="customer" label="客户" min-width="130" /><el-table-column
-                v-if="!mobile"
-                prop="product"
-                label="产品"
-                min-width="150"
-              /><el-table-column prop="amount" label="金额" min-width="110" /><el-table-column prop="status" label="状态" /><el-table-column
-                v-if="!mobile"
-                type="expand"
-                ><template #default="{ row }">
-                  <pre>{{ JSON.stringify(row, null, 2) }}</pre>
-                </template></el-table-column
-              ></el-table
-            >
+            ><el-table-column type="selection" width="55" /><el-table-column
+              prop="id"
+              label="订单号"
+              sortable
+              min-width="130"
+            /><el-table-column v-if="!mobile" prop="customer" label="客户" min-width="130" /><el-table-column
+              v-if="!mobile"
+              prop="product"
+              label="产品"
+              min-width="150"
+            /><el-table-column prop="amount" label="金额" min-width="110" /><el-table-column prop="status" label="状态" /><el-table-column
+              v-if="!mobile"
+              type="expand"
+            ><template #default="{ row }">
+              <pre>{{ JSON.stringify(row, null, 2) }}</pre>
+            </template></el-table-column></el-table>
           </div>
           <small class="muted">selection {{ tableSelection.length }} · sort {{ tableSort || "none" }}</small>
         </div>
         <div v-else-if="section.name === 'DataGrid'">
           <div style="height: 260px">
-            <el-auto-resizer
-              ><template #default="{ height, width }"
-                ><el-table-v2 :columns="tableV2Columns" :data="tableV2Rows" :width="width" :height="height" /></template
-            ></el-auto-resizer>
+            <el-auto-resizer><template #default="{ height, width }"><el-table-v2 :columns="tableV2Columns" :data="tableV2Rows" :width="width" :height="height" /></template></el-auto-resizer>
           </div>
         </div>
         <div v-else-if="section.name === 'Descriptions'">
-          <el-descriptions title="团队成员" border :column="2"
-            ><el-descriptions-item label="姓名">{{ team[0].name }}</el-descriptions-item
-            ><el-descriptions-item label="角色">{{ team[0].role }}</el-descriptions-item
-            ><el-descriptions-item label="邮箱">{{ team[0].email }}</el-descriptions-item
-            ><el-descriptions-item label="状态">{{ team[0].lastActive }}</el-descriptions-item></el-descriptions
-          >
+          <el-descriptions title="团队成员" border :column="2"><el-descriptions-item label="姓名">{{ team[0].name }}</el-descriptions-item><el-descriptions-item label="角色">{{ team[0].role }}</el-descriptions-item><el-descriptions-item label="邮箱">{{ team[0].email }}</el-descriptions-item><el-descriptions-item label="状态">{{ team[0].lastActive }}</el-descriptions-item></el-descriptions>
         </div>
         <div v-else-if="section.name === 'List'" class="list-box">
           <div v-for="item in team" :key="item.email" class="list-item">
-            <el-avatar>{{ item.name.slice(0, 1) }}</el-avatar
-            ><span class="list-text"
-              >{{ item.name }}<small>{{ item.email }}</small></span
-            ><el-tag>{{ item.role }}</el-tag>
+            <el-avatar>{{ item.name.slice(0, 1) }}</el-avatar><span class="list-text">{{ item.name }}<small>{{ item.email }}</small></span><el-tag>{{ item.role }}</el-tag>
           </div>
         </div>
         <div v-else-if="section.name === 'Card'" class="demo-grid cols-3">
-          <el-card v-for="shadow in cardShadows" :key="shadow" :shadow="shadow"
-            ><template #header>shadow={{ shadow }}</template
-            >内容<template #footer>footer</template></el-card
-          >
+          <el-card v-for="shadow in cardShadows" :key="shadow" :shadow="shadow"><template #header>shadow={{ shadow }}</template>内容<template #footer>footer</template></el-card>
         </div>
         <div v-else-if="section.name === 'Avatar'" class="demo-row">
-          <el-avatar v-for="size in sizes" :key="size" :size="size" data-size-demo>A</el-avatar
-          ><el-avatar v-for="size in sizes" :key="`square-${size}`" :size="size" shape="square" data-size-demo>A</el-avatar
-          ><el-avatar icon="UserFilled" /><el-avatar>林</el-avatar><el-avatar :src="imageData" fit="cover" />
+          <el-avatar v-for="size in sizes" :key="size" :size="size" data-size-demo>A</el-avatar><el-avatar v-for="size in sizes" :key="`square-${size}`" :size="size" shape="square" data-size-demo>A</el-avatar><el-avatar icon="UserFilled" /><el-avatar>林</el-avatar><el-avatar :src="imageData" fit="cover" />
         </div>
         <div v-else-if="section.name === 'AvatarGroup'" class="demo-row">
-          <el-avatar-group :max="3" size="small"
-            ><el-avatar v-for="item in team" :key="item.email">{{ item.name.slice(0, 1) }}</el-avatar></el-avatar-group
-          ><el-avatar-group :max="5" size="large"
-            ><el-avatar v-for="item in team" :key="item.email">{{ item.name.slice(0, 1) }}</el-avatar></el-avatar-group
-          >
+          <el-avatar-group :max="3" size="small"><el-avatar v-for="item in team" :key="item.email">{{ item.name.slice(0, 1) }}</el-avatar></el-avatar-group><el-avatar-group :max="5" size="large"><el-avatar v-for="item in team" :key="item.email">{{ item.name.slice(0, 1) }}</el-avatar></el-avatar-group>
         </div>
         <div v-else-if="section.name === 'Badge'" class="demo-row badge-row">
-          <el-badge :value="12"><el-button>数字</el-button></el-badge
-          ><el-badge is-dot><el-button>dot</el-button></el-badge
-          ><el-badge v-for="type in types" :key="type" :value="type" :type="type"
-            ><el-button>{{ type }}</el-button></el-badge
-          >
+          <el-badge :value="12"><el-button>数字</el-button></el-badge><el-badge is-dot><el-button>dot</el-button></el-badge><el-badge v-for="type in types" :key="type" :value="type" :type="type"><el-button>{{ type }}</el-button></el-badge>
         </div>
         <div v-else-if="section.name === 'Tag'" class="demo-stack">
           <div v-for="type in types" :key="type" class="demo-row">
@@ -562,8 +478,7 @@ const handlePin = (index: number, value: string) => {
             <el-tag v-for="size in sizes" :key="size" :size="size" data-size-demo>size {{ size }}</el-tag>
           </div>
           <div class="demo-row">
-            <el-check-tag checked>check-tag</el-check-tag><el-button @click="tags.push(`tag-${tags.length + 1}`)">动态 tag</el-button
-            ><el-tag v-for="tag in tags" :key="tag" closable>{{ tag }}</el-tag>
+            <el-check-tag checked>check-tag</el-check-tag><el-button @click="tags.push(`tag-${tags.length + 1}`)">动态 tag</el-button><el-tag v-for="tag in tags" :key="tag" closable>{{ tag }}</el-tag>
           </div>
         </div>
         <div v-else-if="section.name === 'Statistic'" class="demo-row">
@@ -573,15 +488,12 @@ const handlePin = (index: number, value: string) => {
           />
         </div>
         <div v-else-if="section.name === 'Timeline'">
-          <el-timeline
-            ><el-timeline-item
-              v-for="(item, index) in team.slice(0, 4)"
-              :key="item.email"
-              :timestamp="item.lastActive"
-              :type="types[index]"
-              >{{ item.name }}</el-timeline-item
-            ></el-timeline
-          >
+          <el-timeline><el-timeline-item
+            v-for="(item, index) in team.slice(0, 4)"
+            :key="item.email"
+            :timestamp="item.lastActive"
+            :type="types[index]"
+          >{{ item.name }}</el-timeline-item></el-timeline>
         </div>
         <div v-else-if="section.name === 'Tree'">
           <el-input v-model="treeFilter" clearable /><el-tree :data="filteredTree" show-checkbox draggable default-expand-all /><el-tree-v2
@@ -599,28 +511,14 @@ const handlePin = (index: number, value: string) => {
           </div>
         </div>
         <div v-else-if="section.name === 'Carousel'" class="carousel-demo">
-          <el-carousel height="150px"
-            ><el-carousel-item v-for="item in 3" :key="item"
-              ><div class="slide">default {{ item }}</div></el-carousel-item
-            ></el-carousel
-          ><el-carousel height="150px" type="card"
-            ><el-carousel-item v-for="item in 3" :key="item"
-              ><div class="slide">default {{ item }}</div></el-carousel-item
-            ></el-carousel
-          >
+          <el-carousel height="150px"><el-carousel-item v-for="item in 3" :key="item"><div class="slide">default {{ item }}</div></el-carousel-item></el-carousel><el-carousel height="150px" type="card"><el-carousel-item v-for="item in 3" :key="item"><div class="slide">default {{ item }}</div></el-carousel-item></el-carousel>
         </div>
         <div v-else-if="section.name === 'Empty'" class="demo-row"><el-empty /><el-empty description="自定义描述" :image-size="80" /></div>
         <div v-else-if="section.name === 'Tooltip'" class="tooltip-grid">
-          <el-tooltip v-for="placement in ['top', 'bottom', 'left', 'right']" :key="placement" :placement="placement" content="tooltip"
-            ><el-button>{{ placement }}</el-button></el-tooltip
-          >
+          <el-tooltip v-for="placement in ['top', 'bottom', 'left', 'right']" :key="placement" :placement="placement" content="tooltip"><el-button>{{ placement }}</el-button></el-tooltip>
         </div>
         <div v-else-if="section.name === 'Popover'" class="demo-row">
-          <el-popover v-for="trigger in ['hover', 'click', 'focus', 'contextmenu']" :key="trigger" :trigger="trigger" title="Popover"
-            ><template #reference
-              ><el-button>{{ trigger }}</el-button></template
-            >自定义内容</el-popover
-          >
+          <el-popover v-for="trigger in ['hover', 'click', 'focus', 'contextmenu']" :key="trigger" :trigger="trigger" title="Popover"><template #reference><el-button>{{ trigger }}</el-button></template>自定义内容</el-popover>
         </div>
         <div v-else-if="section.name === 'QRCode'" class="qr-demo"><QrPlaceholder /></div>
         <div v-else-if="section.name === 'Progress'" class="demo-grid cols-2">
@@ -656,17 +554,12 @@ const handlePin = (index: number, value: string) => {
           />
         </div>
         <div v-else-if="section.name === 'Toast'" class="demo-row">
-          <el-tag effect="plain">ElMessage</el-tag
-          ><el-button v-for="type in types.slice(0, 4)" :key="type" @click="showMessage(type)">{{ type }}</el-button
-          ><el-button plain @click="showMessage('success', true)">plain</el-button
-          ><el-button @click="showMessageWithAction">带操作</el-button>
+          <el-tag effect="plain">ElMessage</el-tag><el-button v-for="type in types.slice(0, 4)" :key="type" @click="showMessage(type)">{{ type }}</el-button><el-button plain @click="showMessage('success', true)">plain</el-button><el-button @click="showMessageWithAction">带操作</el-button>
         </div>
         <div v-else-if="section.name === 'Notification'" class="demo-stack">
-          <el-radio-group v-model="notificationPosition"
-            ><el-radio v-for="position in ['top-left', 'top-right', 'bottom-left', 'bottom-right']" :key="position" :value="position">{{
-              position
-            }}</el-radio></el-radio-group
-          >
+          <el-radio-group v-model="notificationPosition"><el-radio v-for="position in ['top-left', 'top-right', 'bottom-left', 'bottom-right']" :key="position" :value="position">{{
+            position
+          }}</el-radio></el-radio-group>
           <div class="demo-row">
             <el-button v-for="type in types.slice(0, 4)" :key="type" @click="showNotification(type)">{{ type }}</el-button>
           </div>
@@ -676,106 +569,52 @@ const handlePin = (index: number, value: string) => {
             v-for="mode in ['普通', 'align-center', 'fullscreen', '滚动内容', 'draggable', '嵌套']"
             :key="mode"
             @click="openDialog(mode)"
-            >{{ mode }}</el-button
-          ><el-dialog
+          >{{ mode }}</el-button><el-dialog
             v-model="dialog"
             :align-center="dialogMode === 'align-center'"
             :fullscreen="dialogMode === 'fullscreen'"
             :draggable="dialogMode === 'draggable'"
             title="Dialog"
-            ><p v-for="n in dialogMode === '滚动内容' ? 12 : 1" :key="n">内容 {{ n }}</p>
-            <el-button v-if="dialogMode === '嵌套'" @click="nestedDialog = true">嵌套</el-button
-            ><el-dialog v-model="nestedDialog" append-to-body title="嵌套">嵌套内容</el-dialog></el-dialog
-          >
+          ><p v-for="n in dialogMode === '滚动内容' ? 12 : 1" :key="n">内容 {{ n }}</p>
+            <el-button v-if="dialogMode === '嵌套'" @click="nestedDialog = true">嵌套</el-button><el-dialog v-model="nestedDialog" append-to-body title="嵌套">嵌套内容</el-dialog></el-dialog>
         </div>
         <div v-else-if="section.name === 'Drawer'" class="demo-row">
           <el-button
             v-for="direction in ['ltr', 'rtl', 'ttb', 'btt']"
             :key="direction"
             @click="openDrawer(direction as 'ltr' | 'rtl' | 'ttb' | 'btt')"
-            >{{ direction }}</el-button
-          ><el-drawer v-model="drawer" :direction="drawerDirection" size="320px">内容</el-drawer>
+          >{{ direction }}</el-button><el-drawer v-model="drawer" :direction="drawerDirection" size="320px">内容</el-drawer>
         </div>
         <div v-else-if="section.name === 'Spinner'" class="demo-stack">
           <div v-loading="loadingArea" class="loading-area"><el-button @click="loadingArea = !loadingArea">切换 loading</el-button></div>
           <div class="demo-row"><el-button @click="showLoading">service loading</el-button></div>
           <div class="demo-row spinner-row">
-            <span v-for="size in [16, 24, 32]" :key="size"
-              ><el-icon class="is-loading" :size="size"><Loading /></el-icon> 加载中</span
-            >
+            <span v-for="size in [16, 24, 32]" :key="size"><el-icon class="is-loading" :size="size"><Loading /></el-icon> 加载中</span>
           </div>
         </div>
         <div v-else-if="section.name === 'Result'" class="demo-row">
           <el-result v-for="result in ['success', 'warning', 'error', 'info']" :key="result" :icon="result" :title="result" />
         </div>
         <div v-else-if="section.name === 'Popconfirm'" class="demo-row">
-          <el-popconfirm title="确认删除？"
-            ><template #reference><el-button type="danger">基础</el-button></template></el-popconfirm
-          ><el-popconfirm title="自定义确认" confirm-button-text="确认" cancel-button-text="取消" confirm-button-type="success"
-            ><template #reference><el-button>自定义文案</el-button></template></el-popconfirm
-          ><el-popconfirm title="带图标" :icon="QuestionFilled" icon-color="var(--el-color-primary)"
-            ><template #reference><el-button type="primary">自定义图标</el-button></template></el-popconfirm
-          ><el-popconfirm title="禁用" disabled
-            ><template #reference><el-button disabled>禁用</el-button></template></el-popconfirm
-          >
+          <el-popconfirm title="确认删除？"><template #reference><el-button type="danger">基础</el-button></template></el-popconfirm><el-popconfirm title="自定义确认" confirm-button-text="确认" cancel-button-text="取消" confirm-button-type="success"><template #reference><el-button>自定义文案</el-button></template></el-popconfirm><el-popconfirm title="带图标" :icon="QuestionFilled" icon-color="var(--el-color-primary)"><template #reference><el-button type="primary">自定义图标</el-button></template></el-popconfirm><el-popconfirm title="禁用" disabled><template #reference><el-button disabled>禁用</el-button></template></el-popconfirm>
         </div>
         <div v-else-if="section.name === 'Menu'" class="menu-demo">
-          <el-menu mode="horizontal" :ellipsis="false"
-            ><el-menu-item index="1">首页</el-menu-item
-            ><el-sub-menu index="products"
-              ><template #title>产品</template><el-menu-item index="products-a">产品 A</el-menu-item
-              ><el-menu-item index="products-b">产品 B</el-menu-item></el-sub-menu
-            ><el-menu-item v-for="item in nav.slice(0, 4)" :key="item.key" :index="item.key">{{ item.label }}</el-menu-item></el-menu
-          ><el-menu default-active="nav-dashboard" :collapse="menuCollapse"
-            ><el-menu-item-group title="导航"
-              ><el-menu-item v-for="item in nav.slice(0, 3)" :key="`vertical-${item.key}`" :index="`nav-${item.key}`">{{
-                item.label
-              }}</el-menu-item></el-menu-item-group
-            ><el-sub-menu index="more"
-              ><template #title>更多</template
-              ><el-menu-item v-for="item in nav.slice(3, 6)" :key="`more-${item.key}`" :index="`more-${item.key}`">{{
-                item.label
-              }}</el-menu-item></el-sub-menu
-            ></el-menu
-          ><el-button @click="menuCollapse = !menuCollapse">collapse</el-button
-          ><el-menu mode="horizontal" ellipsis
-            ><el-menu-item v-for="item in nav" :key="`ellipsis-${item.key}`" :index="`ellipsis-${item.key}`">{{
-              item.label
-            }}</el-menu-item></el-menu
-          >
+          <el-menu mode="horizontal" :ellipsis="false"><el-menu-item index="1">首页</el-menu-item><el-sub-menu index="products"><template #title>产品</template><el-menu-item index="products-a">产品 A</el-menu-item><el-menu-item index="products-b">产品 B</el-menu-item></el-sub-menu><el-menu-item v-for="item in nav.slice(0, 4)" :key="item.key" :index="item.key">{{ item.label }}</el-menu-item></el-menu><el-menu default-active="nav-dashboard" :collapse="menuCollapse"><el-menu-item-group title="导航"><el-menu-item v-for="item in nav.slice(0, 3)" :key="`vertical-${item.key}`" :index="`nav-${item.key}`">{{
+            item.label
+          }}</el-menu-item></el-menu-item-group><el-sub-menu index="more"><template #title>更多</template><el-menu-item v-for="item in nav.slice(3, 6)" :key="`more-${item.key}`" :index="`more-${item.key}`">{{
+            item.label
+          }}</el-menu-item></el-sub-menu></el-menu><el-button @click="menuCollapse = !menuCollapse">collapse</el-button><el-menu mode="horizontal" ellipsis><el-menu-item v-for="item in nav" :key="`ellipsis-${item.key}`" :index="`ellipsis-${item.key}`">{{
+            item.label
+          }}</el-menu-item></el-menu>
         </div>
         <div v-else-if="section.name === 'Dropdown'" class="demo-row">
-          <el-dropdown
-            ><el-button
-              >操作<el-icon><ArrowDown /></el-icon></el-button
-            ><template #dropdown
-              ><el-dropdown-menu
-                ><el-dropdown-item>编辑</el-dropdown-item><el-dropdown-item divided>删除</el-dropdown-item></el-dropdown-menu
-              ></template
-            ></el-dropdown
-          ><el-dropdown split-button type="primary">split-button</el-dropdown>
+          <el-dropdown><el-button>操作<el-icon><ArrowDown /></el-icon></el-button><template #dropdown><el-dropdown-menu><el-dropdown-item>编辑</el-dropdown-item><el-dropdown-item divided>删除</el-dropdown-item></el-dropdown-menu></template></el-dropdown><el-dropdown split-button type="primary">split-button</el-dropdown>
         </div>
         <div v-else-if="section.name === 'Breadcrumb'" class="demo-row">
-          <el-breadcrumb separator="/"
-            ><el-breadcrumb-item>首页</el-breadcrumb-item><el-breadcrumb-item>组件</el-breadcrumb-item></el-breadcrumb
-          ><el-breadcrumb separator-icon="ArrowRight"
-            ><el-breadcrumb-item>首页</el-breadcrumb-item><el-breadcrumb-item>当前</el-breadcrumb-item></el-breadcrumb
-          ><el-breadcrumb
-            ><el-breadcrumb-item><a href="/">链接</a></el-breadcrumb-item></el-breadcrumb
-          >
+          <el-breadcrumb separator="/"><el-breadcrumb-item>首页</el-breadcrumb-item><el-breadcrumb-item>组件</el-breadcrumb-item></el-breadcrumb><el-breadcrumb separator-icon="ArrowRight"><el-breadcrumb-item>首页</el-breadcrumb-item><el-breadcrumb-item>当前</el-breadcrumb-item></el-breadcrumb><el-breadcrumb><el-breadcrumb-item><a href="/">链接</a></el-breadcrumb-item></el-breadcrumb>
         </div>
         <div v-else-if="section.name === 'Tabs'">
-          <el-tabs
-            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`default ${tab}`">{{ tab }}</el-tab-pane></el-tabs
-          ><el-tabs type="card"
-            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`card ${tab}`">{{ tab }}</el-tab-pane></el-tabs
-          ><el-tabs type="border-card"
-            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`border ${tab}`">{{ tab }}</el-tab-pane></el-tabs
-          ><el-tabs type="card" closable addable
-            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`closable ${tab}`">{{ tab }}</el-tab-pane></el-tabs
-          ><el-tabs tab-position="left"
-            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`left ${tab}`">{{ tab }}</el-tab-pane></el-tabs
-          >
+          <el-tabs><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`default ${tab}`">{{ tab }}</el-tab-pane></el-tabs><el-tabs type="card"><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`card ${tab}`">{{ tab }}</el-tab-pane></el-tabs><el-tabs type="border-card"><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`border ${tab}`">{{ tab }}</el-tab-pane></el-tabs><el-tabs type="card" closable addable><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`closable ${tab}`">{{ tab }}</el-tab-pane></el-tabs><el-tabs tab-position="left"><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`left ${tab}`">{{ tab }}</el-tab-pane></el-tabs>
         </div>
         <div v-else-if="section.name === 'Pagination'" class="demo-stack">
           <el-pagination
@@ -786,23 +625,18 @@ const handlePin = (index: number, value: string) => {
           /><el-pagination disabled layout="prev, pager, next" :total="10" />
         </div>
         <div v-else-if="section.name === 'Steps'" class="demo-stack">
-          <el-steps :active="1" :direction="mobile ? 'vertical' : 'horizontal'"
-            ><el-step title="步骤 1" /><el-step title="步骤 2" /><el-step title="步骤 3" /></el-steps
-          ><el-steps direction="vertical" :active="1"><el-step title="步骤" /></el-steps>
+          <el-steps :active="1" :direction="mobile ? 'vertical' : 'horizontal'"><el-step title="步骤 1" /><el-step title="步骤 2" /><el-step title="步骤 3" /></el-steps><el-steps direction="vertical" :active="1"><el-step title="步骤" /></el-steps>
         </div>
         <div v-else-if="section.name === 'Anchor'" class="demo-row">
-          <el-anchor
-            ><el-anchor-link href="#anchor-a" title="垂直 A" /><el-anchor-link href="#anchor-b" title="垂直 B" /><el-anchor-link
-              href="#anchor-c"
-              title="垂直 C" /></el-anchor
-          ><el-anchor direction="horizontal"
-            ><el-anchor-link href="#anchor-a" title="横向 A" /><el-anchor-link href="#anchor-b" title="横向 B" /><el-anchor-link
-              href="#anchor-c"
-              title="横向 C" /></el-anchor
-          ><el-anchor type="underline"
-            ><el-anchor-link href="#anchor-a" title="underline A" /><el-anchor-link href="#anchor-b" title="underline B" /><el-anchor-link
-              href="#anchor-c"
-              title="underline C"
+          <el-anchor><el-anchor-link href="#anchor-a" title="垂直 A" /><el-anchor-link href="#anchor-b" title="垂直 B" /><el-anchor-link
+            href="#anchor-c"
+            title="垂直 C"
+          /></el-anchor><el-anchor direction="horizontal"><el-anchor-link href="#anchor-a" title="横向 A" /><el-anchor-link href="#anchor-b" title="横向 B" /><el-anchor-link
+            href="#anchor-c"
+            title="横向 C"
+          /></el-anchor><el-anchor type="underline"><el-anchor-link href="#anchor-a" title="underline A" /><el-anchor-link href="#anchor-b" title="underline B" /><el-anchor-link
+            href="#anchor-c"
+            title="underline C"
           /></el-anchor>
         </div>
         <div v-else-if="section.name === 'BackTop'" class="backtop-target">
@@ -814,63 +648,25 @@ const handlePin = (index: number, value: string) => {
           <p>target container</p>
         </div>
         <div v-else-if="section.name === 'Navbar'" class="navbar-demo">
-          <el-menu mode="horizontal" ellipsis
-            ><el-menu-item index="brand">Acme Console</el-menu-item
-            ><el-menu-item v-for="item in nav" :key="item.key" :index="item.key">{{ item.label }}</el-menu-item
-            ><span class="navbar-spacer" /><el-avatar :size="28">{{ team[0].name.slice(0, 1) }}</el-avatar
-            ><el-badge :value="3"
-              ><el-button circle><Bell /></el-button></el-badge
-          ></el-menu>
+          <el-menu mode="horizontal" ellipsis><el-menu-item index="brand">Acme Console</el-menu-item><el-menu-item v-for="item in nav" :key="item.key" :index="item.key">{{ item.label }}</el-menu-item><span class="navbar-spacer" /><el-avatar :size="28">{{ team[0].name.slice(0, 1) }}</el-avatar><el-badge :value="3"><el-button circle><Bell /></el-button></el-badge></el-menu>
         </div>
         <div v-else-if="section.name === 'Sidebar'" class="sidebar-demo">
-          <el-aside width="220px"
-            ><el-menu
-              ><el-menu-item-group v-for="item in nav.slice(0, 3)" :key="item.key" :title="item.label"
-                ><el-menu-item :index="item.key">{{ item.label }}</el-menu-item></el-menu-item-group
-              ><el-sub-menu index="more"
-                ><template #title>更多</template><el-menu-item index="settings">设置</el-menu-item></el-sub-menu
-              ></el-menu
-            ><el-button>collapse</el-button></el-aside
-          >
+          <el-aside width="220px"><el-menu><el-menu-item-group v-for="item in nav.slice(0, 3)" :key="item.key" :title="item.label"><el-menu-item :index="item.key">{{ item.label }}</el-menu-item></el-menu-item-group><el-sub-menu index="more"><template #title>更多</template><el-menu-item index="settings">设置</el-menu-item></el-sub-menu></el-menu><el-button>collapse</el-button></el-aside>
         </div>
         <div v-else-if="section.name === 'CommandPalette'" class="demo-row">
-          <el-button @click="command = true">打开 Command Palette</el-button
-          ><el-dialog v-model="command" title="Command Palette"
-            ><el-autocomplete :fetch-suggestions="filteredSuggestions" />
+          <el-button @click="command = true">打开 Command Palette</el-button><el-dialog v-model="command" title="Command Palette"><el-autocomplete :fetch-suggestions="filteredSuggestions" />
             <ul>
               <li v-for="item in nav.slice(0, 4)" :key="item.key">{{ item.label }}</li>
-            </ul></el-dialog
-          >
+            </ul></el-dialog>
         </div>
         <div v-else-if="section.name === 'Grid'" class="demo-stack">
-          <el-row :gutter="16"
-            ><el-col :span="24"><div class="grid-cell">24</div></el-col></el-row
-          ><el-row :gutter="16"
-            ><el-col :span="12"><div class="grid-cell">12</div></el-col><el-col :span="12"><div class="grid-cell">12</div></el-col></el-row
-          ><el-row :gutter="16"
-            ><el-col v-for="item in 3" :key="item" :span="8"><div class="grid-cell">8</div></el-col></el-row
-          ><el-row :gutter="16"
-            ><el-col :span="6" :offset="6"><div class="grid-cell">6 offset 6</div></el-col
-            ><el-col :span="6"><div class="grid-cell">6</div></el-col></el-row
-          ><el-row :gutter="16"
-            ><el-col v-for="item in 4" :key="item" :xs="24" :sm="12" :md="6"><div class="grid-cell">responsive</div></el-col></el-row
-          >
+          <el-row :gutter="16"><el-col :span="24"><div class="grid-cell">24</div></el-col></el-row><el-row :gutter="16"><el-col :span="12"><div class="grid-cell">12</div></el-col><el-col :span="12"><div class="grid-cell">12</div></el-col></el-row><el-row :gutter="16"><el-col v-for="item in 3" :key="item" :span="8"><div class="grid-cell">8</div></el-col></el-row><el-row :gutter="16"><el-col :span="6" :offset="6"><div class="grid-cell">6 offset 6</div></el-col><el-col :span="6"><div class="grid-cell">6</div></el-col></el-row><el-row :gutter="16"><el-col v-for="item in 4" :key="item" :xs="24" :sm="12" :md="6"><div class="grid-cell">responsive</div></el-col></el-row>
         </div>
         <div v-else-if="section.name === 'Stack'" class="demo-stack">
-          <el-space direction="horizontal" size="small"><el-button>small</el-button></el-space
-          ><el-space direction="horizontal"><el-button>default</el-button></el-space
-          ><el-space direction="horizontal" size="large"><el-button>large</el-button></el-space
-          ><el-space direction="horizontal" wrap
-            ><el-button v-for="item in 5" :key="item">wrap {{ item }}</el-button></el-space
-          ><el-space direction="vertical" fill><el-button>vertical</el-button><el-button>fill</el-button></el-space>
+          <el-space direction="horizontal" size="small"><el-button>small</el-button></el-space><el-space direction="horizontal"><el-button>default</el-button></el-space><el-space direction="horizontal" size="large"><el-button>large</el-button></el-space><el-space direction="horizontal" wrap><el-button v-for="item in 5" :key="item">wrap {{ item }}</el-button></el-space><el-space direction="vertical" fill><el-button>vertical</el-button><el-button>fill</el-button></el-space>
         </div>
         <div v-else-if="section.name === 'Layout'" class="container-demo">
-          <el-container><el-header>Header</el-header><el-main>Main</el-main><el-footer>Footer</el-footer></el-container
-          ><el-container><el-aside width="90px">Aside</el-aside><el-main>Main</el-main></el-container
-          ><el-container
-            ><el-header>Header</el-header
-            ><el-container><el-aside width="90px">Aside</el-aside><el-main>Main</el-main></el-container></el-container
-          >
+          <el-container><el-header>Header</el-header><el-main>Main</el-main><el-footer>Footer</el-footer></el-container><el-container><el-aside width="90px">Aside</el-aside><el-main>Main</el-main></el-container><el-container><el-header>Header</el-header><el-container><el-aside width="90px">Aside</el-aside><el-main>Main</el-main></el-container></el-container>
         </div>
         <div v-else-if="section.name === 'Container'" class="container-demo">
           <div class="container-box" style="max-width: 480px">480</div>
@@ -879,51 +675,28 @@ const handlePin = (index: number, value: string) => {
         </div>
         <div v-else-if="section.name === 'AspectRatio'" class="aspect-demo"><strong>AspectRatio 16:9</strong></div>
         <div v-else-if="section.name === 'Resizable'" class="splitter-demo">
-          <el-splitter
-            ><el-splitter-panel size="30%" min="20%">Panel A</el-splitter-panel
-            ><el-splitter-panel size="30%" min="20%">Panel B</el-splitter-panel
-            ><el-splitter-panel size="30%" min="20%">Panel C</el-splitter-panel></el-splitter
-          ><el-splitter layout="vertical"
-            ><el-splitter-panel size="50%" min="60px">Top</el-splitter-panel
-            ><el-splitter-panel min="60px">Bottom</el-splitter-panel></el-splitter
-          >
+          <el-splitter><el-splitter-panel size="30%" min="20%">Panel A</el-splitter-panel><el-splitter-panel size="30%" min="20%">Panel B</el-splitter-panel><el-splitter-panel size="30%" min="20%">Panel C</el-splitter-panel></el-splitter><el-splitter layout="vertical"><el-splitter-panel size="50%" min="60px">Top</el-splitter-panel><el-splitter-panel min="60px">Bottom</el-splitter-panel></el-splitter>
         </div>
         <div v-else-if="section.name === 'ScrollArea'" class="demo-stack">
-          <el-scrollbar height="150px"
-            ><p v-for="n in 12" :key="n">vertical scroll {{ n }}</p></el-scrollbar
-          ><el-scrollbar height="80px" always><div style="width: 1200px">horizontal scroll</div></el-scrollbar>
+          <el-scrollbar height="150px"><p v-for="n in 12" :key="n">vertical scroll {{ n }}</p></el-scrollbar><el-scrollbar height="80px" always><div style="width: 1200px">horizontal scroll</div></el-scrollbar>
         </div>
         <div v-else-if="section.name === 'Accordion'">
-          <el-collapse accordion
-            ><el-collapse-item title="基础面板" name="one">基础内容</el-collapse-item
-            ><el-collapse-item title="第二面板" name="two">第二内容</el-collapse-item></el-collapse
-          >
+          <el-collapse accordion><el-collapse-item title="基础面板" name="one">基础内容</el-collapse-item><el-collapse-item title="第二面板" name="two">第二内容</el-collapse-item></el-collapse>
         </div>
         <div v-else-if="section.name === 'ThemeProvider'" class="demo-row">
-          <el-config-provider size="large"
-            ><el-input model-value="large" /><el-button>large</el-button><el-tag>large</el-tag></el-config-provider
-          ><el-config-provider :button="{ autoInsertSpace: true }"
-            ><el-input model-value="autoInsertSpace" /><el-button>autoInsertSpace</el-button
-            ><el-tag>autoInsertSpace</el-tag></el-config-provider
-          ><el-config-provider :z-index="3000"
-            ><el-input model-value="z-index" /><el-button>z-index</el-button><el-tag>z-index</el-tag></el-config-provider
-          >
+          <el-config-provider size="large"><el-input model-value="large" /><el-button>large</el-button><el-tag>large</el-tag></el-config-provider><el-config-provider :button="{ autoInsertSpace: true }"><el-input model-value="autoInsertSpace" /><el-button>autoInsertSpace</el-button><el-tag>autoInsertSpace</el-tag></el-config-provider><el-config-provider :z-index="3000"><el-input model-value="z-index" /><el-button>z-index</el-button><el-tag>z-index</el-tag></el-config-provider>
         </div>
         <div v-else-if="section.name === 'Watermark'">
-          <el-watermark content="Acme Console" :font="{ color: dark ? 'rgba(255,255,255,.18)' : 'rgba(0,0,0,.15)' }"
-            ><div class="watermark-box">内容</div></el-watermark
-          >
+          <el-watermark content="Acme Console" :font="{ color: dark ? 'rgba(255,255,255,.18)' : 'rgba(0,0,0,.15)' }"><div class="watermark-box">内容</div></el-watermark>
         </div>
         <div v-else-if="section.name === 'Tour'" class="demo-row">
-          <el-button @click="tour = true">开始 Tour</el-button
-          ><el-tour v-model="tour"><el-tour-step target=".page-title" title="标题" description="页面标题" /></el-tour>
+          <el-button @click="tour = true">开始 Tour</el-button><el-tour v-model="tour"><el-tour-step target=".page-title" title="标题" description="页面标题" /></el-tour>
         </div>
         <div v-else-if="section.name === 'FloatButton'" class="float-demo">
           <el-button circle type="primary"><Plus /></el-button><el-button circle><Setting /></el-button>
         </div>
         <div v-else-if="section.name === 'Kbd'" class="demo-row">
-          <kbd>⌘ K</kbd><kbd>Ctrl + C</kbd><kbd>Shift</kbd><kbd>Esc</kbd><kbd>↑ ↓</kbd><el-tag><kbd>small</kbd></el-tag
-          ><el-tag size="large"><kbd>large</kbd></el-tag>
+          <kbd>⌘ K</kbd><kbd>Ctrl + C</kbd><kbd>Shift</kbd><kbd>Esc</kbd><kbd>↑ ↓</kbd><el-tag><kbd>small</kbd></el-tag><el-tag size="large"><kbd>large</kbd></el-tag>
         </div>
         <div v-else-if="section.name === 'Code'" class="demo-stack">
           <code>pnpm add element-plus</code>
@@ -931,13 +704,11 @@ const handlePin = (index: number, value: string) => {
           <el-button @click="ElMessage.success('代码已复制')">复制</el-button>
         </div>
         <div v-else-if="section.name === 'Divider'" class="demo-stack">
-          <el-divider v-for="position in dividerPositions" :key="position" :content-position="position">{{ position }}</el-divider
-          ><el-divider border-style="dashed">dashed</el-divider><el-divider border-style="dotted">dotted</el-divider>
+          <el-divider v-for="position in dividerPositions" :key="position" :content-position="position">{{ position }}</el-divider><el-divider border-style="dashed">dashed</el-divider><el-divider border-style="dotted">dotted</el-divider>
           <div class="divider-row">左<el-divider direction="vertical" />右</div>
         </div>
         <div v-else-if="section.name === 'Link'" class="demo-row">
-          <el-link v-for="type in ['primary', 'success', 'warning', 'danger', 'info']" :key="type" :type="type">{{ type }}</el-link
-          ><el-link disabled>disabled</el-link>
+          <el-link v-for="type in ['primary', 'success', 'warning', 'danger', 'info']" :key="type" :type="type">{{ type }}</el-link><el-link disabled>disabled</el-link>
         </div>
         <div v-else><el-alert type="error" :title="`缺少 ${section.name} 示例`" /></div>
       </el-card>

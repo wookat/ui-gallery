@@ -53,120 +53,56 @@ const tagType = (status: string) =>
     </div>
     <el-skeleton v-if="loading" :rows="4" animated />
     <template v-else>
-      <el-row :gutter="16"
-        ><el-col v-for="stat in stats" :key="stat.key" :xs="24" :sm="12" :lg="6"
-          ><el-card class="stat-card"
-            ><div class="stat-head">
-              <span class="muted">{{ stat.label }}</span
-              ><Icon
-                :name="
-                  stat.key === 'revenue'
-                    ? 'bar-chart'
-                    : stat.key === 'orders'
-                      ? 'shopping-cart'
-                      : stat.key === 'users'
-                        ? 'users'
-                        : 'activity'
-                "
-              />
+      <el-row :gutter="16"><el-col v-for="stat in stats" :key="stat.key" :xs="24" :sm="12" :lg="6"><el-card class="stat-card"><div class="stat-head">
+                                                                                                                                <span class="muted">{{ stat.label }}</span><Icon
+                                                                                                                                  :name="
+                                                                                                                                    stat.key === 'revenue'
+                                                                                                                                      ? 'bar-chart'
+                                                                                                                                      : stat.key === 'orders'
+                                                                                                                                        ? 'shopping-cart'
+                                                                                                                                        : stat.key === 'users'
+                                                                                                                                          ? 'users'
+                                                                                                                                          : 'activity'
+                                                                                                                                  "
+                                                                                                                                />
+                                                                                                                              </div>
+        <strong>{{ money(stat) }}</strong>
+        <div class="stat-foot">
+          <el-tag :type="stat.delta >= 0 ? 'success' : 'danger'">{{ stat.delta >= 0 ? "+" : "" }}{{ stat.delta }}%</el-tag><span class="muted">较上月</span>
+        </div>
+        <svg class="sparkline" viewBox="0 0 120 30" preserveAspectRatio="none">
+          <polyline
+            :points="stat.trend.map((v, i) => `${i * 20},${30 - (v / Math.max(...stat.trend)) * 25}`).join(' ')"
+            fill="none"
+            stroke="var(--el-color-primary)"
+            stroke-width="2"
+          /></svg></el-card></el-col></el-row>
+      <el-card class="chart-card"><template #header><div class="card-header">
+        <span>业务趋势</span><el-tabs model-value="month"><el-tab-pane label="日" name="day" /><el-tab-pane label="周" name="week" /><el-tab-pane label="月" name="month" /></el-tabs></div></template><el-row :gutter="16"><el-col :xs="24" :lg="12"><h3>收入</h3>
+        <EChart :option="lineOption" /></el-col><el-col :xs="24" :sm="12" :lg="6"><h3>订单</h3>
+        <EChart :option="barOption" height="280px" /></el-col><el-col :xs="24" :sm="12" :lg="6"><h3>渠道</h3>
+        <EChart :option="pieOption" height="280px" /></el-col></el-row></el-card>
+      <el-row :gutter="16"><el-col :xs="24" :lg="14"><el-card><template #header><div class="card-header">
+                                                                <span>最近订单</span><el-link type="primary" href="/apps/element-plus/orders">查看全部</el-link>
+                                                              </div></template>
+        <div v-if="mobile" class="recent-cards">
+          <div v-for="row in orders.slice(0, 5)" :key="row.id" class="recent-card">
+            <div>
+              <strong>{{ row.id }}</strong><span class="muted">{{ row.customer }}</span>
             </div>
-            <strong>{{ money(stat) }}</strong>
-            <div class="stat-foot">
-              <el-tag :type="stat.delta >= 0 ? 'success' : 'danger'">{{ stat.delta >= 0 ? "+" : "" }}{{ stat.delta }}%</el-tag
-              ><span class="muted">较上月</span>
+            <div>
+              <strong>¥{{ row.amount.toLocaleString() }}</strong><el-tag :type="tagType(row.status)">{{ row.status }}</el-tag>
             </div>
-            <svg class="sparkline" viewBox="0 0 120 30" preserveAspectRatio="none">
-              <polyline
-                :points="stat.trend.map((v, i) => `${i * 20},${30 - (v / Math.max(...stat.trend)) * 25}`).join(' ')"
-                fill="none"
-                stroke="var(--el-color-primary)"
-                stroke-width="2"
-              /></svg></el-card></el-col
-      ></el-row>
-      <el-card class="chart-card"
-        ><template #header
-          ><div class="card-header">
-            <span>业务趋势</span
-            ><el-tabs model-value="month"
-              ><el-tab-pane label="日" name="day" /><el-tab-pane label="周" name="week" /><el-tab-pane label="月" name="month"
-            /></el-tabs></div></template
-        ><el-row :gutter="16"
-          ><el-col :xs="24" :lg="12"
-            ><h3>收入</h3>
-            <EChart :option="lineOption" /></el-col
-          ><el-col :xs="24" :sm="12" :lg="6"
-            ><h3>订单</h3>
-            <EChart :option="barOption" height="280px" /></el-col
-          ><el-col :xs="24" :sm="12" :lg="6"
-            ><h3>渠道</h3>
-            <EChart :option="pieOption" height="280px" /></el-col></el-row
-      ></el-card>
-      <el-row :gutter="16"
-        ><el-col :xs="24" :lg="14"
-          ><el-card
-            ><template #header
-              ><div class="card-header">
-                <span>最近订单</span><el-link type="primary" href="/apps/element-plus/orders">查看全部</el-link>
-              </div></template
-            >
-            <div v-if="mobile" class="recent-cards">
-              <div v-for="row in orders.slice(0, 5)" :key="row.id" class="recent-card">
-                <div>
-                  <strong>{{ row.id }}</strong
-                  ><span class="muted">{{ row.customer }}</span>
-                </div>
-                <div>
-                  <strong>¥{{ row.amount.toLocaleString() }}</strong
-                  ><el-tag :type="tagType(row.status)">{{ row.status }}</el-tag>
-                </div>
-              </div>
-            </div>
-            <div v-else class="table-scroll" data-scroll-x>
-              <el-table :data="orders.slice(0, 5)"
-                ><el-table-column prop="id" label="订单号" min-width="120" /><el-table-column label="客户" min-width="130"
-                  ><template #default="{ row }"
-                    ><el-avatar :size="24">{{ row.customer.slice(0, 1) }}</el-avatar> {{ row.customer }}</template
-                  ></el-table-column
-                ><el-table-column prop="product" label="产品" min-width="130" /><el-table-column label="金额" min-width="110"
-                  ><template #default="{ row }">¥{{ row.amount.toLocaleString() }}</template></el-table-column
-                ><el-table-column label="状态" min-width="90"
-                  ><template #default="{ row }"
-                    ><el-tag :type="tagType(row.status)">{{ row.status }}</el-tag></template
-                  ></el-table-column
-                ><el-table-column min-width="60"
-                  ><template #default
-                    ><el-dropdown
-                      ><el-button text><Icon name="more-horizontal" /></el-button
-                      ><template #dropdown
-                        ><el-dropdown-menu
-                          ><el-dropdown-item>查看</el-dropdown-item><el-dropdown-item>编辑</el-dropdown-item></el-dropdown-menu
-                        ></template
-                      ></el-dropdown
-                    ></template
-                  ></el-table-column
-                ></el-table
-              >
-            </div></el-card
-          ></el-col
-        ><el-col :xs="24" :lg="5"
-          ><el-card
-            ><template #header>团队动态</template
-            ><el-timeline
-              ><el-timeline-item v-for="item in activity.slice(0, 4)" :key="item.action" :timestamp="item.time"
-                >{{ item.user }}{{ item.action }}</el-timeline-item
-              ></el-timeline
-            ></el-card
-          ></el-col
-        ><el-col :xs="24" :lg="5"
-          ><el-card
-            ><template #header>任务进度</template>
-            <div v-for="task in tasks" :key="task.title" class="task">
-              <div>
-                <span>{{ task.title }}</span
-                ><small>{{ task.owner }}</small>
-              </div>
-              <el-progress :percentage="task.progress" :stroke-width="8" /></div></el-card></el-col
-      ></el-row>
+          </div>
+        </div>
+        <div v-else class="table-scroll" data-scroll-x>
+          <el-table :data="orders.slice(0, 5)"><el-table-column prop="id" label="订单号" min-width="120" /><el-table-column label="客户" min-width="130"><template #default="{ row }"><el-avatar :size="24">{{ row.customer.slice(0, 1) }}</el-avatar> {{ row.customer }}</template></el-table-column><el-table-column prop="product" label="产品" min-width="130" /><el-table-column label="金额" min-width="110"><template #default="{ row }">¥{{ row.amount.toLocaleString() }}</template></el-table-column><el-table-column label="状态" min-width="90"><template #default="{ row }"><el-tag :type="tagType(row.status)">{{ row.status }}</el-tag></template></el-table-column><el-table-column min-width="60"><template #default><el-dropdown><el-button text><Icon name="more-horizontal" /></el-button><template #dropdown><el-dropdown-menu><el-dropdown-item>查看</el-dropdown-item><el-dropdown-item>编辑</el-dropdown-item></el-dropdown-menu></template></el-dropdown></template></el-table-column></el-table>
+        </div></el-card></el-col><el-col :xs="24" :lg="5"><el-card><template #header>团队动态</template><el-timeline><el-timeline-item v-for="item in activity.slice(0, 4)" :key="item.action" :timestamp="item.time">{{ item.user }}{{ item.action }}</el-timeline-item></el-timeline></el-card></el-col><el-col :xs="24" :lg="5"><el-card><template #header>任务进度</template>
+        <div v-for="task in tasks" :key="task.title" class="task">
+          <div>
+            <span>{{ task.title }}</span><small>{{ task.owner }}</small>
+          </div>
+          <el-progress :percentage="task.progress" :stroke-width="8" /></div></el-card></el-col></el-row>
     </template>
   </div>
 </template>

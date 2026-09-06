@@ -5,6 +5,7 @@ import orders from "@ui-gallery/spec/mock/orders.json"
 import PageHeader from "@/components/PageHeader.vue"
 import StatusTag from "@/components/StatusTag.vue"
 import { Icon } from "@/lib/icons"
+import { useIsMobile } from "@/lib/useIsMobile"
 
 type Order = (typeof orders)[number]
 type Status = Order["status"]
@@ -30,6 +31,7 @@ const selectedKeys = ref<string[]>([])
 const visibleColumns = ref(["customer", "product", "amount", "status", "date", "channel"])
 const detail = ref<Order | null>(null)
 const pendingDelete = ref<Order | null>(null)
+const isMobile = useIsMobile()
 
 onMounted(() => setTimeout(() => (loading.value = false), 300))
 
@@ -188,7 +190,7 @@ function confirmDelete() {
       </div>
     </template>
 
-    <a-drawer :visible="!!detail" :width="420" unmount-on-close @cancel="detail = null" @ok="detail = null">
+    <a-drawer :visible="!!detail" :width="isMobile ? '100%' : 420" unmount-on-close @cancel="detail = null" @ok="detail = null">
       <template #title>订单 {{ detail?.id }}</template>
       <template v-if="detail">
         <a-descriptions :column="1" bordered size="medium" style="margin-bottom: 16px">

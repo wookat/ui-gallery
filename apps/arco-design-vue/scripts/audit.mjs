@@ -49,15 +49,20 @@ for (const [vp, [width, height]] of Object.entries(contract.viewports)) {
             }
           }
         }
-        // 图标类按钮（无文字的 .arco-btn / Alert 关闭按钮）热区须 ≥40×40；/components 展示区按 size 演示不计
-        if (!location.pathname.endsWith("/components")) {
-          for (const el of document.querySelectorAll("button.arco-btn, .arco-alert-close-btn")) {
-            const r = el.getBoundingClientRect()
-            if (r.width === 0 || r.height === 0) continue
-            if (el.closest(".arco-trigger-popup, .arco-modal-container, .arco-drawer-container, .arco-tabs-content-item:not(.arco-tabs-content-item-active)")) continue
-            const text = (el.textContent || "").trim()
-            if (text.length > 0) continue
-            if (r.width < 40 || r.height < 40) out.small.push(`${el.tagName}.${el.className.toString().slice(0, 60)} ${Math.round(r.width)}×${Math.round(r.height)}`)
+        // 交互控件热区须 ≥40×40；/components 展示区按 size 演示不计
+        const controls = document.querySelectorAll(
+          "button.arco-btn, .arco-alert-close-btn, .arco-input-wrapper, .arco-select-view-single, .arco-select-view-multiple, .arco-picker, .arco-checkbox, .arco-radio, .arco-pagination-item",
+        )
+        for (const el of controls) {
+          if (location.pathname.endsWith("/components") && el.closest(".demo")) continue
+          const r = el.getBoundingClientRect()
+          if (r.width === 0 || r.height === 0) continue
+          if (el.closest(".arco-trigger-popup, .arco-modal-container, .arco-drawer-container, .arco-tabs-content-item:not(.arco-tabs-content-item-active)")) continue
+          const text = (el.textContent || "").trim()
+          const iconOnly = el.matches("button.arco-btn, .arco-alert-close-btn") && text.length === 0
+          const standaloneCheckbox = el.matches(".arco-checkbox") && !el.closest(".arco-checkbox-group")
+          if (r.height < 40 || (iconOnly && r.width < 40) || (standaloneCheckbox && r.width < 40)) {
+            out.small.push(`${el.tagName}.${el.className.toString().slice(0, 60)} ${Math.round(r.width)}×${Math.round(r.height)}`)
           }
         }
         return out

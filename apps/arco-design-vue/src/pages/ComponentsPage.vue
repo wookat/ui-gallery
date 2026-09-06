@@ -42,9 +42,11 @@ const cascader = ref("")
 const autoValue = ref("")
 const isMobile = useIsMobile()
 const backtopDemo = ref<HTMLElement>()
+const alwaysOpen = ref(false)
 
 onMounted(() => {
   if (backtopDemo.value) backtopDemo.value.scrollTop = 120
+  setTimeout(() => (alwaysOpen.value = true), 400)
 })
 
 const paletteItems = computed(() => nav.filter((item) => item.label.includes(paletteQuery.value) || item.key.includes(paletteQuery.value.toLowerCase())))
@@ -466,14 +468,14 @@ function notify() {
           <a-tooltip content="左侧" position="left"><a-button>Left</a-button></a-tooltip>
           <a-tooltip content="右侧" position="right"><a-button>Right</a-button></a-tooltip>
           <a-tooltip content="浅色背景" background-color="#fff" :content-style="{ color: '#1d2129' }" mini><a-button>Mini light</a-button></a-tooltip>
-          <a-tooltip content="始终显示" :default-popup-visible="true" position="bl"><a-button type="primary">Always</a-button></a-tooltip>
+          <div id="pop-tooltip" class="popup-anchor"><a-tooltip content="始终显示" :popup-visible="alwaysOpen" position="bottom" :auto-fit-position="false" popup-container="#pop-tooltip"><a-button type="primary">Always</a-button></a-tooltip></div>
         </DemoBlock>
 
         <DemoBlock name="Popover" arco="a-popover">
           <a-popover title="标题" content="这是一段 Popover 内容。"><a-button>Hover</a-button></a-popover>
           <a-popover title="点击触发" trigger="click"><a-button>Click</a-button><template #content><a-space direction="vertical"><span>可放任意内容</span><a-button size="small" type="primary">操作</a-button></a-space></template></a-popover>
           <a-popover title="底部" position="bottom" content="Position bottom"><a-button>Bottom</a-button></a-popover>
-          <a-popover title="始终显示" content="用于截图展示" :default-popup-visible="true" position="rt"><a-button type="primary">Always</a-button></a-popover>
+          <div id="pop-popover" class="popup-anchor"><a-popover title="始终显示" content="用于截图展示" :popup-visible="alwaysOpen" position="bottom" :auto-fit-position="false" popup-container="#pop-popover"><a-button type="primary">Always</a-button></a-popover></div>
         </DemoBlock>
 
         <DemoBlock name="QRCode" />
@@ -597,7 +599,7 @@ function notify() {
           <a-popconfirm content="确定要删除这条订单吗？"><a-button status="danger">删除</a-button></a-popconfirm>
           <a-popconfirm content="确认发布到生产环境？" type="warning" ok-text="发布" cancel-text="再想想"><a-button type="primary">发布</a-button></a-popconfirm>
           <a-popconfirm content="操作成功后不可撤销" type="error" position="bottom"><a-button>Error</a-button></a-popconfirm>
-          <a-popconfirm content="始终显示" type="success" :default-popup-visible="true" position="rt"><a-button>Always</a-button></a-popconfirm>
+          <div id="pop-popconfirm" class="popup-anchor"><a-popconfirm content="始终显示" type="success" :popup-visible="alwaysOpen" position="bottom" :auto-fit-position="false" popup-container="#pop-popconfirm"><a-button>Always</a-button></a-popconfirm></div>
         </DemoBlock>
 
         <DemoBlock name="Menu" arco="a-menu">
@@ -614,7 +616,7 @@ function notify() {
           <a-dropdown><a-button>Hover <Icon name="chevron-down" :size="14" /></a-button><template #content><a-doption>查看</a-doption><a-doption>编辑</a-doption><a-doption disabled>禁用</a-doption><a-doption style="color: rgb(var(--red-6))">删除</a-doption></template></a-dropdown>
           <a-dropdown trigger="click" position="bottom"><a-button type="primary">Click</a-button><template #content><a-dgroup title="分组"><a-doption><template #icon><Icon name="user" /></template>个人资料</a-doption><a-doption><template #icon><Icon name="settings" /></template>设置</a-doption></a-dgroup><a-dsubmenu trigger="hover"><template #default>更多</template><template #content><a-doption>子项 A</a-doption><a-doption>子项 B</a-doption></template></a-dsubmenu></template></a-dropdown>
           <a-dropdown-button>操作<template #icon><Icon name="chevron-down" :size="14" /></template><template #content><a-doption>导出</a-doption><a-doption>归档</a-doption></template></a-dropdown-button>
-          <a-dropdown :default-popup-visible="true" position="bl"><a-button>Always</a-button><template #content><a-doption>始终展开</a-doption><a-doption>用于截图</a-doption></template></a-dropdown>
+          <div id="pop-dropdown" class="popup-anchor"><a-dropdown :popup-visible="alwaysOpen" position="bl" :auto-fit-position="false" popup-container="#pop-dropdown"><a-button>Always</a-button><template #content><a-doption>始终展开</a-doption><a-doption>用于截图</a-doption></template></a-dropdown></div>
         </DemoBlock>
 
         <DemoBlock name="Breadcrumb" arco="a-breadcrumb">
@@ -901,6 +903,17 @@ createApp(App).use(ArcoVue).mount("#app")</pre></a-typography-paragraph>
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+.popup-anchor {
+  position: relative;
+  display: inline-flex;
+  padding-bottom: 0;
+  margin-bottom: 96px;
+}
+
+:deep(.demo-body):has(.popup-anchor) {
+  padding-bottom: 110px;
 }
 
 :global(.kbd) {

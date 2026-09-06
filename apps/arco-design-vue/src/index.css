@@ -93,9 +93,98 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
   color: var(--color-text-2);
 }
 
+.arco-btn:not(.demo .arco-btn) {
+  min-height: 40px;
+}
+
 .arco-btn.arco-btn-only-icon:not(.demo .arco-btn) {
   min-width: 40px;
+}
+
+.arco-input-wrapper:not(.demo .arco-input-wrapper),
+.arco-select-view-single:not(.demo .arco-select-view-single),
+.arco-select-view-multiple:not(.demo .arco-select-view-multiple),
+.arco-input-tag:not(.demo .arco-input-tag),
+.arco-picker:not(.demo .arco-picker) {
   min-height: 40px;
+}
+
+.arco-checkbox:not(.demo .arco-checkbox),
+.arco-radio:not(.demo .arco-radio) {
+  min-height: 40px;
+  align-items: center;
+}
+
+.arco-table .arco-checkbox {
+  min-width: 40px;
+  justify-content: center;
+}
+
+.arco-radio-group-button .arco-radio-button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.arco-pagination-item:not(.demo .arco-pagination-item) {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arco-switch:not(.demo .arco-switch) {
+  position: relative;
+}
+
+.arco-switch:not(.demo .arco-switch)::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+
+.demo .arco-btn {
+  position: relative;
+}
+
+.demo .arco-btn-size-mini::after,
+.demo .arco-btn-size-small::after,
+.demo .arco-btn-size-medium::after,
+.demo .arco-btn-size-large::after,
+.demo .arco-checkbox::after,
+.demo .arco-radio::after,
+.demo .arco-switch::after {
+  content: "";
+  position: absolute;
+}
+
+.demo .arco-btn-size-mini::after {
+  inset: -8px;
+}
+
+.demo .arco-btn-size-small::after {
+  inset: -6px;
+}
+
+.demo .arco-btn-size-medium::after {
+  inset: -4px;
+}
+
+.demo .arco-btn-size-large::after,
+.demo .arco-switch::after {
+  inset: -2px;
+}
+
+.demo .arco-checkbox,
+.demo .arco-radio,
+.demo .arco-switch {
+  position: relative;
+}
+
+.demo .arco-checkbox::after,
+.demo .arco-radio::after {
+  inset: -12px;
 }
 
 .arco-alert-close-btn {

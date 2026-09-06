@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { useSearchParams } from "react-router-dom"
-import { Badge, Panel, SegmentedControl, Text } from "rsuite"
+import { Panel, SegmentedControl, Tag, Text } from "rsuite"
 
 export function PageHeader({ title, description, action, actions }: { title: string; description?: string; action?: ReactNode; actions?: ReactNode }) {
   return <div className="page-header"><div><Text muted size="sm">ACME CONSOLE</Text><h1 style={{ margin: "4px 0", fontSize: 28 }}>{title}</h1>{description ? <Text muted>{description}</Text> : null}</div>{action || actions ? <div style={{ display: "flex", alignItems: "center", gap: 8 }}>{action}{actions}</div> : null}</div>
@@ -18,5 +18,5 @@ export function SectionCard({ title, description, children }: { title: string; d
 
 export function StatusBadge({ value }: { value: string }) {
   const color = ["paid", "shipped", "active"].includes(value) ? "green" : ["pending", "due"].includes(value) ? "orange" : "red"
-  return <Badge color={color}>{value}</Badge>
+  return <Tag color={color} size="sm">{value}</Tag>
 }

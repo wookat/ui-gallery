@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="zh-CN" data-state="success">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>线框 · dashboard（/）· Acme Console</title>
+<style>
+  /* 低保真线框：纯灰阶（#000–#fff），无组件库、无图片、无字体文件。
+     灰阶变量只服务线框层级表达，不是阶段 2 的设计令牌。 */
+  :root {
+    --g0: #ffffff; --g5: #f4f4f4; --g10: #e6e6e6; --g20: #cccccc; --g40: #999999; --g60: #666666; --g80: #333333; --g100: #000000;
+    --unit: 8px; --hit: 40px;
+    --sidebar: 240px; --topbar: 56px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans SC", sans-serif; font-size: 14px; line-height: 1.5; color: var(--g80); background: var(--g0); }
+  button, input { font: inherit; color: inherit; }
+  a { color: var(--g80); text-underline-offset: 2px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ico { display: inline-block; width: 24px; height: 24px; border: 1px dashed var(--g40); border-radius: 4px; flex: none; }
+  .ico-sm { width: 20px; height: 20px; }
+  .iconbtn { width: var(--hit); height: var(--hit); display: inline-grid; place-items: center; border: 0; background: transparent; border-radius: 8px; cursor: pointer; position: relative; flex: none; }
+  .iconbtn:hover { background: var(--g5); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--g80); color: var(--g0); display: inline-grid; place-items: center; font-size: 13px; font-weight: 600; flex: none; }
+  .avatar-sm { width: 28px; height: 28px; font-size: 12px; }
+  .badge { display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--g100); color: var(--g0); font-size: 11px; line-height: 18px; text-align: center; font-weight: 600; }
+  .badge-warn { background: var(--g0); color: var(--g100); border: 1.5px solid var(--g100); line-height: 15px; }
+  [data-state="empty"] .badge, [data-state="empty"] .dot { display: none !important; }
+
+  /* 线框标注栏 */
+  .wf-bar { display: flex; flex-wrap: wrap; gap: var(--unit) calc(var(--unit) * 2); align-items: center; padding: var(--unit) calc(var(--unit) * 2); font-size: 12px; color: var(--g60); border-bottom: 1px dashed var(--g20); background: var(--g5); }
+  .wf-bar strong { color: var(--g100); }
+  .wf-bar a { color: var(--g60); }
+  .wf-bar a[aria-current="true"] { color: var(--g100); font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--g100); }
+  [data-p] { position: relative; }
+  [data-p]::before { content: attr(data-p); position: absolute; left: -6px; top: -10px; z-index: 2; width: 18px; height: 18px; border-radius: 50%; background: var(--g100); color: var(--g0); font-size: 11px; line-height: 18px; text-align: center; font-weight: 600; }
+  .sidebar[data-p]::before { left: 4px; top: 4px; }
+
+  /* ===== 应用壳 ===== */
+  .shell { display: grid; grid-template-columns: var(--sidebar) 1fr; min-height: calc(100vh - 42px); }
+  .sidebar { border-right: 1px solid var(--g10); background: var(--g5); padding: calc(var(--unit) * 2) calc(var(--unit) * 1.5); display: flex; flex-direction: column; gap: calc(var(--unit) * 2); }
+  .brand { display: flex; align-items: center; gap: calc(var(--unit) * 1.25); padding: 0 var(--unit); min-height: var(--hit); }
+  .brand .mark { width: 28px; height: 28px; border: 2px solid var(--g100); border-radius: 7px; flex: none; }
+  .brand .txt { min-width: 0; line-height: 1.2; }
+  .brand .name { font-weight: 600; color: var(--g100); font-size: 14px; }
+  .brand .ws { font-size: 12px; color: var(--g60); }
+  .ws-empty { display: none; }
+  [data-state="empty"] .ws-empty { display: inline; }
+  [data-state="empty"] .ws-default { display: none; }
+  .brand .collapse { margin-left: auto; }
+  .nav-group { margin: 0; padding: 0; list-style: none; }
+  .nav-group + .nav-group { margin-top: var(--unit); }
+  .nav-title { font-size: 11px; color: var(--g40); letter-spacing: .04em; padding: 0 var(--unit) 4px; }
+  .nav-item { display: flex; align-items: center; gap: calc(var(--unit) * 1.25); height: var(--hit); padding: 0 var(--unit); border-radius: 8px; color: var(--g80); text-decoration: none; }
+  .nav-item .ico { width: 20px; height: 20px; }
+  .nav-item .lbl { flex: 1; }
+  .nav-item .icon-name { font-size: 10px; color: var(--g40); }
+  .nav-item[aria-current="page"] { background: var(--g0); color: var(--g100); font-weight: 600; border: 1px solid var(--g20); }
+  .nav-item[aria-disabled="true"] { color: var(--g60); }
+  .sidebar .disabled-tip { margin-top: auto; font-size: 11px; color: var(--g40); padding: 0 var(--unit); }
+
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar); border-bottom: 1px solid var(--g10); display: flex; align-items: center; gap: var(--unit); padding: 0 calc(var(--unit) * 3); position: sticky; top: 0; background: var(--g0); z-index: 3; }
+  .hamburger { display: none; }
+  .crumb { display: flex; align-items: center; gap: var(--unit); color: var(--g60); white-space: nowrap; }
+  .crumb .cur { color: var(--g100); font-weight: 600; }
+  .crumb .root { }
+  .search { margin-left: auto; width: 320px; height: 36px; border: 1px solid var(--g20); border-radius: 8px; display: flex; align-items: center; gap: var(--unit); padding: 0 var(--unit) 0 calc(var(--unit) * 1.5); color: var(--g40); }
+  .search .ico { width: 16px; height: 16px; }
+  .search .ph { flex: 1; }
+  .search kbd { font: inherit; font-size: 11px; border: 1px solid var(--g20); border-radius: 4px; padding: 0 5px; color: var(--g60); }
+  .search-btn { display: none; }
+  .topbar .dot { position: absolute; top: 6px; right: 6px; }
+  .topbar .dot .badge { min-width: 16px; height: 16px; line-height: 16px; font-size: 10px; padding: 0 4px; }
+
+  .content { padding: calc(var(--unit) * 3); max-width: 1280px; width: 100%; margin: 0 auto; flex: 1; }
+  .state { display: none; }
+  [data-state="success"] .state-success, [data-state="loading"] .state-loading, [data-state="empty"] .state-empty, [data-state="error"] .state-error { display: block; }
+
+  /* ===== 概览：成功态 ===== */
+  .head { display: flex; align-items: flex-end; justify-content: space-between; gap: calc(var(--unit) * 2); flex-wrap: wrap; }
+  .head h1 { margin: 0; font-size: 12px; font-weight: 500; color: var(--g40); }
+  .head .greet { font-size: 22px; font-weight: 600; color: var(--g100); line-height: 1.25; }
+  .head .asof { color: var(--g60); font-size: 12px; margin-top: 2px; }
+  .tabs { display: inline-flex; border: 1px solid var(--g20); border-radius: 8px; padding: 2px; background: var(--g5); }
+  .tabs button { min-width: 56px; height: 36px; border: 0; background: transparent; border-radius: 6px; padding: 0 calc(var(--unit) * 1.5); cursor: pointer; color: var(--g60); }
+  .tabs button[aria-selected="true"] { background: var(--g0); color: var(--g100); font-weight: 600; border: 1px solid var(--g20); }
+
+  .grid-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 3); }
+  .card { border: 1px solid var(--g20); border-radius: 12px; background: var(--g0); padding: calc(var(--unit) * 2); min-width: 0; }
+  .stat .lbl { color: var(--g60); font-size: 12px; }
+  .stat .val { font-size: 26px; font-weight: 600; color: var(--g100); line-height: 1.2; margin-top: 4px; }
+  .stat .val small { font-size: 13px; font-weight: 500; color: var(--g60); margin-left: 4px; }
+  .stat .foot { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--unit); margin-top: var(--unit); }
+  .stat .delta { font-size: 12px; color: var(--g80); display: inline-flex; align-items: center; gap: 4px; }
+  .stat .delta.good { font-weight: 600; color: var(--g100); }
+  .stat .delta.bad { font-weight: 600; color: var(--g100); text-decoration: underline; text-decoration-style: wavy; text-underline-offset: 3px; }
+  .stat .delta.neutral { color: var(--g60); }
+  .stat .delta .tone { font-size: 10px; color: var(--g40); font-weight: 400; text-decoration: none; }
+  .spark { width: 60px; height: 24px; flex: none; }
+  .spark polyline { fill: none; stroke: var(--g60); stroke-width: 1.5; }
+
+  .grid-charts { display: grid; grid-template-columns: 2fr 1fr; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 2); }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--unit); }
+  .card-head h2 { margin: 0; font-size: 15px; font-weight: 600; color: var(--g100); }
+  .card-head .sub { color: var(--g60); font-size: 12px; margin-top: 2px; }
+  .card-head a { font-size: 12px; color: var(--g60); display: inline-flex; align-items: center; min-height: 28px; }
+  .legend { display: flex; gap: calc(var(--unit) * 2); font-size: 12px; color: var(--g60); margin-top: var(--unit); flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 12px; height: 12px; vertical-align: -2px; margin-right: 4px; }
+  .legend .sw-line { height: 2px; width: 14px; background: var(--g100); vertical-align: 3px; }
+  .legend .sw-bar { background: var(--g20); }
+  .chart { width: 100%; height: 200px; margin-top: var(--unit); display: block; }
+  .chart rect { fill: var(--g20); }
+  .chart polyline { fill: none; stroke: var(--g100); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .chart line { stroke: var(--g10); }
+  .axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--g40); margin-top: 4px; }
+  .donut-wrap { display: grid; grid-template-columns: 140px 1fr; gap: calc(var(--unit) * 2); align-items: center; margin-top: var(--unit); }
+  .donut { width: 140px; height: 140px; display: block; }
+  .donut circle { fill: none; stroke-width: 22; }
+  .donut .c1 { stroke: var(--g100); } .donut .c2 { stroke: var(--g60); } .donut .c3 { stroke: var(--g40); } .donut .c4 { stroke: var(--g20); } .donut .c5 { stroke: var(--g10); }
+  .donut .tot { font-size: 10px; fill: var(--g60); }
+  .donut .totv { font-size: 12px; font-weight: 600; fill: var(--g100); }
+  .dlegend { margin: 0; padding: 0; list-style: none; font-size: 12px; }
+  .dlegend li { display: flex; align-items: center; gap: var(--unit); min-height: 24px; }
+  .dlegend .sw { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+  .dlegend .n { flex: 1; color: var(--g80); }
+  .dlegend .v { color: var(--g60); }
+
+  .card-table { margin-top: calc(var(--unit) * 2); padding: 0; }
+  .table-wrap { overflow-x: auto; }
+  .card-table .card-head { padding: calc(var(--unit) * 2) calc(var(--unit) * 2) var(--unit); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 0 calc(var(--unit) * 2); height: 48px; border-top: 1px solid var(--g10); white-space: nowrap; }
+  th { font-size: 12px; font-weight: 500; color: var(--g60); background: var(--g5); height: 40px; }
+  td.r, th.r { text-align: right; }
+  td .sub { display: block; font-size: 11px; color: var(--g60); line-height: 1.2; }
+  .cust { display: inline-flex; align-items: center; gap: var(--unit); }
+  .tag { display: inline-block; font-size: 12px; line-height: 20px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--g40); color: var(--g80); background: var(--g0); white-space: nowrap; }
+  .tag-info { background: var(--g100); color: var(--g0); border-color: var(--g100); }
+  .tag-warning { border-style: dashed; border-color: var(--g100); color: var(--g100); }
+  .tag-success { background: var(--g10); border-color: var(--g10); }
+  .tag-danger { border: 2px solid var(--g100); color: var(--g100); line-height: 18px; font-weight: 600; }
+  .tag-neutral { color: var(--g60); border-color: var(--g20); }
+  .cards-orders { display: none; }
+  .tag-legend { font-size: 11px; color: var(--g40); padding: var(--unit) calc(var(--unit) * 2); border-top: 1px solid var(--g10); }
+
+  .grid-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 2); }
+  .timeline { list-style: none; margin: var(--unit) 0 0; padding: 0; }
+  .timeline li { display: grid; grid-template-columns: 28px 1fr auto; gap: var(--unit) calc(var(--unit) * 1.5); padding: calc(var(--unit) * 1.25) 0; position: relative; }
+  .timeline li + li { border-top: 1px solid var(--g10); }
+  .timeline .who { font-weight: 600; color: var(--g100); }
+  .timeline .detail { color: var(--g60); font-size: 12px; }
+  .timeline .when { color: var(--g40); font-size: 12px; white-space: nowrap; }
+  .tasks { list-style: none; margin: var(--unit) 0 0; padding: 0; }
+  .tasks li { padding: calc(var(--unit) * 1.25) 0; }
+  .tasks li + li { border-top: 1px solid var(--g10); }
+  .task-row { display: flex; justify-content: space-between; gap: var(--unit); align-items: baseline; }
+  .task-row .t { font-weight: 500; color: var(--g100); }
+  .task-row .o { color: var(--g60); font-size: 12px; white-space: nowrap; }
+  .task-bar { display: flex; align-items: center; gap: var(--unit); margin-top: 6px; }
+  .bar { flex: 1; height: 6px; background: var(--g10); border-radius: 3px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: var(--g80); }
+  .bar.at-risk > span { background: repeating-linear-gradient(135deg, var(--g100) 0 3px, var(--g40) 3px 6px); }
+  .bar.done > span { background: var(--g40); }
+  .task-bar .p { font-size: 12px; color: var(--g60); min-width: 72px; text-align: right; }
+  .task-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--g40); margin-top: 4px; }
+  .task-meta .st { font-weight: 600; color: var(--g100); }
+
+  /* ===== 骨架屏 ===== */
+  .sk { background: var(--g10); border-radius: 6px; display: block; }
+  .sk-t { height: 14px; } .sk-h { height: 22px; } .sk-v { height: 28px; margin-top: 8px; width: 60%; }
+  .sk-block { height: 200px; margin-top: 8px; }
+  .sk-row { height: 48px; border-top: 1px solid var(--g10); display: flex; align-items: center; gap: 16px; padding: 0 16px; }
+  .sk-row .sk { height: 12px; }
+
+  /* ===== 空态 / 错误态 ===== */
+  .center-block { max-width: 440px; margin: calc(var(--unit) * 10) auto; text-align: center; }
+  .center-block .fig { width: 96px; height: 96px; margin: 0 auto calc(var(--unit) * 2); border: 2px dashed var(--g20); border-radius: 50%; }
+  .center-block h2 { margin: 0; font-size: 18px; color: var(--g100); }
+  .center-block p { color: var(--g60); margin: var(--unit) 0 0; }
+  .center-block .acts { display: flex; gap: var(--unit); justify-content: center; margin-top: calc(var(--unit) * 3); flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; height: var(--hit); padding: 0 calc(var(--unit) * 2); border-radius: 8px; border: 1px solid var(--g100); background: var(--g100); color: var(--g0); font-weight: 600; cursor: pointer; }
+  .btn-secondary { background: var(--g0); color: var(--g80); border-color: var(--g20); font-weight: 500; }
+  .center-block .help { font-size: 12px; color: var(--g40); margin-top: calc(var(--unit) * 2); }
+
+  /* ===== Toast ===== */
+  .toast { display: none; position: fixed; top: calc(42px + var(--unit) * 2); right: calc(var(--unit) * 3); z-index: 9; border: 1px solid var(--g100); background: var(--g0); border-radius: 10px; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); box-shadow: 0 4px 16px rgba(0,0,0,.12); align-items: center; gap: var(--unit); font-weight: 500; color: var(--g100); }
+  [data-toast="login"][data-state="success"] .toast { display: flex; }
+
+  /* ===== 叠层清单（Popover / 菜单 / 抽屉 / Tooltip），线框以平铺面板呈现 ===== */
+  .overlays { border-top: 1px dashed var(--g20); background: var(--g5); padding: calc(var(--unit) * 3); }
+  .overlays h2 { margin: 0 0 var(--unit); font-size: 14px; color: var(--g60); font-weight: 600; }
+  .overlays .row { display: flex; gap: calc(var(--unit) * 2); flex-wrap: wrap; align-items: flex-start; }
+  .panel { border: 1px solid var(--g20); border-radius: 10px; background: var(--g0); padding: var(--unit); width: 320px; max-width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .panel-cap { font-size: 11px; color: var(--g40); margin: 0 0 var(--unit) 4px; }
+  .panel .ph { display: flex; justify-content: space-between; align-items: center; padding: var(--unit) var(--unit) 4px; font-weight: 600; color: var(--g100); }
+  .panel .ph a { font-size: 12px; font-weight: 400; color: var(--g60); }
+  .menu { list-style: none; margin: 0; padding: 0; }
+  .menu li { display: flex; align-items: center; gap: var(--unit); min-height: var(--hit); padding: 0 var(--unit); border-radius: 6px; }
+  .menu li:hover { background: var(--g5); }
+  .menu li.danger { color: var(--g100); font-weight: 600; border-top: 1px solid var(--g10); }
+  .menu li[aria-disabled="true"] { color: var(--g40); }
+  .noti { display: grid; grid-template-columns: 8px 1fr auto; gap: var(--unit); align-items: start; padding: var(--unit); border-top: 1px solid var(--g10); font-size: 13px; }
+  .noti .u { width: 8px; height: 8px; border-radius: 50%; background: var(--g100); margin-top: 6px; }
+  .noti .u.read { background: transparent; }
+  .noti .when { font-size: 11px; color: var(--g40); white-space: nowrap; }
+  .panel .pf { text-align: center; padding: var(--unit); border-top: 1px solid var(--g10); font-size: 12px; color: var(--g60); }
+  .tooltip { display: inline-block; background: var(--g100); color: var(--g0); font-size: 12px; padding: 4px 8px; border-radius: 6px; }
+  .drawer { width: 280px; }
+
+  /* ===== 375：抽屉导航 + 单列 ===== */
+  @media (max-width: 767px) {
+    .shell { display: block; min-height: 0; }
+    .sidebar { display: none; }
+    .topbar { padding: 0 var(--unit); gap: 0; }
+    .hamburger { display: inline-grid; }
+    .crumb .root, .crumb .sep { display: none; }
+    .crumb { flex: 1; min-width: 0; margin-left: 4px; }
+    .crumb .cur { overflow: hidden; text-overflow: ellipsis; }
+    .search { display: none; }
+    .search-btn { display: inline-grid; }
+    .content { padding: calc(var(--unit) * 2); }
+    .head h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .head .greet { font-size: 20px; }
+    .tabs { width: 100%; }
+    .tabs button { flex: 1; }
+    .grid-stats { grid-template-columns: 1fr 1fr; gap: var(--unit); margin-top: calc(var(--unit) * 2); }
+    .card { padding: calc(var(--unit) * 1.5); border-radius: 10px; }
+    .stat .val { font-size: 20px; }
+    .stat .foot { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .spark { width: 100%; height: 16px; }
+    .grid-charts, .grid-bottom { grid-template-columns: 1fr; gap: var(--unit); margin-top: var(--unit); }
+    .card-table { margin-top: var(--unit); }
+    .donut-wrap { grid-template-columns: 120px 1fr; }
+    .donut { width: 120px; height: 120px; }
+    .table-wrap { display: none; }
+    .tag-legend { display: none; }
+    .cards-orders { display: block; margin: 0; padding: 0; list-style: none; }
+    .ocard { border-top: 1px solid var(--g10); padding: calc(var(--unit) * 1.5); display: grid; grid-template-columns: 1fr var(--hit); gap: 4px var(--unit); }
+    .ocard .l1 { display: flex; align-items: center; gap: var(--unit); font-weight: 600; color: var(--g100); flex-wrap: wrap; }
+    .ocard .l2 { color: var(--g80); grid-column: 1; }
+    .ocard .l3 { display: flex; justify-content: space-between; gap: var(--unit); font-size: 12px; color: var(--g60); grid-column: 1; flex-wrap: wrap; }
+    .ocard .l3 .amt { color: var(--g100); font-weight: 600; font-size: 14px; }
+    .ocard .l1 { grid-column: 1; }
+    .ocard .iconbtn { grid-column: 2; grid-row: 1 / span 3; align-self: start; }
+    .timeline li { grid-template-columns: 28px 1fr; }
+    .timeline .when { grid-column: 2; }
+    .toast { left: var(--unit); right: var(--unit); justify-content: center; }
+    .overlays .row { flex-direction: column; }
+    .panel, .drawer { width: 100%; }
+    [data-p]::before { left: -4px; top: -8px; }
+  }
+</style>
+</head>
+<body>
+  <nav class="wf-bar" aria-label="线框标注栏">
+    <strong>线框 · dashboard（/）</strong>
+    <span>状态：</span>
+    <a href="?state=success" data-s="success">success</a>
+    <a href="?state=loading" data-s="loading">loading</a>
+    <a href="?state=empty" data-s="empty">empty</a>
+    <a href="?state=error" data-s="error">error</a>
+    <a href="?state=success&toast=login" data-s="toast">success + toast=login</a>
+    <span>· 周期 Tabs 默认「月」（?period= 在实现阶段驱动）· 序号 = 01-ia.md §2.2 优先级 · 灰阶 Tag 形态：实心=待发货 / 虚线=待付款 / 粗边=退款中 / 浅底=已完成 / 细边=已发货</span>
+  </nav>
+
+  <div class="shell">
+    <!-- 侧边栏（1440 展开；1024 折叠为 icon rail；≤768 抽屉，见底部叠层清单） -->
+    <aside class="sidebar" data-p="⑥" aria-label="主导航">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <div class="txt">
+          <div class="name">Acme Console</div>
+          <div class="ws"><span class="ws-default">栖木家居</span><span class="ws-empty">未命名团队</span></div>
+        </div>
+        <button class="iconbtn collapse" type="button" aria-label="收起侧边栏"><span class="ico ico-sm" aria-hidden="true"></span></button>
+      </div>
+      <nav>
+        <div class="nav-title">概览</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-current="page"><span class="ico" aria-hidden="true"></span><span class="lbl">仪表盘</span><span class="icon-name">layout-dashboard</span></a></li>
+        </ul>
+        <div class="nav-title">交易</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">订单</span><span class="badge num" aria-label="待发货 63">63</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">售后</span><span class="badge num" aria-label="待处理退款 7">7</span></a></li>
+        </ul>
+        <div class="nav-title">货品</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">商品</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">库存</span><span class="badge badge-warn num" aria-label="库存预警 12 SKU">12</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">采购</span></a></li>
+        </ul>
+        <div class="nav-title">经营</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">报表</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">设置</span></a></li>
+        </ul>
+      </nav>
+      <div class="disabled-tip">灰字项 aria-disabled，hover Tooltip「后续轮次提供」；图标 = Lucide 名（receipt-text / rotate-ccw / package / warehouse / truck / chart-column / settings）</div>
+    </aside>
+
+    <div class="main">
+      <!-- 顶栏 -->
+      <header class="topbar">
+        <button class="iconbtn hamburger" type="button" aria-label="打开导航"><span class="ico" aria-hidden="true"></span></button>
+        <nav class="crumb" aria-label="面包屑"><span class="root">栖木家居</span><span class="sep" aria-hidden="true">/</span><span class="cur">仪表盘</span></nav>
+        <div class="search" role="search" aria-label="全局搜索"><span class="ico" aria-hidden="true"></span><span class="ph">搜索订单号、商品、客户</span><kbd>⌘K</kbd></div>
+        <button class="iconbtn search-btn" type="button" aria-label="全局搜索"><span class="ico" aria-hidden="true"></span></button>
+        <button class="iconbtn" type="button" aria-label="通知，3 条未读" aria-haspopup="dialog"><span class="ico" aria-hidden="true"></span><span class="dot"><span class="badge num">3</span></span></button>
+        <button class="iconbtn" type="button" aria-label="切换为暗色" aria-pressed="false"><span class="ico" aria-hidden="true"></span></button>
+        <button class="iconbtn" type="button" aria-label="账号菜单" aria-haspopup="menu"><span class="avatar" aria-hidden="true">琳</span></button>
+      </header>
+
+      <main class="content" id="main">
+        <!-- ===== success ===== -->
+        <section class="state state-success" aria-label="仪表盘（成功态）">
+          <div class="head">
+            <div data-p="②">
+              <h1>仪表盘</h1>
+              <div class="greet">下午好，若琳</div>
+              <div class="asof">数据更新于 今天 17:30</div>
+            </div>
+            <div class="tabs" role="tablist" aria-label="统计周期">
+              <button role="tab" aria-selected="false">日</button>
+              <button role="tab" aria-selected="false">周</button>
+              <button role="tab" aria-selected="true">月</button>
+            </div>
+          </div>
+
+          <h2 class="sr-only">经营概览</h2>
+          <div class="grid-stats" data-p="①">
+            <div class="card stat">
+              <div class="lbl">销售额</div>
+              <div class="val num">¥1,186,420</div>
+              <div class="foot">
+                <span class="delta good">↑ 较上期 +9.4%</span>
+                <svg class="spark" viewBox="0 0 60 24" preserveAspectRatio="none" aria-label="近 7 期销售额趋势，末点为当前值"><polyline points="0,24.0 10,20.3 20,16.7 30,7.1 40,14.0 50,9.9 60,4.0"/></svg>
+              </div>
+            </div>
+            <div class="card stat">
+              <div class="lbl">订单数</div>
+              <div class="val num">2,964<small>单</small></div>
+              <div class="foot">
+                <span class="delta good">↑ 较上期 +5.1%</span>
+                <svg class="spark" viewBox="0 0 60 24" preserveAspectRatio="none" aria-label="近 7 期订单数趋势"><polyline points="0,24.0 10,20.7 20,17.1 30,6.7 40,13.5 50,7.7 60,4.0"/></svg>
+              </div>
+            </div>
+            <div class="card stat">
+              <div class="lbl">待发货</div>
+              <div class="val num">63<small>单</small></div>
+              <div class="foot">
+                <span class="delta neutral">↓ 较上期 −21 <span class="tone">(中性)</span></span>
+                <svg class="spark" viewBox="0 0 60 24" preserveAspectRatio="none" aria-label="近 7 期待发货趋势"><polyline points="0,24.0 10,21.7 20,17.8 30,7.8 40,13.2 50,4.0 60,20.2"/></svg>
+              </div>
+            </div>
+            <div class="card stat">
+              <div class="lbl">库存预警</div>
+              <div class="val num">12<small>SKU</small></div>
+              <div class="foot">
+                <span class="delta bad">↑ 较上期 +4 <span class="tone">(红为差)</span></span>
+                <svg class="spark" viewBox="0 0 60 24" preserveAspectRatio="none" aria-label="近 7 期库存预警趋势"><polyline points="0,24.0 10,20.7 20,14.0 30,17.3 40,10.7 50,17.3 60,4.0"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-charts" data-p="③">
+            <section class="card" aria-labelledby="chart-title">
+              <div class="card-head">
+                <div><h2 id="chart-title">销售趋势</h2><div class="sub">销售额（折线）与订单数（柱）</div></div>
+              </div>
+              <div class="legend"><span><i class="sw sw-line"></i>销售额</span><span><i class="sw sw-bar"></i>订单数</span></div>
+              <svg class="chart" viewBox="0 0 720 200" preserveAspectRatio="none" role="img" aria-label="近 30 天销售额折线与订单数柱状图，08-08 至 09-06，销售额峰值 08-19 七夕 ¥52,380 与 09-03 抖音直播 ¥52,310">
+                <line x1="8" y1="8" x2="712" y2="8"/><line x1="8" y1="100" x2="712" y2="100"/><line x1="8" y1="192" x2="712" y2="192"/>
+                <rect x="10.0" y="90.1" width="19.5" height="101.9"/><rect x="33.5" y="93.0" width="19.5" height="99.0"/><rect x="56.9" y="111.3" width="19.5" height="80.7"/><rect x="80.4" y="107.4" width="19.5" height="84.6"/><rect x="103.9" y="104.5" width="19.5" height="87.5"/><rect x="127.3" y="106.5" width="19.5" height="85.5"/><rect x="150.8" y="99.7" width="19.5" height="92.3"/><rect x="174.3" y="88.2" width="19.5" height="103.8"/><rect x="197.7" y="92.0" width="19.5" height="100.0"/><rect x="221.2" y="109.3" width="19.5" height="82.7"/><rect x="244.7" y="84.3" width="19.5" height="107.7"/><rect x="268.1" y="69.0" width="19.5" height="123.0"/><rect x="291.6" y="107.4" width="19.5" height="84.6"/><rect x="315.1" y="109.3" width="19.5" height="82.7"/><rect x="338.5" y="99.7" width="19.5" height="92.3"/><rect x="362.0" y="100.7" width="19.5" height="91.3"/><rect x="385.5" y="110.3" width="19.5" height="81.7"/><rect x="408.9" y="104.5" width="19.5" height="87.5"/><rect x="432.4" y="102.6" width="19.5" height="89.4"/><rect x="455.9" y="106.5" width="19.5" height="85.5"/><rect x="479.3" y="98.8" width="19.5" height="93.2"/><rect x="502.8" y="83.4" width="19.5" height="108.6"/><rect x="526.3" y="91.1" width="19.5" height="100.9"/><rect x="549.7" y="103.6" width="19.5" height="88.4"/><rect x="573.2" y="110.3" width="19.5" height="81.7"/><rect x="596.7" y="94.9" width="19.5" height="97.1"/><rect x="620.1" y="63.2" width="19.5" height="128.8"/><rect x="643.6" y="99.7" width="19.5" height="92.3"/><rect x="667.1" y="81.5" width="19.5" height="110.5"/><rect x="690.5" y="88.2" width="19.5" height="103.8"/>
+                <polyline points="19.7,40.5 43.2,45.9 66.7,73.1 90.1,68.1 113.6,62.2 137.1,66.9 160.5,56.0 184.0,36.8 207.5,40.6 230.9,70.8 254.4,29.5 277.9,8.0 301.3,61.1 324.8,62.3 348.3,44.2 371.7,52.9 395.2,77.9 418.7,69.5 442.1,66.5 465.6,72.8 489.1,61.5 512.5,39.7 536.0,49.5 559.5,65.1 582.9,74.4 606.4,52.3 629.9,8.2 653.3,58.7 676.8,34.1 700.3,43.1"/>
+              </svg>
+              <div class="axis num"><span>08-08</span><span>08-17</span><span>08-27</span><span>09-06</span></div>
+            </section>
+            <section class="card" aria-labelledby="donut-title">
+              <div class="card-head">
+                <div><h2 id="donut-title">渠道占比</h2><div class="sub">按销售额，近 30 天</div></div>
+              </div>
+              <div class="donut-wrap">
+                <svg class="donut" viewBox="0 0 160 160" role="img" aria-label="渠道占比：天猫旗舰店 38.2%，抖音小店 26.8%，京东旗舰店 17.5%，微信小程序 12.1%，线下门店 5.4%，合计 ¥1,186,420">
+                  <!-- r=56，周长 351.86；dasharray = 份额×周长，dashoffset 逐段累加 -->
+                  <circle class="c1" cx="80" cy="80" r="56" stroke-dasharray="134.41 217.45" stroke-dashoffset="87.97"/>
+                  <circle class="c2" cx="80" cy="80" r="56" stroke-dasharray="94.30 257.56" stroke-dashoffset="-46.44"/>
+                  <circle class="c3" cx="80" cy="80" r="56" stroke-dasharray="61.58 290.28" stroke-dashoffset="-140.74"/>
+                  <circle class="c4" cx="80" cy="80" r="56" stroke-dasharray="42.57 309.29" stroke-dashoffset="-202.32"/>
+                  <circle class="c5" cx="80" cy="80" r="56" stroke-dasharray="19.00 332.86" stroke-dashoffset="-244.89"/>
+                  <text class="tot" x="80" y="76" text-anchor="middle">合计</text>
+                  <text class="totv num" x="80" y="92" text-anchor="middle">¥1,186,420</text>
+                </svg>
+                <ul class="dlegend num">
+                  <li><span class="sw" style="background:var(--g100)"></span><span class="n">天猫旗舰店</span><span class="v">38.2%</span></li>
+                  <li><span class="sw" style="background:var(--g60)"></span><span class="n">抖音小店</span><span class="v">26.8%</span></li>
+                  <li><span class="sw" style="background:var(--g40)"></span><span class="n">京东旗舰店</span><span class="v">17.5%</span></li>
+                  <li><span class="sw" style="background:var(--g20)"></span><span class="n">微信小程序</span><span class="v">12.1%</span></li>
+                  <li><span class="sw" style="background:var(--g10)"></span><span class="n">线下门店</span><span class="v">5.4%</span></li>
+                </ul>
+              </div>
+            </section>
+          </div>
+
+          <section class="card card-table" data-p="④" aria-labelledby="orders-title">
+            <div class="card-head">
+              <h2 id="orders-title">最近订单</h2>
+              <a href="#" aria-disabled="true">查看全部 →</a>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>订单号</th><th>客户</th><th>商品</th><th class="r">金额</th><th>渠道</th><th>状态</th><th>下单时间</th><th><span class="sr-only">操作</span></th></tr>
+                </thead>
+                <tbody class="num">
+                  <tr>
+                    <td>SO-20260906-0108</td>
+                    <td><span class="cust"><span class="avatar avatar-sm" aria-hidden="true">婷</span>周雅婷</span></td>
+                    <td>北欧白橡木餐桌 1.4m ×1<span class="sub">等 2 件</span></td>
+                    <td class="r">¥4,276.00</td>
+                    <td>天猫旗舰店</td>
+                    <td><span class="tag tag-info">待发货</span></td>
+                    <td>09-06 17:26</td>
+                    <td><button class="iconbtn" type="button" aria-label="更多操作" aria-haspopup="menu">···</button></td>
+                  </tr>
+                  <tr>
+                    <td>SO-20260906-0107</td>
+                    <td><span class="cust"><span class="avatar avatar-sm" aria-hidden="true">豪</span>陈志豪</span></td>
+                    <td>云朵羊羔绒抱枕 45×45 ×2</td>
+                    <td class="r">¥178.00</td>
+                    <td>抖音小店</td>
+                    <td><span class="tag tag-warning">待付款</span></td>
+                    <td>09-06 17:21</td>
+                    <td><button class="iconbtn" type="button" aria-label="更多操作" aria-haspopup="menu">···</button></td>
+                  </tr>
+                  <tr>
+                    <td>SO-20260906-0104</td>
+                    <td><span class="cust"><span class="avatar avatar-sm" aria-hidden="true">铭</span>刘启铭</span></td>
+                    <td>亚麻遮光窗帘 2.5m ×1</td>
+                    <td class="r">¥459.00</td>
+                    <td>微信小程序</td>
+                    <td><span class="tag tag-danger">退款中</span></td>
+                    <td>09-06 17:09</td>
+                    <td><button class="iconbtn" type="button" aria-label="更多操作" aria-haspopup="menu">···</button></td>
+                  </tr>
+                  <tr>
+                    <td>SO-20260906-0099</td>
+                    <td><span class="cust"><span class="avatar avatar-sm" aria-hidden="true">芸</span>黄晓芸</span></td>
+                    <td>藤编收纳篓三件套 ×1<span class="sub">等 2 件</span></td>
+                    <td class="r">¥297.00</td>
+                    <td>线下门店</td>
+                    <td><span class="tag tag-success">已完成</span></td>
+                    <td>09-06 16:52</td>
+                    <td><button class="iconbtn" type="button" aria-label="更多操作" aria-haspopup="menu">···</button></td>
+                  </tr>
+                  <tr>
+                    <td>SO-20260906-0095</td>
+                    <td><span class="cust"><span class="avatar avatar-sm" aria-hidden="true">洁</span>吴梦洁</span></td>
+                    <td>胡桃木床头柜（双抽）×2</td>
+                    <td class="r">¥1,798.00</td>
+                    <td>京东旗舰店</td>
+                    <td><span class="tag tag-neutral">已发货</span></td>
+                    <td>09-06 16:38</td>
+                    <td><button class="iconbtn" type="button" aria-label="更多操作" aria-haspopup="menu">···</button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="tag-legend">状态语义色（阶段 2 定）：待发货 = info（主色）· 待付款 = warning · 退款中 = danger · 已完成 = success · 已发货 = neutral；768 表格横向滚动并显示「左右滑动查看更多」</div>
+            </div>
+            <!-- 375：卡片化（01-ia.md §6-C） -->
+            <ul class="cards-orders num">
+              <li class="ocard"><div class="l1">SO-20260906-0108 <span class="tag tag-info">待发货</span></div><div class="l2">北欧白橡木餐桌 1.4m ×1 等 2 件</div><div class="l3"><span class="amt">¥4,276.00</span><span>周雅婷 · 天猫旗舰店 · 17:26</span></div><button class="iconbtn" type="button" aria-label="更多操作">···</button></li>
+              <li class="ocard"><div class="l1">SO-20260906-0107 <span class="tag tag-warning">待付款</span></div><div class="l2">云朵羊羔绒抱枕 45×45 ×2</div><div class="l3"><span class="amt">¥178.00</span><span>陈志豪 · 抖音小店 · 17:21</span></div><button class="iconbtn" type="button" aria-label="更多操作">···</button></li>
+              <li class="ocard"><div class="l1">SO-20260906-0104 <span class="tag tag-danger">退款中</span></div><div class="l2">亚麻遮光窗帘 2.5m ×1</div><div class="l3"><span class="amt">¥459.00</span><span>刘启铭 · 微信小程序 · 17:09</span></div><button class="iconbtn" type="button" aria-label="更多操作">···</button></li>
+              <li class="ocard"><div class="l1">SO-20260906-0099 <span class="tag tag-success">已完成</span></div><div class="l2">藤编收纳篓三件套 ×1 等 2 件</div><div class="l3"><span class="amt">¥297.00</span><span>黄晓芸 · 线下门店 · 16:52</span></div><button class="iconbtn" type="button" aria-label="更多操作">···</button></li>
+              <li class="ocard"><div class="l1">SO-20260906-0095 <span class="tag tag-neutral">已发货</span></div><div class="l2">胡桃木床头柜（双抽）×2</div><div class="l3"><span class="amt">¥1,798.00</span><span>吴梦洁 · 京东旗舰店 · 16:38</span></div><button class="iconbtn" type="button" aria-label="更多操作">···</button></li>
+            </ul>
+          </section>
+
+          <div class="grid-bottom" data-p="⑤">
+            <section class="card" aria-labelledby="act-title">
+              <div class="card-head"><h2 id="act-title">团队动态</h2><a href="#" aria-disabled="true">查看全部 →</a></div>
+              <ol class="timeline">
+                <li><span class="avatar avatar-sm" aria-hidden="true">薇</span><div><span class="who">唐雨薇</span> 受理了订单 SO-20260906-0104 的退款申请<div class="detail">¥459.00 · 尺寸拍错</div></div><span class="when">8 分钟前</span></li>
+                <li><span class="avatar avatar-sm" aria-hidden="true">豪</span><div><span class="who">何嘉豪</span> 批量打印了 42 张待发货面单<div class="detail">杭州仓 · 顺丰速运</div></div><span class="when">18 分钟前</span></li>
+                <li><span class="avatar avatar-sm" aria-hidden="true">琳</span><div><span class="who">沈若琳</span> 将「云朵羊羔绒抱枕 45×45」安全库存从 150 调整为 200<div class="detail">杭州仓</div></div><span class="when">1 小时前</span></li>
+                <li><span class="avatar avatar-sm" aria-hidden="true">鸣</span><div><span class="who">蒋一鸣</span> 创建了采购单 PO-20260906-003<div class="detail">北欧白橡木餐桌 1.4m ×40 · 供应商：安吉林语木业</div></div><span class="when">3 小时前</span></li>
+                <li><span class="avatar avatar-sm" aria-hidden="true">博</span><div><span class="who">郭文博</span> 完成了 8 月天猫旗舰店对账<div class="detail">1,072 笔 · 差异 0 笔</div></div><span class="when">6 小时前</span></li>
+                <li><span class="ico" aria-hidden="true" style="width:28px;height:28px;border-radius:50%"></span><div><span class="who">系统</span> 同步抖音小店订单 31 条<div class="detail">9 月 5 日全天 · 定时任务 09:00</div></div><span class="when">8 小时前</span></li>
+              </ol>
+            </section>
+            <section class="card" aria-labelledby="task-title">
+              <div class="card-head"><h2 id="task-title">任务进度</h2></div>
+              <ul class="tasks num">
+                <li><div class="task-row"><span class="t">双 11 预售商品上架</span><span class="o">蒋一鸣</span></div><div class="task-bar"><div class="bar" role="progressbar" aria-label="双 11 预售商品上架，完成 45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"><span style="width:45%"></span></div><span class="p">36/80 SKU</span></div><div class="task-meta"><span>截止 10-15</span></div></li>
+                <li><div class="task-row"><span class="t">杭州仓秋季盘点</span><span class="o">何嘉豪</span></div><div class="task-bar"><div class="bar" role="progressbar" aria-label="杭州仓秋季盘点，完成 72%" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><span style="width:72%"></span></div><span class="p">1,842/2,560 SKU</span></div><div class="task-meta"><span>截止 09-12</span></div></li>
+                <li><div class="task-row"><span class="t">本周退款工单清零</span><span class="o">唐雨薇</span></div><div class="task-bar"><div class="bar" role="progressbar" aria-label="本周退款工单清零，完成 88%" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"><span style="width:88%"></span></div><span class="p">44/50 单</span></div><div class="task-meta"><span>截止 09-07</span></div></li>
+                <li><div class="task-row"><span class="t">新品「山雾」系列详情页</span><span class="o">沈若琳</span></div><div class="task-bar"><div class="bar at-risk" role="progressbar" aria-label="新品「山雾」系列详情页，完成 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"><span style="width:20%"></span></div><span class="p">2/10 页</span></div><div class="task-meta"><span>截止 09-20</span><span class="st">有风险（warning 色）</span></div></li>
+                <li><div class="task-row"><span class="t">8 月三平台对账</span><span class="o">郭文博</span></div><div class="task-bar"><div class="bar done" role="progressbar" aria-label="8 月三平台对账，完成 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><span style="width:100%"></span></div><span class="p">3/3 平台</span></div><div class="task-meta"><span>截止 09-06</span><span class="st">已完成（success 色）</span></div></li>
+              </ul>
+            </section>
+          </div>
+        </section>
+
+        <!-- ===== loading：骨架屏，与成功态同布局 ===== -->
+        <section class="state state-loading" aria-busy="true" aria-label="仪表盘（加载中）">
+          <span class="sr-only">正在加载仪表盘数据</span>
+          <div class="head">
+            <div><span class="sk sk-h" style="width:160px"></span><span class="sk sk-t" style="width:120px;margin-top:8px"></span></div>
+            <span class="sk" style="width:180px;height:40px"></span>
+          </div>
+          <div class="grid-stats">
+            <div class="card"><span class="sk sk-t" style="width:48px"></span><span class="sk sk-v"></span><span class="sk sk-t" style="width:80px;margin-top:12px"></span></div>
+            <div class="card"><span class="sk sk-t" style="width:48px"></span><span class="sk sk-v"></span><span class="sk sk-t" style="width:80px;margin-top:12px"></span></div>
+            <div class="card"><span class="sk sk-t" style="width:48px"></span><span class="sk sk-v"></span><span class="sk sk-t" style="width:80px;margin-top:12px"></span></div>
+            <div class="card"><span class="sk sk-t" style="width:48px"></span><span class="sk sk-v"></span><span class="sk sk-t" style="width:80px;margin-top:12px"></span></div>
+          </div>
+          <div class="grid-charts">
+            <div class="card"><span class="sk sk-h" style="width:80px"></span><span class="sk sk-block"></span></div>
+            <div class="card"><span class="sk sk-h" style="width:80px"></span><span class="sk sk-block"></span></div>
+          </div>
+          <div class="card card-table">
+            <div class="card-head"><span class="sk sk-h" style="width:80px"></span></div>
+            <div class="sk-row"><span class="sk" style="width:120px"></span><span class="sk" style="width:60px"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:70px"></span><span class="sk" style="width:48px"></span></div>
+            <div class="sk-row"><span class="sk" style="width:120px"></span><span class="sk" style="width:60px"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:70px"></span><span class="sk" style="width:48px"></span></div>
+            <div class="sk-row"><span class="sk" style="width:120px"></span><span class="sk" style="width:60px"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:70px"></span><span class="sk" style="width:48px"></span></div>
+            <div class="sk-row"><span class="sk" style="width:120px"></span><span class="sk" style="width:60px"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:70px"></span><span class="sk" style="width:48px"></span></div>
+            <div class="sk-row"><span class="sk" style="width:120px"></span><span class="sk" style="width:60px"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:70px"></span><span class="sk" style="width:48px"></span></div>
+          </div>
+          <div class="grid-bottom">
+            <div class="card"><span class="sk sk-h" style="width:80px"></span>
+              <div class="sk-row" style="padding:0"><span class="sk" style="width:28px;height:28px;border-radius:50%"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:48px"></span></div>
+              <div class="sk-row" style="padding:0"><span class="sk" style="width:28px;height:28px;border-radius:50%"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:48px"></span></div>
+              <div class="sk-row" style="padding:0"><span class="sk" style="width:28px;height:28px;border-radius:50%"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:48px"></span></div>
+              <div class="sk-row" style="padding:0"><span class="sk" style="width:28px;height:28px;border-radius:50%"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:48px"></span></div>
+              <div class="sk-row" style="padding:0"><span class="sk" style="width:28px;height:28px;border-radius:50%"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:48px"></span></div>
+              <div class="sk-row" style="padding:0"><span class="sk" style="width:28px;height:28px;border-radius:50%"></span><span class="sk" style="flex:1"></span><span class="sk" style="width:48px"></span></div>
+            </div>
+            <div class="card"><span class="sk sk-h" style="width:80px"></span>
+              <div class="sk-row" style="padding:0"><span class="sk" style="flex:1"></span><span class="sk" style="width:72px"></span></div>
+              <div class="sk-row" style="padding:0"><span class="sk" style="flex:1"></span><span class="sk" style="width:72px"></span></div>
+              <div class="sk-row" style="padding:0"><span class="sk" style="flex:1"></span><span class="sk" style="width:72px"></span></div>
+              <div class="sk-row" style="padding:0"><span class="sk" style="flex:1"></span><span class="sk" style="width:72px"></span></div>
+              <div class="sk-row" style="padding:0"><span class="sk" style="flex:1"></span><span class="sk" style="width:72px"></span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== empty ===== -->
+        <section class="state state-empty" aria-label="仪表盘（空态）">
+          <div class="head"><div><h1>仪表盘</h1><div class="greet">你好，若琳</div></div></div>
+          <div class="center-block">
+            <div class="fig" aria-hidden="true"></div>
+            <h2>还没有经营数据</h2>
+            <p>接入第一个销售渠道后，销售额、订单和库存会在这里实时汇总。</p>
+            <div class="acts"><button class="btn" type="button" aria-disabled="true">接入销售渠道</button><button class="btn btn-secondary" type="button" aria-disabled="true">导入历史订单</button></div>
+            <p class="help">空态下：团队空间名「未命名团队」、铃铛与侧边栏角标不显示、无周期 Tabs 与统计卡</p>
+          </div>
+        </section>
+
+        <!-- ===== error ===== -->
+        <section class="state state-error" aria-label="仪表盘（加载失败）">
+          <div class="head"><div><h1>仪表盘</h1><div class="greet">下午好，若琳</div></div></div>
+          <div class="center-block" role="alert">
+            <div class="fig" aria-hidden="true" style="border-style:solid"></div>
+            <h2>数据加载失败</h2>
+            <p>服务暂时不可用（错误码 503）。已为你保留上次的筛选条件，稍后重试即可。</p>
+            <div class="acts"><button class="btn" type="button">重试</button></div>
+            <p class="help">若持续失败，请联系管理员或查看<a href="#" aria-disabled="true">服务状态</a>。　重试 → loading → success</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" role="status"><span class="ico ico-sm" aria-hidden="true"></span>欢迎回来，若琳<span style="font-size:11px;color:var(--g40);font-weight:400">· 3 秒后消失</span></div>
+
+  <!-- ===== 叠层清单：Popover / 菜单 / 抽屉 / Tooltip（线框以平铺面板呈现，不覆盖页面） ===== -->
+  <section class="overlays" aria-label="叠层元素">
+    <h2>叠层元素（触发后覆盖在页面上；此处平铺展示）</h2>
+    <div class="row">
+      <div>
+        <p class="panel-cap">通知 Popover（铃铛，`mock/notifications.json`，3 未读）</p>
+        <div class="panel" role="dialog" aria-label="通知">
+          <div class="ph">通知<a href="#">全部标为已读</a></div>
+          <div class="noti"><span class="u"></span><span>订单 SO-20260906-0104 买家申请退款 ¥459.00</span><span class="when">12 分钟前</span></div>
+          <div class="noti"><span class="u"></span><span>「胡桃木床头柜（双抽）」库存低于安全线，剩余 18 件</span><span class="when">38 分钟前</span></div>
+          <div class="noti"><span class="u"></span><span>抖音小店 16:00 批次同步完成，新增 4 条订单</span><span class="when">42 分钟前</span></div>
+          <div class="noti"><span class="u read"></span><span>何嘉豪 完成了杭州仓 A 区盘点</span><span class="when">2 小时前</span></div>
+          <div class="noti"><span class="u read"></span><span>系统公告：9 月 8 日 02:00–04:00 例行维护，期间订单同步将延迟</span><span class="when">昨天</span></div>
+          <div class="pf">查看全部通知</div>
+        </div>
+        <p class="panel-cap" style="margin-top:8px">空态 Popover：「暂无新通知」</p>
+      </div>
+      <div>
+        <p class="panel-cap">头像菜单（5 项）</p>
+        <div class="panel" role="menu" aria-label="账号菜单" style="width:220px">
+          <div class="ph" style="display:block"><div style="display:flex;gap:8px;align-items:center"><span class="avatar" aria-hidden="true">琳</span><div><div>沈若琳</div><div style="font-size:11px;color:var(--g60);font-weight:400">ruolin.shen@qimu-home.cn</div></div></div></div>
+          <ul class="menu">
+            <li role="menuitem"><span class="ico ico-sm" aria-hidden="true"></span>个人资料</li>
+            <li role="menuitem"><span class="ico ico-sm" aria-hidden="true"></span>账号安全</li>
+            <li role="menuitem"><span class="ico ico-sm" aria-hidden="true"></span>切换团队空间</li>
+            <li role="menuitem"><span class="ico ico-sm" aria-hidden="true"></span>帮助中心</li>
+            <li role="menuitem" class="danger"><span class="ico ico-sm" aria-hidden="true"></span>退出登录 → /login</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <p class="panel-cap">订单操作菜单：待发货（全部可用）</p>
+        <div class="panel" role="menu" style="width:200px">
+          <ul class="menu"><li role="menuitem">查看详情</li><li role="menuitem">标记发货</li><li role="menuitem">打印面单</li><li role="menuitem" class="danger">取消订单</li></ul>
+        </div>
+        <p class="panel-cap" style="margin-top:8px">待付款</p>
+        <div class="panel" role="menu" style="width:200px">
+          <ul class="menu"><li role="menuitem">查看详情</li><li role="menuitem" aria-disabled="true">标记发货</li><li role="menuitem" aria-disabled="true">打印面单</li><li role="menuitem" class="danger">取消订单</li></ul>
+        </div>
+        <p class="panel-cap" style="margin-top:8px">已发货 / 已完成 / 退款中</p>
+        <div class="panel" role="menu" style="width:200px">
+          <ul class="menu"><li role="menuitem">查看详情</li><li role="menuitem" aria-disabled="true">标记发货</li><li role="menuitem" aria-disabled="true">打印面单</li><li role="menuitem" aria-disabled="true" class="danger" style="font-weight:400">取消订单</li></ul>
+        </div>
+      </div>
+      <div>
+        <p class="panel-cap">≤768 导航抽屉（汉堡「打开导航」打开，遮罩关闭；内容同侧边栏）</p>
+        <div class="panel drawer">
+          <div class="brand" style="padding:4px"><span class="mark" aria-hidden="true"></span><div class="txt"><div class="name">Acme Console</div><div class="ws">栖木家居</div></div><button class="iconbtn" type="button" aria-label="关闭" style="margin-left:auto">×</button></div>
+          <div class="nav-title">概览</div>
+          <ul class="nav-group"><li><a class="nav-item" href="#" aria-current="page"><span class="ico" aria-hidden="true"></span><span class="lbl">仪表盘</span></a></li></ul>
+          <div class="nav-title">交易</div>
+          <ul class="nav-group"><li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">订单</span><span class="badge num">63</span></a></li><li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">售后</span><span class="badge num">7</span></a></li></ul>
+          <div class="nav-title">货品</div>
+          <ul class="nav-group"><li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">商品</span></a></li><li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">库存</span><span class="badge badge-warn num">12</span></a></li><li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">采购</span></a></li></ul>
+          <div class="nav-title">经营</div>
+          <ul class="nav-group"><li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">报表</span></a></li><li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">设置</span></a></li></ul>
+        </div>
+        <p class="panel-cap" style="margin-top:8px">Tooltip（禁用导航项 hover / 折叠 icon rail）</p>
+        <span class="tooltip">后续轮次提供</span>　<span class="tooltip">订单 · 63 待发货</span>
+      </div>
+    </div>
+  </section>
+
+<script>
+  // 仅用于线框状态切换（?state= / ?toast=），无业务逻辑。
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var s = q.get('state') || 'success';
+    if (!/^(success|loading|empty|error)$/.test(s)) s = 'success';
+    document.documentElement.setAttribute('data-state', s);
+    if (q.get('toast') === 'login') document.documentElement.setAttribute('data-toast', 'login');
+    var key = q.get('toast') === 'login' ? 'toast' : s;
+    var cur = document.querySelector('.wf-bar a[data-s="' + key + '"]');
+    if (cur) cur.setAttribute('aria-current', 'true');
+  })();
+</script>
+</body>
+</html>

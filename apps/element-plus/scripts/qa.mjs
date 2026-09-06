@@ -98,8 +98,6 @@ const audit = `(() => {
   const measured = new Set()
   for (const el of document.querySelectorAll("button, a[href], input:not([type=hidden]), textarea, .el-checkbox, .el-radio, .el-switch, .el-tabs__item, .el-pager li, .el-menu-item, .el-select__wrapper, .el-tag.is-closable, .el-anchor__link, .el-radio-button__inner, .el-checkbox-button__inner, .el-carousel__indicator")) {
     if (!visible(el) || el.closest(".el-popper, .el-overlay")) continue
-    // Size showcase controls intentionally include default and small variants.
-    if (el.closest("[data-size-demo]")) continue
     const target = el.matches("input, textarea")
       ? el.closest(".el-input__wrapper, .el-select__wrapper, .el-range-editor, .el-textarea, .el-input-number, .el-checkbox, .el-radio, .el-switch, .el-segmented__item") ?? el
       : el.matches("button.el-carousel__button")

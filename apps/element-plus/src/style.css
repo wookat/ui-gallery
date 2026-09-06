@@ -40,6 +40,8 @@ html:not(.dark) { --el-text-color-secondary: #5f6368; --el-text-color-placeholde
 .components-page .demo-row > .el-button.is-link,
 .components-page .demo-row > .el-button.is-text { min-width: 40px; }
 .el-button.is-circle { min-width: 40px; }
+.components-page .demo-row > .el-button[data-size-demo],
+.el-button[data-size-demo], [data-size-demo] > .el-button { min-width: 40px; min-height: 40px; }
 .el-button.el-dropdown__caret-button { min-width: 40px; }
 .el-tag.is-closable { min-height: 40px; }
 .el-tag__close { min-width: 40px; min-height: 40px; }

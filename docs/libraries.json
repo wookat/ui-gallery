@@ -32,7 +32,7 @@
     { "slug": "tdesign-vue-next", "name": "TDesign Vue Next", "framework": "vue", "repo": "Tencent/tdesign-vue-next", "pkg": "tdesign-vue-next", "round": 1, "status": "merged" },
     { "slug": "vant", "name": "Vant", "framework": "vue", "repo": "youzan/vant", "pkg": "vant", "round": 1 },
 
-    { "slug": "shadcn-svelte", "name": "shadcn-svelte", "framework": "svelte", "repo": "huntabyte/shadcn-svelte", "pkg": "shadcn-svelte", "round": 1 },
+    { "slug": "shadcn-svelte", "name": "shadcn-svelte", "framework": "svelte", "repo": "huntabyte/shadcn-svelte", "pkg": "shadcn-svelte", "round": 1, "status": "merged" },
     { "slug": "skeleton", "name": "Skeleton", "framework": "svelte", "repo": "skeletonlabs/skeleton", "pkg": "@skeletonlabs/skeleton", "round": 1 },
     { "slug": "kobalte", "name": "Kobalte", "framework": "solid", "repo": "kobaltedev/kobalte", "pkg": "@kobalte/core", "round": 1 },
     { "slug": "angular-material", "name": "Angular Material", "framework": "angular", "repo": "angular/components", "pkg": "@angular/material", "round": 1 },

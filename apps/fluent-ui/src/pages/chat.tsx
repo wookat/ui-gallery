@@ -179,7 +179,7 @@ export function ChatPage() {
           </div>
         )}
         <div className={s.composer}>
-          {messages.length > 0 ? <div className={s.chips}>{chat.suggestions.map((sg) => <Button key={sg} size={isMobile ? "medium" : "small"} shape="circular" style={{ flexShrink: 0 }} onClick={() => setDraft(sg)}>{sg}</Button>)}</div> : null}
+          {messages.length > 0 ? <div className={s.chips}>{chat.suggestions.map((sg) => <Button key={sg} size={isMobile ? "large" : "small"} shape="circular" style={{ flexShrink: 0 }} onClick={() => setDraft(sg)}>{sg}</Button>)}</div> : null}
           <span className={s.attachment}><Icon name="paperclip" size={14} /><Caption1>project-notes.md · 12 KB</Caption1><Button appearance="transparent" size={ctl} icon={<Icon name="x" size={12} />} aria-label="移除附件" /></span>
           <div className={s.box}>
             <Textarea appearance="filled-lighter" value={draft} onChange={(_, d) => setDraft(d.value)} placeholder="向 AI 助手提问..." resize="none" rows={isMobile ? 1 : 2} />

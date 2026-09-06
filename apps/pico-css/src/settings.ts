@@ -17,6 +17,7 @@ export function applyUrlSettings(): { theme: Theme; icons: IconFamily } {
   }
   const font = params.get("font")
   if (font && fonts[font]) document.documentElement.style.setProperty("--pico-font-family", fonts[font])
+  else document.documentElement.style.removeProperty("--pico-font-family")
 
   const requestedIcons = params.get("icons") ?? params.get("icon")
   const icons: IconFamily = requestedIcons === "tabler" || requestedIcons === "phosphor" || requestedIcons === "heroicons"

@@ -11,5 +11,5 @@ const entries = Object.fromEntries(contract.components.map((key) => [key, missin
 const coverage = Object.fromEntries(contract.components.map((key) => [key, entries[key]]))
 if (Object.values(coverage).some((value) => !value)) throw new Error("Coverage is missing a contract component")
 gallery.coverage = coverage
-gallery.notes = "Pico CSS 2.1.1 官方默认（azure）主题，使用含少量类名的默认构建 pico.min.css（.grid/.container/.secondary/.contrast/.outline/.dropdown）；无自带图标体系，?icons= 通过内联 SVG 适配层切换 lucide/tabler/phosphor/heroicons；图表用 Chart.js（external）；暗色用 html[data-theme=dark]。"
+gallery.notes = "Pico CSS 2.1.1 官方默认（azure）主题，使用含少量类名的默认构建 pico.min.css（.grid/.container/.secondary/.contrast/.outline/.dropdown）；无自带图标体系，?icons= 通过内联 SVG 适配层切换 lucide/tabler/phosphor/heroicons，?icon=native 不支持（nativeIcons:false，回退 lucide）；图表用 Chart.js（external）；暗色用 html[data-theme=dark]。"
 writeFileSync(galleryPath, `${JSON.stringify(gallery, null, 2)}\n`)

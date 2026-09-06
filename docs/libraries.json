@@ -6,7 +6,7 @@
     { "slug": "mui", "name": "MUI Material", "framework": "react", "repo": "mui/material-ui", "pkg": "@mui/material", "round": 1 },
     { "slug": "antd", "name": "Ant Design", "framework": "react", "repo": "ant-design/ant-design", "pkg": "antd", "round": 1 },
     { "slug": "mantine", "name": "Mantine", "framework": "react", "repo": "mantinedev/mantine", "pkg": "@mantine/core", "round": 1 },
-    { "slug": "chakra-ui", "name": "Chakra UI v3", "framework": "react", "repo": "chakra-ui/chakra-ui", "pkg": "@chakra-ui/react", "round": 1 },
+    { "slug": "chakra-ui", "name": "Chakra UI v3", "framework": "react", "repo": "chakra-ui/chakra-ui", "pkg": "@chakra-ui/react", "round": 1, "status": "merged" },
     { "slug": "heroui", "name": "HeroUI", "framework": "react", "repo": "heroui-inc/heroui", "pkg": "@heroui/react", "round": 1 },
     { "slug": "daisyui", "name": "daisyUI", "framework": "react", "repo": "saadeghi/daisyui", "pkg": "daisyui", "round": 1 },
     { "slug": "radix-themes", "name": "Radix Themes", "framework": "react", "repo": "radix-ui/themes", "pkg": "@radix-ui/themes", "round": 1 },

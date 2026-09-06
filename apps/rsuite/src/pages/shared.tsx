@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Panel, SegmentedControl, Tag, Text } from "rsuite"
 
@@ -19,4 +19,28 @@ export function SectionCard({ title, description, children }: { title: string; d
 export function StatusBadge({ value }: { value: string }) {
   const color = ["paid", "shipped", "active"].includes(value) ? "green" : ["pending", "due"].includes(value) ? "orange" : "red"
   return <Tag color={color} size="sm">{value}</Tag>
+}
+
+export const orderFieldLabels: Record<string, string> = { id: "订单编号", customer: "客户", email: "邮箱", product: "产品", amount: "金额", currency: "货币", status: "状态", date: "日期", channel: "渠道" }
+
+export function ScrollHint({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [scrollable, setScrollable] = useState(false)
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return undefined
+    const update = () => {
+      const row = node.querySelector<HTMLElement>(".rs-table-row")
+      const hasScrollbar = Boolean(node.querySelector(".rs-table-scrollbar-horizontal"))
+      setScrollable(hasScrollbar || Math.max(node.scrollWidth, row?.offsetWidth ?? 0) > node.clientWidth + 1)
+    }
+    update()
+    const frame = window.requestAnimationFrame(update)
+    const observer = new ResizeObserver(update)
+    observer.observe(node)
+    const mutations = new MutationObserver(update)
+    mutations.observe(node, { childList: true, subtree: true })
+    return () => { window.cancelAnimationFrame(frame); observer.disconnect(); mutations.disconnect() }
+  }, [])
+  return <div ref={ref} className="table-scroll" data-scrollable={scrollable}>{children}</div>
 }

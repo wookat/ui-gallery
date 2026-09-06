@@ -56,3 +56,28 @@ body { margin: 0; }
 .rs-form-control-message-wrapper { position: static; }
 .rs-form-error-message { position: static; display: block; margin-top: 4px; white-space: normal; filter: none; }
 .rs-form-error-message-arrow { display: none; }
+/* 对比度：仅在 RSuite 官方色阶内选取更深一档作为白字底色（≥4.5:1），不引入自定义色值 */
+:root, .rs-theme-light { --rs-btn-primary-bg: var(--rs-primary-700); --rs-btn-primary-border-color: var(--rs-primary-800); --rs-btn-primary-hover-bg: var(--rs-primary-800); --rs-btn-primary-active-bg: var(--rs-primary-900); --rs-badge-bg: var(--rs-red-700); --rs-iconbtn-primary-addon: var(--rs-primary-800); --rs-iconbtn-primary-activated-addon: var(--rs-primary-900); }
+.rs-theme-dark { --rs-btn-primary-bg: var(--rs-primary-900); --rs-btn-primary-border-color: var(--rs-primary-900); --rs-btn-primary-hover-bg: var(--rs-primary-800); --rs-btn-primary-active-bg: var(--rs-primary-700); --rs-badge-bg: var(--rs-red-700); --rs-iconbtn-primary-addon: var(--rs-primary-800); --rs-iconbtn-primary-activated-addon: var(--rs-primary-700); }
+.rs-btn[data-color=red] { --rs-btn-primary-bg: var(--rs-red-700); --rs-btn-primary-border-color: var(--rs-red-800); }
+.rs-tag[data-color=primary], .rs-tag[data-color=blue] { --rs-tag-bg: var(--rs-blue-800); }
+.rs-tag[data-color=green], .rs-tag[data-color=success] { --rs-tag-bg: var(--rs-green-900); }
+.rs-tag[data-color=orange], .rs-tag[data-color=warning] { --rs-tag-bg: var(--rs-orange-900); }
+.rs-tag[data-color=red], .rs-tag[data-color=error] { --rs-tag-bg: var(--rs-red-700); }
+.rs-tag[data-color=cyan] { --rs-tag-bg: var(--rs-cyan-900); }
+.rs-tag[data-color=violet] { --rs-tag-bg: var(--rs-violet-700); }
+.rs-tag[data-color=yellow] { --rs-tag-bg: var(--rs-yellow-500); --rs-tag-text: var(--rs-gray-900); }
+.rs-badge[data-color=green] { --rs-badge-bg: var(--rs-green-900); }
+.rs-badge[data-color=orange] { --rs-badge-bg: var(--rs-orange-900); }
+.rs-badge[data-color=blue] { --rs-badge-bg: var(--rs-blue-800); }
+.rs-badge[data-color=red] { --rs-badge-bg: var(--rs-red-700); }
+.message-user, .cta-banner, .avatar-letter, .brand-letter { background: var(--rs-btn-primary-bg); }
+/* 复制按钮 / 代码块 */
+.table-scroll[data-scrollable=true]::after { content: "← 左右滑动查看更多 →"; display: block; text-align: center; font-size: 12px; color: var(--rs-text-secondary); padding: 6px 0; }
+.streaming-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.rs-sidenav-toggle.rs-btn { min-width: 40px; min-height: 40px; }
+.rs-input-group[data-size=lg] .rs-input-group-btn { min-width: 40px; }
+.help-trigger { min-width: 40px; min-height: 40px; margin: -10px 0; vertical-align: middle; }
+.code-block { border: 1px solid var(--rs-border-primary); border-radius: 6px; overflow: hidden; margin: 8px 0; }
+.code-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 2px 12px; background: var(--rs-bg-well); border-bottom: 1px solid var(--rs-border-primary); }
+.code-block pre { margin: 0; overflow: auto; }

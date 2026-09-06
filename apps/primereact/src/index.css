@@ -34,7 +34,10 @@ a { color: var(--primary-color); }
 .p-inputnumber-buttons-horizontal .p-inputnumber-button { min-width: 2.5rem; flex-shrink: 0; }
 .p-inputnumber-buttons-horizontal { max-width: 100%; }
 .p-inputnumber-buttons-horizontal .p-inputnumber-input { flex: 1 1 0; width: 1%; min-width: 0; }
-.p-fileupload-basic .p-button { white-space: nowrap; flex-shrink: 0; }
+.p-fileupload-basic { flex-shrink: 0; }
+.p-fileupload-basic .p-button { white-space: nowrap; flex-shrink: 0; writing-mode: horizontal-tb; }
+.p-avatar.p-avatar-xl { flex-shrink: 0; }
+.chat-bubble .p-card-body, .chat-bubble .p-card-content { min-width: 0; max-width: 100%; }
 .app-nav .p-panelmenu-header, .app-nav .p-panelmenu-header-content, .app-nav .p-panelmenu-header-link, .app-nav .p-menuitem-link { color: var(--text-color); }
 .app-nav .p-menuitem-link.app-nav-active { background: var(--highlight-bg); color: var(--highlight-text-color); font-weight: 600; }
 label.hit { cursor: pointer; }

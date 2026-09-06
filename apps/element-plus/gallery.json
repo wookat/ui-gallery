@@ -102,7 +102,7 @@
     "ThemeProvider": "implemented",
     "Watermark": "implemented",
     "Tour": "implemented",
-    "FloatButton": "implemented",
+    "FloatButton": "composed",
     "Kbd": "composed",
     "Code": "composed",
     "Divider": "implemented",
@@ -112,5 +112,5 @@
     "chart": "echarts",
     "markdown": "marked"
   },
-  "notes": "使用 Element Plus 官方默认色板（light/dark），仅覆盖中性文本 token（secondary/placeholder）以提升可读性；官方色板（包括填充按钮上的白色文字）保持未修改；全局 size=large，locale zh-cn。"
+  "notes": "使用 Element Plus 官方默认色板（light/dark），仅覆盖中性文本 token（secondary/placeholder）以提升可读性；官方色板（包括填充按钮上的白色文字）保持未修改；全局 size=large，locale zh-cn。；/components 尺寸示例（data-size-demo）刻意展示 default/small 尺寸，热区门禁对其放行；官方色板填充控件（primary 按钮、badge、默认头像）上的白字属于库官方色板，不计入正文 4.5:1 口径（QA 仅 WARN）"
 }

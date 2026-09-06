@@ -45,7 +45,7 @@ const toggleTheme = () => {
     <el-container>
       <el-header class="topbar">
         <el-button v-if="mobile" text class="icon-btn" aria-label="菜单" @click="drawer = true"><Icon name="menu" :size="20" /></el-button>
-        <el-breadcrumb><el-breadcrumb-item><router-link to="/">Acme Console</router-link></el-breadcrumb-item><el-breadcrumb-item>{{ current }}</el-breadcrumb-item></el-breadcrumb>
+        <el-breadcrumb><el-breadcrumb-item v-if="!mobile"><router-link to="/">Acme Console</router-link></el-breadcrumb-item><el-breadcrumb-item>{{ current }}</el-breadcrumb-item></el-breadcrumb>
         <el-input class="global-search" placeholder="搜索..." :prefix-icon="undefined"><template #prefix><Icon name="search" /></template></el-input>
         <el-popover placement="bottom-end" width="300" trigger="click">
           <template #reference><el-badge :value="notifications.filter((n) => n.unread).length"><el-button text class="icon-btn" aria-label="通知"><Icon name="bell" :size="20" /></el-button></el-badge></template>
@@ -53,7 +53,7 @@ const toggleTheme = () => {
         </el-popover>
         <el-button text class="icon-btn" aria-label="切换主题" @click="toggleTheme"><Icon :name="dark ? 'sun' : 'moon'" :size="20" /></el-button>
         <el-dropdown>
-          <span class="avatar-trigger"><el-avatar size="small">林</el-avatar></span>
+          <span class="avatar-trigger" tabindex="0" role="button" aria-label="账户菜单"><el-avatar size="small">林</el-avatar></span>
           <template #dropdown><el-dropdown-menu><el-dropdown-item>个人资料</el-dropdown-item><el-dropdown-item>偏好设置</el-dropdown-item><el-dropdown-item divided>帮助中心</el-dropdown-item><el-dropdown-item>快捷键</el-dropdown-item><el-dropdown-item>退出登录</el-dropdown-item></el-dropdown-menu></template>
         </el-dropdown>
       </el-header>
@@ -72,7 +72,7 @@ const toggleTheme = () => {
 .collapse-button { position: absolute; right: 8px; bottom: 80px; }
 .topbar { display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--el-border-color); background: var(--el-bg-color); }
 .global-search { width: 240px; margin-left: auto; }
-.avatar-trigger { display: inline-flex; cursor: pointer; }
+.avatar-trigger { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; cursor: pointer; border-radius: 50%; }
 .notification { display: grid; gap: 4px; padding: 10px 0; border-bottom: 1px solid var(--el-border-color-lighter); }
-@media (max-width: 767px) { .topbar { padding: 0 14px; } .global-search { display: none; } .topbar :deep(.el-breadcrumb) { flex: 1; } }
+@media (max-width: 767px) { .topbar { padding: 0 14px; } .global-search { display: none; } .topbar :deep(.el-breadcrumb) { flex: 1; white-space: nowrap; } }
 </style>

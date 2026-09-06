@@ -15,7 +15,7 @@ export const coverage: Record<string, CoverageStatus> = {
   Dropdown: "implemented", Breadcrumb: "implemented", Tabs: "implemented", Pagination: "implemented", Steps: "implemented", Anchor: "implemented",
   BackTop: "implemented", Affix: "implemented", Navbar: "composed", Sidebar: "composed", CommandPalette: "composed", Grid: "implemented",
   Stack: "implemented", Layout: "implemented", Container: "composed", AspectRatio: "composed", Resizable: "implemented", ScrollArea: "implemented",
-  Accordion: "implemented", ThemeProvider: "implemented", Watermark: "implemented", Tour: "implemented", FloatButton: "implemented", Kbd: "composed",
+  Accordion: "implemented", ThemeProvider: "implemented", Watermark: "implemented", Tour: "implemented", FloatButton: "composed", Kbd: "composed",
   Code: "composed", Divider: "implemented", Link: "implemented",
 }
 export const coverageKeys = (contract.components as string[]).map((key) => [key, coverage[key]] as const)

@@ -36,7 +36,7 @@ const yearly = ref(false)
 .brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; background: var(--el-color-primary); color: #fff; }
 .nav-actions { display: flex; gap: 8px; align-items: center; }
 .hero { max-width: 900px; margin: auto; padding: 90px 24px 60px; text-align: center; }
-.hero h1 { margin: 18px 0; font-size: clamp(36px, 7vw, 68px); line-height: 1.08; }
+.hero h1 { margin: 18px 0; font-size: clamp(36px, 7vw, 68px); line-height: 1.08; text-wrap: balance; }
 .hero p, .section-lead { color: var(--el-text-color-secondary); font-size: 18px; }
 .hero-shot { max-width: 800px; height: 260px; margin: 50px auto 20px; padding: 32px; overflow: hidden; box-sizing: border-box; border: 1px solid var(--el-border-color); border-radius: 16px; box-shadow: var(--el-box-shadow-light); }
 .hero-shot :deep(.el-skeleton), .hero-shot :deep(.el-skeleton__item) { width: 100%; max-width: 100%; box-sizing: border-box; }

@@ -40,7 +40,7 @@ const submit = () => { formRef.value?.validate((ok) => { if (!ok) return; failed
 .brand-mark { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 10px; background: var(--el-color-primary); color: #fff; font-weight: 700; font-size: 20px; }
 .login-form { margin-top: 22px; }
 .login-options, .oauth { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.oauth { justify-content: center; flex-wrap: wrap; }
+.oauth { justify-content: center; flex-wrap: wrap; }.oauth :deep(.el-button) { gap: 6px; }
 .register { text-align: center; margin: 20px 0 0; }
 .login-alert { position: fixed; top: 20px; width: min(90%, 600px); z-index: 2; }
 .login-card :deep(.el-divider__text) { background-color: var(--el-card-bg-color); }

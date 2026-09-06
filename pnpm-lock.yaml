@@ -355,6 +355,97 @@ importers:
         specifier: ^8
         version: 8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.97.3)(yaml@2.9.0)
 
+  apps/cloudscape:
+    dependencies:
+      '@cloudscape-design/chat-components':
+        specifier: 1.0.165
+        version: 1.0.165(@cloudscape-design/components@3.0.1356(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
+      '@cloudscape-design/code-view':
+        specifier: 3.0.171
+        version: 3.0.171(@cloudscape-design/components@3.0.1356(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
+      '@cloudscape-design/collection-hooks':
+        specifier: 1.0.107
+        version: 1.0.107(react@19.2.8)
+      '@cloudscape-design/components':
+        specifier: 3.0.1356
+        version: 3.0.1356(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@cloudscape-design/design-tokens':
+        specifier: 3.0.109
+        version: 3.0.109
+      '@cloudscape-design/global-styles':
+        specifier: 1.0.67
+        version: 1.0.67
+      '@fontsource-variable/geist':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource-variable/inter':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource-variable/noto-sans-sc':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@ui-gallery/icons-react':
+        specifier: workspace:*
+        version: link:../../packages/icons-react
+      '@ui-gallery/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+      lxgw-wenkai-screen-webfont:
+        specifier: ^1.7.0
+        version: 1.7.0
+      react:
+        specifier: ^19.2.6
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.2.6
+        version: 19.2.8(react@19.2.8)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.2.18)(react@19.2.8)
+      react-router-dom:
+        specifier: ^7.18.3
+        version: 7.18.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10
+        version: 10.0.1(eslint@10.10.0(jiti@2.7.0))
+      '@types/node':
+        specifier: ^24
+        version: 24.13.3
+      '@types/react':
+        specifier: ^19
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.7(@types/react@19.2.18)
+      '@vitejs/plugin-react':
+        specifier: ^6
+        version: 6.1.1(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.97.3)(yaml@2.9.0))
+      eslint:
+        specifier: ^10
+        version: 10.10.0(jiti@2.7.0)
+      eslint-plugin-react-hooks:
+        specifier: ^7.1.1
+        version: 7.1.1(eslint@10.10.0(jiti@2.7.0))
+      eslint-plugin-react-refresh:
+        specifier: ^0.5.2
+        version: 0.5.6(eslint@10.10.0(jiti@2.7.0))
+      globals:
+        specifier: ^17
+        version: 17.12.0
+      typescript:
+        specifier: ~6
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8
+        version: 8.69.0(eslint@10.10.0(jiti@2.7.0))(typescript@6.0.3)
+      vite:
+        specifier: ^8
+        version: 8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.97.3)(yaml@2.9.0)
+
   apps/daisyui:
     dependencies:
       '@fontsource-variable/geist':
@@ -1962,6 +2053,45 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@cloudscape-design/chat-components@1.0.165':
+    resolution: {integrity: sha512-Xlx4+W0zTaN9GXV8i0dKYi3n/Fk8sE2746GnNCDul7ICH8ht3I0XUBtpHSLYtCFygLifjUyJcwih8dWyt43CTg==}
+    peerDependencies:
+      '@cloudscape-design/components': ^3
+      react: '>=18.2.0'
+
+  '@cloudscape-design/code-view@3.0.171':
+    resolution: {integrity: sha512-c8XMdeiH644om3kUF9tTMopPUYGcktjugqaj3Xn0lkMvQp5tnrbxE0f+lB/n8mv8fYo4oZKS0Un+drTrWPVVtw==}
+    peerDependencies:
+      '@cloudscape-design/components': ^3
+      react: '>=18.2.0'
+
+  '@cloudscape-design/collection-hooks@1.0.107':
+    resolution: {integrity: sha512-oLfcRAlC9Xau3BKBop6HSRWzIKsP2K7p2YiwzsOncpVfAgpZdyUMjzYH8f32g/e0/D7J9aQLRN9uGX2YL7JWgg==}
+    peerDependencies:
+      react: '>=16.8.0'
+
+  '@cloudscape-design/component-toolkit@1.0.0-beta.184':
+    resolution: {integrity: sha512-iXsr39nqSnAqL4qcw19TvAIgM5w2p5e6wZjEfW8qjJHpx+gBoxpJDVRNw25i4q3MfsJiAYLPjLSA1Ms3ksij2g==}
+    peerDependencies:
+      react: '>=16.8.0'
+
+  '@cloudscape-design/components@3.0.1356':
+    resolution: {integrity: sha512-iTzpJQ5axu10LGg8FLZ8ZsLdJGJ+BsSEyzpE0IUk+dS2dFierpRuASKDP0CoTnZjdwrGHxqOKLoUON4wMgzC5A==}
+    peerDependencies:
+      react: '>=16.8.0'
+
+  '@cloudscape-design/design-tokens@3.0.109':
+    resolution: {integrity: sha512-U18AeQUkw304n7RrSQ+J3HVu9aVMk3eh85CDe7FuVQ+TAGsPlQIBjHMc5Ba31uqpuwImy+aSjoqWreBFgJTr2w==}
+
+  '@cloudscape-design/global-styles@1.0.67':
+    resolution: {integrity: sha512-W3rYWDc9dgo/nOrmaxWb9oSFeECeFuYDUwgkhPd4NbrzP1aqNnlQsUiA3s1L2VQQm82tsuDsAyYh/lqQWEDRpw==}
+
+  '@cloudscape-design/test-utils-core@1.0.90':
+    resolution: {integrity: sha512-n7PMy/ChgAFVOfB+hpMrcFdTiUOqWi+vYdHi/RxxDzyPwG7+oxiD8hiuJ6eszQzQzo7u/FuHQcRZegr2g3zVUg==}
+
+  '@cloudscape-design/theming-runtime@1.0.128':
+    resolution: {integrity: sha512-rDurItG4/pZqmPx2zv3/ZmoEb/74DWD9y57sJo9PzoeQA84+lwXRLSwqe2uf5K/eUyHKXWknlqzBVmdqVIfCNg==}
+
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
@@ -1984,6 +2114,28 @@ packages:
 
   '@date-fns/tz@1.5.0':
     resolution: {integrity: sha512-lwYN/vDPeNRULcepoE/LO2Pgx+7/RV+S9ARfbc9lr2DtGkOD7pAiruHvbR1RX3Qyf6ja47EWJDMsNK5vK08DJg==}
+
+  '@dnd-kit/accessibility@3.1.1':
+    resolution: {integrity: sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw==}
+    peerDependencies:
+      react: '>=16.8.0'
+
+  '@dnd-kit/core@6.3.1':
+    resolution: {integrity: sha512-xkGBRQQab4RLwgXxoqETICr6S5JlogafbhNsidmrkVv2YRs5MLwpjoF2qpiGjQt8S9AoxtIV603s0GIUpY5eYQ==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+
+  '@dnd-kit/sortable@7.0.2':
+    resolution: {integrity: sha512-wDkBHHf9iCi1veM834Gbk1429bd4lHX4RpAwT0y2cHLf246GAvU2sVw/oxWNpPKQNQRQaeGXhAVgrOl1IT+iyA==}
+    peerDependencies:
+      '@dnd-kit/core': ^6.0.7
+      react: '>=16.8.0'
+
+  '@dnd-kit/utilities@3.2.2':
+    resolution: {integrity: sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==}
+    peerDependencies:
+      react: '>=16.8.0'
 
   '@dotenvx/dotenvx@1.75.1':
     resolution: {integrity: sha512-/BITOC9dmS/edY2zQwZNicQ059O6RKabtQfyEafV0nGtfYRNHYy1DIPiYVcov40+tob9hfmBnbR963dS+EQ1DQ==}
@@ -2458,6 +2610,21 @@ packages:
 
   '@fontsource-variable/noto-sans-sc@5.3.0':
     resolution: {integrity: sha512-lNar1dF7Ik/lHNPo/7JWG0TolXY29LtsqYgMvEysooZ5bsO9uH4shJmRrwyJ3PjyTPljhpMJEK0jDuLSU4vJ1w==}
+
+  '@formatjs/ecma402-abstract@2.3.6':
+    resolution: {integrity: sha512-HJnTFeRM2kVFVr5gr5kH1XP6K0JcJtE7Lzvtr3FS/so5f1kpsqqqxy5JF+FRaO6H2qmcMfAUIox7AJteieRtVw==}
+
+  '@formatjs/fast-memoize@2.2.7':
+    resolution: {integrity: sha512-Yabmi9nSvyOMrlSeGGWDiH7rf3a7sIwplbvo/dlz9WCIjzIQAfy1RMf4S0X3yG724n5Ghu2GmEl5NJIV6O9sZQ==}
+
+  '@formatjs/icu-messageformat-parser@2.11.4':
+    resolution: {integrity: sha512-7kR78cRrPNB4fjGFZg3Rmj5aah8rQj9KPzuLsmcSn4ipLXQvC04keycTI1F7kJYDwIXtT2+7IDEto842CfZBtw==}
+
+  '@formatjs/icu-skeleton-parser@1.8.16':
+    resolution: {integrity: sha512-H13E9Xl+PxBd8D5/6TVUluSpxGNvFSlN/b3coUp0e0JpuWXXnQDiavIpY3NnvSp4xhEMoXyyBvVfdFX8jglOHQ==}
+
+  '@formatjs/intl-localematcher@0.6.2':
+    resolution: {integrity: sha512-XOMO2Hupl0wdd172Y06h6kLpBz6Dv+J4okPLl4LPtzbr8f66WbIoy4ev98EBuZ6ZK4h5ydTN6XneT4QVpD7cdA==}
 
   '@gar/promise-retry@1.0.3':
     resolution: {integrity: sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA==}
@@ -3086,6 +3253,9 @@ packages:
     resolution: {integrity: sha512-N5dInvHWGxNcnu3VJvbO2zOJA832Uy4he6qGwcqd8i3m8iYGlLoebp+e+X8NfncXXLnXkYvru5BnkUVdNdo1xg==}
     peerDependencies:
       svelte: ^5
+
+  '@material/material-color-utilities@0.3.0':
+    resolution: {integrity: sha512-ztmtTd6xwnuh2/xu+Vb01btgV8SQWYCaK56CkRK8gEkWe5TuDyBcYJ0wgkMRn+2VcE9KUmhvkz+N9GHrqw/C0g==}
 
   '@modelcontextprotocol/sdk@1.30.0':
     resolution: {integrity: sha512-xKd8OIzlqNzcqcNumGAa6g+PW2kjD5vrpcKOnfldAUPP3j7lnqMPwlTXQm8gF+UwH72z0lqaRbjr9hqGz0eITA==}
@@ -5753,6 +5923,13 @@ packages:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
     engines: {node: '>= 0.6'}
 
+  ace-builds@1.44.0:
+    resolution: {integrity: sha512-PFNMSYqFdEUkul2Ntud0HvA09AgY+F1ag0UYdpMH60wNI/qOA8cB8tlTgoALMEwIdUPJK2CjrIQ7OnbiSS/ugQ==}
+
+  ace-code@1.44.0:
+    resolution: {integrity: sha512-6hmMdpJ7DTB4xGSPfZcINgwL2v5/0u6Oh5GXbcH7KZqjWkVADxSbA1IMoWmk/WvgHAsbaYmZoWh7DS2zCfVbeQ==}
+    engines: {node: '>= 0.6.0'}
+
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -6097,6 +6274,10 @@ packages:
     resolution: {integrity: sha512-k7ndgKhwoQveBL+/1tqGJYNz097I7WOvwbmmU2AR5+magtbjPWQTS1C5vzGkBC8Ym8UWRzfKUzUUqFLypY4Q+w==}
     engines: {node: '>=20'}
 
+  clsx@1.2.1:
+    resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
+    engines: {node: '>=6'}
+
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
@@ -6237,6 +6418,9 @@ packages:
   css-select@6.0.0:
     resolution: {integrity: sha512-rZZVSLle8v0+EY8QAkDWrKhpgt6SA5OtHsgBnsj6ZaLb5dmDVOWUDtQitd9ydxxvEjhewNudS6eTVU7uOyzvXw==}
 
+  css-selector-tokenizer@0.8.0:
+    resolution: {integrity: sha512-Jd6Ig3/pe62/qe5SBPTN8h8LeUg/pT4lLgtavPf7updwwHpvFzxvOQBHYj2LZDMjUnBzgvIUSjRcf6oT5HzHFg==}
+
   css-tree@2.2.1:
     resolution: {integrity: sha512-OA0mILzGc1kCOCSJerOeqDxDQ4HOh+G8NbOJFOTgOCzpw7fCBubk0fEyxp8AgOL/jvLgYA/uV0cMbe43ElF1JA==}
     engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0, npm: '>=7.0.0'}
@@ -6248,6 +6432,9 @@ packages:
   css-what@7.0.0:
     resolution: {integrity: sha512-wD5oz5xibMOPHzy13CyGmogB3phdvcDaB5t0W/Nr5Z2O/agcB8YwOz6e2Lsp10pNDzBoDO9nVa3RGs/2BttpHQ==}
     engines: {node: '>= 6'}
+
+  css.escape@1.5.1:
+    resolution: {integrity: sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg==}
 
   cssesc@3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
@@ -6424,6 +6611,9 @@ packages:
 
   decimal.js-light@2.5.1:
     resolution: {integrity: sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg==}
+
+  decimal.js@10.6.0:
+    resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
 
   decode-named-character-reference@1.3.0:
     resolution: {integrity: sha512-GtpQYB283KrPp6nRw50q3U9/VfOutZOe103qlN7BPP6Ad27xYnOIWv4lPzo8HCAL+mMZofJ9KEy30fq6MfaK6Q==}
@@ -6847,6 +7037,9 @@ packages:
   fast-wrap-ansi@0.2.2:
     resolution: {integrity: sha512-7F2Fl+TjRSenLqlU3UjSH0iyqopqoZIu7eZVpEirP2g1GtWa2G/ecEmBdgz31+Mxr+ELclgg6sokpSFIQiZ02Q==}
 
+  fastparse@1.1.2:
+    resolution: {integrity: sha512-483XLLxTVIwWK3QTrMGRqUfUpoOs/0hbQrl2oz4J0pAcm3A3bu84wxTFqGqkJzewCLdME38xJLJAxBABfQT8sQ==}
+
   fastq@1.20.3:
     resolution: {integrity: sha512-XKv5nnLs6nLF71NgiKJLIZFLkPyIEuOselLG7ujZnGrRfQK8HpvY+WqKhAJUAdLomwVHErVS4LfxFlPq0/FTAw==}
 
@@ -7190,6 +7383,9 @@ packages:
   internmap@2.0.3:
     resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
     engines: {node: '>=12'}
+
+  intl-messageformat@10.7.18:
+    resolution: {integrity: sha512-m3Ofv/X/tV8Y3tHXLohcuVuhWKo7BBq62cqY15etqmLxg2DZ34AGGgQDeR+SCta2+zICb1NX83af0GJmbQ1++g==}
 
   ip-address@10.7.0:
     resolution: {integrity: sha512-BGFsyJd5mpXp3rK6jIdADLNgpJUK1jnjzvYF8lK+VyDab9JAmqN0YOKDdP17HlgKb2+ehPgDc8EtnRLbGCAMhA==}
@@ -7945,6 +8141,10 @@ packages:
 
   mlly@1.8.2:
     resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
+
+  mnth@2.0.0:
+    resolution: {integrity: sha512-3ZH4UWBGpAwCKdfjynLQpUDVZWMe6vRHwarIpMdGLUp89CVR9hjzgyWERtMyqx+fPEqQ/PsAxFwvwPxLFxW40A==}
+    engines: {node: '>=12.13.0'}
 
   mode-watcher@1.1.0:
     resolution: {integrity: sha512-mUT9RRGPDYenk59qJauN1rhsIMKBmWA3xMF+uRwE8MW/tjhaDSCCARqkSuDTq8vr4/2KcAxIGVjACxTjdk5C3g==}
@@ -9980,6 +10180,12 @@ packages:
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
+  weekstart@1.1.0:
+    resolution: {integrity: sha512-ZO3I7c7J9nwGN1PZKZeBYAsuwWEsCOZi5T68cQoVNYrzrpp5Br0Bgi0OF4l8kH/Ez7nKfxa5mSsXjsgris3+qg==}
+
+  weekstart@2.0.0:
+    resolution: {integrity: sha512-HjYc14IQUwDcnGICuc8tVtqAd6EFpoAQMqgrqcNtWWZB+F1b7iTq44GzwM1qvnH4upFgbhJsaNHuK93NOFheSg==}
+
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
     engines: {node: '>= 8'}
@@ -11143,6 +11349,70 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260828.1':
     optional: true
 
+  '@cloudscape-design/chat-components@1.0.165(@cloudscape-design/components@3.0.1356(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      '@cloudscape-design/component-toolkit': 1.0.0-beta.184(react@19.2.8)
+      '@cloudscape-design/components': 3.0.1356(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@cloudscape-design/test-utils-core': 1.0.90
+      clsx: 1.2.1
+      react: 19.2.8
+
+  '@cloudscape-design/code-view@3.0.171(@cloudscape-design/components@3.0.1356(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      '@cloudscape-design/component-toolkit': 1.0.0-beta.184(react@19.2.8)
+      '@cloudscape-design/components': 3.0.1356(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      ace-code: 1.44.0
+      clsx: 1.2.1
+      react: 19.2.8
+
+  '@cloudscape-design/collection-hooks@1.0.107(react@19.2.8)':
+    dependencies:
+      '@cloudscape-design/component-toolkit': 1.0.0-beta.184(react@19.2.8)
+      react: 19.2.8
+
+  '@cloudscape-design/component-toolkit@1.0.0-beta.184(react@19.2.8)':
+    dependencies:
+      react: 19.2.8
+      tslib: 2.8.1
+      weekstart: 2.0.0
+
+  '@cloudscape-design/components@3.0.1356(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      '@cloudscape-design/collection-hooks': 1.0.107(react@19.2.8)
+      '@cloudscape-design/component-toolkit': 1.0.0-beta.184(react@19.2.8)
+      '@cloudscape-design/test-utils-core': 1.0.90
+      '@cloudscape-design/theming-runtime': 1.0.128
+      '@dnd-kit/core': 6.3.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@dnd-kit/sortable': 7.0.2(@dnd-kit/core@6.3.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
+      '@dnd-kit/utilities': 3.2.2(react@19.2.8)
+      ace-builds: 1.44.0
+      clsx: 1.2.1
+      d3-shape: 1.3.7
+      date-fns: 2.30.0
+      intl-messageformat: 10.7.18
+      mnth: 2.0.0
+      react: 19.2.8
+      react-is: 18.3.1
+      react-transition-group: 4.4.5(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      tslib: 2.8.1
+      weekstart: 1.1.0
+    transitivePeerDependencies:
+      - react-dom
+
+  '@cloudscape-design/design-tokens@3.0.109': {}
+
+  '@cloudscape-design/global-styles@1.0.67': {}
+
+  '@cloudscape-design/test-utils-core@1.0.90':
+    dependencies:
+      css-selector-tokenizer: 0.8.0
+      css.escape: 1.5.1
+
+  '@cloudscape-design/theming-runtime@1.0.128':
+    dependencies:
+      '@material/material-color-utilities': 0.3.0
+      tslib: 2.8.1
+
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
@@ -11162,6 +11432,31 @@ snapshots:
   '@dagrejs/graphlib@3.0.4': {}
 
   '@date-fns/tz@1.5.0': {}
+
+  '@dnd-kit/accessibility@3.1.1(react@19.2.8)':
+    dependencies:
+      react: 19.2.8
+      tslib: 2.8.1
+
+  '@dnd-kit/core@6.3.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      '@dnd-kit/accessibility': 3.1.1(react@19.2.8)
+      '@dnd-kit/utilities': 3.2.2(react@19.2.8)
+      react: 19.2.8
+      react-dom: 19.2.8(react@19.2.8)
+      tslib: 2.8.1
+
+  '@dnd-kit/sortable@7.0.2(@dnd-kit/core@6.3.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      '@dnd-kit/core': 6.3.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@dnd-kit/utilities': 3.2.2(react@19.2.8)
+      react: 19.2.8
+      tslib: 2.8.1
+
+  '@dnd-kit/utilities@3.2.2(react@19.2.8)':
+    dependencies:
+      react: 19.2.8
+      tslib: 2.8.1
 
   '@dotenvx/dotenvx@1.75.1':
     dependencies:
@@ -11523,6 +11818,32 @@ snapshots:
   '@fontsource-variable/inter@5.3.0': {}
 
   '@fontsource-variable/noto-sans-sc@5.3.0': {}
+
+  '@formatjs/ecma402-abstract@2.3.6':
+    dependencies:
+      '@formatjs/fast-memoize': 2.2.7
+      '@formatjs/intl-localematcher': 0.6.2
+      decimal.js: 10.6.0
+      tslib: 2.8.1
+
+  '@formatjs/fast-memoize@2.2.7':
+    dependencies:
+      tslib: 2.8.1
+
+  '@formatjs/icu-messageformat-parser@2.11.4':
+    dependencies:
+      '@formatjs/ecma402-abstract': 2.3.6
+      '@formatjs/icu-skeleton-parser': 1.8.16
+      tslib: 2.8.1
+
+  '@formatjs/icu-skeleton-parser@1.8.16':
+    dependencies:
+      '@formatjs/ecma402-abstract': 2.3.6
+      tslib: 2.8.1
+
+  '@formatjs/intl-localematcher@0.6.2':
+    dependencies:
+      tslib: 2.8.1
 
   '@gar/promise-retry@1.0.3': {}
 
@@ -12027,6 +12348,8 @@ snapshots:
   '@lucide/svelte@1.41.0(svelte@5.57.0(@typescript-eslint/types@8.69.0))':
     dependencies:
       svelte: 5.57.0(@typescript-eslint/types@8.69.0)
+
+  '@material/material-color-utilities@0.3.0': {}
 
   '@modelcontextprotocol/sdk@1.30.0(zod@3.25.76)':
     dependencies:
@@ -15104,6 +15427,10 @@ snapshots:
       mime-types: 3.0.2
       negotiator: 1.1.0
 
+  ace-builds@1.44.0: {}
+
+  ace-code@1.44.0: {}
+
   acorn-jsx@5.3.2(acorn@8.18.0):
     dependencies:
       acorn: 8.18.0
@@ -15624,6 +15951,8 @@ snapshots:
       strip-ansi: 7.2.0
       wrap-ansi: 9.0.2
 
+  clsx@1.2.1: {}
+
   clsx@2.1.1: {}
 
   cmdk@1.1.1(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
@@ -15756,6 +16085,11 @@ snapshots:
       domutils: 3.2.2
       nth-check: 2.1.1
 
+  css-selector-tokenizer@0.8.0:
+    dependencies:
+      cssesc: 3.0.0
+      fastparse: 1.1.2
+
   css-tree@2.2.1:
     dependencies:
       mdn-data: 2.0.28
@@ -15767,6 +16101,8 @@ snapshots:
       source-map-js: 1.2.1
 
   css-what@7.0.0: {}
+
+  css.escape@1.5.1: {}
 
   cssesc@3.0.0: {}
 
@@ -15919,6 +16255,8 @@ snapshots:
       ms: 2.1.3
 
   decimal.js-light@2.5.1: {}
+
+  decimal.js@10.6.0: {}
 
   decode-named-character-reference@1.3.0:
     dependencies:
@@ -16437,6 +16775,8 @@ snapshots:
     dependencies:
       fast-string-width: 3.0.2
 
+  fastparse@1.1.2: {}
+
   fastq@1.20.3:
     dependencies:
       reusify: 1.1.0
@@ -16783,6 +17123,13 @@ snapshots:
   internmap@1.0.1: {}
 
   internmap@2.0.3: {}
+
+  intl-messageformat@10.7.18:
+    dependencies:
+      '@formatjs/ecma402-abstract': 2.3.6
+      '@formatjs/fast-memoize': 2.2.7
+      '@formatjs/icu-messageformat-parser': 2.11.4
+      tslib: 2.8.1
 
   ip-address@10.7.0: {}
 
@@ -17702,6 +18049,10 @@ snapshots:
       pathe: 2.0.3
       pkg-types: 1.3.1
       ufo: 1.6.4
+
+  mnth@2.0.0:
+    dependencies:
+      '@babel/runtime': 7.29.7
 
   mode-watcher@1.1.0(svelte@5.57.0(@typescript-eslint/types@8.69.0)):
     dependencies:
@@ -20008,6 +20359,10 @@ snapshots:
     optional: true
 
   webpack-virtual-modules@0.6.2: {}
+
+  weekstart@1.1.0: {}
+
+  weekstart@2.0.0: {}
 
   which@2.0.2:
     dependencies:

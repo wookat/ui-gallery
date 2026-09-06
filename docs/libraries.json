@@ -12,7 +12,7 @@
     { "slug": "radix-themes", "name": "Radix Themes", "framework": "react", "repo": "radix-ui/themes", "pkg": "@radix-ui/themes", "round": 1 },
     { "slug": "primereact", "name": "PrimeReact", "framework": "react", "repo": "primefaces/primereact", "pkg": "primereact", "round": 1 },
     { "slug": "blueprint", "name": "Blueprint", "framework": "react", "repo": "palantir/blueprint", "pkg": "@blueprintjs/core", "round": 1, "status": "merged" },
-    { "slug": "cloudscape", "name": "Cloudscape (AWS)", "framework": "react", "repo": "cloudscape-design/components", "pkg": "@cloudscape-design/components", "round": 1 },
+    { "slug": "cloudscape", "name": "Cloudscape (AWS)", "framework": "react", "repo": "cloudscape-design/components", "pkg": "@cloudscape-design/components", "round": 1, "status": "merged" },
     { "slug": "primer-react", "name": "Primer React (GitHub)", "framework": "react", "repo": "primer/react", "pkg": "@primer/react", "round": 1, "status": "merged" },
     { "slug": "fluent-ui", "name": "Fluent UI React v9", "framework": "react", "repo": "microsoft/fluentui", "pkg": "@fluentui/react-components", "round": 1 },
     { "slug": "semi-design", "name": "Semi Design", "framework": "react", "repo": "DouyinFE/semi-design", "pkg": "@douyinfe/semi-ui", "round": 1 },

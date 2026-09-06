@@ -104,7 +104,9 @@ const submit = () => {
   justify-content: center;
   flex-wrap: wrap;
 }
-.oauth :deep(.el-button) {
+.oauth :deep(.el-button > span) {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
 }
 .register {

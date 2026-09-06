@@ -60,6 +60,12 @@ body {
   font-size: 12px;
 }
 
+body.body--dark .logo-placeholder {
+  border-color: #424242;
+  background: #1d1d1d;
+  color: #9e9e9e;
+}
+
 .logo-placeholder .q-skeleton {
   position: absolute;
   inset: 7px auto auto 50%;

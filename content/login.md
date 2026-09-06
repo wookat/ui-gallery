@@ -10,7 +10,7 @@
 | title | 登录 | h1 |
 | subtitle | 使用工作邮箱登录你的团队空间 | h1 下方 |
 | email.label | 邮箱 | |
-| email.placeholder | name@company.com | 仅示例格式，不是真实地址 |
+| email.placeholder | name@example.com | 仅示例格式（RFC 2606 保留域），不是真实地址 |
 | password.label | 密码 | |
 | password.placeholder | 至少 8 位 | |
 | password.show | 显示密码 | 眼睛按钮 aria-label |
@@ -33,16 +33,18 @@
 | key | 触发条件 | 文案 | 呈现 |
 |---|---|---|---|
 | error.email.required | 邮箱为空且失焦/提交 | 请输入邮箱 | 字段下方内联错误 + 字段红边 |
-| error.email.format | 不匹配 `^[^\s@]+@[^\s@]+\.[^\s@]+$` | 邮箱格式不正确，例如 name@company.com | 内联 |
+| error.email.format | 不匹配 `^[^\s@]+@[^\s@]+\.[^\s@]+$` | 邮箱格式不正确，例如 name@example.com | 内联 |
 | error.password.required | 密码为空且失焦/提交 | 请输入密码 | 内联 |
 | error.password.short | 密码 < 8 位 | 密码至少 8 位 | 内联 |
 | alert.invalid | 服务端返回 401 | 邮箱或密码不正确。连续 5 次失败后账号将锁定 15 分钟。 | 表单顶部 Alert（error 级，可关闭） |
 | alert.locked | 服务端返回 423 | 账号已锁定，请 15 分钟后再试，或通过「忘记密码」重置。 | 顶部 Alert（error） |
 | alert.network | 请求超时/断网 | 网络异常，请检查连接后重试。 | 顶部 Alert（warning），含「重试」按钮 |
-| toast.success | 200 | 欢迎回来，若琳 | 跳转 `/` 后右上角 Toast（success），3 秒 |
+| toast.success | 200 | 欢迎回来，若琳 | 跳转 `/?toast=login` 后右上角 Toast（success），3 秒；Toast 由 dashboard 渲染 |
 
 ## 演示账号（mock，见 `../mock/user.json`）
 - 邮箱 `ruolin.shen@qimu-home.cn`，密码任意 ≥8 位 → 成功跳转 `/`
 - 邮箱 `locked@qimu-home.cn` → `alert.locked`
 - 其它任意邮箱 → `alert.invalid`
-- 状态切换（供截图/审查）：`?state=default|invalid|loading|error`，`error` = 展示 `alert.invalid`
+- 状态切换（供截图/审查）：`/login?state=default|invalid|loading|error|success`
+  - `default` = 空表单（即本屏的 empty 态）；`invalid` = 两字段均展示内联错误；`loading` = `submit.loading`；`error` = 展示 `alert.invalid`
+  - `success` = 立即跳转 `/?toast=login`，由 dashboard 在 success 态上叠加 `toast.success`（见 `dashboard.md`「状态切换」）；截图矩阵直接取 `/?toast=login`

@@ -46,7 +46,7 @@
 | dashboard.delta.up | 较上期 +{n}% | 统计卡同比，正向 |
 | dashboard.delta.down | 较上期 −{n}% | 统计卡同比，负向 |
 | dashboard.delta.flat | 与上期持平 | |
-| dashboard.delta.count | 较上期 {sign}{n} | 数量型指标（待发货、库存预警）用绝对数 |
+| dashboard.delta.count | 较上期 {sign}{n} | 数量型指标（待发货、库存预警）用绝对数；语义色按 `mock/stats.json.cards[].deltaTone` / `invertDelta`（待发货中性色，库存预警上升为红） |
 | dashboard.stats.title | 经营概览 | 4 卡区块标题（可视觉隐藏，保留语义） |
 | dashboard.chart.title | 销售趋势 | 折线 + 柱状图卡片标题 |
 | dashboard.chart.subtitle | 销售额（折线）与订单数（柱） | |
@@ -105,4 +105,5 @@
 
 ## 状态切换（供截图/审查）
 - `?state=loading|empty|error|success`（默认 success）；`?period=day|week|month`（默认 month）。
-- 空态与错误态下应用壳（侧边栏/顶栏）保持可用，只有内容区变化；空态通知铃铛无角标。
+- `?toast=login`（仅 success 态）：右上角叠加 `login.toast.success`「欢迎回来，若琳」，充当 login 屏 `success` 态的可复现截图。
+- 空态与错误态下应用壳（侧边栏/顶栏）保持可用，只有内容区变化；空态下通知铃铛无角标，侧边栏订单 / 售后 / 库存的数字角标亦不显示（`mock/nav.json.badge` 不读取）。

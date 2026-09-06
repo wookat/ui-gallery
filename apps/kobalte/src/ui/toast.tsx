@@ -2,10 +2,9 @@ import { Toast, toaster } from "@kobalte/core/toast"
 
 function makeToast(title: string, description: string | undefined, className: string) {
   return toaster.show((props) => (
-    <Toast {...props} class={className}>
-      <Toast.Title>{title}</Toast.Title>
-      {description ? <Toast.Description>{description}</Toast.Description> : null}
-      <Toast.CloseButton aria-label="关闭">×</Toast.CloseButton>
+    <Toast {...props} class={`relative flex items-start gap-3 rounded-lg border p-4 pr-12 text-sm shadow-lg text-zinc-900 dark:text-zinc-100 ${className}`}>
+      <div class="grid gap-1"><Toast.Title class="font-medium">{title}</Toast.Title>{description ? <Toast.Description class="text-zinc-500 dark:text-zinc-400">{description}</Toast.Description> : null}</div>
+      <Toast.CloseButton aria-label="关闭" class="absolute right-2 top-2 grid size-10 place-items-center rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100">×</Toast.CloseButton>
     </Toast>
   ))
 }

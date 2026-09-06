@@ -8,6 +8,7 @@ import { FileField } from "@/ui/file-field"
 import { Rating } from "@/ui/rating"
 import { Switch } from "@/ui/switch"
 import { TimeField } from "@/ui/time-field"
+import { NumberField } from "@/ui/number-field"
 import { Combobox } from "@/ui/combobox"
 import { Select } from "@/ui/select"
 import { Slider } from "@kobalte/core/slider"
@@ -38,7 +39,7 @@ function renderForms(name: string, status: string) {
   if (name === "Radio") return <DemoCard name={name} status={status}><DemoFrame><RadioGroup label="项目类型" options={[{ value: "web", label: "Web" }, { value: "mobile", label: "移动端" }, { value: "internal", label: "内部" }]} value="web" /></DemoFrame></DemoCard>
   if (name === "Checkbox") return <DemoCard name={name} status={status}><DemoFrame><div class="flex flex-wrap gap-4"><Checkbox label="未选中" /><Checkbox label="已选中" checked /><Checkbox label="不确定" indeterminate /><Checkbox label="禁用" disabled /><Checkbox label="错误" class="text-red-600" /></div></DemoFrame></DemoCard>
   if (name === "Switch") return <DemoCard name={name} status={status}><DemoFrame><div class="grid gap-3 sm:grid-cols-2"><Switch label="默认已选" checked /><Switch label="未选中" /><Switch label="带描述" checked description="保存后立即生效" /><Switch label="禁用" disabled description="当前不可用" /></div></DemoFrame></DemoCard>
-  if (name === "NumberInput") return <DemoCard name={name} status={status}><DemoFrame><div class="grid gap-3 sm:grid-cols-4"><TextField label="默认" type="number" value="12" /><TextField label="1–100 · 步进 5" type="number" value="25" description="min 1 · max 100 · step 5" /><TextField label="金额" prefix="¥" type="number" value="12,480" /><TextField label="禁用/错误" type="number" disabled error="范围不正确" /></div></DemoFrame></DemoCard>
+  if (name === "NumberInput") return <DemoCard name={name} status={status}><DemoFrame><div class="grid gap-3 sm:grid-cols-4"><NumberField label="默认" value={12} /><NumberField label="1–100 · 步进 5" value={25} min={1} max={100} step={5} description="min 1 · max 100 · step 5" /><NumberField label="金额" value={12480} formatOptions={{ style: "currency", currency: "CNY" }} /><NumberField label="禁用/错误" value={0} disabled error="范围不正确" /></div></DemoFrame></DemoCard>
   if (name === "Textarea") return <DemoCard name={name} status={status}><DemoFrame><div class="grid gap-3 sm:grid-cols-3"><TextArea label="默认" rows={3} placeholder="写点内容..." /><TextArea label="带计数" rows={3} maxLength={200} value="已输入的描述" description="12 / 200" /><TextArea label="错误/禁用" rows={3} disabled error="内容不能为空" /></div></DemoFrame></DemoCard>
   if (name === "MultiSelect") return <DemoCard name={name} status={status}><DemoFrame><Select label="渠道（多选）" options={options} value={["a", "b"]} multiple /></DemoFrame></DemoCard>
   if (name === "Combobox" || name === "Autocomplete") return <DemoCard name={name} status={status}><DemoFrame><div class="grid max-w-md gap-3"><Combobox label={name === "Autocomplete" ? "可自定义值" : "过滤城市"} options={[{ value: "hangzhou", label: "杭州" }, { value: "shanghai", label: "上海" }, { value: "shenzhen", label: "深圳" }]} placeholder="输入过滤..." /><p class="text-xs text-zinc-500 dark:text-zinc-400">输入内容后过滤选项，{name === "Autocomplete" ? "允许自定义值" : "仅选择已有值"}。</p></div></DemoFrame></DemoCard>

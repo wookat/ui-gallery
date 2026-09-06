@@ -1,4 +1,4 @@
-import { MenuContent, MenuCheckboxItem, MenuItem, MenuPortal, MenuRoot, MenuTrigger } from "@kobalte/core/menu"
+import { MenuContent, MenuCheckboxItem, MenuItem, MenuItemIndicator, MenuPortal, MenuRoot, MenuTrigger } from "@kobalte/core/menu"
 
 export const DropdownMenu = {
   Root: MenuRoot,
@@ -7,4 +7,5 @@ export const DropdownMenu = {
   Content: MenuContent,
   Item: MenuItem,
   CheckboxItem: MenuCheckboxItem,
+  ItemIndicator: MenuItemIndicator,
 }

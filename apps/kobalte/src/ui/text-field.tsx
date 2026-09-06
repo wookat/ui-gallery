@@ -38,7 +38,7 @@ export function TextField(props: TextFieldProps) {
       class={`${props.label ? "grid gap-1.5" : ""} ${local.class ?? ""}`}
     >
       {props.label ? <KobalteTextField.Label class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{props.label}{props.required ? <span class="ml-1 text-red-600">*</span> : null}</KobalteTextField.Label> : null}
-      <div class="flex min-h-9 items-center rounded-md border border-zinc-300 bg-white px-3 shadow-sm focus-within:ring-2 focus-within:ring-blue-500 data-[invalid]:border-red-500 dark:border-zinc-700 dark:bg-zinc-900">
+      <div class="flex min-h-10 items-center rounded-md border border-zinc-300 bg-white px-3 shadow-sm focus-within:ring-2 focus-within:ring-blue-500 data-[invalid]:border-red-500 dark:border-zinc-700 dark:bg-zinc-900">
         {props.prefix ? <span class="mr-2 text-zinc-500 dark:text-zinc-400">{props.prefix}</span> : null}
         <KobalteTextField.Input
           class="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-400 disabled:opacity-50 dark:text-zinc-100"
@@ -52,7 +52,7 @@ export function TextField(props: TextFieldProps) {
           inputMode={props.inputMode}
           ref={props.ref}
         />
-        {isPassword() ? <button type="button" class="ml-2 text-zinc-500 dark:text-zinc-400" aria-label={visible() ? "隐藏密码" : "显示密码"} onClick={() => setVisible((value) => !value)}><Icon name={visible() ? "eye-off" : "eye"} size={16} /></button> : null}
+        {isPassword() ? <button type="button" class="ml-1 -mr-3 grid size-10 shrink-0 place-items-center rounded-md text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100" aria-label={visible() ? "隐藏密码" : "显示密码"} onClick={() => setVisible((value) => !value)}><Icon name={visible() ? "eye-off" : "eye"} size={16} /></button> : null}
         {props.suffix ? <span class="ml-2 text-zinc-500 dark:text-zinc-400">{props.suffix}</span> : null}
       </div>
       {props.description ? <KobalteTextField.Description class="text-xs text-zinc-500 dark:text-zinc-400">{props.description}</KobalteTextField.Description> : null}

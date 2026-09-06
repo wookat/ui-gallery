@@ -27,6 +27,17 @@ body {
   z-index: 1002;
 }
 
+.row-actions {
+  display: inline-flex;
+}
+.row-actions button {
+  min-inline-size: 40px !important;
+  min-block-size: 40px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
 .gallery-icon {
   display: inline-flex;
   width: 16px;

@@ -166,13 +166,7 @@ export function OrdersPage() {
     header: "操作",
     width: 80,
     cell: (o) => (
-      <div
-        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 40, minHeight: 40, cursor: "pointer" }}
-        onClick={(e) => {
-          e.stopPropagation()
-          if (!(e.target as HTMLElement).closest("button")) e.currentTarget.querySelector("button")?.click()
-        }}
-      >
+      <div className="row-actions" onClick={(e) => e.stopPropagation()}>
         <ButtonDropdown
           variant="icon"
           ariaLabel={`${o.id} 操作`}

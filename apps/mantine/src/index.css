@@ -1,0 +1,60 @@
+@import "@mantine/core/styles.css";
+@import "@mantine/dates/styles.css";
+@import "@mantine/charts/styles.css";
+@import "@mantine/notifications/styles.css";
+@import "@mantine/carousel/styles.css";
+@import "@mantine/dropzone/styles.css";
+@import "@mantine/spotlight/styles.css";
+@import "@mantine/code-highlight/styles.css";
+@import "@mantine/nprogress/styles.css";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-sc";
+@import "lxgw-wenkai-screen-webfont/lxgwwenkaiscreen.css";
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+/* 正文级文字对比度 ≥4.5:1：只重定向 Mantine 语义色变量到官方调色板的更深/更浅档位。
+   选择器与 Mantine styles.css 同级（:root[data-mantine-color-scheme]），否则被官方定义覆盖 */
+:root,
+:root[data-mantine-color-scheme="light"] {
+  --ug-muted: var(--mantine-color-gray-7);
+  --ug-placeholder: var(--mantine-color-gray-1);
+  --ug-cov-implemented: var(--mantine-color-teal-9);
+  --ug-cov-composed: var(--mantine-color-gray-7);
+  --ug-cov-missing: var(--mantine-color-red-9);
+  --mantine-color-dimmed: var(--mantine-color-gray-7);
+  --mantine-color-placeholder: var(--mantine-color-gray-7);
+  --mantine-color-error: var(--mantine-color-red-9);
+}
+
+:root[data-mantine-color-scheme="dark"] {
+  --ug-muted: var(--mantine-color-gray-5);
+  --ug-placeholder: var(--mantine-color-dark-5);
+  --ug-cov-implemented: var(--mantine-color-green-4);
+  --ug-cov-composed: var(--mantine-color-yellow-4);
+  --ug-cov-missing: var(--mantine-color-red-4);
+  --mantine-color-dimmed: var(--mantine-color-gray-5);
+  --mantine-color-placeholder: var(--mantine-color-gray-5);
+  --mantine-color-error: var(--mantine-color-red-4);
+}
+
+.mantine-Slider-markLabel,
+.mantine-Notification-description { color: var(--mantine-color-dimmed); }
+
+/* 移动端热区 ≥40px：仅覆盖 Mantine 尺寸变量 */
+@media (max-width: 48em) {
+  .mantine-Button-root { --button-height-xs: 40px; --button-height-sm: 42px; }
+  .mantine-Input-wrapper { --input-height-xs: 40px; --input-height-sm: 42px; }
+  .mantine-Tabs-tab { min-height: 44px; }
+  .mantine-Checkbox-root { --checkbox-size-sm: 24px; }
+  .mantine-Radio-root { --radio-size-sm: 24px; }
+  .mantine-Checkbox-body, .mantine-Radio-body, .mantine-Switch-body { min-height: 40px; align-items: center; }
+  .mantine-Checkbox-labelWrapper, .mantine-Radio-labelWrapper, .mantine-Switch-labelWrapper { display: flex; align-items: center; min-height: 40px; }
+  .mantine-Stepper-step { min-height: 40px; }
+  .mantine-Pagination-control { min-width: 40px; height: 40px; }
+}

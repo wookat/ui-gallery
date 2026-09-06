@@ -15,8 +15,9 @@ a { color: var(--primary-color); }
 .p-breadcrumb .p-menuitem-link { background: transparent; }
 .muted { color: var(--text-color-secondary); }
 .demo-card { scroll-margin-top: 5rem; }
-.table-scroll { overflow-x: auto; }
-.table-scroll .p-datatable { min-width: 680px; }
+.chat-chip { min-height: 2.5rem; }
+.chat-code pre { padding-right: 3rem; }
+.chat-copy { min-width: 2.5rem; min-height: 2.5rem; }
 .chat-bubble { max-width: min(72ch, 100%); min-width: 0; overflow-wrap: anywhere; }
 .chat-bubble pre { overflow-x: auto; max-width: 100%; }
 .chat-bubble pre code { display: block; max-width: 100%; overflow-x: auto; white-space: pre; overflow-wrap: normal; }
@@ -25,7 +26,9 @@ a { color: var(--primary-color); }
 .chat-frame { height: calc(100vh - 13rem); min-height: 480px; }
 .hit { display: inline-flex; align-items: center; min-height: 2.5rem; }
 .p-panelmenu .p-menuitem-link, .app-nav-link { min-height: 2.75rem; }
-.p-carousel .p-carousel-indicator button { width: 2.5rem; height: 2.5rem; border-radius: 50%; padding: 1rem; background-clip: content-box; }
+.p-carousel .p-carousel-indicator button { width: 2.5rem; height: 2.5rem; border-radius: 50%; padding: 1rem; background-clip: content-box; box-sizing: border-box; }
+.p-carousel .p-carousel-indicators { flex-wrap: nowrap; padding: 0 .5rem; }
+.p-carousel .p-carousel-indicator { margin-bottom: 0; }
 .p-carousel .p-carousel-prev, .p-carousel .p-carousel-next { width: 2.5rem; height: 2.5rem; }
 .p-tree .p-tree-toggler { width: 2.5rem; height: 2.5rem; }
 .p-inputnumber-buttons-horizontal .p-inputnumber-button { min-width: 2.5rem; flex-shrink: 0; }
@@ -40,6 +43,7 @@ label.hit { cursor: pointer; }
 .p-checkbox, .p-radiobutton, .p-tristatecheckbox .p-checkbox { width: 2.5rem; height: 2.5rem; align-items: center; justify-content: center; }
 .p-datatable .p-selection-column, .p-treetable .p-selection-column { padding-top: .25rem; padding-bottom: .25rem; }
 .p-stepper .p-stepper-action { min-height: 2.5rem; }
+.p-stepper .p-stepper-title { white-space: nowrap; }
 .p-panel .p-panel-header-icon, .p-fieldset .p-fieldset-toggler, .p-dialog .p-dialog-header-icon, .p-sidebar .p-sidebar-close, .p-accordion .p-accordion-header-link { min-width: 2.5rem; min-height: 2.5rem; }
 .p-datatable .p-row-toggler, .p-datatable .p-sortable-column-icon { min-width: 1rem; }
 .p-datatable.p-datatable-hoverable-rows .p-datatable-tbody > tr:not(.p-highlight):hover { cursor: pointer; }
@@ -82,3 +86,11 @@ label.hit { cursor: pointer; }
   min-width: 2.5rem;
   min-height: 2.5rem;
 }
+@media (min-width: 768px) { .orders-table .p-datatable { min-width: 680px; } .orders-table { overflow-x: auto; } }
+@media (max-width: 767px) { .settings-tabs .p-tabview-nav { flex-wrap: wrap; } .settings-tabs .p-tabview-nav li { flex: 1 1 auto; } .settings-tabs .p-tabview-nav .p-tabview-nav-link { justify-content: center; } }
+.p-slidemenu .p-menuitem-link { display: flex; align-items: center; gap: .5rem; min-height: 2.5rem; padding: .75rem 1.25rem; color: var(--text-color); text-decoration: none; border-radius: 0; transition: box-shadow .2s; user-select: none; }
+.p-slidemenu .p-menuitem-link .p-menuitem-icon, .p-slidemenu .p-menuitem-link .p-submenu-icon { color: var(--text-color-secondary); }
+.p-slidemenu .p-menuitem-link:not(.p-disabled):hover { background: var(--surface-hover); }
+.p-slidemenu .p-menuitem-link:focus-visible { outline: 0 none; box-shadow: inset var(--focus-ring); }
+.p-slidemenu .p-slidemenu-backward { padding: .75rem 1.25rem; color: var(--text-color); min-height: 2.5rem; display: flex; align-items: center; }
+.p-paginator .p-hidden-accessible input { width: 1px; }

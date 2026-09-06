@@ -112,5 +112,5 @@
     "chart": "chart.js",
     "layout": "primeflex"
   },
-  "notes": "PrimeReact 10.9.9 (v10-stable) with official Lara Light/Dark Blue themes and PrimeIcons; layout via PrimeFlex; charts via primereact/chart (Chart.js). v11 skipped: unstyled primitives, commercial license, no default theme."
+  "notes": "PrimeReact 10.9.9 (v10-stable) with official Lara Light/Dark Blue themes and PrimeIcons; layout via PrimeFlex; charts via primereact/chart (Chart.js). v11 skipped: unstyled primitives, commercial license, no default theme. SlideMenu：Lara 10.9.9 主题选择器与组件 DOM 不匹配，用主题 CSS 变量补齐 TieredMenu 同款项样式。"
 }

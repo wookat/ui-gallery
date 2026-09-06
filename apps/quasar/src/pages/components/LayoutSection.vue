@@ -8,7 +8,6 @@ const split = ref(50)
 const splitVertical = ref(50)
 const virtualItems = Array.from({ length: 1000 }, (_, index) => `订单 #${index + 1}`)
 const infiniteItems = ref(["批次 1", "批次 2", "批次 3"])
-const intersectionVisible = ref(false)
 const scrollPosition = ref(0)
 const aliases: Record<string, string[]> = {
   QLayout: ["Layout", "Sidebar"],
@@ -59,7 +58,12 @@ function loadMore(index: number, done: () => void) {
       <q-infinite-scroll @load="loadMore" :offset="20" style="height: 150px" class="bordered-layout"><q-list separator><q-item v-for="item in infiniteItems" :key="item">{{ item }}</q-item></q-list><template #loading><div class="row justify-center q-pa-md"><q-spinner-dots /></div></template></q-infinite-scroll>
     </template>
     <template v-else-if="name === 'QIntersection'">
-      <q-intersection transition="scale" @visibility="intersectionVisible = $event"><q-card bordered class="q-pa-lg text-center">进入视口：{{ intersectionVisible ? "是" : "否" }}</q-card></q-intersection>
+      <div class="bordered-layout" style="height: 160px; overflow-y: auto">
+        <q-intersection v-for="i in 6" :key="i" once transition="fade" class="intersection-item" style="min-height: 56px">
+          <q-item><q-item-section>懒渲染项 {{ i }}</q-item-section></q-item>
+        </q-intersection>
+      </div>
+      <div class="text-caption text-grey-7 q-mt-sm">滚动容器内的项目进入视口后才渲染。</div>
     </template>
     <template v-else-if="name === 'QScrollObserver'">
       <q-scroll-observer @scroll="scrollPosition = $event.position.top" /><div class="text-caption">当前滚动位置：{{ scrollPosition }}px</div>

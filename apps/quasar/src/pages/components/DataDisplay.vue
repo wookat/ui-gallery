@@ -10,9 +10,8 @@ import AppIcon from "../../icons/AppIcon.vue"
 import DemoBlock from "./DemoBlock.vue"
 
 const names = [
-  "QTable", "QMarkupTable", "QList", "QItem", "QItemLabel", "QItemSection", "QCard", "QCardSection", "QCardActions",
-  "QAvatar", "QBadge", "QChip", "Statistic", "QTimeline", "QTimelineEntry", "QTree", "Calendar", "QImg",
-  "QCarousel", "QCarouselSlide", "QCarouselControl", "Empty", "QTooltip", "QMenu", "QRCode",
+  "QTable", "QMarkupTable", "QList", "QCard", "QAvatar", "QBadge", "QChip", "Statistic", "QTimeline", "QTree", "Calendar", "QImg",
+  "QCarousel", "Empty", "QTooltip", "QMenu", "QRCode",
 ]
 const tableColumns = [
   { name: "id", label: "订单", field: "id", sortable: true },
@@ -34,23 +33,29 @@ const previewSvg = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent("<svg 
 const aliases: Record<string, string[]> = {
   QTable: ["Table", "DataGrid", "QTd", "QTh", "QTr"],
   QMarkupTable: ["Descriptions"],
-  QList: ["List"],
-  QCard: ["Card"],
+  QList: ["List", "QItem", "QItemLabel", "QItemSection"],
+  QCard: ["Card", "QCardSection", "QCardActions"],
   QAvatar: ["Avatar", "AvatarGroup"],
   QBadge: ["Badge"],
   QChip: ["Tag"],
   QMenu: ["Popover"],
   QImg: ["Image"],
-  QCarousel: ["Carousel"],
-  QTimeline: ["Timeline"],
+  QCarousel: ["Carousel", "QCarouselSlide", "QCarouselControl"],
+  QTimeline: ["Timeline", "QTimelineEntry"],
   QTree: ["Tree"],
   Empty: ["Empty"],
   QTooltip: ["Tooltip"],
 }
+const titles: Record<string, string> = {
+  QList: "QList / QItem / QItemLabel / QItemSection",
+  QCard: "QCard / QCardSection / QCardActions",
+  QTimeline: "QTimeline / QTimelineEntry",
+  QCarousel: "QCarousel / QCarouselSlide / QCarouselControl",
+}
 </script>
 
 <template>
-  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="name">
+  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="titles[name] ?? name">
     <template v-if="name === 'QTable'">
       <div class="table-scroll"><q-table v-model:selected="selected" selection="multiple" :rows="rows" :columns="tableColumns" row-key="id" v-model:pagination="tablePagination" dense bordered flat :rows-per-page-options="[2, 4, 6]" sticky-header class="component-table">
         <template #header="props"><q-tr :props="props"><q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th></q-tr></template>
@@ -61,11 +66,11 @@ const aliases: Record<string, string[]> = {
     <template v-else-if="name === 'QMarkupTable'">
       <div class="table-scroll"><q-markup-table dense flat bordered separator="cell" wrap-cells><thead><tr><th>字段</th><th>值</th><th>说明</th></tr></thead><tbody><tr v-for="item in [['状态', '已完成', '订单状态'], ['客户', orders[0]?.customer ?? '客户', '来自 orders.json']]" :key="item[0]"><td>{{ item[0] }}</td><td>{{ item[1] }}</td><td>{{ item[2] }}</td></tr></tbody></q-markup-table></div>
     </template>
-    <template v-else-if="name === 'QList' || name === 'QItem' || name === 'QItemLabel' || name === 'QItemSection'">
+    <template v-else-if="name === 'QList'">
       <q-list bordered separator padding><q-item v-for="member in team.slice(0, 3)" :key="member.name" clickable active-class="text-primary"><q-item-section avatar><q-avatar color="primary" text-color="white">{{ member.name.slice(0, 1) }}</q-avatar></q-item-section><q-item-section><q-item-label overline>{{ member.role }}</q-item-label><q-item-label>{{ member.name }}</q-item-label><q-item-label caption>{{ member.email }}</q-item-label></q-item-section><q-item-section side><AppIcon name="chevron-right" /></q-item-section></q-item></q-list>
       <q-list dense class="q-mt-md"><q-item v-for="session in sessions.slice(0, 2)" :key="session.device"><q-item-section><q-item-label>{{ session.device }}</q-item-label><q-item-label caption>{{ session.location }}</q-item-label></q-item-section></q-item></q-list>
     </template>
-    <template v-else-if="name === 'QCard' || name === 'QCardSection' || name === 'QCardActions'">
+    <template v-else-if="name === 'QCard'">
       <div class="row q-col-gutter-md"><div class="col-12 col-sm-6"><q-card bordered><q-card-section><div class="text-h6">卡片标题</div><div class="text-body2 text-grey-7">卡片内容和操作区域。</div></q-card-section><q-card-actions align="right"><q-btn flat color="primary" label="操作" /></q-card-actions></q-card></div><div class="col-12 col-sm-6"><q-card flat bordered horizontal><q-skeleton width="90px" height="90px" /><q-card-section>横向卡片</q-card-section></q-card></div></div>
     </template>
     <template v-else-if="name === 'QAvatar'">
@@ -81,7 +86,7 @@ const aliases: Record<string, string[]> = {
     <template v-else-if="name === 'Statistic'">
       <div class="row q-col-gutter-md"><div v-for="stat in stats.slice(0, 3)" :key="stat.label" class="col-12 col-sm-4"><q-card bordered><q-card-section><div class="text-caption text-grey-7">{{ stat.label }}</div><div class="text-h4">{{ stat.value }}</div><q-badge :color="stat.delta > 0 ? 'positive' : 'negative'">{{ stat.delta > 0 ? '+' : '' }}{{ stat.delta }}%</q-badge></q-card-section></q-card></div></div>
     </template>
-    <template v-else-if="name === 'QTimeline' || name === 'QTimelineEntry'">
+    <template v-else-if="name === 'QTimeline'">
       <q-timeline color="primary" layout="comfortable"><q-timeline-entry v-for="item in activity.slice(0, 3)" :key="item.user + item.time" :title="item.action" :subtitle="item.time" icon="check"><div>{{ item.user }}</div></q-timeline-entry></q-timeline>
     </template>
     <template v-else-if="name === 'QTree'">
@@ -91,11 +96,11 @@ const aliases: Record<string, string[]> = {
       <q-date v-model="dateValue" today-btn landscape />
     </template>
     <template v-else-if="name === 'QImg'">
-      <div class="row q-col-gutter-md"><div class="col-12 col-sm-6"><q-img :src="previewSvg" ratio="16/9" fit="cover" class="rounded-borders"><div class="absolute-bottom text-subtitle2 text-center">Caption overlay</div><template #loading><q-spinner /></template></q-img></div><div class="col-12 col-sm-6"><q-img :src="previewSvg" ratio="1" fit="contain" class="rounded-borders" /></div></div>
+      <div class="row q-col-gutter-md"><div class="col-12 col-sm-6" style="max-width: 320px"><q-img :src="previewSvg" :ratio="16 / 9" class="rounded-borders"><div class="absolute-bottom text-subtitle2 text-center">Caption overlay</div></q-img></div><div class="col-12 col-sm-6" style="max-width: 320px"><q-img :src="previewSvg" :ratio="1" fit="contain" class="rounded-borders" /></div></div>
       <q-btn outline color="primary" label="打开预览" class="q-mt-md" @click="dialog = true" />
       <q-dialog v-model="dialog"><q-card><q-img :src="previewSvg" style="width: 640px; max-width: 90vw" /></q-card></q-dialog>
     </template>
-    <template v-else-if="name === 'QCarousel' || name === 'QCarouselSlide' || name === 'QCarouselControl'">
+    <template v-else-if="name === 'QCarousel'">
       <q-carousel v-model="carousel" animated arrows navigation height="180px" class="bg-primary text-white"><q-carousel-slide v-for="(item, index) in landing.numbers.slice(0, 3)" :key="item.label" :name="index" class="column no-wrap flex-center"><div class="text-h4">{{ item.value }}</div><div>{{ item.label }}</div></q-carousel-slide><q-carousel-control position="bottom-right" :offset="[18, 18]"><q-btn round dense color="white" text-color="primary"><AppIcon name="plus" /></q-btn></q-carousel-control></q-carousel>
     </template>
     <template v-else-if="name === 'Empty'">

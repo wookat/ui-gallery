@@ -69,6 +69,7 @@ function navigate(path: string) {
       <q-btn
         style="position: absolute; right: -12px; top: 64px; z-index: 1"
         round
+        size="md"
         :aria-label="mini ? '展开侧栏' : '折叠侧栏'"
         color="primary"
         @click="mini = !mini"

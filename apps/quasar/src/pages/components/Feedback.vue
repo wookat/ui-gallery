@@ -11,7 +11,7 @@ import DemoBlock from "./DemoBlock.vue"
 
 const $q = useQuasar()
 const names = [
-  "QBanner", "Notify", "Notification", "Toast", "QDialog", "Drawer", "Loading", "QInnerLoading", "QLinearProgress",
+  "QBanner", "Notify", "QDialog", "Drawer", "Loading", "QInnerLoading", "QLinearProgress",
   "QCircularProgress", "QStepper", "QSkeleton", "QSpinner", "Result", "Popconfirm", "QAjaxBar", "QPullToRefresh",
   "QSlideItem", "QSlideTransition",
 ]
@@ -37,9 +37,13 @@ const aliases: Record<string, string[]> = {
   Loading: ["Loading"],
   QInnerLoading: ["QInnerLoading"],
   QLinearProgress: ["Progress"],
-  QStepper: ["Steps"],
+  QStepper: ["Steps", "QStepperNavigation"],
   QSkeleton: ["Skeleton"],
   QSpinner: ["Spinner"],
+}
+const titles: Record<string, string> = {
+  Notify: "Notify / Notification / Toast",
+  QStepper: "QStepper / QStepperNavigation",
 }
 
 function slug(value: string) {
@@ -67,11 +71,11 @@ function startAjax() {
 </script>
 
 <template>
-  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="name">
+  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="titles[name] ?? name">
     <template v-if="name === 'QBanner'">
       <div class="q-gutter-sm"><q-banner dense class="bg-positive text-white rounded-borders">操作成功</q-banner><q-banner dense class="bg-negative text-white rounded-borders">发生错误</q-banner><q-banner inline-actions class="bg-info text-white">需要进一步操作<template #action><q-btn flat label="查看" /></template></q-banner><q-banner class="bg-warning text-white"><template #avatar><AppIcon name="alert-triangle" /></template>这是一条带头像的提示</q-banner></div>
     </template>
-    <template v-else-if="name === 'Notify' || name === 'Notification' || name === 'Toast'">
+    <template v-else-if="name === 'Notify'">
       <div class="row q-gutter-sm"><q-btn color="positive" label="Positive" @click="notify('positive', '成功通知')" /><q-btn color="negative" label="Negative" @click="notify('negative', '错误通知')" /><q-btn color="warning" label="Warning" @click="notify('warning', '警告通知')" /><q-btn color="info" label="Info" @click="notify('info', '信息通知')" /><q-btn outline label="Plain" @click="notify(undefined, '普通消息')" /></div>
       <div class="text-caption text-grey-7 q-mt-sm">通知支持 caption、actions、进度条、持久化、spinner、分组和多行文本。</div>
     </template>

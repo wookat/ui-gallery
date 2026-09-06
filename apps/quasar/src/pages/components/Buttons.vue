@@ -3,20 +3,21 @@ import { ref } from "vue"
 import AppIcon from "../../icons/AppIcon.vue"
 import DemoBlock from "./DemoBlock.vue"
 
-const names = ["QBtn", "QBtnGroup", "QBtnToggle", "QBtnDropdown", "QFab", "QFabAction", "QRouteTab"]
+const names = ["QBtn", "QBtnGroup", "QBtnToggle", "QBtnDropdown", "QFab", "QRouteTab"]
 const toggle = ref("one")
 const fab = ref(false)
 const aliases: Record<string, string[]> = {
   QBtn: ["Button", "IconButton"],
   QBtnGroup: ["ButtonGroup"],
   QBtnDropdown: ["Dropdown"],
-  QFab: ["FloatButton"],
+  QFab: ["FloatButton", "QFabAction"],
   QBtnToggle: ["Segmented"],
 }
+const titles: Record<string, string> = { QFab: "QFab / QFabAction" }
 </script>
 
 <template>
-  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="name">
+  <DemoBlock v-for="name in names" :id="name" :ids="aliases[name]" :key="name" :title="titles[name] ?? name">
     <template v-if="name === 'QBtn'">
       <div class="row q-gutter-sm items-center">
         <q-btn color="primary" label="主按钮" />
@@ -63,7 +64,7 @@ const aliases: Record<string, string[]> = {
       <q-btn-dropdown color="primary" label="操作"><q-list><q-item v-close-popup clickable><q-item-section>编辑</q-item-section></q-item><q-item v-close-popup clickable><q-item-section>复制</q-item-section></q-item></q-list></q-btn-dropdown>
       <q-btn-dropdown outline class="q-ml-sm" label="更多"><q-list><q-item v-close-popup clickable><q-item-section>查看详情</q-item-section></q-item></q-list></q-btn-dropdown>
     </template>
-    <template v-else-if="name === 'QFab' || name === 'QFabAction'">
+    <template v-else-if="name === 'QFab'">
       <div class="relative-position" style="height: 160px"><q-btn color="primary" round class="absolute-bottom-right" @click="fab = !fab"><AppIcon name="plus" /></q-btn><q-fab v-model="fab" color="secondary" direction="up" class="absolute-bottom-left"><template #icon><AppIcon name="menu" /></template><q-fab-action color="primary" @click="fab = false"><AppIcon name="edit" /></q-fab-action><q-fab-action color="accent" @click="fab = false"><AppIcon name="send" /></q-fab-action></q-fab></div>
     </template>
     <template v-else>

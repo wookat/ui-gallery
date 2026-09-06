@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
+import { Dark } from "quasar"
 import VChart from "vue-echarts"
 import { use } from "echarts/core"
 import { BarChart, LineChart, PieChart } from "echarts/charts"
@@ -18,10 +19,12 @@ use([BarChart, LineChart, PieChart, GridComponent, LegendComponent, TooltipCompo
 const params = new URLSearchParams(window.location.search)
 const loading = ref(params.get("state") === "loading")
 const period = ref("日")
+const isDark = computed(() => Dark.isActive)
 const chartOption = computed(() => ({
+  backgroundColor: "transparent",
   tooltip: { trigger: "axis" },
-  legend: { data: ["收入", "订单"] },
-  grid: { left: 32, right: 16, top: 32, bottom: 24 },
+  legend: { data: ["收入", "订单"], top: 0 },
+  grid: { left: 40, right: 24, top: 40, bottom: 32, containLabel: true },
   xAxis: { type: "category", data: series.months },
   yAxis: [{ type: "value" }, { type: "value" }],
   series: [
@@ -30,9 +33,10 @@ const chartOption = computed(() => ({
   ],
 }))
 const donutOption = computed(() => ({
+  backgroundColor: "transparent",
   tooltip: { trigger: "item" },
   legend: { bottom: 0 },
-  series: [{ type: "pie", radius: ["45%", "70%"], data: series.byChannel.map((item) => ({ name: item.name, value: item.value })) }],
+  series: [{ type: "pie", center: ["50%", "42%"], radius: ["40%", "62%"], data: series.byChannel.map((item) => ({ name: item.name, value: item.value })) }],
 }))
 
 onMounted(() => {
@@ -75,7 +79,7 @@ function sparkline(values: number[]) {
           <div><div class="text-h6">收入趋势</div><div class="text-caption text-grey-7">过去 7 个月的收入与订单</div></div>
           <q-tabs v-model="period" dense inline-label><q-tab name="日" label="日" /><q-tab name="周" label="周" /><q-tab name="月" label="月" /></q-tabs>
         </q-card-section>
-        <q-card-section><v-chart class="full-width" style="height: 300px" :option="chartOption" autoresize /></q-card-section>
+        <q-card-section><v-chart class="full-width" style="height: 300px" :option="chartOption" :theme="isDark ? 'dark' : undefined" autoresize /></q-card-section>
       </q-card>
       <div class="row q-col-gutter-md">
         <div class="col-12 col-lg-8">
@@ -94,7 +98,7 @@ function sparkline(values: number[]) {
             </q-table></div>
           </q-card>
         </div>
-        <div class="col-12 col-lg-4"><q-card bordered><q-card-section><div class="text-h6">渠道分布</div></q-card-section><q-card-section><v-chart class="full-width" style="height: 270px" :option="donutOption" autoresize /></q-card-section></q-card></div>
+        <div class="col-12 col-lg-4"><q-card bordered><q-card-section><div class="text-h6">渠道分布</div></q-card-section><q-card-section><v-chart class="full-width" style="height: 270px" :option="donutOption" :theme="isDark ? 'dark' : undefined" autoresize /></q-card-section></q-card></div>
       </div>
       <div class="row q-col-gutter-md">
         <div class="col-12 col-lg-6"><q-card bordered><q-card-section><div class="text-h6">团队动态</div></q-card-section><q-card-section><q-timeline color="primary"><q-timeline-entry v-for="(item, index) in activity" :key="`${item.user}-${index}`" :title="item.action" :subtitle="`${item.user} · ${item.time}`" /></q-timeline></q-card-section></q-card></div>

@@ -69,7 +69,7 @@ function validate() {
       <div class="text-caption text-grey-7 q-mt-sm">rules 示例会在提交表单时显示行内校验结果。</div>
     </template>
     <template v-else-if="name === 'QField'">
-      <q-field outlined label="自定义字段" hint="QField 可包裹任意控制器"><template #control><div class="self-center full-width no-outline">自定义内容</div></template></q-field>
+      <q-field outlined stack-label label="自定义字段" hint="QField 可包裹任意控制器"><template #control><div class="self-center full-width no-outline">自定义内容</div></template></q-field>
     </template>
     <template v-else-if="name === 'QFile'">
       <q-file v-model="file" outlined label="单文件" clearable />

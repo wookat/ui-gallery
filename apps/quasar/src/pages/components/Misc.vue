@@ -34,7 +34,10 @@ function startPluginLoading() {
     <template v-else-if="name === 'ThemeProvider'">
       <div class="row items-center q-gutter-md"><q-toggle :model-value="dark" label="Dark plugin" @update:model-value="toggleTheme" /><span>当前：{{ dark ? "dark" : "light" }}</span></div><div class="row q-gutter-sm q-mt-md"><div v-for="color in ['primary', 'secondary', 'accent', 'positive', 'negative', 'warning', 'info', 'dark']" :key="color" :class="`bg-${color}`" style="width: 42px; height: 28px; border-radius: 4px" /></div>
     </template>
-    <template v-else-if="name === 'Watermark' || name === 'Tour'">
+    <template v-else-if="name === 'Watermark'">
+      <div class="bordered-layout q-pa-xl text-center text-grey-7">{{ name }}：missing</div>
+    </template>
+    <template v-else-if="name === 'Tour'">
       <div class="bordered-layout q-pa-xl text-center text-grey-7">{{ name }}：missing</div>
     </template>
     <template v-else-if="name === 'FloatButton'">

@@ -114,7 +114,7 @@ html.dark .placeholder { background: var(--p-surface-800); }
 }
 
 /* PrimeNG 样式注入前的兜底，避免首帧出现浏览器默认按钮样式 */
-.p-button { appearance: none; -webkit-appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid transparent; border-radius: var(--p-button-border-radius, 6px); background: transparent; color: inherit; font: inherit; cursor: pointer; }
+p-button > button, .p-button { appearance: none; -webkit-appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid transparent; border-radius: var(--p-button-border-radius, 6px); background: transparent; color: inherit; font: inherit; cursor: pointer; }
 .p-button-text, .p-button-text.p-button-secondary { background: transparent; border-color: transparent; }
 p-button.icon-btn > .p-button { min-width: 2.5rem; min-height: 2.5rem; padding: 0.5rem; }
 p-button.icon-btn > .p-button.p-button-sm { min-width: 2.5rem; min-height: 2.5rem; }

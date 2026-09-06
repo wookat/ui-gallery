@@ -170,7 +170,8 @@ interface NavItem {
       border-bottom: 1px solid var(--p-content-border-color);
     }
     .topbar ::ng-deep .p-breadcrumb { background: transparent; border: 0; padding: 0; }
-    .search { width: 14rem; }
+    .search { width: 14rem; flex: none; }
+    .search input { width: 100%; }
     .content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; }
     .notif { display: flex; flex-direction: column; gap: 0.5rem; width: 18rem; }
     .notif-item { display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.5rem; border-radius: var(--p-content-border-radius); }

@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-sc";
+@import "lxgw-wenkai-screen-webfont/style.css";
+
+@custom-variant dark (&:is(.dark *, .kb-dark *));
+
+@theme inline {
+  --font-sans: var(--font-sans);
+}
+
+:root {
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  *, ::before, ::after, ::backdrop, ::file-selector-button {
+    border-color: var(--color-zinc-200);
+  }
+  :is(.dark, .kb-dark) *, :is(.dark, .kb-dark) ::before, :is(.dark, .kb-dark) ::after {
+    border-color: var(--color-zinc-800);
+  }
+  body {
+    @apply bg-white text-zinc-950 font-sans antialiased dark:bg-zinc-950 dark:text-zinc-50;
+  }
+}
+
+@media (max-width: 639px) {
+  .absolute.-right-1 {
+    right: 0;
+  }
+}

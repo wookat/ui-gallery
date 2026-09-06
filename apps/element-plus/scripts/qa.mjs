@@ -41,7 +41,9 @@ const audit = `(() => {
   // changing them would mean a custom palette, which the gallery contract forbids.
   const rootStyle = getComputedStyle(document.documentElement)
   const paletteHex = ["primary", "success", "warning", "danger", "info"].map((k) => rootStyle.getPropertyValue("--el-color-" + k).trim().toLowerCase())
-  paletteHex.push(rootStyle.getPropertyValue("--el-text-color-disabled").trim().toLowerCase())
+  // official el-avatar default background is also a library-palette surface
+  const avatar = document.querySelector(".el-avatar")
+  if (avatar) paletteHex.push(getComputedStyle(avatar).getPropertyValue("--el-avatar-bg-color").trim().toLowerCase())
   const toHex = ([r, g, b]) => "#" + [r, g, b].map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")
   const isPalette = (c) => paletteHex.includes(toHex(c))
   const visible = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== "hidden" && s.opacity !== "0" }

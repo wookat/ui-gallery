@@ -159,7 +159,9 @@ async def merge(lib, built):
         return await run_agent(merge_prompt(lib, built), phase="merge", schema=MERGE_SCHEMA, label=f"merge-{lib['slug']}", soft_time_limit_minutes=40)
 
 
-PENDING_FILE = os.environ.get("UI_GALLERY_PENDING_FILE", "")
+_default_pending = os.path.join(REPO_DIR, "docs", f"round{ROUND}-pending.json")
+# 续跑：若存在 docs/round<N>-pending.json 则只处理其中的库（从修复阶段开始）；开新一轮前删除该文件
+PENDING_FILE = os.environ.get("UI_GALLERY_PENDING_FILE", _default_pending if os.path.exists(_default_pending) else "")
 PENDING = {}
 if PENDING_FILE:
     with open(PENDING_FILE, encoding="utf-8") as f:

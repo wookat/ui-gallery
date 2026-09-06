@@ -7,9 +7,10 @@ import "element-plus/theme-chalk/dark/css-vars.css"
 import "./style.css"
 import { createApp } from "vue"
 import ElementPlus from "element-plus"
+import zhCn from "element-plus/es/locale/lang/zh-cn"
 import App from "./App.vue"
 import { router } from "./router"
 import { applyUrlSettings } from "./lib/url-settings"
 
 applyUrlSettings()
-createApp(App).use(router).use(ElementPlus).mount("#app")
+createApp(App).use(router).use(ElementPlus, { locale: zhCn, size: "large" }).mount("#app")

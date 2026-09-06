@@ -6,5 +6,19 @@ export default defineConfig({
   base: "/apps/element-plus/",
   plugins: [vue()],
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
-  build: { rollupOptions: { output: { manualChunks: { echarts: ["echarts"], "element-plus": ["element-plus"] } } } },
+  build: {
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          echarts: ["echarts"],
+          "element-plus": ["element-plus"],
+          "icon-lucide": ["lucide-vue-next"],
+          "icon-tabler": ["@tabler/icons-vue"],
+          "icon-phosphor": ["@phosphor-icons/vue"],
+          "icon-heroicons": ["@heroicons/vue"],
+        },
+      },
+    },
+  },
 })

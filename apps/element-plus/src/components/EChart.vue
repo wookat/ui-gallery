@@ -11,7 +11,7 @@ const render = async () => {
   if (!el.value) return
   chart?.dispose()
   chart = echarts.init(el.value, document.documentElement.classList.contains("dark") ? "dark" : undefined)
-  chart.setOption(props.option)
+  chart.setOption({ backgroundColor: "transparent", ...props.option })
 }
 onMounted(() => {
   render()

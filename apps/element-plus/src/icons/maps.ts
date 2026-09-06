@@ -1,8 +1,4 @@
 import * as Native from "@element-plus/icons-vue"
-import * as Lucide from "lucide-vue-next"
-import * as Tabler from "@tabler/icons-vue"
-import * as Phosphor from "@phosphor-icons/vue"
-import * as Hero from "@heroicons/vue/24/outline"
 
 const names: Record<string, string> = {
   search: "Search", bell: "Bell", moon: "Moon", sun: "Sunny", menu: "Menu", user: "User", settings: "Setting",
@@ -37,12 +33,19 @@ function pascal(key: string) {
   return key.split("-").map((part) => part[0].toUpperCase() + part.slice(1)).join("")
 }
 
-export function getIcon(family: string, key: string) {
-  const requested = familyNames[family]?.[key] ?? (family === "native" ? names[key] : family === "lucide" ? pascal(key) : family === "tabler" ? `Icon${pascal(key)}` : family === "phosphor" ? `Ph${pascal(key)}` : `${pascal(key)}Icon`)
-  const source = family === "native" ? Native : family === "lucide" ? Lucide : family === "tabler" ? Tabler : family === "phosphor" ? Phosphor : Hero
-  const fallback = family === "native" ? Native.QuestionFilled : family === "lucide" ? Lucide.CircleHelp : family === "tabler" ? Tabler.IconHelpCircle : family === "phosphor" ? Phosphor.PhQuestion : Hero.QuestionMarkCircleIcon
-  const result = (source as Record<string, unknown>)[requested]
+export function getNativeIcon(key: string) {
+  const requested = familyNames.native[key] ?? names[key]
+  const result = (Native as Record<string, unknown>)[requested]
   if (result) return result
+  warnMissing("native", key)
+  return Native.QuestionFilled
+}
+
+export function iconName(family: string, key: string) {
+  const requested = familyNames[family]?.[key] ?? (family === "native" ? names[key] : family === "lucide" ? pascal(key) : family === "tabler" ? `Icon${pascal(key)}` : family === "phosphor" ? `Ph${pascal(key)}` : `${pascal(key)}Icon`)
+  return requested
+}
+
+export function warnIconMissing(family: string, key: string) {
   warnMissing(family, key)
-  return fallback
 }

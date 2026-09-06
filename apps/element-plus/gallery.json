@@ -112,5 +112,5 @@
     "chart": "echarts",
     "markdown": "marked"
   },
-  "notes": "亮色模式下为满足 WCAG AA 4.5:1 硬指标，通过 Element Plus 官方 CSS 变量覆盖将 primary/success/warning/danger/info 及 secondary 文本色调深（色相不变、组件样式不变）；暗色模式保持官方默认色板。"
+  "notes": "使用 Element Plus 官方默认色板（light/dark），仅覆盖中性文本 token（secondary/placeholder）以提升可读性，并将填充色表面（primary/success/warning/danger/info 按钮、选中态、徽标、头像等）的前景改为深色文字以满足 4.5:1；全局 size=large，locale zh-cn。"
 }

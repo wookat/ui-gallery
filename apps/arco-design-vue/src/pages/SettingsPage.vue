@@ -264,7 +264,6 @@ const invoiceColumns = [
   }
 
   .settings-tabs :deep(.arco-tabs-nav-type-rounded .arco-tabs-tab) {
-    padding: 3px 12px;
     margin: 0 3px;
   }
 }

@@ -100,7 +100,7 @@ function confirmDelete() {
           <a-option value="all">全部状态</a-option>
           <a-option v-for="s in STATUSES" :key="s" :value="s">{{ STATUS_LABEL[s] }}</a-option>
         </a-select>
-        <a-select v-model="channels" multiple placeholder="渠道" allow-clear style="min-width: 160px" :max-tag-count="2" @change="page = 1">
+        <a-select v-model="channels" multiple placeholder="渠道" allow-clear style="width: 180px" :max-tag-count="2" @change="page = 1">
           <a-option v-for="channel in allChannels" :key="channel" :value="channel">{{ channel }}</a-option>
         </a-select>
         <a-range-picker v-model="range" style="width: 260px; max-width: 100%" @change="page = 1" />

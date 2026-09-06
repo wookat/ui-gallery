@@ -3,6 +3,7 @@ import { computed, ref } from "vue"
 import { Message } from "@arco-design/web-vue"
 import MarkdownIt from "markdown-it"
 import chat from "@ui-gallery/spec/mock/chat.json"
+import team from "@ui-gallery/spec/mock/team.json"
 import { Icon } from "@/lib/icons"
 
 type ChatMessage = (typeof chat.messages)[number]
@@ -15,6 +16,17 @@ const listOpen = ref(false)
 const empty = ref(false)
 
 const messages = computed<ChatMessage[]>(() => (empty.value ? [] : chat.messages))
+const activeConversation = computed(() => chat.conversations.find((conversation) => conversation.id === active.value) ?? chat.conversations[0]!)
+const groups = computed(() => {
+  const grouped = new Map<string, { title: string; conversations: typeof chat.conversations }>()
+  for (const conversation of chat.conversations) {
+    const key = conversation.time === "刚刚" ? "today" : conversation.time === "昨天" ? "yesterday" : "earlier"
+    const title = key === "today" ? "今天" : key === "yesterday" ? "昨天" : "更早"
+    if (!grouped.has(key)) grouped.set(key, { title, conversations: [] })
+    grouped.get(key)!.conversations.push(conversation)
+  }
+  return [...grouped.entries()].map(([key, group]) => ({ key, ...group }))
+})
 
 interface Block {
   type: "markdown" | "code" | "table"
@@ -81,13 +93,15 @@ function send() {
       </div>
       <div style="padding: 0 12px 8px"><a-input-search placeholder="搜索对话" size="small" allow-clear /></div>
       <a-menu :selected-keys="[active]" @menu-item-click="(key: string) => (active = key)">
-        <a-menu-item v-for="conversation in chat.conversations" :key="conversation.id">
-          <div class="between" style="gap: 8px">
-            <span class="truncate">{{ conversation.title }}</span>
-            <a-badge v-if="conversation.unread" :count="conversation.unread" :dot-style="{ fontSize: '10px' }" />
-          </div>
-          <div class="muted small">{{ conversation.time }}</div>
-        </a-menu-item>
+        <a-menu-item-group v-for="group in groups" :key="group.key" :title="group.title">
+          <a-menu-item v-for="conversation in group.conversations" :key="conversation.id">
+            <div class="between" style="gap: 8px">
+              <span class="truncate">{{ conversation.title }}</span>
+              <a-badge v-if="conversation.unread" :count="conversation.unread" :dot-style="{ fontSize: '10px' }" />
+            </div>
+            <div class="muted small">{{ conversation.time }}</div>
+          </a-menu-item>
+        </a-menu-item-group>
       </a-menu>
     </aside>
 
@@ -120,6 +134,10 @@ function send() {
             <Icon v-if="message.role === 'assistant'" name="bot" :size="18" /><template v-else>林</template>
           </a-avatar>
           <div class="chat-bubble-wrap">
+            <div class="message-meta">
+              <span>{{ message.role === "assistant" ? "AI 助手" : team[0]!.name }}</span>
+              <span class="muted small">· {{ activeConversation.time }}</span>
+            </div>
             <div class="chat-bubble">
               <template v-for="(block, blockIndex) in splitBlocks(message.content)" :key="blockIndex">
                 <!-- eslint-disable-next-line vue/no-v-html -->
@@ -175,7 +193,9 @@ function send() {
 
     <a-drawer :visible="listOpen" placement="left" :width="280" :footer="false" title="对话" @cancel="listOpen = false">
       <a-menu :selected-keys="[active]" @menu-item-click="(key: string) => { active = key; listOpen = false }">
-        <a-menu-item v-for="conversation in chat.conversations" :key="conversation.id">{{ conversation.title }}</a-menu-item>
+        <a-menu-item-group v-for="group in groups" :key="group.key" :title="group.title">
+          <a-menu-item v-for="conversation in group.conversations" :key="conversation.id">{{ conversation.title }}</a-menu-item>
+        </a-menu-item-group>
       </a-menu>
     </a-drawer>
   </div>
@@ -250,6 +270,18 @@ function send() {
 .chat-bubble-wrap {
   min-width: 0;
   max-width: calc(100% - 44px);
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.chat-message.user .message-meta {
+  justify-content: flex-end;
 }
 
 .chat-bubble {

@@ -110,7 +110,7 @@ function restart() {
                 <template #prepend>acme.dev/</template>
               </a-input>
             </a-form-item>
-            <a-form-item field="email" label="邮箱" tooltip="用于接收项目通知" help="请使用团队成员可以访问的工作邮箱。">
+            <a-form-item field="email" label="邮箱" tooltip="用于接收项目通知" extra="请使用团队成员可以访问的工作邮箱。">
               <a-input v-model="form.email" :input-attrs="{ type: 'email' }" placeholder="name@company.com" style="width: 100%" />
             </a-form-item>
             <a-form-item field="phone" label="电话" tooltip="用于重要项目提醒" extra="支持中国大陆、香港、日本和美国号码。">

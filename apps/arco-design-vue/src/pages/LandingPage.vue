@@ -5,6 +5,7 @@ import landing from "@ui-gallery/spec/mock/landing.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import series from "@ui-gallery/spec/mock/series.json"
 import stats from "@ui-gallery/spec/mock/stats.json"
+import team from "@ui-gallery/spec/mock/team.json"
 import { Icon } from "@/lib/icons"
 import { theme, toggleTheme } from "@/lib/settings"
 
@@ -52,7 +53,12 @@ function scrollTo(key: string) {
     </header>
 
     <section class="landing-inner hero">
-      <a-tag color="arcoblue" bordered style="margin-bottom: 16px">{{ landing.hero.social }}</a-tag>
+      <div class="hero-social">
+        <a-avatar-group :size="28" :max-count="4">
+          <a-avatar v-for="member in team" :key="member.email" :style="{ backgroundColor: 'rgb(var(--primary-6))' }">{{ member.name.slice(0, 1) }}</a-avatar>
+        </a-avatar-group>
+        <a-typography-text type="secondary">{{ landing.hero.social }}</a-typography-text>
+      </div>
       <h1 class="hero-title">{{ landing.hero.title }}</h1>
       <p class="hero-subtitle">{{ landing.hero.subtitle }}</p>
       <a-space wrap size="medium" style="justify-content: center">
@@ -258,6 +264,14 @@ function scrollTo(key: string) {
 .hero {
   padding: 72px 20px 40px;
   text-align: center;
+}
+
+.hero-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
 .hero-title {

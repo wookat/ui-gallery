@@ -36,6 +36,7 @@ const color = ref("#165dff")
 const progress = ref(0.45)
 const treeSelected = ref(["0-0-1"])
 const transferValue = ref(["1", "3"])
+const siderCollapsed = ref(false)
 const mention = ref("")
 const pin = ref("")
 const cascader = ref("")
@@ -112,6 +113,8 @@ function notify() {
             <a-typography-title :heading="2">H2 标题</a-typography-title>
             <a-typography-title :heading="3">H3 标题</a-typography-title>
             <a-typography-title :heading="4">H4 标题</a-typography-title>
+            <a-typography-title :heading="5">H5 标题</a-typography-title>
+            <a-typography-title :heading="6">H6 标题</a-typography-title>
             <a-typography-paragraph>正文段落：Acme Console 让订单、客户、数据与 AI 助手在一个界面协同。</a-typography-paragraph>
             <a-space wrap>
               <a-typography-text>默认</a-typography-text>
@@ -154,7 +157,7 @@ function notify() {
         </DemoBlock>
 
         <DemoBlock name="Input" arco="a-input">
-          <div class="block grid grid-2 slider-demo">
+          <div class="block grid grid-2">
             <a-input placeholder="默认" allow-clear />
             <a-input placeholder="带前后缀" allow-clear><template #prefix><Icon name="search" /></template><template #suffix><Icon name="info" /></template></a-input>
             <a-input placeholder="前置 / 后置标签"><template #prepend>https://</template><template #append>.acme.dev</template></a-input>
@@ -237,7 +240,7 @@ function notify() {
         </DemoBlock>
 
         <DemoBlock name="Slider" arco="a-slider">
-          <div class="block grid grid-2">
+          <div class="block grid grid-2 slider-demo">
             <a-slider v-model="slider" show-tooltip />
             <a-slider v-model="rangeSlider" range :marks="{ 0: '0', 50: '50', 100: '100' }" />
             <a-slider :default-value="40" :step="10" show-ticks show-input />
@@ -339,7 +342,7 @@ function notify() {
           <a-table class="block" :columns="tableColumns.slice(0, 3)" :data="orders.slice(0, 2)" :pagination="false" size="mini" loading />
         </DemoBlock>
 
-        <DemoBlock name="DataGrid" arco="a-table fixed/resizable/summary/expand">
+        <DemoBlock name="DataGrid" arco="a-table 高级用法">
           <a-table class="block" :columns="gridColumns" :data="orders.slice(0, 6)" :pagination="{ pageSize: 3 }" :scroll="{ x: 900, y: 240 }" row-key="id" column-resizable :bordered="{ cell: true }" :summary="true" :expandable="{ title: '', width: 40 }">
             <template #expand-row="{ record }">{{ record.customer }} 的订单 {{ record.id }}，金额 ¥{{ record.amount }}</template>
             <template #summary-cell="{ column }">{{ column.dataIndex === 'amount' ? `¥${orders.slice(0, 6).reduce((s, o) => s + o.amount, 0).toFixed(2)}` : column.dataIndex === 'id' ? '合计' : '' }}</template>
@@ -441,7 +444,7 @@ function notify() {
         <DemoBlock name="Image" arco="a-image">
           <a-image :width="160" :height="100" src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22100%22><rect width=%22160%22 height=%22100%22 fill=%22%23165dff%22/><circle cx=%2280%22 cy=%2250%22 r=%2230%22 fill=%22%2314c9c9%22/></svg>" title="预览图" description="支持点击放大预览" />
           <a-image :width="160" :height="100" src="data:image/png;base64,broken" alt="加载失败" />
-          <a-image :width="160" :height="100" src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22100%22><rect width=%22160%22 height=%22100%22 fill=%22%23722ed1%22/></svg>" fit="cover" :preview="false" footer-position="outer" title="不可预览" />
+          <a-image :width="160" :height="100" src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22100%22><rect width=%22160%22 height=%22100%22 fill=%22%23722ed1%22/></svg>" fit="cover" :preview="false" title="不可预览" />
           <a-image-preview-group infinite>
             <a-space><a-image :width="80" :height="60" src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2260%22><rect width=%2280%22 height=%2260%22 fill=%22%23f7ba1e%22/></svg>" /><a-image :width="80" :height="60" src="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2260%22><rect width=%2280%22 height=%2260%22 fill=%22%23f53f3f%22/></svg>" /></a-space>
           </a-image-preview-group>
@@ -578,7 +581,7 @@ function notify() {
           <a-spin :size="32" />
           <a-spin dot />
           <a-spin tip="加载中…" />
-          <a-spin loading tip="加载中" class="block" style="max-width: 320px"><a-card title="被遮罩的内容">Spin 可包裹任意区域。</a-card></a-spin>
+          <a-spin loading tip="加载中" class="block" style="max-width: 320px"><a-card title="被遮罩的内容" :body-style="{ minHeight: '96px' }">Spin 可包裹任意区域。</a-card></a-spin>
           <a-spin><template #icon><Icon name="loader" /></template></a-spin>
         </DemoBlock>
 
@@ -691,8 +694,8 @@ function notify() {
 
         <DemoBlock name="Sidebar" arco="a-layout-sider + a-menu">
           <a-layout class="block" style="height: 260px; border: 1px solid var(--color-border-2); border-radius: 6px; overflow: hidden">
-            <a-layout-sider collapsible :width="200" breakpoint="xl" style="box-shadow: none; border-right: 1px solid var(--color-border-2)">
-              <div style="padding: 12px 16px; font-weight: 600">Acme</div>
+            <a-layout-sider v-model:collapsed="siderCollapsed" collapsible :width="200" breakpoint="xl" style="box-shadow: none; border-right: 1px solid var(--color-border-2)">
+              <div class="sidebar-brand">{{ siderCollapsed ? "A" : "Acme" }}</div>
               <a-menu :default-selected-keys="['orders']"><a-menu-item v-for="item in nav" :key="item.key"><template #icon><Icon :name="item.icon" /></template>{{ item.label }}</a-menu-item></a-menu>
             </a-layout-sider>
             <a-layout-content style="padding: 16px; background: var(--color-fill-1)">内容区（可点击底部触发器折叠侧栏）</a-layout-content>
@@ -807,9 +810,9 @@ function notify() {
 
         <DemoBlock name="Code" arco="a-typography-text code">
           <a-typography-text code>pnpm install @arco-design/web-vue</a-typography-text>
-          <a-typography-paragraph class="block" code style="margin: 0"><pre style="margin: 0; white-space: pre-wrap">import ArcoVue from "@arco-design/web-vue"
+          <pre class="block code-pre"><code>import ArcoVue from "@arco-design/web-vue"
 import "@arco-design/web-vue/dist/arco.css"
-createApp(App).use(ArcoVue).mount("#app")</pre></a-typography-paragraph>
+createApp(App).use(ArcoVue).mount("#app")</code></pre>
           <a-typography-text copyable :copy-text="'createApp(App).use(ArcoVue)'">带复制按钮的代码</a-typography-text>
         </DemoBlock>
 
@@ -888,6 +891,26 @@ createApp(App).use(ArcoVue).mount("#app")</pre></a-typography-paragraph>
 
 .slider-demo {
   min-width: 0;
+  padding: 0 16px 0 8px;
+  box-sizing: border-box;
+}
+
+.code-pre {
+  background: var(--color-fill-2);
+  color: var(--color-text-1);
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 13px;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.sidebar-brand {
+  padding: 12px 16px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .calendar-demo {
@@ -942,13 +965,33 @@ createApp(App).use(ArcoVue).mount("#app")</pre></a-typography-paragraph>
 }
 
 @media (max-width: 767px) {
+  .transfer-demo {
+    flex-wrap: wrap;
+  }
+
   :deep(.transfer-demo .arco-transfer-view) {
-    width: calc(50% - 22px);
+    width: 100%;
     min-width: 0;
   }
 
   :deep(.transfer-demo .arco-transfer-panel) {
     min-width: 0;
+  }
+
+  :deep(.transfer-demo .arco-transfer-operations) {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    padding: 8px 0;
+  }
+
+  :deep(.calendar-demo .arco-calendar-header-value) {
+    white-space: nowrap;
+  }
+
+  :deep(.calendar-demo .arco-calendar-header) {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   :deep(.arco-slider-with-marks) {

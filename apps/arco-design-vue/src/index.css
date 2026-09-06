@@ -24,10 +24,10 @@ body:not([arco-theme="dark"]) {
   --color-text-3: var(--color-neutral-7);
 }
 
-body[arco-theme="dark"] .arco-btn-text:not(:disabled),
-body[arco-theme="dark"] .arco-btn-text:not(:disabled):hover,
-body[arco-theme="dark"] .arco-link:not(.arco-link-disabled),
-body[arco-theme="dark"] .arco-link:not(.arco-link-disabled):hover {
+body[arco-theme="dark"] .arco-btn-text:not(:disabled):not(.arco-btn-status-danger):not(.arco-btn-status-success):not(.arco-btn-status-warning),
+body[arco-theme="dark"] .arco-btn-text:not(:disabled):not(.arco-btn-status-danger):not(.arco-btn-status-success):not(.arco-btn-status-warning):hover,
+body[arco-theme="dark"] .arco-link:not(.arco-link-disabled):not(.arco-link-status-danger):not(.arco-link-status-success):not(.arco-link-status-warning),
+body[arco-theme="dark"] .arco-link:not(.arco-link-disabled):not(.arco-link-status-danger):not(.arco-link-status-success):not(.arco-link-status-warning):hover {
   color: rgb(var(--arcoblue-7));
 }
 
@@ -99,6 +99,24 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
 
 .arco-btn.arco-btn-only-icon:not(.demo .arco-btn) {
   min-width: 40px;
+}
+
+.arco-tabs-tab:not(.demo .arco-tabs-tab) {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.arco-link:not(.demo .arco-link) {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.arco-tag-checkable:not(.demo .arco-tag-checkable) {
+  min-height: 40px;
+  padding: 0 12px;
 }
 
 .arco-input-wrapper:not(.demo .arco-input-wrapper),

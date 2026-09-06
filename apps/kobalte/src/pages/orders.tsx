@@ -10,6 +10,7 @@ import { Dialog, Drawer } from "@/ui/dialog"
 import { DropdownMenu } from "@/ui/dropdown-menu"
 import { Pagination } from "@/ui/pagination"
 import { Select } from "@/ui/select"
+import { DateRangePicker, type DateRange } from "@/ui/date-range"
 import { Skeleton } from "@/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table"
 import { Tabs } from "@/ui/tabs"
@@ -24,7 +25,8 @@ const compareDescending = (a: Order, b: Order) => b.amount - a.amount
 export function OrdersPage() {
   const [query, setQuery] = createSignal("")
   const [status, setStatus] = createSignal("all")
-  const [channel, setChannel] = createSignal<string | string[]>("all")
+  const [channels, setChannels] = createSignal<string[]>([])
+  const [dateRange, setDateRange] = createSignal<DateRange>({ start: null, end: null })
   const [page, setPage] = createSignal(1)
   const [pageSize, setPageSize] = createSignal("10")
   const [selected, setSelected] = createSignal<Order | null>(null)
@@ -36,7 +38,7 @@ export function OrdersPage() {
   const filtered = createMemo(() => {
     const comparator = ascending() ? compareAscending : compareDescending
     return rows()
-      .filter((order) => order.id.toLowerCase().includes(query().toLowerCase()) && (status() === "all" || order.status === status()) && (channel() === "all" || (Array.isArray(channel()) && channel().includes(order.channel))))
+      .filter((order) => order.id.toLowerCase().includes(query().toLowerCase()) && (status() === "all" || order.status === status()) && (channels().length === 0 || channels().includes(order.channel)) && (!dateRange().start || order.date >= dateRange().start!) && (!dateRange().end || order.date <= dateRange().end!))
       .sort(comparator)
   })
   const visible = createMemo(() => filtered().slice((page() - 1) * Number(pageSize()), page() * Number(pageSize())))
@@ -44,7 +46,7 @@ export function OrdersPage() {
   return <div class="space-y-6">
     <PageHeader title="订单管理" description="搜索、筛选并查看全部订单。" action={<Button variant="outline"><Icon name="download" />导出</Button>} />
     <Card><CardContent class="space-y-4 pt-5">
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_160px_160px_160px_160px_auto]"><TextField label="搜索订单" placeholder="搜索订单号或客户..." value={query()} onInput={(event) => setQuery(event.currentTarget.value)} /><Select label="状态" options={[{ value: "all", label: "全部状态" }, ...["paid", "pending", "shipped", "failed", "refunded"].map((value) => ({ value, label: value }))]} value={status()} onChange={(value) => setStatus(String(value ?? "all"))} /><TextField label="开始日期" type="date" /><TextField label="结束日期" type="date" /><Select label="渠道" options={[{ value: "all", label: "全部渠道" }, { value: "web", label: "Web" }, { value: "ios", label: "iOS" }, { value: "android", label: "Android" }, { value: "api", label: "API" }]} value={channel()} onChange={(value) => setChannel(value ?? "all")} /><DropdownMenu.Root><DropdownMenu.Trigger as={Button} variant="outline"><Icon name="sliders" />列显示</DropdownMenu.Trigger><DropdownMenu.Portal><DropdownMenu.Content class="z-50 rounded-md border border-zinc-200 bg-white p-2 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"><DropdownMenu.CheckboxItem checked class="px-3 py-2 text-sm">客户</DropdownMenu.CheckboxItem><DropdownMenu.CheckboxItem checked class="px-3 py-2 text-sm">金额</DropdownMenu.CheckboxItem></DropdownMenu.Content></DropdownMenu.Portal></DropdownMenu.Root></div>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_160px_220px_180px_auto]"><TextField label="搜索订单" placeholder="搜索订单号或客户..." value={query()} onInput={(event) => setQuery(event.currentTarget.value)} /><Select label="状态" options={[{ value: "all", label: "全部状态" }, ...["paid", "pending", "shipped", "failed", "refunded"].map((value) => ({ value, label: value }))]} value={status()} onChange={(value) => setStatus(String(value ?? "all"))} /><DateRangePicker label="日期范围" value={dateRange()} onChange={setDateRange} /><Select label="渠道（多选）" multiple options={[{ value: "web", label: "Web" }, { value: "ios", label: "iOS" }, { value: "android", label: "Android" }, { value: "api", label: "API" }]} value={channels()} placeholder="全部渠道" onChange={(value) => setChannels(Array.isArray(value) ? value : value ? [value] : [])} /><DropdownMenu.Root><DropdownMenu.Trigger as={Button} variant="outline"><Icon name="sliders" />列显示</DropdownMenu.Trigger><DropdownMenu.Portal><DropdownMenu.Content class="z-50 rounded-md border border-zinc-200 bg-white p-2 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"><DropdownMenu.CheckboxItem checked class="px-3 py-2 text-sm">客户</DropdownMenu.CheckboxItem><DropdownMenu.CheckboxItem checked class="px-3 py-2 text-sm">金额</DropdownMenu.CheckboxItem></DropdownMenu.Content></DropdownMenu.Portal></DropdownMenu.Root></div>
       <Show when={state() === "error"}><Alert level="error"><div class="flex items-center justify-between"><span>订单加载失败，请重试。</span><Button size="sm" variant="outline" onClick={() => window.location.reload()}>重试</Button></div></Alert></Show>
       <Show when={state() !== "loading"} fallback={<div class="grid gap-3"><For each={[1, 2, 3, 4, 5, 6]}>{() => <Skeleton class="h-10 w-full" />}</For></div>}>
         <Show when={state() !== "empty" && visible().length > 0} fallback={<div class="grid place-items-center gap-3 py-16 text-center"><Icon name="inbox" size={36} class="text-zinc-400" /><p class="font-medium">没有找到订单</p><p class="text-sm text-zinc-500 dark:text-zinc-400">调整搜索或筛选条件后重试。</p><Button variant="outline" onClick={() => { setQuery(""); setStatus("all") }}>清除筛选</Button></div>}>

@@ -9,6 +9,7 @@ type SelectProps = {
   value?: string | string[]
   placeholder?: string
   multiple?: boolean
+  disabled?: boolean
   onChange?: (value: string | string[] | null) => void
   class?: string
 }
@@ -18,19 +19,32 @@ export function Select(props: SelectProps) {
     if (Array.isArray(props.value)) return props.value.map((value) => props.options.find((option) => option.value === value)?.label ?? value).join("、")
     return props.options.find((option) => option.value === props.value)?.label
   }
+  const toOption = (value: string) => props.options.find((option) => option.value === value) ?? { value, label: value }
+  const selectedOptions = () => {
+    if (props.value === undefined) return undefined
+    if (Array.isArray(props.value)) return props.value.map(toOption)
+    return props.value ? toOption(props.value) : null
+  }
+  const handleChange = (next: SelectOption | SelectOption[] | null) => {
+    if (!props.onChange) return
+    if (Array.isArray(next)) return props.onChange(next.map((option) => option.value))
+    props.onChange(next ? next.value : null)
+  }
   return (
     <SelectRoot
       options={props.options}
       optionValue="value"
       optionTextValue="label"
-      value={props.value}
+      value={selectedOptions()}
       multiple={props.multiple}
-      onChange={props.onChange}
-      itemComponent={(item: { item: CollectionNode<SelectOption> }) => <KobalteSelect.Item item={item.item} class="cursor-pointer rounded px-2 py-1.5 text-sm data-[highlighted]:bg-zinc-100 dark:data-[highlighted]:bg-zinc-800"><KobalteSelect.ItemLabel>{item.item.rawValue.label}</KobalteSelect.ItemLabel><KobalteSelect.ItemIndicator class="ml-auto">✓</KobalteSelect.ItemIndicator></KobalteSelect.Item>}
+      disabled={props.disabled}
+      placeholder={props.placeholder || "请选择"}
+      onChange={handleChange}
+      itemComponent={(item: { item: CollectionNode<SelectOption> }) => <KobalteSelect.Item item={item.item} class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm data-[highlighted]:bg-zinc-100 dark:data-[highlighted]:bg-zinc-800"><KobalteSelect.ItemLabel>{item.item.rawValue.label}</KobalteSelect.ItemLabel><KobalteSelect.ItemIndicator class="ml-auto">✓</KobalteSelect.ItemIndicator></KobalteSelect.Item>}
     >
       {props.label ? <KobalteSelect.Label class="mb-1.5 block text-sm font-medium">{props.label}</KobalteSelect.Label> : null}
-      <KobalteSelect.Trigger class={`flex h-9 w-full items-center justify-between gap-2 rounded-md border border-zinc-300 bg-white px-3 text-left text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 ${props.class ?? ""}`}>
-        <KobalteSelect.Value>{selectedLabel() || props.placeholder || "请选择"}</KobalteSelect.Value>
+      <KobalteSelect.Trigger class={`flex h-10 w-full items-center justify-between gap-2 rounded-md border border-zinc-300 bg-white px-3 text-left text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 ${props.class ?? ""}`}>
+        <KobalteSelect.Value class="truncate data-[placeholder-shown]:text-zinc-500 dark:data-[placeholder-shown]:text-zinc-400">{selectedLabel()}</KobalteSelect.Value>
         <KobalteSelect.Icon>⌄</KobalteSelect.Icon>
       </KobalteSelect.Trigger>
       <KobalteSelect.Portal>

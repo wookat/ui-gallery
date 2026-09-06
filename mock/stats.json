@@ -1,0 +1,237 @@
+{
+ "cards": [
+  {
+   "key": "gmv",
+   "label": "销售额",
+   "format": "currency",
+   "deltaFormat": "percent"
+  },
+  {
+   "key": "orders",
+   "label": "订单数",
+   "format": "integer",
+   "unit": "单",
+   "deltaFormat": "percent"
+  },
+  {
+   "key": "pendingShipment",
+   "label": "待发货",
+   "format": "integer",
+   "unit": "单",
+   "deltaFormat": "count",
+   "hint": "快照值，非周期累计"
+  },
+  {
+   "key": "lowStock",
+   "label": "库存预警",
+   "format": "integer",
+   "unit": "SKU",
+   "deltaFormat": "count",
+   "hint": "低于安全库存的 SKU 数，快照值",
+   "invertDelta": true
+  }
+ ],
+ "byPeriod": {
+  "day": {
+   "trendLabels": [
+    "08-31",
+    "09-01",
+    "09-02",
+    "09-03",
+    "09-04",
+    "09-05",
+    "09-06"
+   ],
+   "gmv": {
+    "value": 42380,
+    "previous": 39680,
+    "delta": 6.8,
+    "trend": [
+     36120,
+     33480,
+     39760,
+     52310,
+     37940,
+     44950,
+     42380
+    ]
+   },
+   "orders": {
+    "value": 108,
+    "previous": 104,
+    "delta": 3.8,
+    "trend": [
+     92,
+     85,
+     101,
+     134,
+     96,
+     115,
+     108
+    ]
+   },
+   "pendingShipment": {
+    "value": 63,
+    "previous": 54,
+    "delta": 9,
+    "trend": [
+     48,
+     51,
+     55,
+     71,
+     60,
+     54,
+     63
+    ]
+   },
+   "lowStock": {
+    "value": 12,
+    "previous": 15,
+    "delta": -3,
+    "trend": [
+     14,
+     15,
+     15,
+     13,
+     16,
+     15,
+     12
+    ]
+   }
+  },
+  "week": {
+   "trendLabels": [
+    "07-20 周",
+    "07-27 周",
+    "08-03 周",
+    "08-10 周",
+    "08-17 周",
+    "08-24 周",
+    "08-31 周"
+   ],
+   "gmv": {
+    "value": 286940,
+    "previous": 258100,
+    "delta": 11.2,
+    "trend": [
+     231800,
+     244600,
+     238900,
+     252400,
+     261300,
+     258100,
+     286940
+    ]
+   },
+   "orders": {
+    "value": 731,
+    "previous": 673,
+    "delta": 8.6,
+    "trend": [
+     612,
+     640,
+     628,
+     655,
+     671,
+     673,
+     731
+    ]
+   },
+   "pendingShipment": {
+    "value": 63,
+    "previous": 49,
+    "delta": 14,
+    "trend": [
+     42,
+     47,
+     45,
+     52,
+     49,
+     49,
+     63
+    ]
+   },
+   "lowStock": {
+    "value": 12,
+    "previous": 13,
+    "delta": -1,
+    "trend": [
+     9,
+     10,
+     12,
+     11,
+     13,
+     13,
+     12
+    ]
+   }
+  },
+  "month": {
+   "trendLabels": [
+    "3 月",
+    "4 月",
+    "5 月",
+    "6 月",
+    "7 月",
+    "8 月",
+    "近 30 天"
+   ],
+   "gmv": {
+    "value": 1186420,
+    "previous": 1084500,
+    "delta": 9.4,
+    "trend": [
+     842300,
+     905600,
+     968200,
+     1132400,
+     1014700,
+     1084500,
+     1186420
+    ]
+   },
+   "orders": {
+    "value": 2964,
+    "previous": 2820,
+    "delta": 5.1,
+    "trend": [
+     2180,
+     2310,
+     2450,
+     2860,
+     2590,
+     2820,
+     2964
+    ]
+   },
+   "pendingShipment": {
+    "value": 63,
+    "previous": 84,
+    "delta": -21,
+    "trend": [
+     58,
+     61,
+     66,
+     84,
+     72,
+     70,
+     63
+    ]
+   },
+   "lowStock": {
+    "value": 12,
+    "previous": 8,
+    "delta": 4,
+    "trend": [
+     6,
+     7,
+     9,
+     8,
+     10,
+     8,
+     12
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "id": "u_ruolin",
+ "name": "沈若琳",
+ "shortName": "若琳",
+ "initial": "琳",
+ "avatarHue": 210,
+ "email": "ruolin.shen@qimu-home.cn",
+ "title": "运营主管",
+ "role": "admin",
+ "roleLabel": "管理员",
+ "workspace": {
+  "id": "ws_qimu",
+  "name": "栖木家居",
+  "plan": "专业版"
+ },
+ "lastLoginAt": "2026-09-05T21:12:00+08:00",
+ "demoCredentials": {
+  "email": "ruolin.shen@qimu-home.cn",
+  "passwordRule": "任意 ≥ 8 位",
+  "lockedEmail": "locked@qimu-home.cn"
+ }
+}

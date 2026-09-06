@@ -1,0 +1,57 @@
+[
+ {
+  "id": "act_1",
+  "at": "2026-09-06T17:12:00+08:00",
+  "actor": "u_jiahao",
+  "actorName": "何嘉豪",
+  "type": "shipping",
+  "text": "批量打印了 42 张待发货面单",
+  "detail": "杭州仓 · 顺丰速运"
+ },
+ {
+  "id": "act_2",
+  "at": "2026-09-06T16:40:00+08:00",
+  "actor": "u_yuwei",
+  "actorName": "唐雨薇",
+  "type": "refund",
+  "text": "受理了订单 SO-20260906-0104 的退款申请",
+  "detail": "¥459.00 · 尺寸拍错",
+  "link": "/orders/SO-20260906-0104"
+ },
+ {
+  "id": "act_3",
+  "at": "2026-09-06T15:55:00+08:00",
+  "actor": "u_ruolin",
+  "actorName": "沈若琳",
+  "type": "inventory",
+  "text": "将「云朵羊羔绒抱枕 45×45」安全库存从 150 调整为 200",
+  "detail": "杭州仓"
+ },
+ {
+  "id": "act_4",
+  "at": "2026-09-06T14:30:00+08:00",
+  "actor": "u_yiming",
+  "actorName": "蒋一鸣",
+  "type": "purchase",
+  "text": "创建了采购单 PO-20260906-003",
+  "detail": "北欧白橡木餐桌 1.4m ×40 · 供应商：安吉林语木业"
+ },
+ {
+  "id": "act_5",
+  "at": "2026-09-06T11:20:00+08:00",
+  "actor": "u_wenbo",
+  "actorName": "郭文博",
+  "type": "finance",
+  "text": "完成了 8 月天猫旗舰店对账",
+  "detail": "1,072 笔 · 差异 0 笔"
+ },
+ {
+  "id": "act_6",
+  "at": "2026-09-06T09:05:00+08:00",
+  "actor": "system",
+  "actorName": "系统",
+  "type": "sync",
+  "text": "同步抖音小店订单 31 条",
+  "detail": "9 月 5 日全天 · 定时任务 09:00"
+ }
+]

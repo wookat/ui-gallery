@@ -1,0 +1,127 @@
+[
+ {
+  "id": "SO-20260906-0108",
+  "placedAt": "2026-09-06T17:26:00+08:00",
+  "customer": {
+   "name": "周雅婷",
+   "phoneMasked": "138****2046",
+   "initial": "婷",
+   "avatarHue": 340
+  },
+  "items": [
+   {
+    "sku": "QM-TB-OAK-140",
+    "name": "北欧白橡木餐桌 1.4m",
+    "qty": 1,
+    "unitPrice": 2680.0
+   },
+   {
+    "sku": "QM-CH-WIN-01",
+    "name": "温莎实木餐椅",
+    "qty": 4,
+    "unitPrice": 399.0
+   }
+  ],
+  "amount": 4276.0,
+  "channel": "tmall",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓"
+ },
+ {
+  "id": "SO-20260906-0107",
+  "placedAt": "2026-09-06T17:21:00+08:00",
+  "customer": {
+   "name": "陈志豪",
+   "phoneMasked": "159****8813",
+   "initial": "豪",
+   "avatarHue": 25
+  },
+  "items": [
+   {
+    "sku": "QM-PL-CLD-45",
+    "name": "云朵羊羔绒抱枕 45×45",
+    "qty": 2,
+    "unitPrice": 89.0
+   }
+  ],
+  "amount": 178.0,
+  "channel": "douyin",
+  "status": "pending_payment",
+  "warehouse": "杭州仓"
+ },
+ {
+  "id": "SO-20260906-0104",
+  "placedAt": "2026-09-06T17:09:00+08:00",
+  "customer": {
+   "name": "刘启铭",
+   "phoneMasked": "136****5527",
+   "initial": "铭",
+   "avatarHue": 150
+  },
+  "items": [
+   {
+    "sku": "QM-CT-LIN-250",
+    "name": "亚麻遮光窗帘 2.5m",
+    "qty": 1,
+    "unitPrice": 459.0
+   }
+  ],
+  "amount": 459.0,
+  "channel": "miniapp",
+  "status": "refunding",
+  "refundReason": "尺寸拍错",
+  "warehouse": "杭州仓"
+ },
+ {
+  "id": "SO-20260906-0099",
+  "placedAt": "2026-09-06T16:52:00+08:00",
+  "customer": {
+   "name": "黄晓芸",
+   "phoneMasked": "137****3390",
+   "initial": "芸",
+   "avatarHue": 275
+  },
+  "items": [
+   {
+    "sku": "QM-ST-RTN-3",
+    "name": "藤编收纳篓三件套",
+    "qty": 1,
+    "unitPrice": 168.0
+   },
+   {
+    "sku": "QM-CD-SOY-200",
+    "name": "大豆蜡香薰蜡烛 200g",
+    "qty": 1,
+    "unitPrice": 129.0
+   }
+  ],
+  "amount": 297.0,
+  "channel": "offline",
+  "store": "杭州湖滨店",
+  "status": "completed"
+ },
+ {
+  "id": "SO-20260906-0095",
+  "placedAt": "2026-09-06T16:38:00+08:00",
+  "customer": {
+   "name": "吴梦洁",
+   "phoneMasked": "150****7702",
+   "initial": "洁",
+   "avatarHue": 45
+  },
+  "items": [
+   {
+    "sku": "QM-NS-WAL-2D",
+    "name": "胡桃木床头柜（双抽）",
+    "qty": 2,
+    "unitPrice": 899.0
+   }
+  ],
+  "amount": 1798.0,
+  "channel": "jd",
+  "status": "shipped",
+  "carrier": "顺丰速运",
+  "trackingNo": "SF1436 5528 7031",
+  "warehouse": "杭州仓"
+ }
+]

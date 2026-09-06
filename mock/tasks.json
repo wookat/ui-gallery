@@ -1,0 +1,62 @@
+[
+ {
+  "id": "task_1",
+  "title": "双 11 预售商品上架",
+  "owner": "u_yiming",
+  "ownerName": "蒋一鸣",
+  "done": 36,
+  "total": 80,
+  "unit": "SKU",
+  "percent": 45,
+  "dueDate": "2026-10-15",
+  "status": "in_progress"
+ },
+ {
+  "id": "task_2",
+  "title": "杭州仓秋季盘点",
+  "owner": "u_jiahao",
+  "ownerName": "何嘉豪",
+  "done": 1842,
+  "total": 2560,
+  "unit": "SKU",
+  "percent": 72,
+  "dueDate": "2026-09-12",
+  "status": "in_progress"
+ },
+ {
+  "id": "task_3",
+  "title": "本周退款工单清零",
+  "owner": "u_yuwei",
+  "ownerName": "唐雨薇",
+  "done": 44,
+  "total": 50,
+  "unit": "单",
+  "percent": 88,
+  "dueDate": "2026-09-07",
+  "status": "in_progress"
+ },
+ {
+  "id": "task_4",
+  "title": "新品「山雾」系列详情页",
+  "owner": "u_ruolin",
+  "ownerName": "沈若琳",
+  "done": 2,
+  "total": 10,
+  "unit": "页",
+  "percent": 20,
+  "dueDate": "2026-09-20",
+  "status": "at_risk"
+ },
+ {
+  "id": "task_5",
+  "title": "8 月三平台对账",
+  "owner": "u_wenbo",
+  "ownerName": "郭文博",
+  "done": 3,
+  "total": 3,
+  "unit": "平台",
+  "percent": 100,
+  "dueDate": "2026-09-05",
+  "status": "done"
+ }
+]

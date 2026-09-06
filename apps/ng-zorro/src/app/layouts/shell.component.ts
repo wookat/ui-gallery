@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import nav from '@ui-gallery/spec/mock/nav.json';
@@ -51,7 +51,7 @@ import { UrlSettings } from '../core/url-settings';
     <nz-layout class="shell">
       <nz-sider
         nzCollapsible
-        nzTheme="light"
+        [nzTheme]="settings.theme"
         [nzCollapsed]="collapsed()"
         [nzBreakpoint]="'lg'"
         [nzCollapsedWidth]="0"
@@ -75,8 +75,8 @@ import { UrlSettings } from '../core/url-settings';
           <button nz-button nzType="text" class="mobile-menu" (click)="mobileOpen.set(true)">
             <ui-icon name="menu" />
           </button>
-          <nz-breadcrumb>
-            <nz-breadcrumb-item><a routerLink="/" queryParamsHandling="preserve">Acme Console</a></nz-breadcrumb-item>
+          <nz-breadcrumb class="crumbs">
+            <nz-breadcrumb-item class="crumb-root"><a routerLink="/" queryParamsHandling="preserve">Acme Console</a></nz-breadcrumb-item>
             <nz-breadcrumb-item>{{ currentTitle() }}</nz-breadcrumb-item>
           </nz-breadcrumb>
           <div class="header-actions">
@@ -114,7 +114,7 @@ import { UrlSettings } from '../core/url-settings';
       </ng-container>
     </nz-drawer>
     <ng-template #menuTemplate let-mobile="mobile">
-      <ul nz-menu nzMode="inline" nzTheme="light">
+      <ul nz-menu nzMode="inline" [nzTheme]="settings.theme">
         <li nz-menu-group nzTitle="工作区">
           @for (item of navItems; track item.key) {
             <li nz-menu-item [routerLink]="item.path" routerLinkActive="ant-menu-item-selected" queryParamsHandling="preserve" (click)="mobile && mobileOpen.set(false)">
@@ -143,6 +143,7 @@ import { UrlSettings } from '../core/url-settings';
     .brand-wrap { padding: 0 8px 20px; }
     .header { display: flex; align-items: center; gap: 16px; padding: 0 24px; background: #fff; border-bottom: 1px solid #f0f0f0; }
     :host-context(.dark) .header { background: #141414; border-bottom-color: #303030; }
+    .crumbs { white-space: nowrap; }
     .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .global-search { width: 220px; }
     .mobile-menu { display: none; }
@@ -154,7 +155,10 @@ import { UrlSettings } from '../core/url-settings';
     @media (max-width: 991px) {
       .mobile-menu { display: inline-flex; }
       .global-search { display: none; }
-      .header { padding: 0 16px; }
+      .header { padding: 0 16px; gap: 8px; }
+    }
+    @media (max-width: 575px) {
+      .crumb-root, .crumb-root + .ant-breadcrumb-separator { display: none; }
     }
   `,
 })
@@ -163,7 +167,7 @@ export class ShellComponent {
   readonly notifications = notifications;
   readonly collapsed = signal(false);
   readonly mobileOpen = signal(false);
-  readonly settings = new UrlSettings();
+  readonly settings = inject(UrlSettings);
   readonly unreadCount = computed(() => this.notifications.filter((item) => item.unread).length);
   readonly currentTitle = signal('仪表盘');
 

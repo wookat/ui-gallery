@@ -116,7 +116,10 @@ export class LoginPage implements OnDestroy {
 
   submit(): void {
     if (this.form.invalid) {
-      Object.values(this.form.controls).forEach((control) => control.markAsDirty());
+      Object.values(this.form.controls).forEach((control) => {
+        control.markAsDirty();
+        control.updateValueAndValidity({ onlySelf: true });
+      });
       return;
     }
     this.loading.set(true);

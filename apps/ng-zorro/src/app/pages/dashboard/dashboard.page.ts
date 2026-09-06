@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import activity from '@ui-gallery/spec/mock/activity.json';
@@ -25,6 +25,7 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import type * as echarts from 'echarts';
 import { EchartsDirective } from '../../core/echarts.directive';
 import { IconComponent } from '../../core/icon.component';
+import { Viewport } from '../../core/viewport';
 
 type Order = (typeof orders)[number];
 
@@ -91,8 +92,8 @@ type Order = (typeof orders)[number];
         </div>
         <div class="dashboard-grid">
           <nz-card nzTitle="最近订单" style="grid-column: span 8">
-            <nz-table #ordersTable [nzData]="recentOrders" [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="{ x: '640px' }">
-              <thead><tr><th>订单</th><th>客户</th><th>状态</th><th nzAlign="right">金额</th><th>操作</th></tr></thead>
+            <nz-table #ordersTable [nzData]="recentOrders" [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="viewport.isMobile() ? {} : { x: '640px' }">
+              <thead><tr><th>订单</th><th>客户</th><th>状态</th><th nzAlign="right">金额</th><th class="col-actions">操作</th></tr></thead>
               <tbody>
                 @for (order of ordersTable.data; track order.id) {
                   <tr>
@@ -100,7 +101,7 @@ type Order = (typeof orders)[number];
                     <td><span class="customer"><nz-avatar nzSize="small" [nzText]="order.customer.slice(0, 1)" />{{ order.customer }}</span></td>
                     <td><nz-tag [nzColor]="statusColor(order.status)">{{ order.status }}</nz-tag></td>
                     <td nzAlign="right">¥{{ order.amount | number: '1.2-2' }}</td>
-                    <td><a nz-dropdown [nzDropdownMenu]="rowMenu">更多 <ui-icon name="chevron-down" /></a></td>
+                    <td class="col-actions"><a nz-dropdown [nzDropdownMenu]="rowMenu">更多 <ui-icon name="chevron-down" /></a></td>
                   </tr>
                 }
               </tbody>
@@ -136,6 +137,7 @@ type Order = (typeof orders)[number];
     .sparkline { margin-top: 8px; }
     .chart-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); }
     .customer { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+    @media (max-width: 767px) { .customer { white-space: normal; } .col-actions { display: none; } .ant-table-cell { padding: 12px 6px !important; word-break: break-word; } }
     .task-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
     .task-row span { width: 150px; }
     .task-row nz-progress { flex: 1; }
@@ -157,6 +159,7 @@ export class DashboardPage {
   readonly activity = activity;
   readonly tasks = tasks;
   readonly recentOrders = orders.slice(0, 5);
+  readonly viewport = inject(Viewport);
   readonly period = signal(2);
   loadingState = false;
   readonly periodSeries = computed(() => {

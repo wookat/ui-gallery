@@ -47,7 +47,7 @@ const useStyles = makeStyles({
   msgUser: { alignSelf: "flex-end", flexDirection: "row-reverse" },
   bubble: { padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`, borderRadius: tokens.borderRadiusLarge, backgroundColor: tokens.colorNeutralBackground3, minWidth: 0, overflowX: "auto", "& p": { margin: `0 0 ${tokens.spacingVerticalXS}` }, "& p:last-child": { margin: 0 } },
   bubbleUser: { backgroundColor: tokens.colorBrandBackground, color: tokens.colorNeutralForegroundOnBrand },
-  code: { position: "relative", backgroundColor: tokens.colorNeutralBackgroundInverted, color: tokens.colorNeutralForegroundInverted, borderRadius: tokens.borderRadiusMedium, padding: tokens.spacingHorizontalM, paddingRight: "44px", fontFamily: tokens.fontFamilyMonospace, fontSize: tokens.fontSizeBase200, overflowX: "auto", margin: 0 },
+  code: { position: "relative", backgroundColor: tokens.colorNeutralBackgroundInverted, color: tokens.colorNeutralForegroundInverted, borderRadius: tokens.borderRadiusMedium, padding: tokens.spacingHorizontalM, paddingRight: "48px", fontFamily: tokens.fontFamilyMonospace, fontSize: tokens.fontSizeBase200, overflowX: "auto", margin: 0 },
   copy: { position: "absolute", top: "4px", right: "4px", color: tokens.colorNeutralForegroundInverted },
   composer: { borderTop: `1px solid ${tokens.colorNeutralStroke2}`, padding: tokens.spacingHorizontalM, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalS },
   box: { border: `1px solid ${tokens.colorNeutralStroke1}`, borderRadius: tokens.borderRadiusLarge, padding: tokens.spacingHorizontalS, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalXS },
@@ -103,7 +103,7 @@ export function ChatPage() {
             <Icon name="bot" size={48} />
             <Text weight="semibold" size={500}>开始新的对话</Text>
             <Body1>询问业务数据、生成报告或撰写邮件。</Body1>
-            <div className={l.row} style={{ justifyContent: "center" }}>{chat.suggestions.map((sg) => <Button key={sg} size="small" onClick={() => setDraft(sg)}>{sg}</Button>)}</div>
+            <div className={l.row} style={{ justifyContent: "center" }}>{chat.suggestions.map((sg) => <Button key={sg} size={isMobile ? "large" : "small"} onClick={() => setDraft(sg)}>{sg}</Button>)}</div>
           </div>
         ) : (
           <div className={s.stream}>
@@ -129,7 +129,7 @@ export function ChatPage() {
                             if (!className) return <code style={{ fontFamily: tokens.fontFamilyMonospace }}>{children}</code>
                             return (
                               <pre className={s.code}>
-                                <Tooltip content="复制代码" relationship="label"><Button className={s.copy} appearance="transparent" size="small" icon={<Icon name="copy" size={14} />} onClick={() => copy(text)} /></Tooltip>
+                                <Tooltip content="复制代码" relationship="label"><Button className={s.copy} appearance="transparent" size={isMobile ? "large" : "small"} icon={<Icon name="copy" size={14} />} onClick={() => copy(text)} /></Tooltip>
                                 <code>{text}</code>
                               </pre>
                             )
@@ -153,10 +153,10 @@ export function ChatPage() {
                   ) : null}
                   {m.role === "assistant" && !m.streaming ? (
                     <div className={l.row}>
-                      <Button appearance="subtle" size="small" icon={<Icon name="copy" size={14} />} onClick={() => copy(m.content)}>复制</Button>
-                      <Button appearance="subtle" size="small" icon={<Icon name="thumbs-up" size={14} />} aria-label="有帮助" />
-                      <Button appearance="subtle" size="small" icon={<Icon name="thumbs-down" size={14} />} aria-label="没帮助" />
-                      <Button appearance="subtle" size="small" icon={<Icon name="refresh" size={14} />}>重新生成</Button>
+                      <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="copy" size={14} />} onClick={() => copy(m.content)}>复制</Button>
+                      <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="thumbs-up" size={14} />} aria-label="有帮助" />
+                      <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="thumbs-down" size={14} />} aria-label="没帮助" />
+                      <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="refresh" size={14} />}>重新生成</Button>
                     </div>
                   ) : null}
                 </div>
@@ -165,7 +165,7 @@ export function ChatPage() {
           </div>
         )}
         <div className={s.composer}>
-          {messages.length > 0 ? <div className={l.row}>{chat.suggestions.map((sg) => <Button key={sg} size="small" shape="circular" onClick={() => setDraft(sg)}>{sg}</Button>)}</div> : null}
+          {messages.length > 0 ? <div className={l.row}>{chat.suggestions.map((sg) => <Button key={sg} size={isMobile ? "large" : "small"} shape="circular" onClick={() => setDraft(sg)}>{sg}</Button>)}</div> : null}
           <span className={s.attachment}><Icon name="paperclip" size={14} /><Caption1>project-notes.md · 12 KB</Caption1><Button appearance="transparent" size={ctl} icon={<Icon name="x" size={12} />} aria-label="移除附件" /></span>
           <div className={s.box}>
             <Textarea appearance="filled-lighter" value={draft} onChange={(_, d) => setDraft(d.value)} placeholder="向 AI 助手提问..." resize="none" rows={2} />

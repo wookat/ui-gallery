@@ -79,7 +79,7 @@ export function LandingPage() {
   const search = typeof window === "undefined" ? "" : window.location.search
 
   return (
-    <div className={s.root}>
+    <div className={s.root} data-touch="">
       <header className={s.nav}>
         <Brand />
         <nav className={s.navLinks} aria-label="主导航">
@@ -152,7 +152,7 @@ export function LandingPage() {
               <div className={l.rowBetween}><Subtitle2>{p.name}</Subtitle2>{p.recommended ? <Badge appearance="filled" color="brand">推荐</Badge> : null}</div>
               <Title1>{p.price === null ? "联系我们" : p.price === 0 ? "免费" : `¥${yearly ? Math.round(p.price * 0.8) : p.price}`}<Caption1 className={l.muted}>{p.price ? " /月" : ""}</Caption1></Title1>
               <div className={l.stackS}>{p.features.map((f) => <div className={l.row} key={f}><Icon name="check" size={16} /><Body1>{f}</Body1></div>)}</div>
-              <Button appearance={p.recommended ? "primary" : "outline"} style={{ marginTop: "auto" }}>{p.price === null ? "联系销售" : "开始使用"}</Button>
+              <Button appearance={p.recommended ? "primary" : "outline"} size={ctl} style={{ marginTop: "auto" }}>{p.price === null ? "联系销售" : "开始使用"}</Button>
             </Card>
           ))}
         </div>

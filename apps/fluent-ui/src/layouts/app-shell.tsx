@@ -158,7 +158,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </NavDrawerFooter>
       </NavDrawer>
       <div className={s.main}>
-        <header className={s.header}>
+        <header className={s.header} data-touch="">
           {(isMobile || collapsed) && (
             <Tooltip content="打开导航" relationship="label">
               <Hamburger size={ctl} onClick={() => (isMobile ? setMobileOpen(true) : setCollapsed(false))} />
@@ -212,7 +212,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </MenuPopover>
           </Menu>
         </header>
-        <main className={s.content}>{children}</main>
+        <main className={s.content} data-touch={location.pathname === "/components" ? undefined : ""}>{children}</main>
       </div>
     </div>
   )

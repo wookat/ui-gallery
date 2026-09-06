@@ -176,16 +176,16 @@ export function OrdersPage() {
       {selected.size > 0 ? (
         <MessageBar intent="info">
           <MessageBarBody>已选择 {selected.size} 条订单</MessageBarBody>
-          <MessageBarActions containerAction={<Button appearance="transparent" size="small" icon={<Icon name="x" />} aria-label="取消选择" onClick={() => setSelected(new Set())} />}>
-            <Button size="small" onClick={() => notify("批量导出", `${selected.size} 条`)}>导出所选</Button>
-            <Button size="small" onClick={() => { setSelected(new Set()); notify("已删除所选订单") }}>删除所选</Button>
+          <MessageBarActions containerAction={<Button appearance="transparent" size={isMobile ? "large" : "small"} icon={<Icon name="x" />} aria-label="取消选择" onClick={() => setSelected(new Set())} />}>
+            <Button size={isMobile ? "large" : "small"} onClick={() => notify("批量导出", `${selected.size} 条`)}>导出所选</Button>
+            <Button size={isMobile ? "large" : "small"} onClick={() => { setSelected(new Set()); notify("已删除所选订单") }}>删除所选</Button>
           </MessageBarActions>
         </MessageBar>
       ) : null}
       {state === "error" ? (
         <MessageBar intent="error">
           <MessageBarBody><MessageBarTitle>加载失败</MessageBarTitle>无法获取订单数据，请稍后重试。</MessageBarBody>
-          <MessageBarActions><Button size="small" icon={<Icon name="refresh" />} onClick={() => { setState("loading"); window.setTimeout(() => setState("ready"), 500) }}>重试</Button></MessageBarActions>
+          <MessageBarActions><Button size={isMobile ? "large" : "small"} icon={<Icon name="refresh" />} onClick={() => { setState("loading"); window.setTimeout(() => setState("ready"), 500) }}>重试</Button></MessageBarActions>
         </MessageBar>
       ) : state === "loading" ? (
         <Skeleton aria-label="加载订单"><div className={l.stackS}>{Array.from({ length: 6 }).map((_, i) => <SkeletonItem key={i} size={40} />)}</div></Skeleton>

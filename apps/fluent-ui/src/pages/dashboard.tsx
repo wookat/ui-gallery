@@ -36,7 +36,7 @@ import {
   tokens,
 } from "@fluentui/react-components"
 import { Icon } from "@/lib/icon"
-import { Money, PageHeader, SectionCard, StatusBadge, useControlSize, useElementWidth, useLayoutStyles } from "./shared"
+import { Money, PageHeader, SectionCard, StatusBadge, useControlSize, useElementWidth, useIsMobile, useLayoutStyles } from "./shared"
 
 const useStyles = makeStyles({
   statHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: tokens.spacingHorizontalS },
@@ -53,6 +53,7 @@ const formatValue = (item: (typeof stats)[number]) => (item.unit === "CNY" ? `¥
 export function DashboardPage() {
   const s = useStyles()
   const l = useLayoutStyles()
+  const isMobile = useIsMobile()
   const ctl = useControlSize()
   const [sparklineRef, sparklineWidth] = useElementWidth()
   const [period, setPeriod] = useState<string>("week")
@@ -74,7 +75,7 @@ export function DashboardPage() {
 
   return (
     <div className={l.stack}>
-      <PageHeader title="仪表盘" description="欢迎回来，林晓。这里是今天的业务概况。" action={<Button appearance="primary" icon={<Icon name="plus" />}>新建项目</Button>} />
+      <PageHeader title="仪表盘" description="欢迎回来，林晓。这里是今天的业务概况。" action={<Button appearance="primary" size={ctl} icon={<Icon name="plus" />}>新建项目</Button>} />
       <TabList size={ctl} selectedValue={period} onTabSelect={(_, data) => { setPeriod(String(data.value)); setLoading(true) }}>
         <Tab className={l.tabTouch} value="day">日</Tab>
         <Tab className={l.tabTouch} value="week">周</Tab>
@@ -151,7 +152,7 @@ export function DashboardPage() {
                     <TableCell style={{ textAlign: "right" }}><Money value={order.amount} /></TableCell>
                     <TableCell>
                       <Menu>
-                        <MenuTrigger disableButtonEnhancement><Button appearance="subtle" size="small" icon={<Icon name="more-horizontal" />} aria-label="操作" /></MenuTrigger>
+                        <MenuTrigger disableButtonEnhancement><Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="more-horizontal" />} aria-label="操作" /></MenuTrigger>
                         <MenuPopover><MenuList><MenuItem icon={<Icon name="eye" />}>查看</MenuItem><MenuItem icon={<Icon name="pencil" />}>编辑</MenuItem><MenuItem icon={<Icon name="trash" />}>删除</MenuItem></MenuList></MenuPopover>
                       </Menu>
                     </TableCell>

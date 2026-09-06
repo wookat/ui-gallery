@@ -62,7 +62,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className={s.root}>
+    <div className={s.root} data-touch="">
       <Card className={s.card}>
         <Brand />
         <div>

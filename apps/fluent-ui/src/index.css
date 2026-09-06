@@ -21,3 +21,14 @@ body {
 #root > .fui-FluentProvider {
   min-height: 100vh;
 }
+
+@media (max-width: 767px) {
+  [data-touch] .fui-Input,
+  [data-touch] .fui-SearchBox,
+  [data-touch] .fui-Combobox,
+  [data-touch] .fui-Dropdown__button,
+  [data-touch] .fui-Hamburger,
+  [data-touch] .fui-SpinButton__input {
+    min-height: 44px;
+  }
+}

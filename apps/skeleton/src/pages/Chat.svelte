@@ -112,7 +112,7 @@
               <div class="space-y-2 max-w-[90%] md:max-w-[75%] min-w-0">
                 {#if "tool" in m && m.tool}
                   <Collapsible class="card preset-tonal border border-surface-200-800 text-sm">
-                    <Collapsible.Trigger class="flex w-full items-center gap-2 px-3 py-2 text-left">
+                    <Collapsible.Trigger class="flex w-full min-h-10 items-center gap-2 px-3 py-2 text-left">
                       <Icon name="wrench" class="size-4" />
                       <span class="font-mono">{m.tool.name}</span>
                       <span class="badge preset-tonal-success ml-auto">{m.tool.status}</span>

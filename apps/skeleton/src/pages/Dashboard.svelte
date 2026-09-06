@@ -154,7 +154,7 @@
   <article class="card bg-surface-50-950 border border-surface-200-800 xl:col-span-2 overflow-hidden">
     <header class="flex items-center justify-between p-4 border-b border-surface-200-800">
       <h2 class="h5">最近订单</h2>
-      <a class="anchor text-sm" href={router.href("/orders")} use:link>查看全部</a>
+      <a class="anchor text-sm inline-flex items-center min-h-10" href={router.href("/orders")} use:link>查看全部</a>
     </header>
     <div class="table-wrap">
       <table class="table">

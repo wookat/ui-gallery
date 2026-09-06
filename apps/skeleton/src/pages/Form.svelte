@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { FileUpload, RatingGroup, Slider, Steps, TagsInput, Tooltip, Portal } from "@skeletonlabs/skeleton-svelte"
+  import { Combobox, DatePicker, FileUpload, Portal, RatingGroup, Slider, Steps, Switch, TagsInput, Tooltip, useListCollection } from "@skeletonlabs/skeleton-svelte"
   import team from "@ui-gallery/spec/mock/team.json"
   import plans from "@ui-gallery/spec/mock/plans.json"
   import Icon from "../lib/Icon.svelte"
@@ -19,6 +19,7 @@
   let name = $state("")
   let description = $state("")
   let owner = $state("")
+  let comboInput = $state("")
   let plan = $state(plans[0].name)
   let visibility = $state("private")
   let budget = $state([50])
@@ -28,9 +29,18 @@
   let files = $state<File[]>([])
   let agree = $state(false)
   let notify = $state(true)
+  let due = $state("")
+  let otp = $state(["", "", "", "", "", ""])
   let errors = $state<Record<string, string>>({})
 
   const selectedPlan = $derived(plans.find((p) => p.name === plan) ?? plans[0])
+  const ownerCollection = $derived(
+    useListCollection({
+      items: team
+        .map((m) => ({ label: m.name, value: m.name }))
+        .filter((m) => m.label.toLowerCase().includes(comboInput.toLowerCase())),
+    }),
+  )
 
   function validate(): boolean {
     const next: Record<string, string> = {}
@@ -72,7 +82,14 @@
     tags = ["内部"]
     files = []
     agree = false
+    due = ""
+    otp = ["", "", "", "", "", ""]
     errors = {}
+  }
+  function updateOtp(index: number, event: Event) {
+    const input = event.currentTarget as HTMLInputElement
+    otp[index] = input.value.slice(-1)
+    if (input.value && input.nextElementSibling instanceof HTMLInputElement) input.nextElementSibling.focus()
   }
 </script>
 
@@ -123,19 +140,41 @@
             <textarea class="textarea" class:!border-error-500={errors.description} rows="3" placeholder="简要描述项目目标…" bind:value={description}></textarea>
             {#if errors.description}<p class="text-error-500 text-xs">{errors.description}</p>{/if}
           </label>
-          <label class="label">
+          <div class="label">
             <span class="label-text">负责人 <span class="text-error-500">*</span></span>
-            <select class="select" class:!border-error-500={errors.owner} bind:value={owner} aria-invalid={!!errors.owner}>
-              <option value="">请选择</option>
-              {#each team as m (m.email)}<option value={m.name}>{m.name} · {m.role}</option>{/each}
-            </select>
+            <Combobox
+              collection={ownerCollection}
+              value={owner ? [owner] : []}
+              onInputValueChange={(d) => (comboInput = d.inputValue)}
+              onValueChange={(d) => (owner = d.value[0] ?? "")}
+              class="space-y-1"
+            >
+              <Combobox.Control class="field-group grid-cols-[1fr_auto]">
+                <Combobox.Input class={`input ${errors.owner ? "!border-error-500" : ""}`} placeholder="搜索成员…" aria-invalid={!!errors.owner} />
+                <Combobox.Trigger class="btn min-w-10 preset-tonal" aria-label="展开"><Icon name="chevrons-up-down" /></Combobox.Trigger>
+              </Combobox.Control>
+              <Portal>
+                <Combobox.Positioner class="z-40">
+                  <Combobox.Content class="card bg-surface-100-900 shadow-xl p-1 max-h-48 overflow-y-auto">
+                    {#each ownerCollection.items as item (item.value)}
+                      <Combobox.Item {item} class="flex items-center justify-between px-3 py-1.5 rounded-base cursor-pointer data-[highlighted]:preset-tonal data-[state=checked]:preset-filled-primary-500">
+                        <Combobox.ItemText>{item.label}</Combobox.ItemText>
+                        <Combobox.ItemIndicator><Icon name="check" /></Combobox.ItemIndicator>
+                      </Combobox.Item>
+                    {:else}
+                      <p class="px-3 py-2 text-sm opacity-60">无匹配结果</p>
+                    {/each}
+                  </Combobox.Content>
+                </Combobox.Positioner>
+              </Portal>
+            </Combobox>
             {#if errors.owner}<p class="text-error-500 text-xs">{errors.owner}</p>{/if}
-          </label>
+          </div>
           <fieldset class="fieldset space-y-2">
             <legend class="legend text-sm">可见性</legend>
             <div class="flex flex-wrap gap-4">
               {#each [["private", "私有", "仅项目成员可见"], ["team", "团队", "团队所有成员可见"], ["public", "公开", "任何人可见"]] as [v, l, d] (v)}
-                <label class="flex items-start gap-2 text-sm">
+                <label class="flex items-start gap-2 min-h-10 text-sm">
                   <input class="radio mt-0.5" type="radio" name="visibility" value={v} bind:group={visibility} />
                   <span><span class="block font-medium">{l}</span><span class="block text-xs opacity-60">{d}</span></span>
                 </label>
@@ -254,6 +293,43 @@
               </FileUpload.Context>
             </FileUpload.ItemGroup>
           </FileUpload>
+
+          <DatePicker onValueChange={(d) => (due = d.valueAsString[0] ?? "")} class="space-y-1" positioning={{ placement: "bottom-start" }}>
+            <DatePicker.Label class="text-sm">截止日期</DatePicker.Label>
+            <DatePicker.Control class="field-group grid-cols-[1fr_auto]">
+              <DatePicker.Input class="input" placeholder="YYYY-MM-DD" />
+              <DatePicker.Trigger class="btn min-w-10 preset-tonal" aria-label="打开日历"><Icon name="calendar" /></DatePicker.Trigger>
+            </DatePicker.Control>
+            <Portal>
+              <DatePicker.Positioner class="z-40">
+                <DatePicker.Content class="card bg-surface-100-900 shadow-xl p-3 space-y-2">
+                  <DatePicker.View view="day">
+                    <DatePicker.Context>
+                      {#snippet children(api)}
+                        <DatePicker.ViewControl class="flex items-center justify-between gap-2">
+                          <DatePicker.PrevTrigger class="btn-icon btn-icon-sm hover:preset-tonal"><Icon name="chevron-left" /></DatePicker.PrevTrigger>
+                          <DatePicker.ViewTrigger class="btn btn-sm hover:preset-tonal"><DatePicker.RangeText /></DatePicker.ViewTrigger>
+                          <DatePicker.NextTrigger class="btn-icon btn-icon-sm hover:preset-tonal"><Icon name="chevron-right" /></DatePicker.NextTrigger>
+                        </DatePicker.ViewControl>
+                        <DatePicker.Table class="text-sm">
+                          <DatePicker.TableHead><DatePicker.TableRow>{#each api().weekDays as d (d.long)}<DatePicker.TableHeader class="size-8 text-xs opacity-60">{d.narrow}</DatePicker.TableHeader>{/each}</DatePicker.TableRow></DatePicker.TableHead>
+                          <DatePicker.TableBody>
+                            {#each api().weeks as week, wi (wi)}
+                              <DatePicker.TableRow>
+                                {#each week as day (day.toString())}
+                                  <DatePicker.TableCell value={day}><DatePicker.TableCellTrigger class="size-8 rounded-base grid place-items-center hover:preset-tonal data-[selected]:preset-filled-primary-500 data-[outside-range]:opacity-30 data-[today]:font-bold">{day.day}</DatePicker.TableCellTrigger></DatePicker.TableCell>
+                                {/each}
+                              </DatePicker.TableRow>
+                            {/each}
+                          </DatePicker.TableBody>
+                        </DatePicker.Table>
+                      {/snippet}
+                    </DatePicker.Context>
+                  </DatePicker.View>
+                </DatePicker.Content>
+              </DatePicker.Positioner>
+            </Portal>
+          </DatePicker>
         </Steps.Content>
 
         <Steps.Content index={2} class="space-y-5 pt-4">
@@ -261,6 +337,7 @@
             <dt class="opacity-60">项目名称</dt><dd class="font-medium">{name || "—"}</dd>
             <dt class="opacity-60">描述</dt><dd>{description || "—"}</dd>
             <dt class="opacity-60">负责人</dt><dd>{owner || "—"}</dd>
+            <dt class="opacity-60">截止日期</dt><dd>{due || "未设置"}</dd>
             <dt class="opacity-60">可见性</dt><dd>{visibility}</dd>
             <dt class="opacity-60">套餐</dt><dd>{selectedPlan.name}{selectedPlan.price === null ? "" : ` · ¥${selectedPlan.price}/月`}</dd>
             <dt class="opacity-60">预算</dt><dd>{budget[0]} 千元/月</dd>
@@ -269,13 +346,22 @@
             <dt class="opacity-60">标签</dt><dd class="flex flex-wrap gap-1">{#each tags as t (t)}<span class="chip preset-tonal-primary">{t}</span>{/each}</dd>
             <dt class="opacity-60">附件</dt><dd>{files.length} 个文件</dd>
           </dl>
-          <label class="flex items-center justify-between gap-3 text-sm">
-            <span>创建后通知团队成员</span>
-            <input class="switch" type="checkbox" role="switch" bind:checked={notify} />
-          </label>
-          <label class="flex items-start gap-2 text-sm">
+          <Switch checked={notify} onCheckedChange={(d) => (notify = d.checked)} class="flex items-center justify-between w-full py-3 text-sm">
+            <Switch.Label>创建后通知团队成员</Switch.Label>
+            <Switch.Control><Switch.Thumb /></Switch.Control>
+            <Switch.HiddenInput />
+          </Switch>
+          <div class="space-y-2">
+            <span class="label-text text-sm">邮箱验证码</span>
+            <div class="flex gap-2">
+              {#each [0, 1, 2, 3, 4, 5] as i (i)}
+                <input class="input w-10 h-10 p-0 text-center font-mono" inputmode="numeric" maxlength="1" aria-label={`验证码第 ${i + 1} 位`} value={otp[i]} oninput={(event) => updateOtp(i, event)} />
+              {/each}
+            </div>
+          </div>
+          <label class="flex items-start gap-2 min-h-10 text-sm">
             <input class="checkbox mt-0.5" type="checkbox" bind:checked={agree} />
-            <span>我已阅读并同意 <a class="anchor" href={router.href("/form")} use:link>服务条款</a> 与 <a class="anchor" href={router.href("/form")} use:link>隐私政策</a></span>
+            <span>我已阅读并同意 <a class="anchor inline-flex items-center min-h-10" href={router.href("/form")} use:link>服务条款</a> 与 <a class="anchor inline-flex items-center min-h-10" href={router.href("/form")} use:link>隐私政策</a></span>
           </label>
           {#if errors.agree}<p class="text-error-500 text-xs">{errors.agree}</p>{/if}
         </Steps.Content>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Avatar, Dialog, Portal, Tabs } from "@skeletonlabs/skeleton-svelte"
+  import { Avatar, Dialog, Portal, Switch, Tabs } from "@skeletonlabs/skeleton-svelte"
   import team from "@ui-gallery/spec/mock/team.json"
   import sessions from "@ui-gallery/spec/mock/sessions.json"
   import invoices from "@ui-gallery/spec/mock/invoices.json"
@@ -111,7 +111,10 @@
             <h2 class="h5">两步验证</h2>
             <p class="text-sm opacity-70">登录时需要额外输入验证码，提升账号安全性。</p>
           </div>
-          <input class="switch" type="checkbox" role="switch" bind:checked={twoFactor} aria-label="两步验证" />
+          <Switch checked={twoFactor} onCheckedChange={(d) => (twoFactor = d.checked)} aria-label="两步验证">
+            <Switch.Control><Switch.Thumb /></Switch.Control>
+            <Switch.HiddenInput />
+          </Switch>
         </div>
         {#if twoFactor}<div class="card preset-tonal-success p-3 text-sm flex items-center gap-2"><Icon name="circle-check" />已启用（验证器应用）</div>{/if}
       </section>
@@ -147,10 +150,11 @@
           ["marketing", "产品动态", "新功能与最佳实践"],
           ["security", "安全提醒", "异常登录与密码更改（建议开启）"],
         ] as const as [key, label, desc] (key)}
-          <label class="flex items-center justify-between gap-4 py-3 border-b border-surface-200-800 last:border-0">
-            <span><span class="block text-sm font-medium">{label}</span><span class="block text-xs opacity-60">{desc}</span></span>
-            <input class="switch" type="checkbox" role="switch" bind:checked={notif[key]} />
-          </label>
+          <Switch checked={notif[key]} onCheckedChange={(d) => (notif[key] = d.checked)} class="flex items-center justify-between gap-4 py-3 border-b border-surface-200-800 last:border-0 w-full">
+            <Switch.Label><span class="block text-sm font-medium">{label}</span><span class="block text-xs opacity-60">{desc}</span></Switch.Label>
+            <Switch.Control><Switch.Thumb /></Switch.Control>
+            <Switch.HiddenInput />
+          </Switch>
         {/each}
       </section>
     </Tabs.Content>

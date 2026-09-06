@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte"
-  import { Avatar, Dialog, Menu, Pagination, Popover, Portal, SegmentedControl, Tabs } from "@skeletonlabs/skeleton-svelte"
+  import { Avatar, Dialog, Menu, Pagination, Popover, Portal, SegmentedControl, Switch, Tabs } from "@skeletonlabs/skeleton-svelte"
   import ordersData from "@ui-gallery/spec/mock/orders.json"
   import Icon from "../lib/Icon.svelte"
   import StatusBadge from "../lib/StatusBadge.svelte"
@@ -172,7 +172,7 @@
       <Popover.Positioner class="z-40">
         <Popover.Content class="card p-3 bg-surface-100-900 shadow-xl space-y-2 w-48">
           {#each channels as c (c.value)}
-            <label class="flex items-center gap-2 text-sm">
+            <label class="flex min-h-10 items-center gap-2 text-sm">
               <input class="checkbox" type="checkbox" checked={selectedChannels.includes(c.value)} onchange={() => toggleChannel(c.value)} />
               <span>{c.label}</span>
             </label>
@@ -192,16 +192,17 @@
       <Popover.Positioner class="z-40">
         <Popover.Content class="card p-3 bg-surface-100-900 shadow-xl space-y-2 w-40">
           {#each allColumns as c (c.key)}
-            <label class="flex items-center justify-between text-sm">
-              <span>{c.label}</span>
-              <input class="switch" type="checkbox" role="switch" checked={!hidden.includes(c.key)} onchange={() => toggleColumn(c.key)} />
-            </label>
+            <Switch checked={!hidden.includes(c.key)} onCheckedChange={() => toggleColumn(c.key)} class="flex items-center justify-between w-full py-3 text-sm">
+              <Switch.Label>{c.label}</Switch.Label>
+              <Switch.Control><Switch.Thumb /></Switch.Control>
+              <Switch.HiddenInput />
+            </Switch>
           {/each}
         </Popover.Content>
       </Popover.Positioner>
     </Portal>
   </Popover>
-  <button type="button" class="btn hover:preset-tonal" onclick={resetFilters}><Icon name="refresh" /><span class="hidden sm:inline">重置</span></button>
+  <button type="button" class="btn min-w-10 hover:preset-tonal" onclick={resetFilters}><Icon name="refresh" /><span class="hidden sm:inline">重置</span></button>
 </section>
 
 {#if selected.length}
@@ -245,12 +246,12 @@
       <table class="table">
         <thead>
           <tr>
-            <th class="w-10"><input class="checkbox" type="checkbox" checked={allOnPage} onchange={toggleAll} aria-label="选择本页" /></th>
-            <th><button type="button" class="flex items-center gap-1" onclick={() => sortBy("id")}>订单号 <Icon name={sortKey === "id" ? (sortDir === "asc" ? "arrow-up" : "arrow-down") : "arrow-up-down"} class="size-3" /></button></th>
+            <th class="w-10"><label class="inline-grid place-items-center size-10 -m-2 cursor-pointer"><input class="checkbox" type="checkbox" checked={allOnPage} onchange={toggleAll} aria-label="选择本页" /></label></th>
+            <th><button type="button" class="flex items-center gap-1 min-h-10" onclick={() => sortBy("id")}>订单号 <Icon name={sortKey === "id" ? (sortDir === "asc" ? "arrow-up" : "arrow-down") : "arrow-up-down"} class="size-3" /></button></th>
             {#each visible as c (c.key)}
               <th class={c.key === "amount" ? "text-right" : ""}>
                 {#if c.key === "customer" || c.key === "amount" || c.key === "date" || c.key === "status"}
-                  <button type="button" class="inline-flex items-center gap-1" onclick={() => sortBy(c.key)}>{c.label} <Icon name={sortKey === c.key ? (sortDir === "asc" ? "arrow-up" : "arrow-down") : "arrow-up-down"} class="size-3" /></button>
+                  <button type="button" class="inline-flex items-center gap-1 min-h-10" onclick={() => sortBy(c.key)}>{c.label} <Icon name={sortKey === c.key ? (sortDir === "asc" ? "arrow-up" : "arrow-down") : "arrow-up-down"} class="size-3" /></button>
                 {:else}{c.label}{/if}
               </th>
             {/each}
@@ -260,8 +261,8 @@
         <tbody class="[&>tr]:hover:preset-tonal-primary">
           {#each rows as o (o.id)}
             <tr class="cursor-pointer {selected.includes(o.id) ? 'preset-tonal-primary' : ''}" onclick={(e) => rowClick(e, o)}>
-              <td><input class="checkbox" type="checkbox" checked={selected.includes(o.id)} onchange={() => toggle(o.id)} aria-label={`选择 ${o.id}`} /></td>
-              <td><button type="button" class="anchor font-mono text-xs" onclick={() => (detail = o)}>{o.id}</button></td>
+              <td><label class="inline-grid place-items-center size-10 -m-2 cursor-pointer"><input class="checkbox" type="checkbox" checked={selected.includes(o.id)} onchange={() => toggle(o.id)} aria-label={`选择 ${o.id}`} /></label></td>
+              <td><button type="button" class="anchor font-mono text-xs inline-flex items-center min-h-10" onclick={() => (detail = o)}>{o.id}</button></td>
               {#each visible as c (c.key)}
                 {#if c.key === "customer"}
                   <td>
@@ -299,7 +300,7 @@
     <ul class="md:hidden divide-y divide-surface-200-800">
       {#each rows as o (o.id)}
         <li class="p-3 flex gap-3 items-start">
-          <input class="checkbox mt-1" type="checkbox" checked={selected.includes(o.id)} onchange={() => toggle(o.id)} aria-label={`选择 ${o.id}`} />
+          <label class="inline-grid place-items-center size-10 -m-2 cursor-pointer"><input class="checkbox" type="checkbox" checked={selected.includes(o.id)} onchange={() => toggle(o.id)} aria-label={`选择 ${o.id}`} /></label>
           <button type="button" class="flex-1 min-w-0 text-left space-y-1" onclick={() => (detail = o)}>
             <div class="flex items-center justify-between gap-2">
               <span class="font-mono text-xs">{o.id}</span>

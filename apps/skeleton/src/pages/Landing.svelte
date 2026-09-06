@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Accordion, Avatar, Dialog, Portal } from "@skeletonlabs/skeleton-svelte"
+  import { Accordion, Avatar, Dialog, Portal, Switch } from "@skeletonlabs/skeleton-svelte"
   import landing from "@ui-gallery/spec/mock/landing.json"
   import nav from "@ui-gallery/spec/mock/nav.json"
   import plans from "@ui-gallery/spec/mock/plans.json"
@@ -35,7 +35,7 @@
         <span class="btn-icon btn-icon-sm preset-filled-primary-500">A</span>Acme Console
       </a>
       <ul class="hidden md:flex items-center gap-6 text-sm">
-        {#each navLinks as [href, label] (href)}<li><a class="hover:text-primary-500" {href}>{label}</a></li>{/each}
+        {#each navLinks as [href, label] (href)}<li><a class="inline-flex min-w-10 items-center min-h-10 hover:text-primary-500" {href}>{label}</a></li>{/each}
       </ul>
       <div class="flex items-center gap-2">
         <button type="button" class="btn-icon min-w-10 min-h-10 hover:preset-tonal" aria-label="切换主题" onclick={() => { dark = !dark; setDark(dark) }}><Icon name={dark ? "sun" : "moon"} class="size-5" /></button>
@@ -135,9 +135,12 @@
     <section id="pricing" class="mx-auto max-w-6xl px-4 py-16 space-y-10">
       <div class="text-center space-y-4">
         <h2 class="h2">简单透明的定价</h2>
-        <label class="inline-flex items-center gap-3 text-sm">
-          <span>按月</span><input class="switch" type="checkbox" role="switch" bind:checked={yearly} aria-label="按年计费" /><span>按年 <span class="badge preset-tonal-success">省 20%</span></span>
-        </label>
+        <Switch checked={yearly} onCheckedChange={(d) => (yearly = d.checked)} aria-label="按年计费" class="inline-flex items-center gap-3 text-sm">
+          <Switch.Label class="text-sm">按月</Switch.Label>
+          <Switch.Control><Switch.Thumb /></Switch.Control>
+          <Switch.Label class="text-sm">按年 <span class="badge preset-tonal-success">省 20%</span></Switch.Label>
+          <Switch.HiddenInput />
+        </Switch>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
         {#each plans as p (p.name)}
@@ -207,7 +210,7 @@
       {#each footerColumns as [title, links] (title)}
         <div class="space-y-2">
           <p class="font-medium">{title}</p>
-          <ul class="space-y-1 opacity-70">{#each links as [href, label] (label)}<li><a class="hover:text-primary-500" {href} use:link>{label}</a></li>{/each}</ul>
+        <ul class="space-y-1 opacity-70">{#each links as [href, label] (label)}<li><a class="inline-flex min-w-10 items-center min-h-10 hover:text-primary-500" {href} use:link>{label}</a></li>{/each}</ul>
         </div>
       {/each}
     </div>

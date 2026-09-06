@@ -124,11 +124,11 @@
   <p class="text-sm opacity-70">Skeleton v5（Svelte）全部组件、变体、尺寸与状态。徽标含义：implemented = Skeleton 原生组件/工具类，composed = 用 Skeleton 原语组合，missing = 无对应实现，native = 契约之外的 Skeleton 原生组件。</p>
 </header>
 
-<nav class="card bg-surface-50-950 border border-surface-200-800 p-3 sticky top-16 z-20 space-y-2" aria-label="组件索引">
+<nav class="card bg-surface-50-950 border border-surface-200-800 p-3 md:sticky top-16 z-20 space-y-2" aria-label="组件索引">
   {#each groups as g (g.id)}
-    <div class="flex flex-wrap items-center gap-1 text-xs">
-      <span class="font-medium w-20 opacity-70">{g.label}</span>
-      {#each g.items as item (item)}<a class="chip preset-tonal hover:preset-filled-primary-500" href={`#${item}`}>{item}</a>{/each}
+    <div class="flex items-center gap-1 text-xs overflow-x-auto flex-nowrap md:flex-wrap">
+      <span class="font-medium w-20 shrink-0 opacity-70">{g.label}</span>
+      {#each g.items as item (item)}<a class="chip shrink-0 preset-tonal hover:preset-filled-primary-500" href={`#${item}`}>{item}</a>{/each}
     </div>
   {/each}
 </nav>
@@ -276,7 +276,7 @@
       <label class="flex items-center gap-2 opacity-50"><input class="radio" type="radio" disabled /> 禁用</label>
     </div>
   </Demo>
-  <Demo id="switch" title="Switch" status="implemented" note="Switch 组件 + switch 工具类">
+  <Demo id="switch" title="Switch" status="implemented" note="Switch 组件（默认 / 禁用 / 大号）">
     <div class="flex flex-wrap items-center gap-6">
       <Switch checked={switchOn} onCheckedChange={(d) => (switchOn = d.checked)} class="flex items-center gap-2">
         <Switch.Control><Switch.Thumb /></Switch.Control>
@@ -285,7 +285,6 @@
       </Switch>
       <Switch checked disabled class="flex items-center gap-2"><Switch.Control><Switch.Thumb /></Switch.Control><Switch.Label class="text-sm">禁用</Switch.Label><Switch.HiddenInput /></Switch>
       <Switch class="flex items-center gap-2"><Switch.Control class="h-8 w-14 [&>*]:size-7"><Switch.Thumb /></Switch.Control><Switch.Label class="text-sm">大号</Switch.Label><Switch.HiddenInput /></Switch>
-      <label class="flex items-center gap-2 text-sm"><input class="switch" type="checkbox" role="switch" checked /> 工具类</label>
     </div>
   </Demo>
   <Demo id="slider" title="Slider" status="implemented" note="单值 / 范围 / 禁用 / 刻度">

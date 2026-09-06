@@ -111,7 +111,7 @@
             </Portal>
           </Dialog>
           <ol class="hidden sm:flex items-center gap-2 text-sm">
-            <li><a class="anchor" href={router.href("/")} use:link>首页</a></li>
+            <li><a class="anchor inline-flex min-w-10 items-center min-h-10" href={router.href("/")} use:link>首页</a></li>
             {#if current && current.path !== "/"}
               <li class="opacity-50"><Icon name="chevron-right" class="size-3" /></li>
               <li aria-current="page" class="font-medium">{current.label}</li>

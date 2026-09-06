@@ -5,4 +5,5 @@ import tailwindcss from "@tailwindcss/vite"
 export default defineConfig({
   base: "/apps/skeleton/",
   plugins: [tailwindcss(), svelte()],
+  build: { rollupOptions: { output: { manualChunks: (id) => (id.includes("chart.js") ? "chart" : undefined) } } },
 })

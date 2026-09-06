@@ -23,7 +23,18 @@ body {
   [data-scope="tabs"][data-part="trigger"],
   [data-scope="steps"][data-part="trigger"],
   [data-scope="navigation"][data-part="trigger-anchor"],
-  [data-scope="navigation"][data-part="trigger"] {
+  [data-scope="navigation"][data-part="trigger"],
+  [data-scope="switch"][data-part="root"] {
+    min-height: --spacing(10);
+  }
+
+  .input,
+  .select {
+    min-height: --spacing(10);
+  }
+
+  a.chip,
+  button.chip {
     min-height: --spacing(10);
   }
 }

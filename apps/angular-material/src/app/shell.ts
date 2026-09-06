@@ -21,10 +21,10 @@ import { IconService, UrlSettingsService } from './core';
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatBadgeModule, MatButtonModule, MatIconModule, MatInputModule, MatFormFieldModule, MatListModule, MatMenuModule, MatSidenavModule, MatToolbarModule, MatTooltipModule],
   template: `
     <mat-sidenav-container class="shell-container">
-      <mat-sidenav #sidenav [mode]="mobile() ? 'over' : 'side'" [opened]="!mobile() || drawerOpen()" class="shell-sidenav" [class.shell-sidenav-collapsed]="collapsed()">
+      <mat-sidenav #sidenav [mode]="mobile() ? 'over' : 'side'" [opened]="!mobile() || drawerOpen()" [fixedInViewport]="true" (closedStart)="drawerOpen.set(false)" class="shell-sidenav" [class.shell-sidenav-collapsed]="collapsed()">
         <div class="brand"><span class="brand-mark">A</span>@if (!collapsed()) {<span>Acme Console</span>}</div>
         <button mat-icon-button class="collapse" (click)="collapsed.set(!collapsed())" [attr.aria-label]="collapsed() ? '展开导航' : '折叠导航'"><mat-icon svgIcon="chevron-left"></mat-icon></button>
-        <mat-nav-list>
+        <mat-nav-list class="sidenav-nav">
           @for (item of navItems; track item.path) {
             <a mat-list-item [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.path === '/'}" queryParamsHandling="preserve" (click)="mobile() && drawerOpen.set(false)" [matTooltip]="collapsed() ? item.label : ''">
               <mat-icon matListItemIcon [svgIcon]="item.icon"></mat-icon>@if (!collapsed()) {<span matListItemTitle>{{ item.label }}</span>}
@@ -50,12 +50,12 @@ import { IconService, UrlSettingsService } from './core';
     <mat-menu #userMenu="matMenu"><button mat-menu-item>个人资料</button><button mat-menu-item>偏好设置</button><button mat-menu-item>快捷键</button><button mat-menu-item>帮助中心</button><button mat-menu-item>退出登录</button></mat-menu>
   `,
   styles: [`
-    :host { display:block; min-height:100vh; }.shell-container { min-height:100vh; }.shell-sidenav { width:260px; border-right:1px solid var(--mat-sys-outline-variant); transition:width 180ms ease; }.shell-sidenav-collapsed { width:72px; }
+    :host { display:block; min-height:100vh; }.shell-container { min-height:100vh; }.shell-sidenav { width:260px; border-right:1px solid var(--mat-sys-outline-variant); transition:width 180ms ease; }.shell-sidenav ::ng-deep .mat-drawer-inner-container { display:flex; flex-direction:column; overflow:hidden; }.sidenav-nav { flex:1; min-height:0; overflow:auto; }.shell-sidenav-collapsed { width:72px; }
     .brand { height:64px; display:flex; align-items:center; gap:10px; padding:0 20px; font-weight:700; letter-spacing:-.02em; }.brand-mark { width:32px; height:32px; display:grid; place-items:center; border-radius:9px; background:var(--mat-sys-primary); color:var(--mat-sys-on-primary); }
     .collapse { position:absolute; top:16px; right:-20px; z-index:3; background:var(--mat-sys-surface-container); }.active { background:var(--mat-sys-secondary-container); color:var(--mat-sys-on-secondary-container); }
     .topbar { position:sticky; top:0; z-index:4; height:64px; border-bottom:1px solid var(--mat-sys-outline-variant); background:color-mix(in srgb,var(--mat-sys-surface) 90%,transparent); backdrop-filter:blur(10px); }
     .breadcrumb { font-size:14px; font-weight:600; }.breadcrumb span { margin:0 8px; color:var(--mat-sys-outline); }.topbar-spacer { flex:1; }.search-field { width:220px; margin:20px 8px 0; }.search-field ::ng-deep .mat-mdc-form-field-subscript-wrapper { display:none; }
-    .top-avatar { background:var(--mat-sys-primary-container); color:var(--mat-sys-on-primary-container); font-weight:700; }.sidenav-user { position:absolute; bottom:14px; left:14px; right:14px; display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; background:var(--mat-sys-surface-container); }
+    .top-avatar { background:var(--mat-sys-primary-container); color:var(--mat-sys-on-primary-container); font-weight:700; }.sidenav-user { flex:0 0 auto; margin:14px; display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px; background:var(--mat-sys-surface-container); }
     .sidenav-user b,.sidenav-user small { display:block; }.sidenav-user small { color:var(--mat-sys-on-surface-variant); font-size:11px; }.sidenav-user button { margin-left:auto; }.menu-title { padding:12px 16px 6px; font-weight:700; }.mat-mdc-menu-item small { margin-left:auto; color:var(--mat-sys-on-surface-variant); }
     @media (max-width:959px) { .search-field { display:none; }.shell-sidenav, .shell-sidenav-collapsed { width:280px; } }
   `],

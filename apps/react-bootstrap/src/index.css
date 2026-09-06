@@ -26,6 +26,12 @@ body { min-width: 0; }
 .chat-stream pre code { white-space: pre-wrap; overflow-wrap: anywhere; }
 .btn, .form-control, .form-select, .page-link, .btn-close { min-height: 40px; }
 .btn-close { min-width: 40px; background-position: center; }
+.pagination { flex-wrap: wrap; row-gap: .25rem; }
+.page-link { min-width: 40px; display: inline-flex; align-items: center; justify-content: center; }
+.tag-pill { padding-right: .5em; }
+.tag-pill .btn-close { min-height: 0; min-width: 0; width: .75em; height: .75em; padding: .25em; background-size: .6em; }
+.hit-link { display: inline-flex; align-items: center; min-height: 40px; padding: 0 .25rem; }
+.form-check.reverse-inline { width: auto; }
 .btn { display: inline-flex; align-items: center; justify-content: center; }
 .component-card .btn-sm, .component-card .form-control-sm, .component-card .btn-lg { min-height: 0; }
 .anchor-index .nav-link { min-height: 40px; display: inline-flex; align-items: center; }

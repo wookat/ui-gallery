@@ -13,6 +13,7 @@ import Skeleton from "primevue/skeleton"
 import Tag from "primevue/tag"
 import Timeline from "primevue/timeline"
 import AppIcon from "@/icons/AppIcon.vue"
+import type { IconName } from "@/icons/names"
 import PageHeader from "@/components/PageHeader.vue"
 import SectionCard from "@/components/SectionCard.vue"
 import StatusTag from "@/components/StatusTag.vue"
@@ -39,7 +40,7 @@ onMounted(() => {
     secondary: styles.getPropertyValue("--p-surface-400").trim() || "#64748b",
     border: styles.getPropertyValue("--p-content-border-color").trim() || "#cbd5e1",
   }
-  window.setTimeout(() => { loading.value = false }, 420)
+  window.setTimeout(() => { loading.value = false }, 1200)
 })
 
 const chartData = computed(() => {
@@ -69,8 +70,8 @@ const channelData = computed(() => ({
 const channelOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }
 const recentOrders = orders.slice(0, 5)
 const menuItems = [
-  { label: "编辑", icon: "pi pi-pencil" },
-  { label: "删除", icon: "pi pi-trash" },
+  { label: "编辑", icon: "pencil" },
+  { label: "删除", icon: "trash-2" },
 ]
 
 function sparkline(values: number[]) {
@@ -80,7 +81,7 @@ function sparkline(values: number[]) {
 }
 function showSkeleton() {
   loading.value = true
-  window.setTimeout(() => { loading.value = false }, 420)
+  window.setTimeout(() => { loading.value = false }, 1200)
 }
 function formatValue(item: (typeof stats)[number]) {
   if (item.unit === "CNY") return `¥${item.value.toLocaleString()}`
@@ -91,7 +92,7 @@ function formatValue(item: (typeof stats)[number]) {
 <template>
   <div class="page">
     <PageHeader title="仪表盘" description="查看业务概览与团队进展">
-      <Button label="显示骨架屏" icon="pi pi-eye" severity="secondary" outlined size="small" @click="showSkeleton" />
+      <Button label="显示骨架屏" severity="secondary" outlined @click="showSkeleton"><template #icon><AppIcon name="eye" :size="16" /></template></Button>
     </PageHeader>
 
     <div v-if="loading" class="grid grid-4">
@@ -128,9 +129,9 @@ function formatValue(item: (typeof stats)[number]) {
             </Column>
             <Column field="status" header="状态"><template #body="{ data }"><StatusTag :status="data.status" /></template></Column>
             <Column field="amount" header="金额" body-class="text-right tabular"><template #body="{ data }">¥{{ data.amount.toLocaleString() }}</template></Column>
-            <Column header="" style="width: 3rem"><template #body="{ data }"><Button icon="pi pi-ellipsis-v" text rounded severity="secondary" aria-label="订单操作" @click="selectedOrder = data; actionMenu?.toggle($event)" /></template></Column>
+            <Column header="" style="width: 3rem"><template #body="{ data }"><Button text rounded severity="secondary" aria-label="订单操作" @click="selectedOrder = data; actionMenu?.toggle($event)"><template #icon><AppIcon name="more-vertical" :size="16" /></template></Button></template></Column>
           </DataTable>
-          <Menu ref="actionMenu" :model="menuItems" popup />
+          <Menu ref="actionMenu" :model="menuItems" popup><template #itemicon="{ item, class: iconClass }"><AppIcon :name="item.icon as IconName" :class="iconClass" /></template></Menu>
         </div>
       </SectionCard>
       <SectionCard title="任务进度">

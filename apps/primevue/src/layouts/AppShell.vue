@@ -31,11 +31,11 @@ const unread = notifications.filter((n) => n.unread).length
 
 const userMenu = ref<InstanceType<typeof Menu> | null>(null)
 const userItems = [
-  { label: "个人资料", icon: "pi pi-user", command: () => router.push("/settings") },
-  { label: "账户设置", icon: "pi pi-cog", command: () => router.push("/settings") },
-  { label: "计费", icon: "pi pi-credit-card", command: () => router.push("/settings") },
+  { label: "个人资料", icon: "user", command: () => router.push("/settings") },
+  { label: "账户设置", icon: "settings", command: () => router.push("/settings") },
+  { label: "计费", icon: "credit-card", command: () => router.push("/settings") },
   { separator: true },
-  { label: "退出登录", icon: "pi pi-sign-out", command: () => router.push("/login") },
+  { label: "退出登录", icon: "log-out", command: () => router.push("/login") },
 ]
 const bell = ref<InstanceType<typeof Popover> | null>(null)
 
@@ -69,13 +69,13 @@ function onToggleTheme() {
       </nav>
       <div class="shell__footer">
         <Button
-          :icon="collapsed ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"
           text
           severity="secondary"
-          size="small"
           :aria-label="collapsed ? '展开侧边栏' : '折叠侧边栏'"
           @click="collapsed = !collapsed"
-        />
+        >
+          <template #icon><AppIcon :name="collapsed ? 'chevrons-right' : 'chevrons-left'" /></template>
+        </Button>
         <RouterLink to="/settings" class="shell__user">
           <Avatar label="林" shape="circle" />
           <div v-if="!collapsed" class="min-w-0">
@@ -110,7 +110,7 @@ function onToggleTheme() {
 
     <div class="shell__main">
       <header class="shell__topbar">
-        <Button icon="pi pi-bars" text severity="secondary" class="mobile-only" aria-label="打开菜单" @click="mobileOpen = true" />
+        <Button text severity="secondary" class="mobile-only" aria-label="打开菜单" @click="mobileOpen = true"><template #icon><AppIcon name="menu" :size="18" /></template></Button>
         <Breadcrumb :home="home" :model="crumbs" class="shell__crumbs desktop-only">
           <template #item="{ item, props }">
             <RouterLink v-if="item.route" :to="item.route" v-bind="props.action">{{ item.label }}</RouterLink>
@@ -119,11 +119,11 @@ function onToggleTheme() {
         </Breadcrumb>
         <div class="flex items-center gap-2" style="margin-left: auto">
           <IconField class="desktop-only">
-            <InputIcon class="pi pi-search" />
+            <InputIcon><AppIcon name="search" /></InputIcon>
             <InputText placeholder="搜索..." size="small" style="width: 220px" />
           </IconField>
           <OverlayBadge :value="unread" severity="danger" size="small">
-            <Button icon="pi pi-bell" text severity="secondary" rounded aria-label="通知" @click="bell?.toggle($event)" />
+            <Button text severity="secondary" rounded aria-label="通知" @click="bell?.toggle($event)"><template #icon><AppIcon name="bell" :size="18" /></template></Button>
           </OverlayBadge>
           <Popover ref="bell">
             <div style="width: 300px">
@@ -139,11 +139,11 @@ function onToggleTheme() {
               </template>
             </div>
           </Popover>
-          <Button :icon="dark ? 'pi pi-sun' : 'pi pi-moon'" text severity="secondary" rounded aria-label="切换主题" v-tooltip.bottom="'切换主题'" @click="onToggleTheme" />
+          <Button text severity="secondary" rounded aria-label="切换主题" v-tooltip.bottom="'切换主题'" @click="onToggleTheme"><template #icon><AppIcon :name="dark ? 'sun' : 'moon'" :size="18" /></template></Button>
           <Button text rounded severity="secondary" class="p-0" aria-label="用户菜单" aria-haspopup="true" @click="userMenu?.toggle($event)">
             <Avatar label="林" shape="circle" />
           </Button>
-          <Menu ref="userMenu" :model="userItems" popup />
+          <Menu ref="userMenu" :model="userItems" popup><template #itemicon="{ item, class: iconClass }"><AppIcon :name="item.icon as IconName" :class="iconClass" /></template></Menu>
         </div>
       </header>
       <main class="shell__content"><RouterView /></main>
@@ -163,12 +163,12 @@ function onToggleTheme() {
 .shell__logo { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 8px; background: var(--p-primary-color); color: var(--p-primary-contrast-color); font-weight: 700; }
 .shell__nav { display: flex; flex-direction: column; gap: 2px; padding: 8px; flex: 1; overflow-y: auto; }
 .shell__group { font-size: 11px; color: var(--p-text-muted-color); padding: 8px 12px 4px; text-transform: uppercase; letter-spacing: .04em; }
-.shell__link { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--p-content-border-radius); color: var(--p-text-color); text-decoration: none !important; }
+.shell__link { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 8px 12px; border-radius: var(--p-content-border-radius); color: var(--p-text-color); text-decoration: none !important; }
 .shell--collapsed .shell__link { justify-content: center; padding: 10px 0; }
 .shell__link:hover { background: var(--p-content-hover-background); }
 .shell__link--active { background: var(--p-highlight-background); color: var(--p-highlight-color); font-weight: 500; }
 .shell__footer { border-top: 1px solid var(--p-content-border-color); padding: 8px; display: flex; flex-direction: column; gap: 4px; }
-.shell__user { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--p-content-border-radius); color: inherit; text-decoration: none !important; }
+.shell__user { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 8px; border-radius: var(--p-content-border-radius); color: inherit; text-decoration: none !important; }
 .shell--collapsed .shell__user { justify-content: center; }
 .shell__user:hover { background: var(--p-content-hover-background); }
 .shell__main { flex: 1; min-width: 0; display: flex; flex-direction: column; }

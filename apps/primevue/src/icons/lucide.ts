@@ -6,6 +6,7 @@ import {
   CheckCircle2, Loader2, Calendar, Clock, Upload, Image, Paperclip, Send, Sparkles, Bot, FileText, Link, Star, Heart, TrendingUp,
   TrendingDown, Users, CreditCard, Shield, Smartphone, Monitor, Zap, ArrowRight, ArrowUpRight, ArrowLeft, Home, Package, Inbox,
   Layers, Grid2x2, Wrench, HelpCircle, ExternalLink, Keyboard, QrCode, Palette, Type,
+  MoreVertical, Maximize2, XCircle, ChevronsLeft, ChevronsRight, Truck, MoveHorizontal, MessagesSquare,
 } from "lucide-vue-next"
 import type { IconName } from "./names"
 
@@ -21,4 +22,5 @@ export const lucideIcons: Record<IconName, Component> = {
   smartphone: Smartphone, monitor: Monitor, zap: Zap, "arrow-right": ArrowRight, "arrow-up-right": ArrowUpRight, "arrow-left": ArrowLeft, home: Home,
   package: Package, inbox: Inbox, layers: Layers, "grid-2x2": Grid2x2, wrench: Wrench, "help-circle": HelpCircle, "external-link": ExternalLink,
   keyboard: Keyboard, "qr-code": QrCode, palette: Palette, type: Type, "bar-chart": TrendingUp, plug: Link,
+  "more-vertical": MoreVertical, maximize: Maximize2, "x-circle": XCircle, "chevrons-left": ChevronsLeft, "chevrons-right": ChevronsRight, truck: Truck, "move-horizontal": MoveHorizontal, "messages-square": MessagesSquare,
 }

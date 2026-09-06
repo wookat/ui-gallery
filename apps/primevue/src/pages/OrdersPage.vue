@@ -23,6 +23,8 @@ import Textarea from "primevue/textarea"
 import Avatar from "primevue/avatar"
 import { useConfirm } from "primevue/useconfirm"
 import { useToast } from "primevue/usetoast"
+import AppIcon from "@/icons/AppIcon.vue"
+import type { IconName } from "@/icons/names"
 import PageHeader from "@/components/PageHeader.vue"
 import SectionCard from "@/components/SectionCard.vue"
 import StatusTag from "@/components/StatusTag.vue"
@@ -51,8 +53,8 @@ const columns = [
   { field: "status", header: "状态" }, { field: "amount", header: "金额" }, { field: "date", header: "日期" },
 ]
 const menuItems = [
-  { label: "编辑", icon: "pi pi-pencil" },
-  { label: "删除", icon: "pi pi-trash", command: () => askDelete(selectedOrder.value) },
+  { label: "编辑", icon: "pencil" },
+  { label: "删除", icon: "trash-2", command: () => askDelete(selectedOrder.value) },
 ]
 const filteredOrders = computed(() => orders.filter((order) => {
   const query = search.value.trim().toLowerCase()
@@ -64,7 +66,7 @@ const showingColumns = computed(() => columns.filter((column) => visibleColumns.
 function openOrder(order: Order) { selectedOrder.value = order; drawerVisible.value = true; note.value = ""; }
 function askDelete(order: Order | null) {
   if (!order) return
-  confirm.require({ message: `确认删除订单 ${order.id}？`, header: "删除订单", icon: "pi pi-exclamation-triangle", acceptLabel: "删除", rejectLabel: "取消", accept: () => toast.add({ severity: "success", summary: "已删除", detail: order.id, life: 2400 }) })
+  confirm.require({ message: `确认删除订单 ${order.id}？`, header: "删除订单", acceptLabel: "删除", rejectLabel: "取消", accept: () => toast.add({ severity: "success", summary: "已删除", detail: order.id, life: 2400 }) })
 }
 function exportOrders() { toast.add({ severity: "info", summary: "导出已准备", detail: `${filteredOrders.value.length} 条订单`, life: 2400 }) }
 function retry() { demoState.value = "normal"; loading.value = false }
@@ -77,19 +79,19 @@ function retry() { demoState.value = "normal"; loading.value = false }
     </PageHeader>
     <SectionCard>
       <div class="toolbar">
-        <IconField class="grow"><InputIcon class="pi pi-search" /><InputText v-model="search" placeholder="搜索订单、客户或商品" fluid /></IconField>
+        <IconField class="grow"><InputIcon><AppIcon name="search" /></InputIcon><InputText v-model="search" placeholder="搜索订单、客户或商品" fluid /></IconField>
         <Select v-model="status" :options="statuses" placeholder="全部状态" show-clear class="filter-control" />
         <DatePicker v-model="dateRange" selection-mode="range" date-format="yy-mm-dd" placeholder="日期范围" show-icon class="filter-control" />
         <MultiSelect v-model="channels" :options="channelOptions" option-label="label" option-value="value" placeholder="渠道" display="chip" :max-selected-labels="1" selected-items-label="已选 {0} 项" class="filter-control" />
-        <Button label="导出" icon="pi pi-download" severity="secondary" outlined @click="exportOrders" />
+        <Button label="导出" severity="secondary" outlined @click="exportOrders"><template #icon><AppIcon name="download" :size="16" /></template></Button>
         <MultiSelect v-model="visibleColumns" :options="columns" option-label="header" option-value="field" placeholder="列显示" display="chip" :max-selected-labels="1" selected-items-label="已选 {0} 项" class="filter-control" />
       </div>
     </SectionCard>
     <SectionCard title="订单列表" flush>
       <div v-if="demoState === 'loading'" class="col gap-3 p-4"><Skeleton v-for="n in 8" :key="n" height="2.75rem" /></div>
-      <div v-else-if="demoState === 'empty'" class="empty-state"><i class="pi pi-inbox" style="font-size: 2rem" /><div>没有找到订单</div><Button label="清除筛选" size="small" outlined @click="search = ''; status = null; channels = []" /></div>
+      <div v-else-if="demoState === 'empty'" class="empty-state"><AppIcon name="inbox" :size="32" /><div>没有找到订单</div><Button label="清除筛选" size="small" outlined @click="search = ''; status = null; channels = []" /></div>
       <Message v-else-if="demoState === 'error'" severity="error" class="m-4">订单加载失败，请稍后重试 <Button label="重试" text size="small" @click="retry" /></Message>
-      <div v-else class="table-scroll orders-table"><div class="scroll-hint mobile-only text-xs muted"><i class="pi pi-arrows-h" /> 左右滑动查看更多列</div>
+      <div v-else class="table-scroll orders-table"><div class="scroll-hint mobile-only text-xs muted"><AppIcon name="move-horizontal" :size="14" /> 左右滑动查看更多列</div>
         <DataTable v-model:selection="selected" :value="filteredOrders" data-key="id" selection-mode="multiple" :meta-key-selection="false" paginator :rows="10" :rows-per-page-options="[10, 20, 50]" sort-mode="multiple" striped-rows removable-sort @row-click="openOrder($event.data)">
           <Column selection-mode="multiple" header-style="width: 3rem" />
           <Column v-for="column in showingColumns" :key="column.field" :field="column.field" :header="column.header" sortable :header-class="column.field === 'amount' ? 'amount-col' : undefined" :body-class="column.field === 'amount' ? 'amount-col' : undefined">
@@ -97,16 +99,16 @@ function retry() { demoState.value = "normal"; loading.value = false }
             <template v-else-if="column.field === 'status'" #body="{ data }"><StatusTag :status="data.status" /></template>
             <template v-else-if="column.field === 'amount'" #body="{ data }"><span class="tabular">¥{{ data.amount.toLocaleString() }}</span></template>
           </Column>
-          <Column header="" style="width: 3rem"><template #body="{ data }"><Button icon="pi pi-ellipsis-v" text rounded severity="secondary" aria-label="订单操作" @click.stop="selectedOrder = data; menu?.toggle($event)" /></template></Column>
+          <Column header="" style="width: 3rem"><template #body="{ data }"><Button text rounded severity="secondary" aria-label="订单操作" @click.stop="selectedOrder = data; menu?.toggle($event)"><template #icon><AppIcon name="more-vertical" :size="16" /></template></Button></template></Column>
         </DataTable>
-        <Menu ref="menu" :model="menuItems" popup />
+        <Menu ref="menu" :model="menuItems" popup><template #itemicon="{ item, class: iconClass }"><AppIcon :name="item.icon as IconName" :class="iconClass" /></template></Menu>
       </div>
     </SectionCard>
 
     <Drawer v-model:visible="drawerVisible" position="right" header="订单详情" class="order-drawer" :style="{ width: 'min(100vw, 480px)' }" :modal="true">
       <template v-if="selectedOrder">
         <dl class="details-list"><div><dt>订单号</dt><dd class="mono">{{ selectedOrder.id }}</dd></div><div><dt>客户</dt><dd>{{ selectedOrder.customer }}</dd></div><div><dt>邮箱</dt><dd>{{ selectedOrder.email }}</dd></div><div><dt>商品</dt><dd>{{ selectedOrder.product }}</dd></div><div><dt>金额</dt><dd class="tabular">¥{{ selectedOrder.amount.toLocaleString() }}</dd></div><div><dt>状态</dt><dd><StatusTag :status="selectedOrder.status" /></dd></div></dl>
-        <Tabs value="0" class="mt-6"><TabList><Tab value="0">详情</Tab><Tab value="1">物流</Tab><Tab value="2">备注</Tab></TabList><TabPanels><TabPanel value="0"><p class="muted text-sm">订单来自 {{ selectedOrder.channel }} 渠道，创建于 {{ selectedOrder.date }}。</p></TabPanel><TabPanel value="1"><div class="empty-state p-3"><i class="pi pi-truck" /><span class="text-sm muted">物流信息将在发货后更新</span></div></TabPanel><TabPanel value="2"><Textarea v-model="note" rows="5" fluid placeholder="添加订单备注" /></TabPanel></TabPanels></Tabs>
+        <Tabs value="0" class="mt-6"><TabList><Tab value="0">详情</Tab><Tab value="1">物流</Tab><Tab value="2">备注</Tab></TabList><TabPanels><TabPanel value="0"><p class="muted text-sm">订单来自 {{ selectedOrder.channel }} 渠道，创建于 {{ selectedOrder.date }}。</p></TabPanel><TabPanel value="1"><div class="empty-state p-3"><AppIcon name="truck" :size="20" /><span class="text-sm muted">物流信息将在发货后更新</span></div></TabPanel><TabPanel value="2"><Textarea v-model="note" rows="5" fluid placeholder="添加订单备注" /></TabPanel></TabPanels></Tabs>
         <div class="flex justify-end gap-2 mt-6"><Button label="删除订单" severity="danger" outlined @click="askDelete(selectedOrder)" /><Button label="编辑订单" @click="toast.add({ severity: 'info', summary: '编辑模式', life: 1800 })" /></div>
       </template>
     </Drawer>
@@ -116,7 +118,7 @@ function retry() { demoState.value = "normal"; loading.value = false }
 <style scoped>
 .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .orders-table :deep(.amount-col), .orders-table :deep(.amount-col .p-datatable-column-header-content) { text-align: right; justify-content: flex-end; }
-.scroll-hint { display: none; } .scroll-hint i { font-size: 11px; }
+.scroll-hint { display: none; } .orders-table :deep(.p-datatable-column-title), .orders-table :deep(.p-datatable-thead > tr > th) { white-space: nowrap; }
 @media (max-width: 767px) { .scroll-hint { display: flex !important; align-items: center; gap: 6px; padding: 8px 16px; border-bottom: 1px solid var(--p-content-border-color); } .orders-table { position: relative; } .orders-table::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 28px; pointer-events: none; background: linear-gradient(to left, color-mix(in srgb, var(--p-text-color) 14%, transparent), transparent); } }
 .filter-control { min-width: 150px; max-width: 240px; }
 .details-list { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 0; }

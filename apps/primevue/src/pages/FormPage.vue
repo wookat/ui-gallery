@@ -26,6 +26,9 @@ import ToggleSwitch from "primevue/toggleswitch"
 import AppIcon from "@/icons/AppIcon.vue"
 import PageHeader from "@/components/PageHeader.vue"
 import team from "@ui-gallery/spec/mock/team.json"
+import plans from "@ui-gallery/spec/mock/plans.json"
+import landing from "@ui-gallery/spec/mock/landing.json"
+import tasks from "@ui-gallery/spec/mock/tasks.json"
 
 const step = ref("1")
 const submitted = ref(false)
@@ -34,10 +37,10 @@ const attempted = ref(false)
 const project = ref({ name: "", budget: null as number | null, email: "", country: "+86", phone: "", description: "", type: "web", features: [] as string[], active: true })
 const config = ref({ plan: "Pro", tags: [] as string[], date: null as Date | null, time: null as Date | null, range: null as Date[] | null, slider: [20, 80], rating: 4, color: "10b981", files: [] as unknown[] })
 const suggestions = ref<string[]>([])
-const planOptions = ["Starter", "Pro", "Enterprise"]
-const featureOptions = ["数据分析", "团队协作", "AI 助手", "自动化"]
+const planOptions = plans.map((plan) => plan.name)
+const featureOptions = landing.features.slice(0, 4).map((feature) => feature.title)
 const countryCodes = ["+86", "+1", "+81", "+44"]
-const tagSuggestions = ["增长", "运营", "财务", "产品", "研发"]
+const tagSuggestions = tasks.map((task) => task.title)
 const names = team.map((person) => person.name)
 const validStepOne = computed(() => !!project.value.name && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(project.value.email) && project.value.phone.length >= 10 && (project.value.budget ?? 0) >= 0)
 const errors = computed(() => ({
@@ -48,7 +51,8 @@ const errors = computed(() => ({
 }))
 function filterNames(event: { query: string }) { suggestions.value = names.filter((name) => name.toLowerCase().includes(event.query.toLowerCase())) }
 function handleUpload(event: { files: File | File[] }) { config.value.files = Array.isArray(event.files) ? event.files : [event.files] }
-function next() { attempted.value = true; if (step.value === "1" && !validStepOne.value) return; step.value = String(Math.min(3, Number(step.value) + 1)) }
+function next() { attempted.value = true; if (step.value === "1" && !validStepOne.value) return false; step.value = String(Math.min(3, Number(step.value) + 1)); return true }
+function nextFromStepOne(activateCallback: (value: string) => void) { if (next()) activateCallback("2") }
 function previous() { step.value = String(Math.max(1, Number(step.value) - 1)) }
 function submit() { submitting.value = true; window.setTimeout(() => { submitting.value = false; submitted.value = true }, 800) }
 function reset() { submitted.value = false; attempted.value = false; step.value = "1" }
@@ -57,8 +61,8 @@ function reset() { submitted.value = false; attempted.value = false; step.value 
 <template>
   <div class="page">
     <PageHeader title="新建项目" description="用三步完成项目配置" />
-    <Message severity="warn" icon="pi pi-info-circle">带 * 为必填项，完成基本信息后才能继续。</Message>
-    <Card v-if="submitted"><template #content><div class="success-view"><i class="pi pi-check-circle" /><h2>项目创建成功</h2><p class="muted">你的项目已经准备就绪。</p><Button label="返回表单" outlined @click="reset" /></div></template></Card>
+    <Message severity="warn"><template #icon="{ class: iconClass }"><AppIcon name="info" :size="18" :class="iconClass" /></template>带 * 为必填项，完成基本信息后才能继续。</Message>
+    <Card v-if="submitted"><template #content><div class="success-view"><AppIcon name="check-circle-2" :size="48" /><h2>项目创建成功</h2><p class="muted">你的项目已经准备就绪。</p><Button label="返回表单" outlined @click="reset" /></div></template></Card>
     <Stepper v-else v-model:value="step">
       <StepList><Step value="1">基本信息</Step><Step value="2">详细配置</Step><Step value="3">确认</Step></StepList>
       <StepPanels>
@@ -66,14 +70,14 @@ function reset() { submitted.value = false; attempted.value = false; step.value 
           <div class="form-grid">
             <div class="field"><label for="project-name">项目名称 <b>*</b></label><InputText id="project-name" v-model="project.name" :invalid="!!errors.name" fluid /><Message v-if="errors.name" severity="error" size="small" variant="simple">{{ errors.name }}</Message></div>
             <div class="field"><label for="budget">预算</label><InputNumber id="budget" v-model="project.budget" mode="currency" currency="CNY" locale="zh-CN" :invalid="!!errors.budget" fluid /><Message v-if="errors.budget" severity="error" size="small" variant="simple">{{ errors.budget }}</Message></div>
-            <div class="field"><label for="form-email">邮箱 <b>*</b> <i v-tooltip.top="'用于接收项目通知'" class="pi pi-question-circle muted" /></label><InputText id="form-email" v-model="project.email" type="email" :invalid="!!errors.email" fluid /><Message v-if="errors.email" severity="error" size="small" variant="simple">{{ errors.email }}</Message><small class="muted">请输入工作邮箱。</small></div>
+            <div class="field"><label for="form-email">邮箱 <b>*</b> <AppIcon v-tooltip.top="'用于接收项目通知'" name="help-circle" :size="14" class="muted" /></label><InputText id="form-email" v-model="project.email" type="email" :invalid="!!errors.email" fluid /><Message v-if="errors.email" severity="error" size="small" variant="simple">{{ errors.email }}</Message><small class="muted">请输入工作邮箱。</small></div>
             <div class="field"><label for="form-phone">手机号 <b>*</b></label><InputGroup><Select v-model="project.country" :options="countryCodes" /><InputMask id="form-phone" v-model="project.phone" mask="999 9999 9999" placeholder="138 0000 0000" :invalid="!!errors.phone" fluid /></InputGroup><Message v-if="errors.phone" severity="error" size="small" variant="simple">{{ errors.phone }}</Message></div>
             <div class="field span-2"><label for="description">项目描述</label><Textarea id="description" v-model="project.description" maxlength="200" rows="4" auto-resize fluid /><div class="text-xs muted text-right">{{ project.description.length }}/200</div></div>
             <div class="field"><label>项目类型</label><div class="flex wrap gap-3 mt-1"><label v-for="item in ['web', 'mobile', 'api']" :key="item" class="flex items-center gap-2"><RadioButton v-model="project.type" :input-id="`type-${item}`" name="type" :value="item" /><span>{{ item.toUpperCase() }}</span></label></div></div>
             <div class="field"><label>能力模块</label><div class="flex wrap gap-3 mt-1"><label v-for="item in featureOptions" :key="item" class="flex items-center gap-2"><Checkbox v-model="project.features" :input-id="`feature-${item}`" :value="item" /><span>{{ item }}</span></label></div></div>
             <div class="field"><label class="flex items-center gap-2"><ToggleSwitch v-model="project.active" />立即启用项目</label></div>
           </div>
-          <div class="flex justify-end mt-6"><Button label="下一步" icon="pi pi-arrow-right" icon-pos="right" @click="next(); activateCallback('2')" /></div>
+          <div class="flex justify-end mt-6"><Button label="下一步" icon-pos="right" @click="nextFromStepOne(activateCallback)"><template #icon><AppIcon name="arrow-right" :size="16" /></template></Button></div>
         </StepPanel>
         <StepPanel v-slot="{ activateCallback }" value="2">
           <div class="form-grid">
@@ -88,12 +92,12 @@ function reset() { submitted.value = false; attempted.value = false; step.value 
             <div class="field"><label>主题颜色</label><ColorPicker v-model="config.color" /></div>
             <div class="field span-2"><label>附件</label><FileUpload mode="advanced" custom-upload :multiple="true" accept="image/*,.pdf" :show-upload-button="false" :show-cancel-button="false" @uploader="handleUpload"><template #empty><div class="upload-empty"><AppIcon name="upload" :size="20" />拖拽文件到这里，或点击选择</div></template></FileUpload></div>
           </div>
-          <div class="flex justify-between mt-6"><Button label="上一步" severity="secondary" outlined @click="previous(); activateCallback('1')" /><Button label="下一步" icon="pi pi-arrow-right" icon-pos="right" @click="step = '3'; activateCallback('3')" /></div>
+          <div class="flex justify-between mt-6"><Button label="上一步" severity="secondary" outlined @click="previous(); activateCallback('1')" /><Button label="下一步" icon-pos="right" @click="step = '3'; activateCallback('3')"><template #icon><AppIcon name="arrow-right" :size="16" /></template></Button></div>
         </StepPanel>
         <StepPanel value="3">
           <div class="summary"><h2 class="text-lg font-semibold">确认项目配置</h2><dl><div><dt>项目名称</dt><dd>{{ project.name || "未填写" }}</dd></div><div><dt>邮箱</dt><dd>{{ project.email || "未填写" }}</dd></div><div><dt>套餐</dt><dd>{{ config.plan }}</dd></div><div><dt>上线日期</dt><dd>{{ config.date ? config.date.toLocaleDateString() : "未选择" }}</dd></div><div><dt>项目类型</dt><dd>{{ project.type.toUpperCase() }}</dd></div></dl></div>
           <div class="flex items-center gap-2 mt-6"><Checkbox v-model="project.active" input-id="agree" binary /><label for="agree">我同意服务条款与数据处理说明</label></div>
-          <div class="flex justify-between mt-6"><Button label="上一步" severity="secondary" outlined @click="previous" /><Button label="提交项目" icon="pi pi-check" :loading="submitting" :disabled="!project.active" @click="submit" /></div>
+          <div class="flex justify-between mt-6"><Button label="上一步" severity="secondary" outlined @click="previous" /><Button label="提交项目" :loading="submitting" :disabled="!project.active" @click="submit" /></div>
         </StepPanel>
       </StepPanels>
     </Stepper>

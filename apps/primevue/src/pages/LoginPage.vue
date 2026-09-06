@@ -59,12 +59,12 @@ function submit() {
       </template>
       <template #content>
         <form class="col gap-4 mt-2" novalidate @submit.prevent="submit">
-          <Message v-if="topError" severity="error" icon="pi pi-times-circle" :closable="true" @close="topError = ''">{{ topError }}</Message>
+          <Message v-if="topError" severity="error" :closable="true" @close="topError = ''"><template #icon="{ class: iconClass }"><AppIcon name="x-circle" :size="18" :class="iconClass" /></template>{{ topError }}</Message>
 
           <div class="col gap-1">
             <label for="email" class="text-sm font-medium">邮箱</label>
             <IconField>
-              <InputIcon class="pi pi-envelope" />
+              <InputIcon><AppIcon name="mail" /></InputIcon>
               <InputText id="email" v-model="email" type="email" placeholder="you@example.com" autocomplete="email" :invalid="!!errors.email" fluid />
             </IconField>
             <Message v-if="errors.email" severity="error" size="small" variant="simple">{{ errors.email }}</Message>

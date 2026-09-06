@@ -8,5 +8,6 @@ export const iconNames = [
   "upload", "image", "paperclip", "send", "sparkles", "bot", "file-text", "link", "star", "heart",
   "trending-up", "trending-down", "users", "credit-card", "shield", "smartphone", "monitor", "zap", "arrow-right", "arrow-up-right", "arrow-left",
   "home", "package", "inbox", "layers", "grid-2x2", "wrench", "help-circle", "external-link", "keyboard", "qr-code", "palette", "type", "bar-chart", "plug",
+  "more-vertical", "maximize", "x-circle", "chevrons-left", "chevrons-right", "truck", "move-horizontal", "messages-square",
 ] as const
 export type IconName = (typeof iconNames)[number]

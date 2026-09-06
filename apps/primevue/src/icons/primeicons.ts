@@ -14,6 +14,8 @@ const map: Record<IconName, string> = {
   shield: "shield", smartphone: "mobile", monitor: "desktop", zap: "bolt", "arrow-right": "arrow-right", "arrow-up-right": "arrow-up-right", "arrow-left": "arrow-left",
   home: "home", package: "box", inbox: "inbox", layers: "clone", "grid-2x2": "th-large", wrench: "wrench", "help-circle": "question-circle",
   "external-link": "external-link", keyboard: "desktop", "qr-code": "qrcode", palette: "palette", type: "language", "bar-chart": "chart-line", plug: "link",
+  "more-vertical": "ellipsis-v", maximize: "window-maximize", "x-circle": "times-circle", "chevrons-left": "angle-double-left", "chevrons-right": "angle-double-right",
+  truck: "truck", "move-horizontal": "arrows-h", "messages-square": "comments",
 }
 
 export const primeIconClass = (name: IconName) => `pi pi-${map[name]}`

@@ -81,6 +81,8 @@ code, kbd, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, mon
 .section-card__body--flush { padding: 0; }
 
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.p-checkbox .p-checkbox-input, .p-radiobutton .p-radiobutton-input { inset: -10px; width: calc(100% + 20px); height: calc(100% + 20px); }
+label:has(> .p-checkbox), label:has(> .p-radiobutton), .flex:has(> .p-checkbox + label) { min-height: 40px; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .kbd { display: inline-block; padding: 1px 6px; border: 1px solid var(--p-content-border-color); border-bottom-width: 2px; border-radius: 6px; font-size: 11px; font-family: ui-monospace, monospace; color: var(--p-text-muted-color); background: var(--p-surface-50); }
 .dark .kbd { background: var(--p-surface-800); }

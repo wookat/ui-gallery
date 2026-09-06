@@ -1,0 +1,40 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-sc";
+@import "lxgw-wenkai-screen-webfont/lxgwwenkaiscreen.css";
+
+/* Minimal layout glue only; all visuals come from Bootstrap's default theme. */
+html, body, #root { min-height: 100%; }
+body { overflow-x: hidden; }
+.app-icon { vertical-align: -0.125em; flex-shrink: 0; }
+.app-shell { display: flex; min-height: 100vh; }
+.app-sidebar { width: 260px; flex: 0 0 260px; transition: width .2s, flex-basis .2s; }
+.app-shell.is-collapsed .app-sidebar { width: 72px; flex-basis: 72px; }
+.app-shell.is-collapsed .app-sidebar .sidebar-label,
+.app-shell.is-collapsed .app-sidebar .sidebar-group,
+.app-shell.is-collapsed .app-sidebar .sidebar-user-text,
+.app-shell.is-collapsed .app-sidebar .sidebar-badge { display: none !important; }
+.app-main { flex: 1 1 auto; min-width: 0; }
+.chat-bubble { max-width: min(80%, 42rem); }
+.chat-bubble pre { margin-bottom: 0; }
+.chat-bubble table { width: auto; }
+.sparkline { height: 32px; width: 100%; }
+.trend-cell { width: 96px; }
+.landing-shot { aspect-ratio: 16 / 9; }
+.min-w-0 { min-width: 0; }
+.cursor-pointer { cursor: pointer; }
+.text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.watermark-demo { background-image: repeating-linear-gradient(-30deg, transparent 0 120px, var(--bs-border-color) 120px 121px); }
+
+.chat-layout { height: calc(100vh - 8rem); min-height: 480px; }
+.chat-sidebar { width: 280px; }
+.chat-bubble p:last-child { margin-bottom: 0; }
+.chat-bubble.bg-primary a { color: inherit; }
+.chat-cursor { display: inline-block; width: .5em; height: 1em; margin-left: 2px; background: currentColor; vertical-align: text-bottom; animation: chat-blink 1s steps(2) infinite; }
+@keyframes chat-blink { to { visibility: hidden; } }
+.min-h-0 { min-height: 0; }
+.table-responsive { position: relative; }
+@media (max-width: 575.98px) {
+  .chat-bubble pre code { white-space: pre-wrap; word-break: break-word; }
+}

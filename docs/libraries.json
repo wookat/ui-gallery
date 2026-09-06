@@ -38,7 +38,7 @@
     { "slug": "angular-material", "name": "Angular Material", "framework": "angular", "repo": "angular/components", "pkg": "@angular/material", "round": 1 },
     { "slug": "primeng", "name": "PrimeNG", "framework": "angular", "repo": "primefaces/primeng", "pkg": "primeng", "round": 1 },
     { "slug": "ng-zorro", "name": "NG-ZORRO", "framework": "angular", "repo": "NG-ZORRO/ng-zorro-antd", "pkg": "ng-zorro-antd", "round": 1 },
-    { "slug": "bootstrap", "name": "Bootstrap 5 (纯 CSS/JS)", "framework": "vanilla", "repo": "twbs/bootstrap", "pkg": "bootstrap", "round": 1 },
+    { "slug": "bootstrap", "name": "Bootstrap 5 (纯 CSS/JS)", "framework": "vanilla", "repo": "twbs/bootstrap", "pkg": "bootstrap", "round": 1, "status": "merged" },
     { "slug": "pico-css", "name": "Pico CSS (无类名)", "framework": "vanilla", "repo": "picocss/pico", "pkg": "@picocss/pico", "round": 1 }
   ]
 }

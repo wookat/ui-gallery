@@ -54,6 +54,7 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  MenuList,
   MobileStepper,
   Pagination,
   Paper,
@@ -135,23 +136,25 @@ const descriptions: Record<string, string> = {
   Timeline: "来自 activity mock 的团队活动时间线。",
   Tree: "可勾选、默认展开的树形结构。",
   Calendar: "DateCalendar 日期日历与只读变体。",
-  Image: "本地图片、卡片媒体与加载占位。",
+  Image: "中性占位图、点击预览与加载占位。",
   Carousel: "MobileStepper 点状和进度轮播。",
   Empty: "空状态图标、说明和操作。",
   Tooltip: "四个方向与箭头提示。",
   Popover: "锚点弹出内容。",
   Segmented: "ToggleButtonGroup 分段选择。",
   Alert: "严重级别、变体、标题、操作与关闭。",
-  Toast: "基础 Snackbar 消息。",
-  Notification: "带 Alert、关闭操作和锚点的 Snackbar。",
+  Toast: "四级 Snackbar 消息与带撤销操作。",
+  Notification: "四级填充 Alert、查看/关闭操作与顶部锚点的 Snackbar。",
+  DateRangePicker: "两个社区版 DatePicker 组合的日期范围（互相限制 min/max）。",
+  ColorPicker: "原生 color 输入 + HEX 文本 + 主题色板组合。",
   Dialog: "标题、内容、操作、全宽与移动全屏。",
-  Drawer: "左右和底部临时抽屉。",
+  Drawer: "四个方向的临时抽屉。",
   Progress: "线性和圆形进度的多种状态。",
   Skeleton: "文本、圆形、矩形、圆角与动画。",
   Spinner: "CircularProgress 尺寸、颜色和粗细。",
   Result: "成功结果图标、说明与双操作。",
   Popconfirm: "Popover 内的确认和取消操作。",
-  Menu: "菜单项、图标、分割线与操作。",
+  Menu: "水平/垂直/内嵌/折叠 MenuList 与弹出 Menu。",
   Dropdown: "带下拉箭头的按钮菜单。",
   Breadcrumb: "Breadcrumbs 链接和分隔图标。",
   Tabs: "标准、滚动、铺满、图标与禁用标签。",
@@ -179,8 +182,6 @@ const descriptions: Record<string, string> = {
 }
 
 const missingReasons: Record<string, string> = {
-  DateRangePicker: "DateRangePicker 仅 MUI X Pro 提供",
-  ColorPicker: "MUI Material 未提供，需第三方或自研",
   Cascader: "MUI Material 未提供，需第三方或自研",
   Mention: "MUI Material 未提供，需第三方或自研",
   PinInput: "MUI Material 未提供，需第三方或自研",
@@ -685,17 +686,156 @@ function CarouselDemo() {
   )
 }
 
+const PLACEHOLDER_IMAGE =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="120" viewBox="0 0 320 120"><rect width="320" height="120" fill="#e0e0e0"/><circle cx="70" cy="46" r="16" fill="#bdbdbd"/><path d="M20 100 L110 50 L170 90 L220 60 L300 100 Z" fill="#bdbdbd"/></svg>'
+  )
+
 function ImageDemo() {
   const [loaded, setLoaded] = useState(true)
-  return loaded ? (
-    <CardMedia
-      component="img"
-      image="/apps/mui/vite.svg"
-      onError={() => setLoaded(false)}
-      sx={{ maxHeight: 120, objectFit: "contain" }}
-    />
-  ) : (
-    <Skeleton variant="rectangular" height={120} />
+  const [preview, setPreview] = useState(false)
+  return (
+    <Stack spacing={1}>
+      {loaded ? (
+        <CardMedia
+          component="img"
+          image={PLACEHOLDER_IMAGE}
+          alt="占位图"
+          onError={() => setLoaded(false)}
+          onClick={() => setPreview(true)}
+          sx={{
+            maxHeight: 120,
+            objectFit: "cover",
+            borderRadius: 1,
+            cursor: "zoom-in",
+          }}
+        />
+      ) : (
+        <Skeleton variant="rectangular" height={120} />
+      )}
+      <Button size="small" onClick={() => setPreview(true)}>
+        预览
+      </Button>
+      <Dialog open={preview} onClose={() => setPreview(false)} maxWidth="md">
+        <DialogTitle>图片预览</DialogTitle>
+        <DialogContent>
+          <Box
+            component="img"
+            src={PLACEHOLDER_IMAGE}
+            alt="占位图预览"
+            sx={{ width: "100%", display: "block" }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPreview(false)}>关闭</Button>
+        </DialogActions>
+      </Dialog>
+    </Stack>
+  )
+}
+
+function DateRangePickerDemo() {
+  const [start, setStart] = useState(dayjs().subtract(7, "day"))
+  const [end, setEnd] = useState(dayjs())
+  return (
+    <Stack spacing={1}>
+      <Stack direction={{ xs: "column", sm: "row" }} gap={1}>
+        <DatePicker
+          label="开始"
+          value={start}
+          maxDate={end}
+          onChange={(value) => value && setStart(value)}
+          slotProps={{
+            textField: { size: "small" },
+            openPickerButton: { sx: { width: 40, height: 40 } },
+          }}
+        />
+        <DatePicker
+          label="结束"
+          value={end}
+          minDate={start}
+          onChange={(value) => value && setEnd(value)}
+          slotProps={{
+            textField: { size: "small" },
+            openPickerButton: { sx: { width: 40, height: 40 } },
+          }}
+        />
+      </Stack>
+      <Chip
+        size="small"
+        variant="outlined"
+        icon={<Icon name="calendar" size={16} />}
+        label={`${start.format("YYYY-MM-DD")} ~ ${end.format("YYYY-MM-DD")} · ${
+          end.diff(start, "day") + 1
+        } 天`}
+      />
+    </Stack>
+  )
+}
+
+const SWATCHES = [
+  "primary",
+  "secondary",
+  "success",
+  "error",
+  "warning",
+  "info",
+] as const
+
+function ColorPickerDemo() {
+  const theme = useTheme()
+  const [color, setColor] = useState(theme.palette.primary.main)
+  return (
+    <Stack spacing={1}>
+      <Stack direction="row" gap={1} alignItems="center">
+        <TextField
+          type="color"
+          size="small"
+          label="颜色"
+          value={color}
+          onChange={(event) => setColor(event.target.value)}
+          sx={{ width: 96 }}
+          slotProps={{ htmlInput: { "aria-label": "颜色选择" } }}
+        />
+        <TextField
+          size="small"
+          label="HEX"
+          value={color}
+          onChange={(event) => setColor(event.target.value)}
+          sx={{ width: 120 }}
+        />
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: 1,
+            border: 1,
+            borderColor: "divider",
+            bgcolor: color,
+          }}
+        />
+      </Stack>
+      <Stack direction="row" gap={1} flexWrap="wrap">
+        {SWATCHES.map((key) => (
+          <IconButton
+            key={key}
+            aria-label={key}
+            onClick={() => setColor(theme.palette[key].main)}
+            sx={{
+              width: 40,
+              height: 40,
+              bgcolor: `${key}.main`,
+              "&:hover": { bgcolor: `${key}.dark` },
+            }}
+          >
+            {color === theme.palette[key].main ? (
+              <Icon name="check" size={20} sx={{ color: `${key}.contrastText` }} />
+            ) : null}
+          </IconButton>
+        ))}
+      </Stack>
+    </Stack>
   )
 }
 
@@ -758,31 +898,98 @@ function PopconfirmDemo() {
   )
 }
 
+const SEVERITIES = ["success", "info", "warning", "error"] as const
+
 function NotificationDemo() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState<(typeof SEVERITIES)[number] | null>(null)
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)}>
-        触发 Notification
-      </Button>
+      <Stack direction="row" gap={1} flexWrap="wrap">
+        {SEVERITIES.map((severity) => (
+          <Button
+            key={severity}
+            variant="outlined"
+            color={severity}
+            onClick={() => setOpen(severity)}
+          >
+            {severity}
+          </Button>
+        ))}
+      </Stack>
       <Snackbar
-        open={open}
-        onClose={() => setOpen(false)}
+        open={Boolean(open)}
+        onClose={() => setOpen(null)}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
-          severity="info"
+          severity={open ?? "info"}
+          variant="filled"
           action={
-            <IconButton
-              color="inherit"
-              size="small"
-              onClick={() => setOpen(false)}
-            >
-              <Icon name="x" size={18} />
-            </IconButton>
+            <Stack direction="row" gap={0.5} alignItems="center">
+              <Button color="inherit" size="small" onClick={() => setOpen(null)}>
+                查看
+              </Button>
+              <IconButton
+                aria-label="关闭"
+                color="inherit"
+                onClick={() => setOpen(null)}
+              >
+                <Icon name="x" size={24} />
+              </IconButton>
+            </Stack>
           }
         >
+          <AlertTitle>Notification · {open}</AlertTitle>
           有新的通知
+        </Alert>
+      </Snackbar>
+    </>
+  )
+}
+
+function ToastDemo() {
+  const [open, setOpen] = useState<
+    (typeof SEVERITIES)[number] | "action" | null
+  >(null)
+  return (
+    <>
+      <Stack direction="row" gap={1} flexWrap="wrap">
+        {SEVERITIES.map((severity) => (
+          <Button
+            key={severity}
+            size="small"
+            variant="outlined"
+            color={severity}
+            onClick={() => setOpen(severity)}
+          >
+            {severity}
+          </Button>
+        ))}
+        <Button size="small" variant="contained" onClick={() => setOpen("action")}>
+          带操作
+        </Button>
+      </Stack>
+      <Snackbar
+        open={open === "action"}
+        autoHideDuration={3000}
+        onClose={() => setOpen(null)}
+        message="文件已删除"
+        action={
+          <Button color="secondary" size="small" onClick={() => setOpen(null)}>
+            撤销
+          </Button>
+        }
+      />
+      <Snackbar
+        open={Boolean(open) && open !== "action"}
+        autoHideDuration={2000}
+        onClose={() => setOpen(null)}
+      >
+        <Alert
+          severity={open === "action" || !open ? "info" : open}
+          onClose={() => setOpen(null)}
+        >
+          操作{open === "error" ? "失败" : "完成"}（{open}）
         </Alert>
       </Snackbar>
     </>
@@ -826,10 +1033,12 @@ function DialogDemo({ popconfirm = false }: { popconfirm?: boolean }) {
 }
 
 function DrawerDemo() {
-  const [anchor, setAnchor] = useState<"left" | "right" | "bottom" | null>(null)
+  const [anchor, setAnchor] = useState<
+    "left" | "right" | "top" | "bottom" | null
+  >(null)
   return (
     <Stack direction="row" gap={1} flexWrap="wrap">
-      {(["left", "right", "bottom"] as const).map((side) => (
+      {(["left", "right", "top", "bottom"] as const).map((side) => (
         <span key={side}>
           <Button variant="outlined" onClick={() => setAnchor(side)}>
             {side}
@@ -839,7 +1048,12 @@ function DrawerDemo() {
             open={anchor === side}
             onClose={() => setAnchor(null)}
           >
-            <Box sx={{ width: side === "bottom" ? "100vw" : 260, p: 2 }}>
+            <Box
+              sx={{
+                width: side === "bottom" || side === "top" ? "100vw" : 260,
+                p: 2,
+              }}
+            >
               <Typography variant="h6">Drawer {side}</Typography>
               <Button onClick={() => setAnchor(null)}>关闭</Button>
             </Box>
@@ -852,8 +1066,71 @@ function DrawerDemo() {
 
 function MenuDemo({ dropdown = false }: { dropdown?: boolean }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  const [subOpen, setSubOpen] = useState(true)
+  const [collapsedMenu, setCollapsedMenu] = useState(false)
   return (
-    <>
+    <Stack spacing={2}>
+      {!dropdown ? (
+        <>
+          <Paper variant="outlined">
+            <MenuList dense sx={{ display: "flex", py: 0 }}>
+              {nav.slice(0, 4).map((item) => (
+                <MenuItem key={item.key} selected={item.key === "orders"}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Paper>
+          <Stack direction="row" gap={1} alignItems="flex-start">
+            <Paper variant="outlined" sx={{ flex: 1, minWidth: 0 }}>
+              <MenuList dense>
+                {nav.slice(0, 2).map((item) => (
+                  <MenuItem key={item.key}>
+                    <ListItemIcon>
+                      <Icon name={item.icon} size={18} />
+                    </ListItemIcon>
+                    <ListItemText primary={item.label} />
+                  </MenuItem>
+                ))}
+                <MenuItem onClick={() => setSubOpen((value) => !value)}>
+                  <ListItemIcon>
+                    <Icon name="settings" size={18} />
+                  </ListItemIcon>
+                  <ListItemText primary="更多" />
+                  <Icon name={subOpen ? "chevron-down" : "chevron-right"} size={18} />
+                </MenuItem>
+                {subOpen
+                  ? nav.slice(5, 7).map((item) => (
+                      <MenuItem key={item.key} sx={{ pl: 6 }}>
+                        <ListItemText primary={item.label} />
+                      </MenuItem>
+                    ))
+                  : null}
+              </MenuList>
+            </Paper>
+            <Paper variant="outlined">
+              <MenuList dense>
+                <MenuItem onClick={() => setCollapsedMenu((value) => !value)}>
+                  <ListItemIcon>
+                    <Icon name="menu" size={18} />
+                  </ListItemIcon>
+                  {!collapsedMenu ? <ListItemText primary="折叠" /> : null}
+                </MenuItem>
+                {nav.slice(0, 3).map((item) => (
+                  <MenuItem key={item.key}>
+                    <ListItemIcon>
+                      <Icon name={item.icon} size={18} />
+                    </ListItemIcon>
+                    {!collapsedMenu ? (
+                      <ListItemText primary={item.label} />
+                    ) : null}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Paper>
+          </Stack>
+        </>
+      ) : null}
       <Button
         variant="outlined"
         endIcon={dropdown ? <Icon name="chevron-down" /> : undefined}
@@ -880,7 +1157,7 @@ function MenuDemo({ dropdown = false }: { dropdown?: boolean }) {
           删除
         </MenuItem>
       </Menu>
-    </>
+    </Stack>
   )
 }
 
@@ -1051,7 +1328,6 @@ function FloatButtonDemo() {
 
 function Demo({ name }: { name: string }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
-  const [snack, setSnack] = useState(false)
   const [toggle, setToggle] = useState("center")
   if (coverage[name] === "missing") return <Missing name={name} />
   if (name === "Typography")
@@ -1231,12 +1507,18 @@ function Demo({ name }: { name: string }) {
         <DatePicker
           label="日期"
           defaultValue={dayjs()}
-          slotProps={{ textField: { size: "small" } }}
+          slotProps={{
+            textField: { size: "small" },
+            openPickerButton: { sx: { width: 40, height: 40 } },
+          }}
         />
         <DatePicker
           label="禁用 small"
           disabled
-          slotProps={{ textField: { size: "small" } }}
+          slotProps={{
+            textField: { size: "small" },
+            openPickerButton: { sx: { width: 40, height: 40 } },
+          }}
         />
       </Stack>
     )
@@ -1245,9 +1527,14 @@ function Demo({ name }: { name: string }) {
       <TimePicker
         label="时间"
         defaultValue={dayjs()}
-        slotProps={{ textField: { size: "small" } }}
+        slotProps={{
+          textField: { size: "small" },
+          openPickerButton: { sx: { width: 40, height: 40 } },
+        }}
       />
     )
+  if (name === "DateRangePicker") return <DateRangePickerDemo />
+  if (name === "ColorPicker") return <ColorPickerDemo />
   if (name === "Upload") return <UploadDemo />
   if (name === "Transfer") return <TransferDemo />
   if (name === "Form")
@@ -1475,20 +1762,7 @@ function Demo({ name }: { name: string }) {
         )}
       </Stack>
     )
-  if (name === "Toast")
-    return (
-      <>
-        <Button variant="outlined" onClick={() => setSnack(true)}>
-          触发 Toast
-        </Button>
-        <Snackbar
-          open={snack}
-          autoHideDuration={2000}
-          onClose={() => setSnack(false)}
-          message="操作成功"
-        />
-      </>
-    )
+  if (name === "Toast") return <ToastDemo />
   if (name === "Notification") return <NotificationDemo />
   if (name === "Dialog") return <DialogDemo />
   if (name === "Drawer") return <DrawerDemo />
@@ -1706,9 +1980,16 @@ function Demo({ name }: { name: string }) {
       <Stack spacing={1}>
         <Divider />
         <Divider textAlign="left">带文字</Divider>
-        <Box sx={{ height: 40 }}>
-          <Divider orientation="vertical" />
-        </Box>
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          divider={<Divider orientation="vertical" flexItem />}
+        >
+          <Typography variant="body2">订单</Typography>
+          <Typography variant="body2">客户</Typography>
+          <Typography variant="body2">财务</Typography>
+        </Stack>
       </Stack>
     )
   if (name === "Link")
@@ -1787,6 +2068,7 @@ export function ComponentsPage() {
                   </Typography>
                   <Chip
                     size="small"
+                    variant="outlined"
                     label={coverage[name]}
                     color={
                       coverage[name] === "missing"
@@ -1795,6 +2077,7 @@ export function ComponentsPage() {
                           ? "warning"
                           : "success"
                     }
+                    sx={{ color: "text.primary" }}
                   />
                 </Stack>
               }

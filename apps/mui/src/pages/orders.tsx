@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react"
+import type { Dayjs } from "dayjs"
+import dayjs from "dayjs"
 import { DataGrid, type GridColDef } from "@mui/x-data-grid"
+import { DatePicker } from "@mui/x-date-pickers"
 import {
   Alert,
   Box,
@@ -16,9 +19,13 @@ import {
   FormControl,
   IconButton,
   InputLabel,
+  ListItemText,
   Menu,
   MenuItem,
+  OutlinedInput,
+  Popover,
   Select,
+  Skeleton,
   Snackbar,
   Tab,
   Table,
@@ -39,9 +46,21 @@ import { PageHeader, STATUS_LABELS, StatusBadge } from "./shared"
 
 type Order = (typeof orders)[number]
 
+const CHANNEL_LABELS: Record<string, string> = {
+  web: "Web",
+  ios: "iOS",
+  android: "Android",
+  api: "API",
+}
+const channels = Array.from(new Set(orders.map((order) => order.channel)))
+
 export function OrdersPage() {
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState("all")
+  const [channelFilter, setChannelFilter] = useState<string[]>([])
+  const [rangeAnchor, setRangeAnchor] = useState<HTMLElement | null>(null)
+  const [rangeStart, setRangeStart] = useState<Dayjs | null>(null)
+  const [rangeEnd, setRangeEnd] = useState<Dayjs | null>(null)
   const [selected, setSelected] = useState<Order | null>(null)
   const [showCustomer, setShowCustomer] = useState(true)
   const [empty, setEmpty] = useState(false)
@@ -61,10 +80,18 @@ export function OrdersPage() {
         (order) =>
           !empty &&
           order.id.toLowerCase().includes(query.toLowerCase()) &&
-          (status === "all" || order.status === status)
+          (status === "all" || order.status === status) &&
+          (channelFilter.length === 0 ||
+            channelFilter.includes(order.channel)) &&
+          (!rangeStart || !dayjs(order.date).isBefore(rangeStart, "day")) &&
+          (!rangeEnd || !dayjs(order.date).isAfter(rangeEnd, "day"))
       ),
-    [empty, query, status]
+    [empty, query, status, channelFilter, rangeStart, rangeEnd]
   )
+  const rangeLabel =
+    rangeStart || rangeEnd
+      ? `${rangeStart?.format("MM-DD") ?? "…"} ~ ${rangeEnd?.format("MM-DD") ?? "…"}`
+      : "日期范围"
   const columns: GridColDef<Order>[] = [
     { field: "id", headerName: "订单号", width: 130 },
     ...(showCustomer
@@ -99,13 +126,12 @@ export function OrdersPage() {
       renderCell: ({ row }) => (
         <IconButton
           aria-label="操作"
-          size="small"
           onClick={(event) => {
             setMenuOrder(row)
             setMenuAnchor(event.currentTarget)
           }}
         >
-          <Icon name="more-horizontal" />
+          <Icon name="more-horizontal" size={24} />
         </IconButton>
       ),
     },
@@ -125,9 +151,6 @@ export function OrdersPage() {
           </Button>
         }
       />
-      <Alert severity="info" icon={<Icon name="info" />}>
-        所有订单来自 packages/spec/mock/orders.json，无运行时网络请求。
-      </Alert>
       <Card>
         <CardContent>
           <Stack
@@ -162,9 +185,94 @@ export function OrdersPage() {
                   ))}
               </Select>
             </FormControl>
-            <Button variant="outlined" startIcon={<Icon name="calendar" />}>
-              日期范围
+            <FormControl size="small" sx={{ minWidth: 170 }}>
+              <InputLabel>渠道</InputLabel>
+              <Select
+                multiple
+                value={channelFilter}
+                input={<OutlinedInput label="渠道" />}
+                onChange={(event) =>
+                  setChannelFilter(
+                    typeof event.target.value === "string"
+                      ? event.target.value.split(",")
+                      : event.target.value
+                  )
+                }
+                renderValue={(selected) => (
+                  <Stack direction="row" spacing={0.5}>
+                    {selected.map((value) => (
+                      <Chip
+                        key={value}
+                        size="small"
+                        label={CHANNEL_LABELS[value] ?? value}
+                      />
+                    ))}
+                  </Stack>
+                )}
+              >
+                {channels.map((channel) => (
+                  <MenuItem key={channel} value={channel}>
+                    <Checkbox
+                      size="small"
+                      checked={channelFilter.includes(channel)}
+                    />
+                    <ListItemText primary={CHANNEL_LABELS[channel] ?? channel} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button
+              variant="outlined"
+              startIcon={<Icon name="calendar" />}
+              onClick={(event) => setRangeAnchor(event.currentTarget)}
+            >
+              {rangeLabel}
             </Button>
+            <Popover
+              open={Boolean(rangeAnchor)}
+              anchorEl={rangeAnchor}
+              onClose={() => setRangeAnchor(null)}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            >
+              <Stack spacing={2} sx={{ p: 2, width: 280 }}>
+                <DatePicker
+                  label="开始日期"
+                  value={rangeStart}
+                  onChange={setRangeStart}
+                  maxDate={rangeEnd ?? undefined}
+                  slotProps={{
+                    textField: { size: "small" },
+                    openPickerButton: { sx: { width: 40, height: 40 } },
+                  }}
+                />
+                <DatePicker
+                  label="结束日期"
+                  value={rangeEnd}
+                  onChange={setRangeEnd}
+                  minDate={rangeStart ?? undefined}
+                  slotProps={{
+                    textField: { size: "small" },
+                    openPickerButton: { sx: { width: 40, height: 40 } },
+                  }}
+                />
+                <Stack direction="row" justifyContent="space-between">
+                  <Button
+                    onClick={() => {
+                      setRangeStart(null)
+                      setRangeEnd(null)
+                    }}
+                  >
+                    清除
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={() => setRangeAnchor(null)}
+                  >
+                    确定
+                  </Button>
+                </Stack>
+              </Stack>
+            </Popover>
             <Button
               variant="outlined"
               onClick={() => setShowCustomer((value) => !value)}
@@ -215,14 +323,15 @@ export function OrdersPage() {
           订单加载失败，请重试。
         </Alert>
       ) : loading ? (
-        <Stack spacing={1}>
-          {[1, 2, 3].map((item) => (
-            <Box
-              key={item}
-              sx={{ height: 52, bgcolor: "action.hover", borderRadius: 1 }}
-            />
-          ))}
-        </Stack>
+        <Card>
+          <CardContent>
+            <Stack spacing={1.5}>
+              {[1, 2, 3, 4, 5].map((item) => (
+                <Skeleton key={item} variant="rounded" height={44} />
+              ))}
+            </Stack>
+          </CardContent>
+        </Card>
       ) : empty ? (
         <Card>
           <CardContent sx={{ textAlign: "center", py: 8 }}>

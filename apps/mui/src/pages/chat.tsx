@@ -2,13 +2,15 @@ import { useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Avatar,
   Badge,
   Box,
   Button,
   Card,
   CardContent,
-  CardHeader,
   Chip,
   CircularProgress,
   Drawer,
@@ -63,7 +65,7 @@ export function ChatPage() {
           aria-label="新建对话"
           onClick={() => setActiveConversation(null)}
         >
-          <Icon name="plus" />
+          <Icon name="plus" size={24} />
         </IconButton>
       </Stack>
       <TextField
@@ -133,16 +135,24 @@ export function ChatPage() {
       const text = copyChildren(children)
       return (
         <Box sx={{ position: "relative" }}>
-          <Box component="pre" sx={{ m: 0, overflow: "auto", p: 1 }}>
+          <Box
+            component="pre"
+            sx={{
+              m: 0,
+              p: 1,
+              pr: 6,
+              whiteSpace: "pre-wrap",
+              overflowWrap: "anywhere",
+            }}
+          >
             {children}
           </Box>
           <IconButton
             aria-label="复制"
-            size="small"
-            sx={{ position: "absolute", top: 2, right: 2 }}
+            sx={{ position: "absolute", top: 0, right: 0 }}
             onClick={() => navigator.clipboard?.writeText(text)}
           >
-            <Icon name="copy" />
+            <Icon name="copy" size={24} />
           </IconButton>
         </Box>
       )
@@ -230,7 +240,20 @@ export function ChatPage() {
                       spacing={1.5}
                       alignItems="flex-start"
                     >
-                      <Avatar>{message.role === "user" ? "林" : "AI"}</Avatar>
+                      <Avatar
+                        sx={{
+                          bgcolor:
+                            message.role === "user"
+                              ? "secondary.main"
+                              : "primary.main",
+                          color:
+                            message.role === "user"
+                              ? "secondary.contrastText"
+                              : "primary.contrastText",
+                        }}
+                      >
+                        {message.role === "user" ? "林" : "AI"}
+                      </Avatar>
                       <Box sx={{ maxWidth: "min(720px, 85%)", minWidth: 0 }}>
                         <Typography variant="caption" color="text.secondary">
                           {message.role === "user" ? "林晓" : "AI 助手"} · 刚刚
@@ -277,23 +300,29 @@ export function ChatPage() {
                           </Stack>
                         ) : null}
                         {message.tool ? (
-                          <Card sx={{ mt: 1 }}>
-                            <CardHeader
-                              title={
-                                <Typography variant="body2">
-                                  工具调用 · {message.tool.name}
-                                </Typography>
-                              }
-                            />
-                            <CardContent>
+                          <Accordion variant="outlined" sx={{ mt: 1 }}>
+                            <AccordionSummary
+                              expandIcon={<Icon name="chevron-down" />}
+                            >
+                              <Typography variant="body2">
+                                工具调用 · {message.tool.name} ·{" "}
+                                {message.tool.status}
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
                               <Box
                                 component="pre"
-                                sx={{ m: 0, overflow: "auto", fontSize: 12 }}
+                                sx={{
+                                  m: 0,
+                                  fontSize: 12,
+                                  whiteSpace: "pre-wrap",
+                                  overflowWrap: "anywhere",
+                                }}
                               >
                                 {JSON.stringify(message.tool.args, null, 2)}
                               </Box>
-                            </CardContent>
-                          </Card>
+                            </AccordionDetails>
+                          </Accordion>
                         ) : null}
                         {streaming && message.streaming ? (
                           <Stack
@@ -346,7 +375,7 @@ export function ChatPage() {
               </Stack>
               <Stack direction="row" spacing={1} alignItems="flex-end">
                 <IconButton aria-label="附件">
-                  <Icon name="paperclip" />
+                  <Icon name="paperclip" size={24} />
                 </IconButton>
                 <TextField
                   fullWidth
@@ -364,7 +393,7 @@ export function ChatPage() {
                     setDraft("")
                   }}
                 >
-                  <Icon name="send" />
+                  <Icon name="send" size={24} />
                 </IconButton>
               </Stack>
               {sent ? (

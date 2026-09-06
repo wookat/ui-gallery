@@ -125,6 +125,10 @@ export function FormPage() {
               />
               <Autocomplete
                 options={["Pro plan", "Team plan"]}
+                slotProps={{
+                  popupIndicator: { sx: { width: 40, height: 40 } },
+                  clearIndicator: { sx: { width: 40, height: 40 } },
+                }}
                 renderInput={(params) => (
                   <TextField {...params} label="项目类型" required />
                 )}
@@ -277,6 +281,7 @@ export function FormPage() {
                       required: true,
                       error: touched && !date,
                     },
+                    openPickerButton: { sx: { width: 40, height: 40 } },
                   }}
                 />
                 <DatePicker
@@ -289,6 +294,7 @@ export function FormPage() {
                       required: true,
                       error: touched && !endDate,
                     },
+                    openPickerButton: { sx: { width: 40, height: 40 } },
                   }}
                 />
               </MuiStack>
@@ -299,7 +305,10 @@ export function FormPage() {
                 label="提醒时间"
                 value={time}
                 onChange={setTime}
-                slotProps={{ textField: { fullWidth: true } }}
+                slotProps={{
+                  textField: { fullWidth: true },
+                  openPickerButton: { sx: { width: 40, height: 40 } },
+                }}
               />
               <TextField
                 label="颜色选择"
@@ -309,7 +318,11 @@ export function FormPage() {
               />
               <Box>
                 <Typography variant="body2">采样比例</Typography>
-                <Slider defaultValue={60} valueLabelDisplay="auto" />
+                <Slider
+                  defaultValue={[20, 60]}
+                  valueLabelDisplay="auto"
+                  disableSwap
+                />
                 <FormHelperText>选择项目数据采样比例。</FormHelperText>
               </Box>
               <Box>
@@ -354,7 +367,7 @@ export function FormPage() {
                             )
                           }
                         >
-                          <Icon name="trash" />
+                          <Icon name="trash" size={24} />
                         </IconButton>
                       }
                     >
@@ -366,6 +379,10 @@ export function FormPage() {
               <Autocomplete
                 multiple
                 freeSolo
+                slotProps={{
+                  popupIndicator: { sx: { width: 40, height: 40 } },
+                  clearIndicator: { sx: { width: 40, height: 40 } },
+                }}
                 options={landing.features.map((feature) => feature.title)}
                 value={tags}
                 onChange={(_, value) => setTags(value)}
@@ -384,7 +401,7 @@ export function FormPage() {
                 <Typography>字段说明</Typography>
                 <Tooltip title="配置完成后可在确认步骤检查。">
                   <IconButton aria-label="帮助">
-                    <Icon name="circle-help" />
+                    <Icon name="circle-help" size={24} />
                   </IconButton>
                 </Tooltip>
               </Stack>

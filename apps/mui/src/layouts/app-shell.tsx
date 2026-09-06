@@ -152,7 +152,15 @@ function DrawerContent({
           sx={{ borderRadius: 1 }}
         >
           <Tooltip title={collapsed ? "林晓" : ""} placement="right">
-            <Avatar sx={{ width: 30, height: 30, mr: collapsed ? 0 : 1.5 }}>
+            <Avatar
+              sx={{
+                width: 30,
+                height: 30,
+                mr: collapsed ? 0 : 1.5,
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+              }}
+            >
               林
             </Avatar>
           </Tooltip>
@@ -166,7 +174,10 @@ function DrawerContent({
             placement="right"
           >
             <IconButton aria-label="折叠侧边栏" onClick={onToggle}>
-              <Icon name={collapsed ? "chevron-right" : "chevron-left"} />
+              <Icon
+                name={collapsed ? "chevron-right" : "chevron-left"}
+                size={24}
+              />
             </IconButton>
           </Tooltip>
         ) : null}
@@ -240,7 +251,7 @@ export function AppShell() {
               aria-label="打开菜单"
               onClick={() => setMobileOpen(true)}
             >
-              <Icon name="menu" />
+              <Icon name="menu" size={24} />
             </IconButton>
           ) : null}
           <Breadcrumbs
@@ -267,7 +278,7 @@ export function AppShell() {
             onClick={() => setCommandOpen(true)}
             sx={{ display: { xs: "inline-flex", md: "none" } }}
           >
-            <Icon name="search" />
+            <Icon name="search" size={24} />
           </IconButton>
           <Tooltip title="通知">
             <IconButton
@@ -279,19 +290,30 @@ export function AppShell() {
                 }
                 color="primary"
               >
-                <Icon name="bell" />
+                <Icon name="bell" size={24} />
               </Badge>
             </IconButton>
           </Tooltip>
           <Tooltip title="切换主题">
             <IconButton onClick={changeTheme}>
-              <Icon name={mode === "dark" ? "sun" : "moon"} />
+              <Icon name={mode === "dark" ? "sun" : "moon"} size={24} />
             </IconButton>
           </Tooltip>
           <IconButton
+            aria-label="账户菜单"
+            sx={{ p: 0.5 }}
             onClick={(event) => setProfileAnchor(event.currentTarget)}
           >
-            <Avatar sx={{ width: 32, height: 32 }}>林</Avatar>
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+              }}
+            >
+              林
+            </Avatar>
           </IconButton>
         </Toolbar>
       </AppBar>

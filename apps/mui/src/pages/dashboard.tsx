@@ -212,7 +212,14 @@ export function DashboardPage() {
                               spacing={1}
                               alignItems="center"
                             >
-                              <Avatar sx={{ width: 28, height: 28 }}>
+                              <Avatar
+                                sx={{
+                                  width: 28,
+                                  height: 28,
+                                  bgcolor: "primary.main",
+                                  color: "primary.contrastText",
+                                }}
+                              >
                                 {order.customer.slice(0, 1)}
                               </Avatar>
                               {order.customer}
@@ -227,12 +234,11 @@ export function DashboardPage() {
                           <TableCell align="right">
                             <IconButton
                               aria-label="操作"
-                              size="small"
                               onClick={(event) =>
                                 setAnchor(event.currentTarget)
                               }
                             >
-                              <Icon name="more-horizontal" />
+                              <Icon name="more-horizontal" size={24} />
                             </IconButton>
                           </TableCell>
                         </TableRow>

@@ -109,10 +109,11 @@ export function LoginPage() {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
+                            aria-label={visible ? "隐藏密码" : "显示密码"}
                             onClick={() => setVisible((value) => !value)}
                             edge="end"
                           >
-                            <Icon name={visible ? "eye-off" : "eye"} />
+                            <Icon name={visible ? "eye-off" : "eye"} size={24} />
                           </IconButton>
                         </InputAdornment>
                       ),

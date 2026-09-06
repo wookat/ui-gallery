@@ -32,6 +32,14 @@ import plans from "@ui-gallery/spec/mock/plans.json"
 import { Icon } from "@/components/icon"
 import { FlexStack as Stack } from "@/components/flex-stack"
 
+const NAV_LINKS = [
+  ["功能", "#features"],
+  ["数据", "#numbers"],
+  ["定价", "#pricing"],
+  ["评价", "#testimonials"],
+  ["FAQ", "#faq"],
+] as const
+
 export function LandingPage() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [yearly, setYearly] = useState(false)
@@ -83,15 +91,11 @@ export function LandingPage() {
             spacing={2}
             sx={{ display: { xs: "none", md: "flex" } }}
           >
-            <Link href="#features" underline="none">
-              产品
-            </Link>
-            <Link href="#pricing" underline="none">
-              价格
-            </Link>
-            <Link href="#faq" underline="none">
-              FAQ
-            </Link>
+            {NAV_LINKS.map(([label, href]) => (
+              <Link key={href} href={href} underline="none">
+                {label}
+              </Link>
+            ))}
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
             <Stack
@@ -111,7 +115,7 @@ export function LandingPage() {
               sx={{ display: { xs: "inline-flex", md: "none" } }}
               onClick={() => setMobileOpen(true)}
             >
-              <Icon name="menu" />
+              <Icon name="menu" size={24} />
             </IconButton>
           </Stack>
         </Toolbar>
@@ -123,11 +127,7 @@ export function LandingPage() {
       >
         <Stack spacing={2} sx={{ width: 280, p: 3 }}>
           <Typography variant="h6">导航</Typography>
-          {[
-            ["产品", "#features"],
-            ["价格", "#pricing"],
-            ["FAQ", "#faq"],
-          ].map(([label, href]) => (
+          {NAV_LINKS.map(([label, href]) => (
             <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
               {label}
             </Link>
@@ -266,7 +266,7 @@ export function LandingPage() {
           </Grid>
         </Container>
       </Box>
-      <Box sx={{ borderBlock: 1, borderColor: "divider", py: 4 }}>
+      <Box id="numbers" sx={{ borderBlock: 1, borderColor: "divider", py: 4 }}>
         <Container>
           <Grid container>
             {landing.numbers.map((item) => (
@@ -427,7 +427,7 @@ export function LandingPage() {
           </Grid>
         </Stack>
       </Container>
-      <Container sx={{ py: 10 }}>
+      <Container id="testimonials" sx={{ py: 10 }}>
         <Stack spacing={4}>
           <Typography variant="h3" sx={{ textAlign: "center" }}>
             用户评价

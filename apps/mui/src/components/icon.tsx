@@ -172,5 +172,14 @@ export function Icon({ name, size = 20, className, sx, color }: IconProps) {
       />
     )
   }
-  return <GalleryIcon name={name} size={size} className={className} />
+  const family = iconFamily()
+  return (
+    <GalleryIcon
+      name={name}
+      size={size}
+      className={[`ui-icon`, `ui-icon-${family}`, className]
+        .filter(Boolean)
+        .join(" ")}
+    />
+  )
 }

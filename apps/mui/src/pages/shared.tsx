@@ -79,6 +79,19 @@ export function StatusBadge({ value }: { value: string }) {
       label={STATUS_LABELS[value] ?? value}
       color={color}
       variant="outlined"
+      icon={
+        <Box
+          component="span"
+          sx={{
+            width: 8,
+            height: 8,
+            ml: 1,
+            borderRadius: "50%",
+            bgcolor: `${color}.main`,
+          }}
+        />
+      }
+      sx={{ color: "text.primary" }}
     />
   )
 }

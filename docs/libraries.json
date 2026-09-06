@@ -29,7 +29,7 @@
     { "slug": "ant-design-vue", "name": "Ant Design Vue", "framework": "vue", "repo": "vueComponent/ant-design-vue", "pkg": "ant-design-vue", "round": 1 },
     { "slug": "shadcn-vue", "name": "shadcn-vue", "framework": "vue", "repo": "unovue/shadcn-vue", "pkg": "shadcn-vue", "round": 1 },
     { "slug": "arco-design-vue", "name": "Arco Design Vue", "framework": "vue", "repo": "arco-design/arco-design-vue", "pkg": "@arco-design/web-vue", "round": 1 },
-    { "slug": "tdesign-vue-next", "name": "TDesign Vue Next", "framework": "vue", "repo": "Tencent/tdesign-vue-next", "pkg": "tdesign-vue-next", "round": 1 },
+    { "slug": "tdesign-vue-next", "name": "TDesign Vue Next", "framework": "vue", "repo": "Tencent/tdesign-vue-next", "pkg": "tdesign-vue-next", "round": 1, "status": "merged" },
     { "slug": "vant", "name": "Vant", "framework": "vue", "repo": "youzan/vant", "pkg": "vant", "round": 1 },
 
     { "slug": "shadcn-svelte", "name": "shadcn-svelte", "framework": "svelte", "repo": "huntabyte/shadcn-svelte", "pkg": "shadcn-svelte", "round": 1 },

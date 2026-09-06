@@ -101,7 +101,7 @@ function ToolCall({ tool }: { tool: (typeof chat.messages)[number]["tool"] }) {
         <Collapsible.Trigger asChild>
           <Button
             variant="ghost"
-            size="1"
+            size="3"
             style={{ width: "100%", justifyContent: "flex-start" }}
           >
             <Flex align="center" gap="2" width="100%">
@@ -136,17 +136,18 @@ export function ChatPage() {
   const [input, setInput] = useState("")
   const conversations = (
     <Flex direction="column" gap="3">
-      <TextField.Root placeholder="搜索会话">
+      <TextField.Root size="3" placeholder="搜索会话">
         <TextField.Slot>
           <Icon name="search" size={15} />
         </TextField.Slot>
       </TextField.Root>
-      <Button>
+      <Button size="3">
         <Icon name="plus" />
         新建
       </Button>
       {chat.conversations.map((conversation) => (
         <Button
+          size="3"
           key={conversation.id}
           variant="ghost"
           style={{ justifyContent: "start" }}
@@ -213,7 +214,11 @@ export function ChatPage() {
               本地数据对话演示
             </Text>
           </Box>
-          <Button variant="soft" onClick={() => setEmpty((value) => !value)}>
+          <Button
+            size="3"
+            variant="soft"
+            onClick={() => setEmpty((value) => !value)}
+          >
             清空对话
           </Button>
         </Flex>
@@ -274,7 +279,7 @@ export function ChatPage() {
               {chat.suggestions.map((suggestion) => (
                 <Button
                   key={suggestion}
-                  size="2"
+                  size="3"
                   variant="soft"
                   onClick={() => setInput(suggestion)}
                 >
@@ -285,6 +290,7 @@ export function ChatPage() {
           ) : null}
           <Flex direction="column" gap="2" style={{ minWidth: 0 }}>
             <TextArea
+              size="3"
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder="输入消息..."
@@ -301,7 +307,7 @@ export function ChatPage() {
                 >
                   <Icon name="paperclip" />
                 </IconButton>
-                <Select.Root defaultValue={chat.models[0]}>
+                <Select.Root size="3" defaultValue={chat.models[0]}>
                   <Select.Trigger />
                   <Select.Content>
                     {chat.models.map((model) => (
@@ -312,7 +318,7 @@ export function ChatPage() {
                   </Select.Content>
                 </Select.Root>
               </Flex>
-              <Button onClick={() => setInput("")}>
+              <Button size="3" onClick={() => setInput("")}>
                 <Icon name="send" />
                 发送
               </Button>

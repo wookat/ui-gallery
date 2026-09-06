@@ -37,7 +37,12 @@ function RowActions({
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
-        <IconButton size="3" variant="ghost">
+        <IconButton
+          size="3"
+          variant="ghost"
+          aria-label="更多操作"
+          style={{ minHeight: "40px", minWidth: "40px" }}
+        >
           <Icon name="more-horizontal" />
         </IconButton>
       </DropdownMenu.Trigger>
@@ -78,7 +83,7 @@ export function OrdersPage() {
         title="订单管理"
         description="搜索、筛选并查看全部订单。"
         action={
-          <Button variant="outline">
+          <Button size="3" variant="outline">
             <Icon name="download" />
             导出
           </Button>
@@ -88,6 +93,7 @@ export function OrdersPage() {
         <Flex direction="column" gap="4">
           <Flex gap="3" wrap="wrap">
             <TextField.Root
+              size="3"
               placeholder="搜索订单号..."
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -97,7 +103,7 @@ export function OrdersPage() {
                 <Icon name="search" size={16} />
               </TextField.Slot>
             </TextField.Root>
-            <Select.Root value={status} onValueChange={setStatus}>
+            <Select.Root size="3" value={status} onValueChange={setStatus}>
               <Select.Trigger placeholder="状态" />
               <Select.Content>
                 <Select.Item value="all">全部状态</Select.Item>
@@ -110,11 +116,11 @@ export function OrdersPage() {
                 )}
               </Select.Content>
             </Select.Root>
-            <TextField.Root type="date" />
-            <TextField.Root type="date" />
+            <TextField.Root size="3" type="date" />
+            <TextField.Root size="3" type="date" />
             <Popover.Root>
               <Popover.Trigger>
-                <Button variant="soft">
+                <Button size="3" variant="soft">
                   <Icon name="filter" />
                   渠道
                 </Button>
@@ -133,7 +139,7 @@ export function OrdersPage() {
             </Popover.Root>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger>
-                <Button variant="outline">
+                <Button size="3" variant="outline">
                   <Icon name="sliders" />列
                 </Button>
               </DropdownMenu.Trigger>
@@ -152,28 +158,28 @@ export function OrdersPage() {
           </Flex>
           <Flex gap="2">
             <Button
-              size="2"
+              size="3"
               variant={state === "normal" ? "soft" : "ghost"}
               onClick={() => setState("normal")}
             >
               正常
             </Button>
             <Button
-              size="2"
+              size="3"
               variant={state === "empty" ? "soft" : "ghost"}
               onClick={() => setState("empty")}
             >
               空
             </Button>
             <Button
-              size="2"
+              size="3"
               variant={state === "loading" ? "soft" : "ghost"}
               onClick={() => setState("loading")}
             >
               加载
             </Button>
             <Button
-              size="2"
+              size="3"
               variant={state === "error" ? "soft" : "ghost"}
               onClick={() => setState("error")}
             >
@@ -185,6 +191,7 @@ export function OrdersPage() {
               <Icon name="archive" size={32} />
               <Text color="gray">没有找到订单</Text>
               <Button
+                size="3"
                 variant="outline"
                 onClick={() => {
                   setQuery("")
@@ -206,7 +213,9 @@ export function OrdersPage() {
             <Flex direction="column" gap="3" align="start">
               <Badge color="red">加载失败</Badge>
               <Text color="gray">订单数据暂时无法加载。</Text>
-              <Button onClick={() => setState("normal")}>重试</Button>
+              <Button size="3" onClick={() => setState("normal")}>
+                重试
+              </Button>
             </Flex>
           ) : (
             <>
@@ -332,7 +341,7 @@ export function OrdersPage() {
                 >
                   2
                 </Button>
-                <Select.Root defaultValue="10">
+                <Select.Root size="3" defaultValue="10">
                   <Select.Trigger placeholder="10 / 页" />
                   <Select.Content>
                     <Select.Item value="10">10 / 页</Select.Item>
@@ -354,10 +363,13 @@ export function OrdersPage() {
           <AlertDialog.Description>此操作无法撤销。</AlertDialog.Description>
           <Flex justify="end" gap="3" mt="4">
             <AlertDialog.Cancel>
-              <Button variant="soft">取消</Button>
+              <Button size="3" variant="soft">
+                取消
+              </Button>
             </AlertDialog.Cancel>
             <AlertDialog.Action>
               <Button
+                size="3"
                 color="red"
                 onClick={() => {
                   show("订单已删除")
@@ -413,15 +425,16 @@ export function OrdersPage() {
                 </DataList.Item>
               </DataList.Root>
               <Tabs.Root defaultValue="details">
-                <Tabs.List>
+                <Tabs.List size="2">
                   <Tabs.Trigger value="details">详情</Tabs.Trigger>
                   <Tabs.Trigger value="notes">备注</Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content value="notes" mt="3">
-                  <TextArea placeholder="备注" />
+                  <TextArea size="3" placeholder="备注" />
                 </Tabs.Content>
               </Tabs.Root>
               <Button
+                size="3"
                 color="red"
                 onClick={() => {
                   const order = selected

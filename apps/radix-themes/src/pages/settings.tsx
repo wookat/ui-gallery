@@ -17,6 +17,7 @@ import {
   Table,
   Tabs,
   Text,
+  TextArea,
   TextField,
 } from "@radix-ui/themes"
 import invoices from "@ui-gallery/spec/mock/invoices.json"
@@ -33,7 +34,7 @@ export function SettingsPage() {
       <PageHeader title="设置" description="管理你的个人资料、团队和订阅。" />
       <Tabs.Root defaultValue="profile">
         <ScrollArea scrollbars="horizontal" type="auto">
-          <Tabs.List style={{ whiteSpace: "nowrap" }}>
+          <Tabs.List size="2" style={{ whiteSpace: "nowrap" }}>
             <Tabs.Trigger value="profile">个人资料</Tabs.Trigger>
             <Tabs.Trigger value="security">账号安全</Tabs.Trigger>
             <Tabs.Trigger value="notifications">通知</Tabs.Trigger>
@@ -46,27 +47,39 @@ export function SettingsPage() {
             <Flex direction="column" gap="4">
               <Flex align="center" gap="4">
                 <Avatar size="6" fallback="林" />
-                <Button variant="outline">上传头像</Button>
+                <Button size="3" variant="outline">
+                  上传头像
+                </Button>
               </Flex>
               <Grid columns={{ initial: "1", sm: "2" }} gap="4">
                 <label>
                   <Text size="2" weight="medium">
                     姓名
                   </Text>
-                  <TextField.Root mt="2" defaultValue="林晓" />
+                  <TextField.Root size="3" mt="2" defaultValue="林晓" />
                 </label>
                 <label>
                   <Text size="2" weight="medium">
                     邮箱
                   </Text>
-                  <TextField.Root mt="2" defaultValue={team[0].email} />
+                  <TextField.Root
+                    size="3"
+                    mt="2"
+                    defaultValue={team[0].email}
+                  />
                 </label>
               </Grid>
               <label>
                 <Text size="2" weight="medium">
+                  简介
+                </Text>
+                <TextArea size="3" mt="2" placeholder="介绍一下你自己" />
+              </label>
+              <label>
+                <Text size="2" weight="medium">
                   语言
                 </Text>
-                <Select.Root defaultValue="zh">
+                <Select.Root size="3" defaultValue="zh">
                   <Select.Trigger mt="2" style={{ width: "100%" }} />
                   <Select.Content>
                     <Select.Item value="zh">简体中文</Select.Item>
@@ -78,9 +91,9 @@ export function SettingsPage() {
                 <Text size="2" weight="medium">
                   时区
                 </Text>
-                <TextField.Root mt="2" defaultValue="Asia/Shanghai" />
+                <TextField.Root size="3" mt="2" defaultValue="Asia/Shanghai" />
               </label>
-              <Button>保存更改</Button>
+              <Button size="3">保存更改</Button>
             </Flex>
           </Card>
         </Tabs.Content>
@@ -91,9 +104,13 @@ export function SettingsPage() {
                 修改密码
               </Heading>
               <Flex direction="column" gap="3">
-                <TextField.Root type="password" placeholder="当前密码" />
-                <TextField.Root type="password" placeholder="新密码" />
-                <Button>更新密码</Button>
+                <TextField.Root
+                  size="3"
+                  type="password"
+                  placeholder="当前密码"
+                />
+                <TextField.Root size="3" type="password" placeholder="新密码" />
+                <Button size="3">更新密码</Button>
               </Flex>
             </Card>
             <Card>
@@ -132,7 +149,7 @@ export function SettingsPage() {
                   {session.current ? (
                     <Badge color="green">当前</Badge>
                   ) : (
-                    <Button size="1" variant="outline">
+                    <Button size="3" variant="outline">
                       注销
                     </Button>
                   )}
@@ -151,7 +168,7 @@ export function SettingsPage() {
                   <Switch defaultChecked />
                 </Flex>
               ))}
-              <SegmentedControl.Root defaultValue="email">
+              <SegmentedControl.Root size="3" defaultValue="email">
                 <SegmentedControl.Item value="email">
                   邮件
                 </SegmentedControl.Item>
@@ -190,7 +207,7 @@ export function SettingsPage() {
                         </Flex>
                       </Table.Cell>
                       <Table.Cell>
-                        <Select.Root defaultValue={member.role}>
+                        <Select.Root size="3" defaultValue={member.role}>
                           <Select.Trigger />
                           <Select.Content>
                             {["owner", "admin", "member", "viewer"].map(
@@ -221,10 +238,11 @@ export function SettingsPage() {
             </Box>
             <Flex gap="2" mt="4">
               <TextField.Root
+                size="3"
                 placeholder="邀请邮箱"
                 style={{ flexGrow: 1, minWidth: 0 }}
               />
-              <Button>邀请</Button>
+              <Button size="3">邀请</Button>
             </Flex>
           </Card>
         </Tabs.Content>
@@ -252,7 +270,11 @@ export function SettingsPage() {
                     </Text>
                   ))}
                 </Flex>
-                <Button variant={plan.recommended ? "solid" : "outline"} mt="4">
+                <Button
+                  size="3"
+                  variant={plan.recommended ? "solid" : "outline"}
+                  mt="4"
+                >
                   选择计划
                 </Button>
               </Card>
@@ -291,7 +313,7 @@ export function SettingsPage() {
           <Text color="gray">删除账号后所有数据将无法恢复。</Text>
           <AlertDialog.Root>
             <AlertDialog.Trigger>
-              <Button color="red" variant="soft">
+              <Button size="3" color="red" variant="soft">
                 删除账号
               </Button>
             </AlertDialog.Trigger>
@@ -301,6 +323,7 @@ export function SettingsPage() {
                 请输入 DELETE 以继续。
               </AlertDialog.Description>
               <TextField.Root
+                size="3"
                 mt="4"
                 value={danger}
                 onChange={(event) => setDanger(event.target.value)}
@@ -308,10 +331,12 @@ export function SettingsPage() {
               />
               <Flex justify="end" gap="3" mt="4">
                 <AlertDialog.Cancel>
-                  <Button variant="soft">取消</Button>
+                  <Button size="3" variant="soft">
+                    取消
+                  </Button>
                 </AlertDialog.Cancel>
                 <AlertDialog.Action>
-                  <Button color="red" disabled={danger !== "DELETE"}>
+                  <Button size="3" color="red" disabled={danger !== "DELETE"}>
                     确认删除
                   </Button>
                 </AlertDialog.Action>

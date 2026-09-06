@@ -127,7 +127,7 @@ export function DashboardPage() {
               </Text>
             </div>
             <Tabs.Root value={period} onValueChange={setPeriod}>
-              <Tabs.List>
+              <Tabs.List size="2">
                 <Tabs.Trigger value="day">日</Tabs.Trigger>
                 <Tabs.Trigger value="week">周</Tabs.Trigger>
                 <Tabs.Trigger value="month">月</Tabs.Trigger>
@@ -358,7 +358,7 @@ export function DashboardPage() {
         </Flex>
       </Card>
       <Tabs.Root defaultValue="ready" mt="4">
-        <Tabs.List>
+        <Tabs.List size="2">
           <Tabs.Trigger value="ready">概览</Tabs.Trigger>
           <Tabs.Trigger value="loading">加载状态</Tabs.Trigger>
         </Tabs.List>

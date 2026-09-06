@@ -36,14 +36,22 @@ export function LandingPage() {
                 </Text>
                 <Flex gap="5" display={{ initial: "none", md: "flex" }}>
                   {["产品", "解决方案", "定价", "客户", "资源"].map((label) => (
-                    <a href={`#${label}`} key={label}>
+                    <a
+                      href={`#${label}`}
+                      key={label}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        minHeight: "40px",
+                      }}
+                    >
                       {label}
                     </a>
                   ))}
                 </Flex>
                 <Flex gap="2" align="center">
                   <Box display={{ initial: "none", md: "block" }}>
-                    <Button>免费开始</Button>
+                    <Button size="3">免费开始</Button>
                   </Box>
                   <Box display={{ initial: "block", md: "none" }}>
                     <Dialog.Root>
@@ -116,9 +124,44 @@ export function LandingPage() {
                 </Text>
               </Flex>
               <AspectRatio ratio={16 / 9}>
-                <Box height="100%" style={{ background: "var(--gray-3)" }}>
-                  <Flex align="center" justify="center" height="100%">
-                    <Text color="gray">产品截图</Text>
+                <Box className="rt-hero-mock" aria-hidden="true">
+                  <Flex gap="2">
+                    {["red", "amber", "green"].map((color) => (
+                      <Box
+                        key={color}
+                        width="10px"
+                        height="10px"
+                        style={{
+                          borderRadius: "50%",
+                          background: `var(--${color}-9)`,
+                        }}
+                      />
+                    ))}
+                  </Flex>
+                  <Grid columns={{ initial: "2", sm: "4" }} gap="2">
+                    {landing.numbers.map((number) => (
+                      <Card key={number.label} size="1">
+                        <Text size="1" color="gray" as="div" truncate>
+                          {number.label}
+                        </Text>
+                        <Text size="2" weight="bold" wrap="nowrap">
+                          {number.value}
+                        </Text>
+                      </Card>
+                    ))}
+                  </Grid>
+                  <Flex direction="column" gap="2" flexGrow="1" justify="end">
+                    {[80, 55, 70, 40, 65].map((width, index) => (
+                      <Box
+                        key={index}
+                        className="rt-hero-bar"
+                        style={{
+                          width: `${width}%`,
+                          background:
+                            index === 0 ? "var(--accent-9)" : undefined,
+                        }}
+                      />
+                    ))}
                   </Flex>
                 </Box>
               </AspectRatio>
@@ -130,9 +173,12 @@ export function LandingPage() {
         <Container size="4">
           <Box px={{ initial: "4", md: "6" }}>
             <Grid columns={{ initial: "2", sm: "3", md: "6" }} gap="3">
-              {[1, 2, 3, 4, 5, 6].map((item) => (
-                <Box key={item} p="4" style={{ background: "var(--gray-5)" }}>
-                  <Text size="1">LOGO</Text>
+              {landing.features.map((feature) => (
+                <Box key={feature.title} className="rt-logo-tile">
+                  <Icon name={feature.icon} size={20} />
+                  <Text size="2" weight="medium">
+                    {feature.title}
+                  </Text>
                 </Box>
               ))}
             </Grid>
@@ -235,6 +281,7 @@ export function LandingPage() {
                     ))}
                   </Flex>
                   <Button
+                    size="3"
                     variant={plan.recommended ? "solid" : "outline"}
                     mt="5"
                   >
@@ -281,6 +328,7 @@ export function LandingPage() {
                     <Accordion.Header>
                       <Accordion.Trigger asChild>
                         <Button
+                          size="3"
                           variant="ghost"
                           style={{
                             width: "100%",
@@ -371,7 +419,7 @@ export function LandingPage() {
                 >
                   <Icon name="globe" />
                 </IconButton>
-                <Select.Root defaultValue="zh">
+                <Select.Root size="3" defaultValue="zh">
                   <Select.Trigger />
                   <Select.Content>
                     <Select.Item value="zh">简体中文</Select.Item>

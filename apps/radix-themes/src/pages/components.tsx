@@ -58,6 +58,7 @@ import {
   VisuallyHidden,
 } from "@radix-ui/themes"
 import { useCallback, useRef, useState } from "react"
+import nav from "@ui-gallery/spec/mock/nav.json"
 import { coverage, type CoverageStatus } from "@/coverage"
 import { Icon } from "@/icons"
 import { useToast } from "@/toast"
@@ -1111,26 +1112,98 @@ function Demo({ name }: { name: string }) {
       )
     case "Pagination":
       return (
-        <Flex gap="2">
-          <Button size="1" variant="soft">
-            1
-          </Button>
-          <Button size="1" variant="ghost">
-            2
-          </Button>
-          <Button size="1" variant="ghost">
-            3
-          </Button>
+        <Flex direction="column" gap="4">
+          {(["1", "2", "3"] as const).map((size) => (
+            <Flex key={size} gap="1" align="center" wrap="wrap">
+              <IconButton size={size} variant="ghost" aria-label="上一页">
+                <Icon name="chevron-left" />
+              </IconButton>
+              {[1, 2, 3].map((page) => (
+                <Button
+                  key={page}
+                  size={size}
+                  variant={page === 2 ? "solid" : "ghost"}
+                  aria-current={page === 2 ? "page" : undefined}
+                >
+                  {page}
+                </Button>
+              ))}
+              <Text size="2" color="gray">
+                …
+              </Text>
+              <Button size={size} variant="ghost">
+                12
+              </Button>
+              <IconButton size={size} variant="ghost" aria-label="下一页">
+                <Icon name="chevron-right" />
+              </IconButton>
+              <Button size={size} variant="ghost" disabled>
+                禁用
+              </Button>
+            </Flex>
+          ))}
+          <Flex align="center" gap="2" wrap="wrap">
+            <Text size="2" color="gray">
+              共 120 条
+            </Text>
+            <Select.Root size="2" defaultValue="10">
+              <Select.Trigger />
+              <Select.Content>
+                <Select.Item value="10">10 / 页</Select.Item>
+                <Select.Item value="20">20 / 页</Select.Item>
+              </Select.Content>
+            </Select.Root>
+          </Flex>
         </Flex>
       )
     case "Steps":
       return (
-        <Flex gap="2">
-          <Badge>1 基本信息</Badge>
-          <Separator size="2" />
-          <Badge>2 配置</Badge>
-          <Separator size="2" />
-          <Badge>3 确认</Badge>
+        <Flex direction="column" gap="4">
+          <Flex align="center" gap="2">
+            {["基本信息", "配置", "确认"].map((label, index) => (
+              <Flex key={label} align="center" gap="2" flexGrow="1">
+                <Badge
+                  size="3"
+                  radius="full"
+                  color={index < 1 ? "green" : index === 1 ? "indigo" : "gray"}
+                  variant={index === 1 ? "solid" : "soft"}
+                >
+                  {index < 1 ? <Icon name="check" size={14} /> : index + 1}
+                </Badge>
+                <Text size="2" weight={index === 1 ? "bold" : "regular"}>
+                  {label}
+                </Text>
+                {index < 2 ? (
+                  <Separator size="4" style={{ flexGrow: 1 }} />
+                ) : null}
+              </Flex>
+            ))}
+          </Flex>
+          <Flex direction="column" gap="2">
+            {["已完成", "进行中", "出错", "等待"].map((label, index) => (
+              <Flex key={label} align="center" gap="2">
+                <Badge
+                  size="2"
+                  radius="full"
+                  color={
+                    index === 0
+                      ? "green"
+                      : index === 1
+                        ? "indigo"
+                        : index === 2
+                          ? "red"
+                          : "gray"
+                  }
+                  variant={index === 1 ? "solid" : "soft"}
+                >
+                  {index + 1}
+                </Badge>
+                <Text size="2" color={index === 3 ? "gray" : undefined}>
+                  {label}
+                </Text>
+              </Flex>
+            ))}
+          </Flex>
         </Flex>
       )
     case "Anchor":
@@ -1149,13 +1222,106 @@ function Demo({ name }: { name: string }) {
         </IconButton>
       )
     case "Navbar":
+      return (
+        <Flex direction="column" gap="3">
+          <Flex
+            align="center"
+            justify="between"
+            gap="3"
+            p="2"
+            style={{
+              border: "1px solid var(--gray-a5)",
+              borderRadius: "var(--radius-3)",
+            }}
+          >
+            <Text weight="bold">Acme Console</Text>
+            <Flex gap="1" display={{ initial: "none", sm: "flex" }}>
+              <Button size="2" variant="soft">
+                首页
+              </Button>
+              <Button size="2" variant="ghost">
+                订单
+              </Button>
+              <Button size="2" variant="ghost">
+                设置
+              </Button>
+            </Flex>
+            <Flex gap="1" align="center">
+              <IconButton size="2" variant="ghost" aria-label="搜索">
+                <Icon name="search" />
+              </IconButton>
+              <IconButton size="2" variant="ghost" aria-label="通知">
+                <Icon name="bell" />
+              </IconButton>
+              <Avatar size="1" fallback="林" />
+            </Flex>
+          </Flex>
+          <Flex
+            align="center"
+            justify="between"
+            p="2"
+            style={{
+              background: "var(--accent-9)",
+              color: "white",
+              borderRadius: "var(--radius-3)",
+            }}
+          >
+            <Text weight="bold">Solid Navbar</Text>
+            <IconButton size="2" variant="ghost" highContrast aria-label="菜单">
+              <Icon name="menu" />
+            </IconButton>
+          </Flex>
+        </Flex>
+      )
     case "Sidebar":
       return (
-        <Flex align="center" justify="between">
-          <Text weight="bold">Acme Console</Text>
-          <Flex gap="2">
-            <Button variant="ghost">首页</Button>
-            <Button variant="ghost">设置</Button>
+        <Flex gap="3">
+          <Flex
+            direction="column"
+            gap="1"
+            p="2"
+            width="160px"
+            style={{
+              border: "1px solid var(--gray-a5)",
+              borderRadius: "var(--radius-3)",
+            }}
+          >
+            {nav.slice(0, 5).map((item, index) => (
+              <Button
+                key={item.key}
+                size="2"
+                variant={index === 0 ? "soft" : "ghost"}
+                style={{ justifyContent: "flex-start" }}
+              >
+                <Icon name={item.icon} size={16} />
+                {item.label}
+                {item.badge ? (
+                  <Badge size="1" ml="auto">
+                    {item.badge}
+                  </Badge>
+                ) : null}
+              </Button>
+            ))}
+          </Flex>
+          <Flex
+            direction="column"
+            gap="1"
+            p="2"
+            style={{
+              border: "1px solid var(--gray-a5)",
+              borderRadius: "var(--radius-3)",
+            }}
+          >
+            {nav.slice(0, 5).map((item, index) => (
+              <IconButton
+                key={item.key}
+                size="2"
+                variant={index === 0 ? "soft" : "ghost"}
+                aria-label={item.label}
+              >
+                <Icon name={item.icon} size={16} />
+              </IconButton>
+            ))}
           </Flex>
         </Flex>
       )

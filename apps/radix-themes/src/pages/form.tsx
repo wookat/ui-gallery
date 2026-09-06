@@ -8,6 +8,7 @@ import {
   CheckboxGroup,
   Flex,
   Heading,
+  IconButton,
   Popover,
   RadioGroup,
   Select,
@@ -33,6 +34,7 @@ export function FormPage() {
   const [done, setDone] = useState(false)
   const [assignee, setAssignee] = useState("")
   const [agree, setAgree] = useState(false)
+  const [rating, setRating] = useState(0)
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   const addTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && tag.trim()) {
@@ -68,6 +70,7 @@ export function FormPage() {
             <Heading size="6">项目创建成功</Heading>
             <Text color="gray">你的配置已经保存。</Text>
             <Button
+              size="3"
               onClick={() => {
                 setDone(false)
                 setStep(1)
@@ -85,6 +88,7 @@ export function FormPage() {
                 <label>
                   <FieldLabel required>项目名称</FieldLabel>
                   <TextField.Root
+                    size="3"
                     mt="2"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
@@ -98,11 +102,17 @@ export function FormPage() {
                 ) : null}
                 <label>
                   <FieldLabel>预算</FieldLabel>
-                  <TextField.Root mt="2" type="number" placeholder="0" />
+                  <TextField.Root
+                    size="3"
+                    mt="2"
+                    type="number"
+                    placeholder="0"
+                  />
                 </label>
                 <label>
                   <FieldLabel required>联系邮箱</FieldLabel>
                   <TextField.Root
+                    size="3"
                     mt="2"
                     type="email"
                     value={email}
@@ -119,7 +129,7 @@ export function FormPage() {
                 <label>
                   <FieldLabel>联系电话</FieldLabel>
                   <Flex mt="2" gap="2">
-                    <Select.Root defaultValue="+86">
+                    <Select.Root size="3" defaultValue="+86">
                       <Select.Trigger />
                       <Select.Content>
                         <Select.Item value="+86">+86</Select.Item>
@@ -128,6 +138,7 @@ export function FormPage() {
                       </Select.Content>
                     </Select.Root>
                     <TextField.Root
+                      size="3"
                       placeholder="手机号"
                       style={{ flexGrow: 1, minWidth: 0 }}
                     />
@@ -135,7 +146,7 @@ export function FormPage() {
                 </label>
                 <label>
                   <FieldLabel>项目说明</FieldLabel>
-                  <TextArea mt="2" placeholder="描述项目目标" />
+                  <TextArea size="3" mt="2" placeholder="描述项目目标" />
                   <Help>最多 500 字</Help>
                 </label>
                 <RadioGroup.Root defaultValue="internal">
@@ -166,6 +177,7 @@ export function FormPage() {
                   <Popover.Root>
                     <Popover.Trigger>
                       <TextField.Root
+                        size="3"
                         mt="2"
                         value={assignee}
                         onChange={(event) => setAssignee(event.target.value)}
@@ -176,6 +188,7 @@ export function FormPage() {
                       <Flex direction="column" gap="1">
                         {team.map((member) => (
                           <Button
+                            size="3"
                             key={member.email}
                             variant="ghost"
                             onClick={() => setAssignee(member.name)}
@@ -189,8 +202,8 @@ export function FormPage() {
                 </label>
                 <label>
                   <FieldLabel>项目类型</FieldLabel>
-                  <Select.Root defaultValue="product">
-                    <Select.Trigger mt="2" />
+                  <Select.Root size="3" defaultValue="product">
+                    <Select.Trigger mt="2" style={{ width: "100%" }} />
                     <Select.Content>
                       <Select.Item value="product">产品</Select.Item>
                       <Select.Item value="marketing">营销</Select.Item>
@@ -200,16 +213,36 @@ export function FormPage() {
                 </label>
                 <label>
                   <FieldLabel>计划日期</FieldLabel>
-                  <Flex gap="2" mt="2">
-                    <TextField.Root type="date" />
-                    <TextField.Root type="time" />
+                  <Flex gap="2" mt="2" wrap="wrap">
+                    <TextField.Root
+                      size="3"
+                      type="date"
+                      lang="zh-CN"
+                      style={{ flex: "1 1 140px", minWidth: 0 }}
+                    />
+                    <TextField.Root
+                      size="3"
+                      type="time"
+                      lang="zh-CN"
+                      style={{ flex: "1 1 140px", minWidth: 0 }}
+                    />
                   </Flex>
                 </label>
                 <label>
                   <FieldLabel>日期范围</FieldLabel>
-                  <Flex gap="2" mt="2">
-                    <TextField.Root type="date" />
-                    <TextField.Root type="date" />
+                  <Flex gap="2" mt="2" wrap="wrap">
+                    <TextField.Root
+                      size="3"
+                      type="date"
+                      lang="zh-CN"
+                      style={{ flex: "1 1 140px", minWidth: 0 }}
+                    />
+                    <TextField.Root
+                      size="3"
+                      type="date"
+                      lang="zh-CN"
+                      style={{ flex: "1 1 140px", minWidth: 0 }}
+                    />
                   </Flex>
                 </label>
                 <label>
@@ -218,34 +251,50 @@ export function FormPage() {
                 </label>
                 <Flex direction="column" gap="2">
                   <FieldLabel>评分</FieldLabel>
-                  <Flex>
+                  <Flex gap="1" role="radiogroup" aria-label="评分">
                     {[1, 2, 3, 4, 5].map((value) => (
-                      <Button key={value} size="1" variant="ghost">
-                        <Icon name={value <= 4 ? "star" : "star"} />
-                      </Button>
+                      <IconButton
+                        key={value}
+                        type="button"
+                        size="3"
+                        variant="ghost"
+                        color={value <= rating ? "amber" : "gray"}
+                        className={value <= rating ? "rt-star-filled" : ""}
+                        role="radio"
+                        aria-checked={value === rating}
+                        aria-label={`${value} 星`}
+                        onClick={() => setRating(value)}
+                        style={{ minHeight: "40px", minWidth: "40px" }}
+                      >
+                        <Icon name="star" size={22} />
+                      </IconButton>
                     ))}
                   </Flex>
                 </Flex>
-                <Flex align="center" gap="3">
+                <label>
                   <FieldLabel>颜色</FieldLabel>
-                  <Box asChild>
+                  <Box mt="2">
                     <input
                       type="color"
                       defaultValue="#888888"
                       aria-label="颜色"
+                      style={{ width: "56px", height: "40px", padding: 0 }}
                     />
                   </Box>
-                </Flex>
+                </label>
                 <Box p="5" style={{ border: "1px dashed var(--gray-a7)" }}>
                   <Flex direction="column" align="center" gap="2">
                     <Icon name="upload" size={28} />
                     <Text>拖拽文件到这里</Text>
-                    <Button variant="outline">选择文件</Button>
+                    <Button size="3" variant="outline">
+                      选择文件
+                    </Button>
                   </Flex>
                 </Box>
                 <label>
                   <FieldLabel>标签</FieldLabel>
                   <TextField.Root
+                    size="3"
                     mt="2"
                     value={tag}
                     onChange={(event) => setTag(event.target.value)}
@@ -259,7 +308,7 @@ export function FormPage() {
                   ))}
                 </Flex>
                 <Tooltip content="项目成员可以在创建后继续编辑">
-                  <Button variant="ghost" size="1">
+                  <Button variant="ghost" size="3">
                     <Icon name="alert-circle" />
                     需要帮助？
                   </Button>
@@ -292,6 +341,7 @@ export function FormPage() {
             {step < 3 ? (
               <Flex justify="end" gap="3">
                 <Button
+                  size="3"
                   onClick={() => {
                     if (step === 1 && (!name || !emailOk)) {
                       setAttempted(true)
@@ -305,10 +355,14 @@ export function FormPage() {
               </Flex>
             ) : (
               <Flex justify="end" gap="3">
-                <Button variant="soft" onClick={() => setStep(2)}>
+                <Button size="3" variant="soft" onClick={() => setStep(2)}>
                   上一步
                 </Button>
-                <Button disabled={!agree} onClick={() => setDone(true)}>
+                <Button
+                  size="3"
+                  disabled={!agree}
+                  onClick={() => setDone(true)}
+                >
                   提交
                 </Button>
               </Flex>

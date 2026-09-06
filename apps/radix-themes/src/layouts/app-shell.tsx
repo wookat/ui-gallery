@@ -20,20 +20,28 @@ import {
 import { Icon } from "@/icons"
 import { useTheme } from "@/theme-provider"
 
-function Brand() {
+function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <Link to="/" className="rt-brand">
+    <Link to="/" className="rt-brand" aria-label="Acme Console">
       <Flex align="center" gap="2">
         <Box>
-          <Button size="2">A</Button>
+          <Button size="3" style={{ minWidth: "40px", minHeight: "40px" }}>
+            A
+          </Button>
         </Box>
-        <Text weight="bold">Acme Console</Text>
+        {compact ? null : <Text weight="bold">Acme Console</Text>}
       </Flex>
     </Link>
   )
 }
 
-function Navigation({ onNavigate }: { onNavigate?: () => void }) {
+function Navigation({
+  onNavigate,
+  compact = false,
+}: {
+  onNavigate?: () => void
+  compact?: boolean
+}) {
   const location = useLocation()
   return (
     <Flex direction="column" gap="1">
@@ -45,21 +53,26 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
           variant={location.pathname === item.path ? "soft" : "ghost"}
           color={location.pathname === item.path ? "indigo" : undefined}
           onClick={onNavigate}
+          title={compact ? item.label : undefined}
           style={{
             width: "100%",
             minHeight: "40px",
             boxSizing: "border-box",
-            justifyContent: "flex-start",
+            justifyContent: compact ? "center" : "flex-start",
           }}
         >
-          <Link to={item.path}>
+          <Link to={item.path} aria-label={compact ? item.label : undefined}>
             <Icon name={item.icon} />
-            <Text>{item.label}</Text>
-            {item.badge ? (
-              <Badge size="1" variant="soft">
-                {item.badge}
-              </Badge>
-            ) : null}
+            {compact ? null : (
+              <>
+                <Text>{item.label}</Text>
+                {item.badge ? (
+                  <Badge size="1" variant="soft">
+                    {item.badge}
+                  </Badge>
+                ) : null}
+              </>
+            )}
           </Link>
         </Button>
       ))}
@@ -79,9 +92,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Box
         asChild
         display={{ initial: "none", md: "block" }}
-        width="260px"
-        p="4"
+        width={collapsed ? "72px" : "260px"}
+        p={collapsed ? "3" : "4"}
         style={{
+          transition: "width 0.2s ease",
           borderRight: "1px solid var(--gray-a5)",
           flexShrink: 0,
           position: "sticky",
@@ -93,29 +107,37 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <aside>
           <Flex direction="column" gap="6" height="100%">
-            <Brand />
+            <Brand compact={collapsed} />
             <Box>
-              <Text size="1" color="gray">
-                工作区
-              </Text>
+              {collapsed ? null : (
+                <Text size="1" color="gray">
+                  工作区
+                </Text>
+              )}
               <Box mt="3">
-                <Navigation />
+                <Navigation compact={collapsed} />
               </Box>
             </Box>
             <Box mt="auto">
-              <Card size="1">
-                <Flex align="center" gap="2">
-                  <Avatar size="2" fallback="林" />
-                  <Flex direction="column" gap="1">
-                    <Text size="2" weight="medium">
-                      {team[0].name}
-                    </Text>
-                    <Text size="1" color="gray">
-                      {team[0].email}
-                    </Text>
-                  </Flex>
+              {collapsed ? (
+                <Flex justify="center">
+                  <Avatar size="3" fallback="林" />
                 </Flex>
-              </Card>
+              ) : (
+                <Card size="1">
+                  <Flex align="center" gap="2">
+                    <Avatar size="2" fallback="林" />
+                    <Flex direction="column" gap="1">
+                      <Text size="2" weight="medium">
+                        {team[0].name}
+                      </Text>
+                      <Text size="1" color="gray">
+                        {team[0].email}
+                      </Text>
+                    </Flex>
+                  </Flex>
+                </Card>
+              )}
             </Box>
             <IconButton
               size="3"
@@ -178,7 +200,16 @@ export function AppShell({ children }: { children: ReactNode }) {
               align="center"
               gap="2"
             >
-              <Link to="/">Acme Console</Link>
+              <Link
+                to="/"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  minHeight: "40px",
+                }}
+              >
+                Acme Console
+              </Link>
               <Icon name="chevron-right" />
               <Text color="gray">{current}</Text>
             </Flex>
@@ -187,6 +218,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               style={{ marginLeft: "auto" }}
             >
               <TextField.Root
+                size="3"
                 placeholder="搜索..."
                 style={{ maxWidth: "280px" }}
               >

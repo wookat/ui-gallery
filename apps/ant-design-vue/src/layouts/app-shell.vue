@@ -26,19 +26,20 @@ function navigate() { mobileOpen.value = false }
     <a-layout-sider v-model:collapsed="collapsed" collapsible :trigger="null" breakpoint="md" collapsed-width="0" class="desktop-sider">
       <RouterLink class="brand" to="/"><span class="brand-mark">A</span><span v-if="!collapsed">Acme Console</span></RouterLink>
       <a-menu mode="inline" :selected-keys="selected" theme="dark">
-        <a-menu-item v-for="item in nav" :key="item.key"><RouterLink :to="item.path"><Icon :name="item.icon" /><span>{{ item.label }}</span><a-badge v-if="item.badge" :count="item.badge" /></RouterLink></a-menu-item>
+        <a-menu-item v-for="item in nav" :key="item.key"><RouterLink :to="item.path" class="nav-link"><Icon :name="item.icon" /><span>{{ item.label }}</span><a-badge v-if="item.badge" :count="item.badge" /></RouterLink></a-menu-item>
       </a-menu>
       <div class="sider-user"><a-avatar>林</a-avatar><span v-if="!collapsed">林晓<br><small>管理员</small></span></div>
     </a-layout-sider>
     <a-drawer v-model:open="mobileOpen" placement="left" :width="280" title="Acme Console">
       <a-menu mode="inline" :selected-keys="selected" @click="navigate">
-        <a-menu-item v-for="item in nav" :key="item.key"><RouterLink :to="item.path"><Icon :name="item.icon" />{{ item.label }}</RouterLink></a-menu-item>
+        <a-menu-item v-for="item in nav" :key="item.key"><RouterLink :to="item.path" class="nav-link"><Icon :name="item.icon" /><span>{{ item.label }}</span></RouterLink></a-menu-item>
       </a-menu>
+      <template #footer><div class="drawer-user"><a-avatar>林</a-avatar><span>林晓<br><small class="muted">管理员</small></span></div></template>
     </a-drawer>
     <a-layout>
       <a-layout-header class="app-header" :style="headerStyle">
         <a-button class="mobile-menu" type="text" @click="mobileOpen = true"><Icon name="menu" :size="20" /></a-button>
-        <a-breadcrumb><a-breadcrumb-item><RouterLink to="/">Acme Console</RouterLink></a-breadcrumb-item><a-breadcrumb-item>{{ current }}</a-breadcrumb-item></a-breadcrumb>
+        <a-breadcrumb class="header-crumb"><a-breadcrumb-item class="crumb-root"><RouterLink to="/">Acme Console</RouterLink></a-breadcrumb-item><a-breadcrumb-item>{{ current }}</a-breadcrumb-item></a-breadcrumb>
         <div class="header-actions">
           <a-input-search class="global-search" placeholder="搜索..." />
           <a-popover title="通知" trigger="click">

@@ -3,7 +3,7 @@ export const wideDemos = ["Transfer", "Calendar", "Menu", "Table", "DataGrid", "
 </script>
 <script setup lang="ts">
 import { ref } from "vue"
-import { message, notification } from "ant-design-vue"
+import { message, notification, theme } from "ant-design-vue"
 import { Icon } from "./shared"
 defineProps<{ name: string }>()
 const open = ref(false)
@@ -16,6 +16,7 @@ const transferData = [{ key: "1", title: "项目一" }, { key: "2", title: "项�
 const transferKeys = ref(["2"])
 const backTopBox = ref<HTMLElement>()
 const imageSrc = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="240" height="140"><rect width="240" height="140" rx="12" fill="#e6f4ff"/><circle cx="72" cy="58" r="22" fill="#1677ff"/><path d="M20 120l52-44 40 30 36-24 72 38z" fill="#91caff"/></svg>')}`
+const { token } = theme.useToken()
 function backTopTarget() { return backTopBox.value ?? window }
 function openDrawer(placement: typeof drawerPlacement.value) { drawerPlacement.value = placement; open.value = true }
 </script>
@@ -52,17 +53,17 @@ function openDrawer(placement: typeof drawerPlacement.value) { drawerPlacement.v
   <template v-else-if="name === 'Avatar'"><div class="demo-row"><a-avatar size="small">林</a-avatar><a-avatar>林</a-avatar><a-avatar size="large">林</a-avatar><a-avatar shape="square">王</a-avatar><a-avatar><template #icon><Icon name="user" :size="18" /></template></a-avatar></div></template>
   <template v-else-if="name === 'AvatarGroup'"><a-avatar-group :max-count="3"><a-avatar>林</a-avatar><a-avatar>王</a-avatar><a-avatar>陈</a-avatar><a-avatar>M</a-avatar><a-avatar>A</a-avatar></a-avatar-group></template>
   <template v-else-if="name === 'Badge'"><div class="demo-row"><a-badge count="5"><a-avatar shape="square" /></a-badge><a-badge dot><a-avatar shape="square" /></a-badge><a-badge :count="120" :overflow-count="99"><a-avatar shape="square" /></a-badge><a-badge status="success" text="成功" /><a-badge status="processing" text="进行中" /><a-badge status="error" text="错误" /></div></template>
-  <template v-else-if="name === 'Tag'"><div class="demo-row"><a-tag>默认</a-tag><a-tag color="success">成功</a-tag><a-tag color="processing">处理中</a-tag><a-tag color="warning">警告</a-tag><a-tag color="error">错误</a-tag><a-tag closable>可关闭</a-tag><a-tag color="blue" :bordered="false">无边框</a-tag><a-checkable-tag checked>可选</a-checkable-tag></div></template>
+  <template v-else-if="name === 'Tag'"><div class="demo-row"><a-tag>默认</a-tag><a-tag color="success">成功</a-tag><a-tag color="processing">处理中</a-tag><a-tag color="warning">警告</a-tag><a-tag color="error">错误</a-tag><a-tag closable>可关闭</a-tag><a-tag color="processing" :bordered="false">无边框</a-tag><a-checkable-tag checked>可选</a-checkable-tag></div></template>
   <template v-else-if="name === 'Statistic'"><div class="demo-row"><a-statistic title="收入" prefix="¥" :value="128430" /><a-statistic title="增长" suffix="%" :value="12.5" :precision="1" /><a-statistic title="加载中" :value="0" loading /></div></template>
   <template v-else-if="name === 'Timeline'"><a-timeline><a-timeline-item>项目创建</a-timeline-item><a-timeline-item color="green">完成配置</a-timeline-item><a-timeline-item color="red">检测到错误</a-timeline-item><a-timeline-item pending>进行中…</a-timeline-item></a-timeline></template>
   <template v-else-if="name === 'Tree'"><a-tree checkable default-expand-all :tree-data="[{ title: '工作区', key: '0', children: [{ title: '项目', key: '0-0' }, { title: '禁用', key: '0-1', disabled: true }] }]" /></template>
   <template v-else-if="name === 'Calendar'"><a-calendar :fullscreen="false" class="calendar-demo" /></template>
   <template v-else-if="name === 'Image'"><div class="demo-row"><a-image :width="120" :src="imageSrc" alt="占位示意图（可预览）" /><a-image :width="120" :src="imageSrc" alt="占位示意图（不可预览）" :preview="false" /></div></template>
-  <template v-else-if="name === 'Carousel'"><div class="carousel-wrap"><a-carousel autoplay dots-class="slick-dots slick-thumb"><div v-for="i in 3" :key="i" class="carousel-slide">Slide {{ i }}</div></a-carousel></div></template>
+  <template v-else-if="name === 'Carousel'"><div class="carousel-wrap"><a-carousel :dots="true" autoplay effect="fade"><div v-for="i in 3" :key="i" class="carousel-slide">Slide {{ i }}</div></a-carousel></div></template>
   <template v-else-if="name === 'Empty'"><div class="demo-stack"><a-empty /><a-empty :image="undefined" description="简洁空态" :image-style="{ height: '40px' }" /></div></template>
   <template v-else-if="name === 'Tooltip'"><div class="demo-row"><a-tooltip title="提示内容"><a-button>悬停查看</a-button></a-tooltip><a-tooltip title="始终显示" :open="true" placement="right"><a-tag>open</a-tag></a-tooltip></div></template>
   <template v-else-if="name === 'Popover'"><a-popover title="标题" content="Popover 内容"><a-button>打开</a-button></a-popover></template>
-  <template v-else-if="name === 'QRCode'"><div class="demo-row"><a-qrcode value="https://acme.dev" :size="96" /><a-qrcode value="https://acme.dev" :size="96" status="loading" /><a-qrcode value="https://acme.dev" :size="96" status="expired" /></div></template>
+  <template v-else-if="name === 'QRCode'"><div class="demo-row"><a-qrcode value="https://acme.dev" :size="96" :color="token.colorText" :bg-color="token.colorBgContainer" /><a-qrcode value="https://acme.dev" :size="96" status="loading" :color="token.colorText" :bg-color="token.colorBgContainer" /><a-qrcode value="https://acme.dev" :size="96" status="expired" :color="token.colorText" :bg-color="token.colorBgContainer" /></div></template>
   <template v-else-if="name === 'Segmented'"><div class="demo-stack"><a-segmented v-for="size in sizes" :key="size" :size="size" :options="['日', '周', '月']" /><a-segmented :options="['日', '周', '月']" disabled /></div></template>
   <template v-else-if="name === 'Alert'"><div class="demo-stack"><a-alert message="信息" description="信息描述文案。" type="info" show-icon /><a-alert message="成功" type="success" show-icon /><a-alert message="警告" type="warning" show-icon closable /><a-alert message="错误" type="error" show-icon><template #action><a-button size="small" danger>重试</a-button></template></a-alert></div></template>
   <template v-else-if="name === 'Toast'"><div class="demo-row"><a-button @click="message.success('操作成功')">成功</a-button><a-button @click="message.info('信息提示')">信息</a-button><a-button @click="message.warning('注意')">警告</a-button><a-button danger @click="message.error('操作失败')">错误</a-button><a-button @click="message.loading('加载中…', 1.5)">加载</a-button></div></template>
@@ -104,8 +105,10 @@ function openDrawer(placement: typeof drawerPlacement.value) { drawerPlacement.v
   <a-card v-else size="small">组合示例：{{ name }}</a-card>
 </template>
 <style scoped>
-.carousel-wrap { width: 100%; min-width: 0; overflow: hidden; }
-.carousel-slide { height: 80px; display: grid; place-items: center; background: var(--app-color-primary); color: var(--app-color-white); }
+.carousel-wrap { width: 100%; display: block; min-width: 0; overflow: hidden; }
+.carousel-wrap :deep(.slick-list) { overflow: hidden; }
+.carousel-wrap :deep(.slick-slide) { width: 100%; }
+.carousel-slide { height: 80px; line-height: 80px; text-align: center; background: var(--app-color-primary); color: var(--app-color-white); }
 .ratio-demo { aspect-ratio: 16/9; display: grid; place-items: center; background: var(--app-color-fill-quaternary); }
 .container-demo { max-width: 640px; margin: auto; padding: 20px; border: 1px dashed var(--app-color-border); }
 .scroll-demo { height: 90px; overflow: auto; border: 1px solid var(--app-color-border); padding: 12px; }
@@ -113,7 +116,7 @@ function openDrawer(placement: typeof drawerPlacement.value) { drawerPlacement.v
 .back-top-scroll { height: 100%; border: 0; }
 .nav-demo { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--app-color-border); }
 .nav-demo-menu { flex: 1; min-width: 160px; border-bottom: 0; }
-.layout-demo :deep(.ant-layout-header), .layout-demo :deep(.ant-layout-footer) { color: var(--app-color-white); text-align: center; }
+.layout-demo :deep(.ant-layout-header) { color: var(--app-color-white); text-align: center; }
 .layout-demo :deep(.ant-layout-header) { height: 40px; line-height: 40px; }
 .layout-demo :deep(.ant-layout-footer) { padding: 8px; }
 .layout-demo :deep(.ant-layout-sider) { color: var(--app-color-white); text-align: center; line-height: 56px; }

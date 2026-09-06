@@ -1,4 +1,5 @@
-import { useEffect, useState, type ReactElement, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
+import type * as React from "react"
 import { Badge, Body1, Caption1, Card, CardHeader, Divider, Subtitle1, Text, Title2, makeStyles, tokens } from "@fluentui/react-components"
 
 const MOBILE_BREAKPOINT = 768
@@ -15,6 +16,27 @@ export function useIsMobile() {
   return isMobile
 }
 
+export function useControlSize(): "medium" | "large" {
+  return useIsMobile() ? "large" : "medium"
+}
+
+export function useElementWidth(): [React.RefObject<HTMLDivElement | null>, number] {
+  const ref = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(160)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+    const update = () => setWidth(Math.max(1, Math.round(element.getBoundingClientRect().width)))
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  return [ref, width]
+}
+
 export const useLayoutStyles = makeStyles({
   stack: { display: "flex", flexDirection: "column", gap: tokens.spacingVerticalL, minWidth: 0 },
   stackS: { display: "flex", flexDirection: "column", gap: tokens.spacingVerticalS, minWidth: 0 },
@@ -28,6 +50,7 @@ export const useLayoutStyles = makeStyles({
   scrollX: { overflowX: "auto", maxWidth: "100%" },
   fullWidth: { width: "100%" },
   card: { padding: tokens.spacingHorizontalL },
+  tabTouch: { minWidth: "48px", justifyContent: "center" },
 })
 
 export function PageHeader({ title, description, action }: { title: string; description?: string; action?: ReactElement }) {

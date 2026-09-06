@@ -50,7 +50,7 @@ import {
   useToastController,
 } from "@fluentui/react-components"
 import { Icon } from "@/lib/icon"
-import { Money, PageHeader, SectionCard, StatusBadge, useIsMobile, useLayoutStyles } from "./shared"
+import { Money, PageHeader, SectionCard, StatusBadge, useControlSize, useIsMobile, useLayoutStyles } from "./shared"
 
 const useStyles = makeStyles({
   layout: { display: "grid", gap: tokens.spacingHorizontalL, gridTemplateColumns: "200px minmax(0, 1fr)", "@media (max-width: 1023px)": { gridTemplateColumns: "minmax(0, 1fr)" } },
@@ -75,6 +75,7 @@ export function SettingsPage() {
   const s = useStyles()
   const l = useLayoutStyles()
   const isMobile = useIsMobile()
+  const ctl = useControlSize()
   const { dispatchToast } = useToastController("acme-toaster")
   const [section, setSection] = useState("profile")
   const [twoFactor, setTwoFactor] = useState(true)
@@ -84,7 +85,7 @@ export function SettingsPage() {
   const notify = (title: string) => dispatchToast(<Toast><ToastTitle>{title}</ToastTitle></Toast>, { intent: "success" })
 
   const nav = (
-    <TabList vertical={!isMobile} selectedValue={section} onTabSelect={(_, d) => setSection(String(d.value))} className={isMobile ? undefined : s.side} size={isMobile ? "small" : "medium"} style={isMobile ? { overflowX: "auto", flexWrap: "nowrap" } : undefined}>
+    <TabList vertical={!isMobile} selectedValue={section} onTabSelect={(_, d) => setSection(String(d.value))} className={isMobile ? undefined : s.side} size={isMobile ? "large" : "medium"} style={isMobile ? { overflowX: "auto", flexWrap: "nowrap" } : undefined}>
       {sections.map((item) => <Tab key={item.key} value={item.key} icon={<Icon name={item.icon} size={18} />}>{item.label}</Tab>)}
     </TabList>
   )
@@ -100,16 +101,16 @@ export function SettingsPage() {
               <SectionCard title="头像" description="PNG / JPG，不超过 2MB">
                 <div className={l.row}>
                   <Avatar name={team[0].name} color="brand" size={64} />
-                  <Button icon={<Icon name="upload" />}>上传</Button>
-                  <Button appearance="subtle">移除</Button>
+                  <Button size={ctl} icon={<Icon name="upload" />}>上传</Button>
+                  <Button appearance="subtle" size={ctl}>移除</Button>
                 </div>
               </SectionCard>
-              <SectionCard title="个人资料" description="其他成员可以看到这些信息" action={<Button appearance="primary" onClick={() => notify("资料已保存")}>保存</Button>}>
+              <SectionCard title="个人资料" description="其他成员可以看到这些信息" action={<Button appearance="primary" size={ctl} onClick={() => notify("资料已保存")}>保存</Button>}>
                 <div className={s.grid}>
-                  <Field label="姓名"><Input defaultValue={team[0].name} /></Field>
-                  <Field label="邮箱"><Input defaultValue={team[0].email} type="email" /></Field>
-                  <Field label="角色"><Input value={roleLabel[team[0].role]} readOnly /></Field>
-                  <Field label="时区"><Dropdown defaultValue="Asia/Shanghai" defaultSelectedOptions={["Asia/Shanghai"]}>{["Asia/Shanghai", "Asia/Singapore", "Europe/Frankfurt", "America/Los_Angeles"].map((tz) => <Option key={tz}>{tz}</Option>)}</Dropdown></Field>
+                  <Field label="姓名"><Input size={ctl} defaultValue={team[0].name} /></Field>
+                  <Field label="邮箱"><Input size={ctl} defaultValue={team[0].email} type="email" /></Field>
+                  <Field label="角色"><Input size={ctl} value={roleLabel[team[0].role]} readOnly /></Field>
+                  <Field label="时区"><Dropdown size={ctl} defaultValue="Asia/Shanghai" defaultSelectedOptions={["Asia/Shanghai"]}>{["Asia/Shanghai", "Asia/Singapore", "Europe/Frankfurt", "America/Los_Angeles"].map((tz) => <Option key={tz}>{tz}</Option>)}</Dropdown></Field>
                   <Field label="简介" style={{ gridColumn: "1 / -1" }}><Textarea placeholder="一句话介绍自己" resize="vertical" /></Field>
                 </div>
               </SectionCard>
@@ -117,11 +118,11 @@ export function SettingsPage() {
           ) : null}
           {section === "security" ? (
             <>
-              <SectionCard title="修改密码" action={<Button appearance="primary" onClick={() => notify("密码已更新")}>更新密码</Button>}>
+              <SectionCard title="修改密码" action={<Button appearance="primary" size={ctl} onClick={() => notify("密码已更新")}>更新密码</Button>}>
                 <div className={s.grid}>
-                  <Field label="当前密码"><Input type="password" /></Field>
-                  <Field label="新密码" hint="至少 8 位，包含数字与字母"><Input type="password" /></Field>
-                  <Field label="确认新密码"><Input type="password" /></Field>
+                  <Field label="当前密码"><Input size={ctl} type="password" /></Field>
+                  <Field label="新密码" hint="至少 8 位，包含数字与字母"><Input size={ctl} type="password" /></Field>
+                  <Field label="确认新密码"><Input size={ctl} type="password" /></Field>
                 </div>
               </SectionCard>
               <SectionCard title="两步验证" description="登录时需要额外的验证码">
@@ -131,7 +132,7 @@ export function SettingsPage() {
                 </div>
                 {twoFactor ? <Badge appearance="tint" color="success" icon={<Icon name="check" size={12} />}>已启用</Badge> : <Badge appearance="tint" color="warning">未启用</Badge>}
               </SectionCard>
-              <SectionCard title="登录设备" description="当前登录中的会话" action={<Button appearance="subtle" onClick={() => notify("已退出其他设备")}>退出其他设备</Button>}>
+              <SectionCard title="登录设备" description="当前登录中的会话" action={<Button appearance="subtle" size={ctl} onClick={() => notify("已退出其他设备")}>退出其他设备</Button>}>
                 <div className={l.stackS}>
                   {sessions.map((item) => (
                     <div className={s.switchRow} key={item.device}>
@@ -139,7 +140,7 @@ export function SettingsPage() {
                         <Icon name={item.device.includes("iPhone") ? "smartphone" : "monitor"} />
                         <div><Body1>{item.device}</Body1><Caption1 className={l.muted} block>{item.location} · {item.time}</Caption1></div>
                       </div>
-                      {item.current ? <Badge appearance="tint" color="brand">当前设备</Badge> : <Button size="small" appearance="subtle" onClick={() => notify("已退出该设备")}>退出</Button>}
+                      {item.current ? <Badge appearance="tint" color="brand">当前设备</Badge> : <Button size={isMobile ? "large" : "small"} appearance="subtle" onClick={() => notify("已退出该设备")}>退出</Button>}
                     </div>
                   ))}
                 </div>
@@ -164,7 +165,7 @@ export function SettingsPage() {
             </>
           ) : null}
           {section === "team" ? (
-            <SectionCard title="团队成员" description={`${team.length} 位成员`} action={<Button appearance="primary" icon={<Icon name="user-plus" />} onClick={() => setInviteOpen(true)}>邀请成员</Button>}>
+            <SectionCard title="团队成员" description={`${team.length} 位成员`} action={<Button appearance="primary" size={ctl} icon={<Icon name="user-plus" />} onClick={() => setInviteOpen(true)}>邀请成员</Button>}>
               <div className={l.scrollX}>
                 <Table aria-label="团队成员" size={isMobile ? "small" : "medium"}>
                   <TableHeader><TableRow><TableHeaderCell>成员</TableHeaderCell><TableHeaderCell>角色</TableHeaderCell><TableHeaderCell>最近活跃</TableHeaderCell><TableHeaderCell style={{ width: 48 }} /></TableRow></TableHeader>
@@ -176,7 +177,7 @@ export function SettingsPage() {
                         <TableCell>{m.lastActive}</TableCell>
                         <TableCell>
                           <Menu>
-                            <MenuTrigger disableButtonEnhancement><Button appearance="subtle" size="small" icon={<Icon name="more-horizontal" />} aria-label={`${m.name} 操作`} /></MenuTrigger>
+                            <MenuTrigger disableButtonEnhancement><Button appearance="subtle" size={ctl} icon={<Icon name="more-horizontal" />} aria-label={`${m.name} 操作`} /></MenuTrigger>
                             <MenuPopover><MenuList><MenuItem>更改角色</MenuItem><MenuItem>重发邀请</MenuItem><MenuItem onClick={() => notify(`已移除 ${m.name}`)}>移除</MenuItem></MenuList></MenuPopover>
                           </Menu>
                         </TableCell>
@@ -191,13 +192,13 @@ export function SettingsPage() {
                     <DialogTitle>邀请成员</DialogTitle>
                     <DialogContent>
                       <div className={l.stackM}>
-                        <Field label="邮箱" required><Input type="email" placeholder="teammate@acme.dev" /></Field>
-                        <Field label="角色"><Dropdown defaultValue="成员" defaultSelectedOptions={["member"]}>{Object.entries(roleLabel).map(([k, v]) => <Option key={k} value={k}>{v}</Option>)}</Dropdown></Field>
+                        <Field label="邮箱" required><Input size={ctl} type="email" placeholder="teammate@acme.dev" /></Field>
+                        <Field label="角色"><Dropdown size={ctl} defaultValue="成员" defaultSelectedOptions={["member"]}>{Object.entries(roleLabel).map(([k, v]) => <Option key={k} value={k}>{v}</Option>)}</Dropdown></Field>
                       </div>
                     </DialogContent>
                     <DialogActions>
-                      <DialogTrigger disableButtonEnhancement><Button>取消</Button></DialogTrigger>
-                      <Button appearance="primary" onClick={() => { setInviteOpen(false); notify("邀请已发送") }}>发送邀请</Button>
+                      <DialogTrigger disableButtonEnhancement><Button size={ctl}>取消</Button></DialogTrigger>
+                      <Button appearance="primary" size={ctl} onClick={() => { setInviteOpen(false); notify("邀请已发送") }}>发送邀请</Button>
                     </DialogActions>
                   </DialogBody>
                 </DialogSurface>
@@ -206,14 +207,14 @@ export function SettingsPage() {
           ) : null}
           {section === "billing" ? (
             <>
-              <SectionCard title="当前计划" description="Pro · 每月 ¥99 · 下次扣款 2026-10-01" action={<Button appearance="secondary">管理支付方式</Button>}>
+              <SectionCard title="当前计划" description="Pro · 每月 ¥99 · 下次扣款 2026-10-01" action={<Button appearance="secondary" size={ctl}>管理支付方式</Button>}>
                 <div className={l.grid3}>
                   {plans.map((p) => (
                     <Card key={p.name} className={mergeClasses(s.plan, p.recommended ? s.planActive : "")}>
                       <div className={l.rowBetween}><Text weight="semibold">{p.name}</Text>{p.recommended ? <Badge appearance="filled" color="brand">当前</Badge> : null}</div>
                       <Title3>{p.price === null ? "联系我们" : p.price === 0 ? "免费" : `¥${p.price}/月`}</Title3>
                       <div className={l.stackS}>{p.features.map((f) => <div className={l.row} key={f}><Icon name="check" size={14} /><Caption1>{f}</Caption1></div>)}</div>
-                      <Button appearance={p.recommended ? "primary" : "outline"} disabled={p.recommended} style={{ marginTop: "auto" }}>{p.recommended ? "使用中" : p.price === null ? "联系销售" : "切换"}</Button>
+                      <Button appearance={p.recommended ? "primary" : "outline"} size={ctl} disabled={p.recommended} style={{ marginTop: "auto" }}>{p.recommended ? "使用中" : p.price === null ? "联系销售" : "切换"}</Button>
                     </Card>
                   ))}
                 </div>
@@ -229,7 +230,7 @@ export function SettingsPage() {
                           <TableCell>{inv.date}</TableCell>
                           <TableCell><StatusBadge value={inv.status} /></TableCell>
                           <TableCell style={{ textAlign: "right" }}><Money value={inv.amount} /></TableCell>
-                          <TableCell><Button appearance="subtle" size="small" icon={<Icon name="download" />}>PDF</Button></TableCell>
+                          <TableCell><Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="download" />}>PDF</Button></TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -242,19 +243,19 @@ export function SettingsPage() {
             <div className={l.rowBetween}>
               <div><Text weight="semibold">删除账户</Text><Caption1 className={l.muted} block>永久删除账户与全部数据，此操作不可撤销。</Caption1></div>
               <Dialog onOpenChange={(_, d) => !d.open && setConfirmText("")}>
-                <DialogTrigger disableButtonEnhancement><Button appearance="outline" icon={<Icon name="trash" />} style={{ color: tokens.colorPaletteRedForeground1 }}>删除账户</Button></DialogTrigger>
+                <DialogTrigger disableButtonEnhancement><Button appearance="outline" size={ctl} icon={<Icon name="trash" />} style={{ color: tokens.colorPaletteRedForeground1 }}>删除账户</Button></DialogTrigger>
                 <DialogSurface>
                   <DialogBody>
                     <DialogTitle>确定要删除账户吗？</DialogTitle>
                     <DialogContent>
                       <div className={l.stackM}>
                         <Body1>请输入 <Text font="monospace" weight="semibold">DELETE</Text> 以确认。</Body1>
-                        <Field><Input value={confirmText} onChange={(_, d) => setConfirmText(d.value)} placeholder="DELETE" /></Field>
+                        <Field><Input size={ctl} value={confirmText} onChange={(_, d) => setConfirmText(d.value)} placeholder="DELETE" /></Field>
                       </div>
                     </DialogContent>
                     <DialogActions>
-                      <DialogTrigger disableButtonEnhancement><Button>取消</Button></DialogTrigger>
-                      <Button appearance="primary" disabled={confirmText !== "DELETE"} onClick={() => notify("账户删除请求已提交")}>永久删除</Button>
+                      <DialogTrigger disableButtonEnhancement><Button size={ctl}>取消</Button></DialogTrigger>
+                      <Button appearance="primary" size={ctl} disabled={confirmText !== "DELETE"} onClick={() => notify("账户删除请求已提交")}>永久删除</Button>
                     </DialogActions>
                   </DialogBody>
                 </DialogSurface>

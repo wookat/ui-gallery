@@ -36,7 +36,7 @@ import {
 import { DatePicker } from "@fluentui/react-datepicker-compat"
 import { TimePicker } from "@fluentui/react-timepicker-compat"
 import { Icon } from "@/lib/icon"
-import { PageHeader, SectionCard, useLayoutStyles } from "./shared"
+import { PageHeader, SectionCard, useControlSize, useIsMobile, useLayoutStyles } from "./shared"
 
 const useStyles = makeStyles({
   steps: { display: "flex", gap: tokens.spacingHorizontalS, alignItems: "center", flexWrap: "wrap" },
@@ -85,6 +85,8 @@ const initial: FormState = { name: "", email: "", phone: "", age: 18, bio: "", r
 export function FormPage() {
   const s = useStyles()
   const l = useLayoutStyles()
+  const isMobile = useIsMobile()
+  const ctl = useControlSize()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState<FormState>(initial)
   const [touched, setTouched] = useState(false)
@@ -119,7 +121,7 @@ export function FormPage() {
           <Icon name="check-circle" size={48} />
           <Title3>提交成功</Title3>
           <Body1 className={l.muted}>我们已收到你的信息，{form.name} 的账户将在 24 小时内完成审核。</Body1>
-          <Button appearance="primary" onClick={() => { setForm(initial); setStep(0); setDone(false); setTouched(false) }}>再填一份</Button>
+          <Button appearance="primary" size={ctl} onClick={() => { setForm(initial); setStep(0); setDone(false); setTouched(false) }}>再填一份</Button>
         </Card>
       </div>
     )
@@ -148,9 +150,9 @@ export function FormPage() {
       {step === 0 ? (
         <SectionCard title="基本信息" description="带有必填校验的常见字段">
           <div className={s.grid}>
-            <Field label="姓名" required validationMessage={err("name")} validationState={state("name")}><Input value={form.name} onChange={(_, d) => set("name", d.value)} placeholder="林晓" /></Field>
-            <Field label="邮箱" required validationMessage={err("email")} validationState={state("email")}><Input type="email" value={form.email} onChange={(_, d) => set("email", d.value)} placeholder="you@example.com" contentBefore={<Icon name="mail" size={16} />} /></Field>
-            <Field label="手机号" validationMessage={err("phone")} validationState={state("phone")} hint="选填，用于接收短信通知"><Input type="tel" value={form.phone} onChange={(_, d) => set("phone", d.value)} placeholder="13800000000" /></Field>
+            <Field label="姓名" required validationMessage={err("name")} validationState={state("name")}><Input size={ctl} value={form.name} onChange={(_, d) => set("name", d.value)} placeholder="林晓" /></Field>
+            <Field label="邮箱" required validationMessage={err("email")} validationState={state("email")}><Input size={ctl} type="email" value={form.email} onChange={(_, d) => set("email", d.value)} placeholder="you@example.com" contentBefore={<Icon name="mail" size={16} />} /></Field>
+            <Field label="手机号" validationMessage={err("phone")} validationState={state("phone")} hint="选填，用于接收短信通知"><Input size={ctl} type="tel" value={form.phone} onChange={(_, d) => set("phone", d.value)} placeholder="13800000000" /></Field>
             <Field label="年龄"><SpinButton value={form.age} min={0} max={120} onChange={(_, d) => set("age", d.value ?? form.age)} /></Field>
             <Field label="角色" required>
               <RadioGroup layout="horizontal" className={s.radioWrap} value={form.role} onChange={(_, d) => set("role", d.value)}>
@@ -158,35 +160,35 @@ export function FormPage() {
               </RadioGroup>
             </Field>
             <Field label={withHelp("计划", "可随时在设置 → 计费中更改")}>
-              <Dropdown value={form.plan} selectedOptions={[form.plan]} onOptionSelect={(_, d) => set("plan", d.optionValue ?? form.plan)}>
+              <Dropdown size={ctl} value={form.plan} selectedOptions={[form.plan]} onOptionSelect={(_, d) => set("plan", d.optionValue ?? form.plan)}>
                 {plans.map((p) => <Option key={p.name} value={p.name}>{p.name}</Option>)}
               </Dropdown>
             </Field>
             <Field label="简介" className={s.full} hint={`${form.bio.length} / 200`}><Textarea value={form.bio} onChange={(_, d) => set("bio", d.value.slice(0, 200))} placeholder="介绍一下你的团队..." resize="vertical" /></Field>
-            <Field label="只读字段"><Input value="ACME-2026" readOnly /></Field>
-            <Field label="禁用字段"><Input value="不可编辑" disabled /></Field>
+            <Field label="只读字段"><Input size={ctl} value="ACME-2026" readOnly /></Field>
+            <Field label="禁用字段"><Input size={ctl} value="不可编辑" disabled /></Field>
           </div>
         </SectionCard>
       ) : step === 1 ? (
         <SectionCard title="偏好设置" description="选择、日期、滑块、评分等复杂控件">
           <div className={s.grid}>
             <Field label="负责人（多选）">
-              <Dropdown multiselect placeholder="选择成员" selectedOptions={form.owners} onOptionSelect={(_, d) => set("owners", d.selectedOptions)}>
+              <Dropdown size={ctl} multiselect placeholder="选择成员" selectedOptions={form.owners} onOptionSelect={(_, d) => set("owners", d.selectedOptions)}>
                 {team.map((m) => <Option key={m.email} value={m.name}>{m.name}</Option>)}
               </Dropdown>
             </Field>
             <Field label="搜索城市（Combobox）">
-              <Combobox placeholder="输入以搜索" freeform>
+              <Combobox size={ctl} placeholder="输入以搜索" freeform>
                 {["上海", "杭州", "北京", "深圳", "新加坡", "法兰克福"].map((c) => <Option key={c}>{c}</Option>)}
               </Combobox>
             </Field>
-            <Field label="开始日期"><DatePicker value={form.date} onSelectDate={(d) => set("date", d)} placeholder="选择日期" /></Field>
-            <Field label="提醒时间"><TimePicker placeholder="选择时间" selectedTime={form.time ?? undefined} onTimeChange={(_, d) => set("time", d.selectedTime)} /></Field>
+            <Field label="开始日期"><DatePicker size={ctl} value={form.date} onSelectDate={(d) => set("date", d)} placeholder="选择日期" /></Field>
+            <Field label="提醒时间"><TimePicker size={ctl} placeholder="选择时间" selectedTime={form.time ?? undefined} onTimeChange={(_, d) => set("time", d.selectedTime)} /></Field>
             <Field label="日期范围" className={s.full}>
               <div className={l.row}>
-                <DatePicker value={form.rangeStart} onSelectDate={(d) => set("rangeStart", d)} placeholder="开始" maxDate={form.rangeEnd ?? undefined} />
+                <DatePicker size={ctl} value={form.rangeStart} onSelectDate={(d) => set("rangeStart", d)} placeholder="开始" maxDate={form.rangeEnd ?? undefined} />
                 <Icon name="arrow-right" size={16} />
-                <DatePicker value={form.rangeEnd} onSelectDate={(d) => set("rangeEnd", d)} placeholder="结束" minDate={form.rangeStart ?? undefined} />
+                <DatePicker size={ctl} value={form.rangeEnd} onSelectDate={(d) => set("rangeEnd", d)} placeholder="结束" minDate={form.rangeStart ?? undefined} />
               </div>
             </Field>
             <Field label={`预算 ¥${form.budget}k`}><Slider min={0} max={100} step={5} value={form.budget} onChange={(_, d) => set("budget", d.value)} /></Field>
@@ -202,7 +204,7 @@ export function FormPage() {
                 <TagGroup onDismiss={(_, d) => set("tags", form.tags.filter((t) => t !== d.value))} aria-label="标签">
                   {form.tags.map((t) => <Tag key={t} value={t} dismissible dismissIcon={{ "aria-label": `移除 ${t}` }}>{t}</Tag>)}
                 </TagGroup>
-                <Input value={tagInput} onChange={(_, d) => setTagInput(d.value)} placeholder="添加标签" onKeyDown={(e) => { if (e.key === "Enter" && tagInput.trim()) { e.preventDefault(); set("tags", [...new Set([...form.tags, tagInput.trim()])]); setTagInput("") } }} />
+                <Input size={ctl} value={tagInput} onChange={(_, d) => setTagInput(d.value)} placeholder="添加标签" onKeyDown={(e) => { if (e.key === "Enter" && tagInput.trim()) { e.preventDefault(); set("tags", [...new Set([...form.tags, tagInput.trim()])]); setTagInput("") } }} />
               </div>
             </Field>
             <Field label="附件" className={s.full}>
@@ -233,15 +235,15 @@ export function FormPage() {
               <Caption1 className={l.muted}>通知</Caption1><Body1>{form.notify ? "开" : "关"} · 产品更新 {form.marketing ? "开" : "关"}</Body1>
             </div>
             {touched && errors.agree ? <MessageBar intent="warning"><MessageBarBody><MessageBarTitle>还差一步</MessageBarTitle>{errors.agree}</MessageBarBody></MessageBar> : null}
-            <Field validationMessage={err("agree")} validationState={state("agree")}><Checkbox label="我已阅读并同意服务条款与隐私政策" checked={form.agree} onChange={(_, d) => set("agree", Boolean(d.checked))} required /></Field>
+            <Field validationMessage={err("agree")} validationState={state("agree")}><Checkbox size={isMobile ? "large" : "medium"} label="我已阅读并同意服务条款与隐私政策" checked={form.agree} onChange={(_, d) => set("agree", Boolean(d.checked))} required /></Field>
           </div>
         </SectionCard>
       )}
       <div className={l.rowBetween}>
-        <Button disabled={step === 0} icon={<Icon name="chevron-left" />} onClick={() => setStep(step - 1)}>上一步</Button>
+        <Button size={ctl} disabled={step === 0} icon={<Icon name="chevron-left" />} onClick={() => setStep(step - 1)}>上一步</Button>
         <div className={l.row}>
-          <Button appearance="subtle" onClick={() => { setForm(initial); setTouched(false) }}>重置</Button>
-          <Button appearance="primary" iconPosition="after" icon={<Icon name={step === 2 ? "check" : "chevron-right"} />} onClick={next}>{step === 2 ? "提交" : "下一步"}</Button>
+          <Button appearance="subtle" size={ctl} onClick={() => { setForm(initial); setTouched(false) }}>重置</Button>
+          <Button appearance="primary" size={ctl} iconPosition="after" icon={<Icon name={step === 2 ? "check" : "chevron-right"} />} onClick={next}>{step === 2 ? "提交" : "下一步"}</Button>
         </div>
       </div>
     </div>

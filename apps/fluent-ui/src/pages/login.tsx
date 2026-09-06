@@ -20,6 +20,7 @@ import {
 } from "@fluentui/react-components"
 import { Icon } from "@/lib/icon"
 import { Brand } from "@/layouts/app-shell"
+import { useControlSize, useIsMobile } from "./shared"
 
 const useStyles = makeStyles({
   root: { minHeight: "100vh", display: "grid", placeItems: "center", padding: tokens.spacingHorizontalM, backgroundColor: tokens.colorNeutralBackground3 },
@@ -32,6 +33,8 @@ const useStyles = makeStyles({
 
 export function LoginPage() {
   const s = useStyles()
+  const isMobile = useIsMobile()
+  const ctl = useControlSize()
   const navigate = useNavigate()
   const [visible, setVisible] = useState(false)
   const [email, setEmail] = useState("")
@@ -76,31 +79,32 @@ export function LoginPage() {
         ) : null}
         <form className={s.form} onSubmit={submit} noValidate>
           <Field label="邮箱" required validationMessage={emailError} validationState={emailError ? "error" : "none"}>
-            <Input type="email" value={email} onChange={(_, data) => setEmail(data.value)} placeholder="you@example.com" contentBefore={<Icon name="mail" size={16} />} />
+            <Input size={ctl} type="email" value={email} onChange={(_, data) => setEmail(data.value)} placeholder="you@example.com" contentBefore={<Icon name="mail" size={16} />} />
           </Field>
           <Field label="密码" required validationMessage={passwordError} validationState={passwordError ? "error" : "none"}>
             <Input
               type={visible ? "text" : "password"}
               value={password}
+              size={ctl}
               onChange={(_, data) => setPassword(data.value)}
               placeholder="••••••••"
               contentBefore={<Icon name="lock" size={16} />}
-              contentAfter={<Button appearance="transparent" size="small" type="button" aria-label={visible ? "隐藏密码" : "显示密码"} icon={<Icon name={visible ? "eye-off" : "eye"} size={16} />} onClick={() => setVisible((value) => !value)} />}
+              contentAfter={<Button appearance="transparent" size={ctl} type="button" aria-label={visible ? "隐藏密码" : "显示密码"} icon={<Icon name={visible ? "eye-off" : "eye"} size={16} />} onClick={() => setVisible((value) => !value)} />}
             />
           </Field>
           <div className={s.between}>
-            <Checkbox label="记住我" />
+            <Checkbox size={isMobile ? "large" : "medium"} label="记住我" />
             <Link href="#forgot">忘记密码？</Link>
           </div>
-          <Button appearance="primary" type="submit" disabled={loading} icon={loading ? <Spinner size="tiny" /> : undefined}>
+          <Button appearance="primary" size={ctl} type="submit" disabled={loading} icon={loading ? <Spinner size="tiny" /> : undefined}>
             {loading ? "登录中..." : "登录"}
           </Button>
         </form>
         <Divider>或</Divider>
         <div className={s.oauth}>
-          <Button icon={<Icon name="globe" size={16} />}>Google</Button>
-          <Button icon={<Icon name="github" size={16} />}>GitHub</Button>
-          <Button icon={<Icon name="message-circle" size={16} />}>微信</Button>
+          <Button size={ctl} icon={<Icon name="globe" size={16} />}>Google</Button>
+          <Button size={ctl} icon={<Icon name="github" size={16} />}>GitHub</Button>
+          <Button size={ctl} icon={<Icon name="message-circle" size={16} />}>微信</Button>
         </div>
         <Caption1 className={s.center}>
           还没有账户？ <RouterLink to="#register">立即注册</RouterLink>

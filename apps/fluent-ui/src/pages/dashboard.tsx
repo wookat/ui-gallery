@@ -36,7 +36,7 @@ import {
   tokens,
 } from "@fluentui/react-components"
 import { Icon } from "@/lib/icon"
-import { Money, PageHeader, SectionCard, StatusBadge, useLayoutStyles } from "./shared"
+import { Money, PageHeader, SectionCard, StatusBadge, useControlSize, useElementWidth, useLayoutStyles } from "./shared"
 
 const useStyles = makeStyles({
   statHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: tokens.spacingHorizontalS },
@@ -45,7 +45,7 @@ const useStyles = makeStyles({
   timelineItem: { display: "flex", gap: tokens.spacingHorizontalS, alignItems: "flex-start" },
   timelineDot: { width: "8px", height: "8px", marginTop: "6px", borderRadius: "50%", backgroundColor: tokens.colorBrandBackground, flexShrink: 0 },
   task: { display: "flex", flexDirection: "column", gap: tokens.spacingVerticalXS },
-  chartBox: { width: "100%", minWidth: 0, overflow: "hidden" },
+  chartBox: { width: "100%", minWidth: 0, overflowX: "clip" },
 })
 
 const formatValue = (item: (typeof stats)[number]) => (item.unit === "CNY" ? `¥${item.value.toLocaleString()}` : `${item.value}${item.unit ?? ""}`)
@@ -53,6 +53,8 @@ const formatValue = (item: (typeof stats)[number]) => (item.unit === "CNY" ? `¥
 export function DashboardPage() {
   const s = useStyles()
   const l = useLayoutStyles()
+  const ctl = useControlSize()
+  const [sparklineRef, sparklineWidth] = useElementWidth()
   const [period, setPeriod] = useState<string>("week")
   const [loading, setLoading] = useState(true)
   useEffect(() => {
@@ -73,10 +75,10 @@ export function DashboardPage() {
   return (
     <div className={l.stack}>
       <PageHeader title="仪表盘" description="欢迎回来，林晓。这里是今天的业务概况。" action={<Button appearance="primary" icon={<Icon name="plus" />}>新建项目</Button>} />
-      <TabList selectedValue={period} onTabSelect={(_, data) => { setPeriod(String(data.value)); setLoading(true) }}>
-        <Tab value="day">日</Tab>
-        <Tab value="week">周</Tab>
-        <Tab value="month">月</Tab>
+      <TabList size={ctl} selectedValue={period} onTabSelect={(_, data) => { setPeriod(String(data.value)); setLoading(true) }}>
+        <Tab className={l.tabTouch} value="day">日</Tab>
+        <Tab className={l.tabTouch} value="week">周</Tab>
+        <Tab className={l.tabTouch} value="month">月</Tab>
       </TabList>
       <div className={l.grid4}>
         {stats.map((item) => (
@@ -92,7 +94,7 @@ export function DashboardPage() {
                   <Badge appearance="tint" color={item.delta > 0 ? "success" : "danger"} icon={<Icon name={item.delta > 0 ? "trending-up" : "trending-down"} size={12} />}>{item.delta > 0 ? "+" : ""}{item.delta}%</Badge>
                 </div>
                 <Title3 as="p">{formatValue(item)}</Title3>
-                <Sparkline data={{ chartTitle: item.label, lineChartData: [{ legend: item.label, color: item.delta > 0 ? tokens.colorPaletteGreenForeground1 : tokens.colorPaletteRedForeground1, data: item.trend.map((value, index) => ({ x: index, y: value })) }] }} width={160} height={28} showLegend={false} />
+                <div ref={sparklineRef}><Sparkline data={{ chartTitle: item.label, lineChartData: [{ legend: item.label, color: item.delta > 0 ? tokens.colorPaletteGreenForeground1 : tokens.colorPaletteRedForeground1, data: item.trend.map((value, index) => ({ x: index, y: value })) }] }} width={sparklineWidth} height={28} showLegend={false} /></div>
               </>
             )}
           </Card>
@@ -105,7 +107,7 @@ export function DashboardPage() {
           </div>
         </SectionCard>
         <SectionCard title="渠道占比" description="按下单渠道">
-          <div className={s.chartBox}>
+          <div className={s.chartBox} style={{ paddingTop: tokens.spacingVerticalS }}>
             {loading ? <Skeleton><SkeletonItem size={128} /></Skeleton> : <ResponsiveContainer height={260}><DonutChart data={donutData} innerRadius={55} valueInsideDonut={`${series.byChannel[0].name} ${series.byChannel[0].value}%`} hideLabels /></ResponsiveContainer>}
           </div>
         </SectionCard>

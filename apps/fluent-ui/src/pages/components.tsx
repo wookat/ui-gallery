@@ -516,7 +516,7 @@ export function ComponentsPage() {
                 </Card>
               ))}
               <Card selected size="small"><CardHeader header={<Text weight="semibold">selected · small</Text>} /></Card>
-              <Card size="large" orientation="horizontal"><CardPreview><Avatar name={team[1].name} size={56} color="brand" /></CardPreview><CardHeader header={<Text weight="semibold">horizontal · large</Text>} description={<Caption1>{team[1].email}</Caption1>} /></Card>
+              <Card size="large" orientation="horizontal" style={{ alignItems: "center" }}><CardPreview style={{ width: 56, height: 56, flexShrink: 0 }}><Avatar name={team[1].name} size={56} color="brand" /></CardPreview><CardHeader header={<Text weight="semibold">horizontal · large</Text>} description={<Caption1>{team[1].email}</Caption1>} /></Card>
             </div>
           </Demo>
 
@@ -537,7 +537,7 @@ export function ComponentsPage() {
           </Demo>
 
           <Demo name="Badge">
-            {(["filled", "ghost", "outline", "tint"] as const).map((a) => <div className={s.row} key={a}>{(["brand", "danger", "important", "informative", "severe", "subtle", "success", "warning"] as const).map((c) => <Badge key={c} appearance={a} color={c}>{c}</Badge>)}</div>)}
+            {(["filled", "ghost", "outline", "tint"] as const).map((a) => a === "ghost" ? <div key={a} style={{ backgroundColor: tokens.colorNeutralBackgroundInverted, padding: tokens.spacingHorizontalS, borderRadius: tokens.borderRadiusMedium }}><div className={s.row}>{(["brand", "danger", "important", "informative", "severe", "subtle", "success", "warning"] as const).map((c) => <Badge key={c} appearance={a} color={c}>{c}</Badge>)}</div></div> : <div className={s.row} key={a}>{(["brand", "danger", "important", "informative", "severe", "subtle", "success", "warning"] as const).map((c) => <Badge key={c} appearance={a} color={c}>{c}</Badge>)}</div>)}
             <div className={s.row}>{(["tiny", "extra-small", "small", "medium", "large", "extra-large"] as const).map((size) => <Badge key={size} size={size} icon={<Icon name="check" size={10} />}>{size}</Badge>)}<Badge shape="square">square</Badge><Badge shape="rounded">rounded</Badge><CounterBadge count={5} /><CounterBadge count={120} overflowCount={99} color="danger" /><CounterBadge dot /><PresenceBadge status="available" /><PresenceBadge status="away" /><PresenceBadge status="do-not-disturb" /><PresenceBadge status="offline" /></div>
           </Demo>
 
@@ -575,7 +575,7 @@ export function ComponentsPage() {
           </Demo>
 
           <Demo name="Image">
-            <div className={s.row}>{(["square", "rounded", "circular"] as const).map((shape) => <Image key={shape} shape={shape} bordered shadow width={96} height={96} alt={shape} src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' fill='%230f6cbd'/%3E%3C/svg%3E" />)}<Image fit="contain" width={120} height={64} alt="contain" block src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='64'%3E%3Crect width='120' height='64' fill='%23038387'/%3E%3C/svg%3E" /></div>
+            <div className={s.row}>{(["square", "rounded", "circular"] as const).map((shape) => <Image key={shape} shape={shape} bordered shadow width={96} height={96} alt={shape} src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' fill='%230f6cbd'/%3E%3C/svg%3E" />)}<div style={{ display: "flex", alignItems: "center", border: `1px solid ${tokens.colorNeutralStroke1}` }}><Image fit="contain" width={120} height={64} alt="contain" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='64'%3E%3Crect width='120' height='64' fill='%23038387'/%3E%3C/svg%3E" /></div></div>
           </Demo>
 
           <Demo name="Carousel">
@@ -753,7 +753,7 @@ export function ComponentsPage() {
 
           <Demo name="Divider">
             <Divider /><Divider>居中文本</Divider><Divider alignContent="start">start</Divider><Divider alignContent="end" appearance="brand">brand</Divider><Divider appearance="strong">strong</Divider><Divider appearance="subtle" inset>subtle inset</Divider>
-            <div className={s.row} style={{ height: 40 }}><Text>A</Text><Divider vertical /><Text>B</Text><Divider vertical appearance="brand">v</Divider><Text>C</Text></div>
+            <div className={s.row} style={{ height: 96 }}><Text>A</Text><Divider vertical /><Text>B</Text><Divider vertical appearance="brand">v</Divider><Text>C</Text></div>
           </Demo>
 
           <Demo name="Link">

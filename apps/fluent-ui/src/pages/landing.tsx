@@ -15,8 +15,14 @@ import {
   Card,
   Display,
   Divider,
+  Hamburger,
   LargeTitle,
   Link,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
   Subtitle1,
   Subtitle2,
   Switch,
@@ -31,15 +37,15 @@ import {
 import { Icon } from "@/lib/icon"
 import { Brand } from "@/layouts/app-shell"
 import { useThemeMode } from "@/lib/theme"
-import { useIsMobile, useLayoutStyles } from "./shared"
+import { useControlSize, useIsMobile, useLayoutStyles } from "./shared"
 
 const useStyles = makeStyles({
   root: { minHeight: "100vh", backgroundColor: tokens.colorNeutralBackground1, color: tokens.colorNeutralForeground1 },
   nav: { position: "sticky", top: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: tokens.spacingHorizontalM, padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalL}`, borderBottom: `1px solid ${tokens.colorNeutralStroke2}`, backgroundColor: tokens.colorNeutralBackground1 },
   navLinks: { display: "flex", gap: tokens.spacingHorizontalL, "@media (max-width: 767px)": { display: "none" } },
   section: { maxWidth: "1120px", margin: "0 auto", padding: `${tokens.spacingVerticalXXXL} ${tokens.spacingHorizontalL}`, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalXL },
-  hero: { textAlign: "center", alignItems: "center" },
-  heroTitle: { maxWidth: "760px", "@media (max-width: 767px)": { fontSize: tokens.fontSizeHero800, lineHeight: tokens.lineHeightHero800 } },
+  hero: { textAlign: "center", alignItems: "center", gap: tokens.spacingVerticalL },
+  heroTitle: { maxWidth: "960px", "@media (max-width: 767px)": { fontSize: tokens.fontSizeHero800, lineHeight: tokens.lineHeightHero800 } },
   ctaRow: { display: "flex", gap: tokens.spacingHorizontalS, flexWrap: "wrap", justifyContent: "center" },
   shot: { width: "100%", aspectRatio: "16 / 9", borderRadius: tokens.borderRadiusXLarge, border: `1px solid ${tokens.colorNeutralStroke2}`, backgroundColor: tokens.colorNeutralBackground3, display: "grid", placeItems: "center", color: tokens.colorNeutralForeground3, boxShadow: tokens.shadow16 },
   logos: { display: "flex", gap: tokens.spacingHorizontalXL, flexWrap: "wrap", justifyContent: "center", opacity: 0.7 },
@@ -67,6 +73,7 @@ export function LandingPage() {
   const s = useStyles()
   const l = useLayoutStyles()
   const isMobile = useIsMobile()
+  const ctl = useControlSize()
   const { mode, setMode } = useThemeMode()
   const [yearly, setYearly] = useState(false)
   const search = typeof window === "undefined" ? "" : window.location.search
@@ -79,16 +86,19 @@ export function LandingPage() {
           {["产品", "价格", "文档", "博客"].map((item) => <Link key={item} href="#" appearance="subtle">{item}</Link>)}
         </nav>
         <div className={l.row}>
-          <Button appearance="subtle" icon={<Icon name={mode === "dark" ? "sun" : "moon"} />} aria-label="切换主题" onClick={() => setMode(mode === "dark" ? "light" : "dark")} />
-          <RouterLink to={`/login${search}`} style={{ textDecoration: "none" }}><Button appearance="secondary" size={isMobile ? "small" : "medium"}>登录</Button></RouterLink>
-          <RouterLink to={`/${search}`} style={{ textDecoration: "none" }}><Button appearance="primary" size={isMobile ? "small" : "medium"}>{landing.hero.primary}</Button></RouterLink>
+          {isMobile ? <Menu positioning="below-end"><MenuTrigger disableButtonEnhancement><Hamburger size="large" aria-label="打开菜单" /></MenuTrigger><MenuPopover><MenuList>{["产品", "价格", "文档", "博客"].map((item) => <MenuItem key={item}>{item}</MenuItem>)}</MenuList></MenuPopover></Menu> : null}
+          <Button appearance="subtle" size={ctl} icon={<Icon name={mode === "dark" ? "sun" : "moon"} />} aria-label="切换主题" onClick={() => setMode(mode === "dark" ? "light" : "dark")} />
+          {!isMobile ? <RouterLink to={`/login${search}`} style={{ textDecoration: "none" }}><Button appearance="secondary" size={ctl}>登录</Button></RouterLink> : null}
+          <RouterLink to={`/${search}`} style={{ textDecoration: "none" }}><Button appearance="primary" size={ctl}>{landing.hero.primary}</Button></RouterLink>
         </div>
       </header>
 
       <section className={mergeClasses(s.section, s.hero)}>
         <Badge appearance="tint" color="brand" size="large">Acme Console 2.0 现已发布</Badge>
-        <Display as="h1" className={s.heroTitle}>{landing.hero.title}</Display>
-        <Subtitle1 as="p" className={l.muted} style={{ maxWidth: 620 }}>{landing.hero.subtitle}</Subtitle1>
+        <div className={l.stackS} style={{ alignItems: "center" }}>
+          <Display as="h1" className={s.heroTitle}>{landing.hero.title}</Display>
+          <Subtitle1 as="p" className={l.muted} style={{ maxWidth: 620 }}>{landing.hero.subtitle}</Subtitle1>
+        </div>
         <div className={s.ctaRow}>
           <RouterLink to={`/${search}`} style={{ textDecoration: "none" }}><Button appearance="primary" size="large" iconPosition="after" icon={<Icon name="arrow-right" />}>{landing.hero.primary}</Button></RouterLink>
           <Button size="large" icon={<Icon name="play" />}>{landing.hero.secondary}</Button>

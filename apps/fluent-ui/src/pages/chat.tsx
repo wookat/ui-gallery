@@ -31,7 +31,7 @@ import {
   useToastController,
 } from "@fluentui/react-components"
 import { Icon } from "@/lib/icon"
-import { useIsMobile, useLayoutStyles } from "./shared"
+import { useControlSize, useIsMobile, useLayoutStyles } from "./shared"
 
 type Message = (typeof chat.messages)[number] & { sources?: string[]; tool?: { name: string; args: Record<string, string>; status: string }; streaming?: boolean }
 
@@ -47,7 +47,7 @@ const useStyles = makeStyles({
   msgUser: { alignSelf: "flex-end", flexDirection: "row-reverse" },
   bubble: { padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`, borderRadius: tokens.borderRadiusLarge, backgroundColor: tokens.colorNeutralBackground3, minWidth: 0, overflowX: "auto", "& p": { margin: `0 0 ${tokens.spacingVerticalXS}` }, "& p:last-child": { margin: 0 } },
   bubbleUser: { backgroundColor: tokens.colorBrandBackground, color: tokens.colorNeutralForegroundOnBrand },
-  code: { position: "relative", backgroundColor: tokens.colorNeutralBackgroundInverted, color: tokens.colorNeutralForegroundInverted, borderRadius: tokens.borderRadiusMedium, padding: tokens.spacingHorizontalM, fontFamily: tokens.fontFamilyMonospace, fontSize: tokens.fontSizeBase200, overflowX: "auto", margin: 0 },
+  code: { position: "relative", backgroundColor: tokens.colorNeutralBackgroundInverted, color: tokens.colorNeutralForegroundInverted, borderRadius: tokens.borderRadiusMedium, padding: tokens.spacingHorizontalM, paddingRight: "44px", fontFamily: tokens.fontFamilyMonospace, fontSize: tokens.fontSizeBase200, overflowX: "auto", margin: 0 },
   copy: { position: "absolute", top: "4px", right: "4px", color: tokens.colorNeutralForegroundInverted },
   composer: { borderTop: `1px solid ${tokens.colorNeutralStroke2}`, padding: tokens.spacingHorizontalM, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalS },
   box: { border: `1px solid ${tokens.colorNeutralStroke1}`, borderRadius: tokens.borderRadiusLarge, padding: tokens.spacingHorizontalS, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalXS },
@@ -60,6 +60,7 @@ export function ChatPage() {
   const s = useStyles()
   const l = useLayoutStyles()
   const isMobile = useIsMobile()
+  const ctl = useControlSize()
   const { dispatchToast } = useToastController("acme-toaster")
   const [active, setActive] = useState(chat.conversations[0].id)
   const [query, setQuery] = useState("")
@@ -72,8 +73,8 @@ export function ChatPage() {
 
   const list = (
     <aside className={s.list}>
-      <div className={l.rowBetween}><Text weight="semibold">对话</Text><Button appearance="primary" size="small" icon={<Icon name="plus" />} onClick={() => setActive("new")}>新对话</Button></div>
-      <SearchBox size="small" placeholder="搜索对话" value={query} onChange={(_, d) => setQuery(d.value)} />
+      <div className={l.rowBetween}><Text weight="semibold">对话</Text><Button appearance="primary" size={ctl} icon={<Icon name="plus" />} onClick={() => setActive("new")}>新对话</Button></div>
+      <SearchBox size={isMobile ? "large" : "small"} placeholder="搜索对话" value={query} onChange={(_, d) => setQuery(d.value)} />
       {conversations.map((c) => (
         <button key={c.id} type="button" className={mergeClasses(s.conv, c.id === active && s.convActive)} onClick={() => { setActive(c.id); setShowList(false) }}>
           <div style={{ minWidth: 0 }}><Body1 block truncate wrap={false}>{c.title}</Body1><Caption1 className={l.muted}>{c.time}</Caption1></div>
@@ -90,10 +91,10 @@ export function ChatPage() {
       <section className={s.panel}>
         <header className={s.head}>
           <div className={l.row}>
-            {isMobile ? <Button appearance="subtle" icon={<Icon name="menu" />} aria-label="对话列表" onClick={() => setShowList((v) => !v)} /> : null}
+            {isMobile ? <Button appearance="subtle" size={ctl} icon={<Icon name="menu" />} aria-label="对话列表" onClick={() => setShowList((v) => !v)} /> : null}
             <div><Text weight="semibold" block>{chat.conversations.find((c) => c.id === active)?.title ?? "新对话"}</Text><Caption1 className={l.muted}>{model} · 已连接</Caption1></div>
           </div>
-          <Dropdown size="small" value={model} selectedOptions={[model]} onOptionSelect={(_, d) => setModel(d.optionValue ?? model)} style={{ minWidth: 150 }}>
+          <Dropdown size={isMobile ? "large" : "small"} value={model} selectedOptions={[model]} onOptionSelect={(_, d) => setModel(d.optionValue ?? model)} style={{ minWidth: 150 }}>
             {chat.models.map((m) => <Option key={m} value={m}>{m}</Option>)}
           </Dropdown>
         </header>
@@ -165,15 +166,15 @@ export function ChatPage() {
         )}
         <div className={s.composer}>
           {messages.length > 0 ? <div className={l.row}>{chat.suggestions.map((sg) => <Button key={sg} size="small" shape="circular" onClick={() => setDraft(sg)}>{sg}</Button>)}</div> : null}
-          <span className={s.attachment}><Icon name="paperclip" size={14} /><Caption1>project-notes.md · 12 KB</Caption1><Button appearance="transparent" size="small" icon={<Icon name="x" size={12} />} aria-label="移除附件" /></span>
+          <span className={s.attachment}><Icon name="paperclip" size={14} /><Caption1>project-notes.md · 12 KB</Caption1><Button appearance="transparent" size={ctl} icon={<Icon name="x" size={12} />} aria-label="移除附件" /></span>
           <div className={s.box}>
             <Textarea appearance="filled-lighter" value={draft} onChange={(_, d) => setDraft(d.value)} placeholder="向 AI 助手提问..." resize="none" rows={2} />
             <div className={l.rowBetween}>
               <div className={l.row}>
-                <Tooltip content="添加附件" relationship="label"><Button appearance="subtle" icon={<Icon name="paperclip" />} /></Tooltip>
-                <Tooltip content="语音输入" relationship="label"><Button appearance="subtle" icon={<Icon name="mic" />} /></Tooltip>
+                <Tooltip content="添加附件" relationship="label"><Button appearance="subtle" size={ctl} icon={<Icon name="paperclip" />} /></Tooltip>
+                <Tooltip content="语音输入" relationship="label"><Button appearance="subtle" size={ctl} icon={<Icon name="mic" />} /></Tooltip>
               </div>
-              <Button appearance="primary" icon={<Icon name="send" />} disabled={!draft.trim()} onClick={() => setDraft("")}>发送</Button>
+              <Button appearance="primary" size={ctl} icon={<Icon name="send" />} disabled={!draft.trim()} onClick={() => setDraft("")}>发送</Button>
             </div>
           </div>
           <Caption1 className={l.muted}>AI 可能出错，请核对重要信息。</Caption1>

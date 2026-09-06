@@ -38,7 +38,7 @@ import {
 } from "@fluentui/react-components"
 import { Icon } from "@/lib/icon"
 import { useThemeMode } from "@/lib/theme"
-import { useIsMobile } from "@/pages/shared"
+import { useControlSize, useIsMobile } from "@/pages/shared"
 
 const useStyles = makeStyles({
   root: { display: "flex", minHeight: "100vh", backgroundColor: tokens.colorNeutralBackground3 },
@@ -93,6 +93,7 @@ export function Brand() {
 export function AppShell({ children }: { children: ReactNode }) {
   const s = useStyles()
   const isMobile = useIsMobile()
+  const ctl = useControlSize()
   const location = useLocation()
   const navigate = useNavigate()
   const { mode, setMode } = useThemeMode()
@@ -133,7 +134,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: tokens.spacingHorizontalS }}>
             <Brand />
             <Tooltip content="折叠导航" relationship="label">
-              <Hamburger onClick={() => (isMobile ? setMobileOpen(false) : setCollapsed(true))} />
+              <Hamburger size={ctl} onClick={() => (isMobile ? setMobileOpen(false) : setCollapsed(true))} />
             </Tooltip>
           </div>
         </NavDrawerHeader>
@@ -160,7 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className={s.header}>
           {(isMobile || collapsed) && (
             <Tooltip content="打开导航" relationship="label">
-              <Hamburger onClick={() => (isMobile ? setMobileOpen(true) : setCollapsed(false))} />
+              <Hamburger size={ctl} onClick={() => (isMobile ? setMobileOpen(true) : setCollapsed(false))} />
             </Tooltip>
           )}
           <Breadcrumb aria-label="面包屑" className={s.desktopOnly}>
@@ -176,7 +177,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <SearchBox className={mergeClasses(s.search, s.desktopOnly)} placeholder="全局搜索..." size="medium" />
           <Popover positioning="below-end" withArrow>
             <PopoverTrigger disableButtonEnhancement>
-              <Button appearance="subtle" icon={<Icon name="bell" />} aria-label="通知">
+              <Button appearance="subtle" size={ctl} icon={<Icon name="bell" />} aria-label="通知">
                 {unread ? <CounterBadge count={unread} color="danger" size="small" /> : null}
               </Button>
             </PopoverTrigger>
@@ -193,11 +194,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             </PopoverSurface>
           </Popover>
           <Tooltip content="切换主题" relationship="label">
-            <Button appearance="subtle" icon={<Icon name={mode === "dark" ? "sun" : "moon"} />} onClick={toggleTheme} />
+            <Button appearance="subtle" size={ctl} icon={<Icon name={mode === "dark" ? "sun" : "moon"} />} onClick={toggleTheme} />
           </Tooltip>
           <Menu positioning="below-end">
             <MenuTrigger disableButtonEnhancement>
-              <Button appearance="transparent" icon={<Avatar name="林晓" color="colorful" size={32} />} aria-label="账户菜单" />
+              <Button appearance="transparent" size={ctl} icon={<Avatar name="林晓" color="colorful" size={32} />} aria-label="账户菜单" />
             </MenuTrigger>
             <MenuPopover>
               <MenuList>

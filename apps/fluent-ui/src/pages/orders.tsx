@@ -60,7 +60,7 @@ import {
 } from "@fluentui/react-components"
 import { DatePicker } from "@fluentui/react-datepicker-compat"
 import { Icon } from "@/lib/icon"
-import { Money, PageHeader, StatusBadge, useIsMobile, useLayoutStyles } from "./shared"
+import { Money, PageHeader, StatusBadge, useControlSize, useIsMobile, useLayoutStyles } from "./shared"
 
 type Order = (typeof ordersData)[number]
 const statuses = ["paid", "pending", "shipped", "refunded", "failed"] as const
@@ -82,6 +82,7 @@ export function OrdersPage() {
   const s = useStyles()
   const l = useLayoutStyles()
   const isMobile = useIsMobile()
+  const ctl = useControlSize()
   const { dispatchToast } = useToastController("acme-toaster")
   const [state, setState] = useState<"loading" | "ready" | "error">("loading")
   const [query, setQuery] = useState("")
@@ -147,30 +148,30 @@ export function OrdersPage() {
 
   const toolbar = (
     <div className={s.toolbar}>
-      <SearchBox className={s.grow} placeholder="搜索订单号 / 客户 / 邮箱" value={query} onChange={(_, d) => setQuery(d.value)} />
-      <Dropdown multiselect placeholder="状态" selectedOptions={status} onOptionSelect={(_, d) => setStatus(d.selectedOptions)} style={{ minWidth: 130 }}>
+      <SearchBox size={ctl} className={s.grow} placeholder="搜索订单号 / 客户 / 邮箱" value={query} onChange={(_, d) => setQuery(d.value)} />
+      <Dropdown size={ctl} multiselect placeholder="状态" selectedOptions={status} onOptionSelect={(_, d) => setStatus(d.selectedOptions)} style={{ minWidth: 130 }}>
         {statuses.map((v) => <Option key={v} value={v}>{statusLabel[v]}</Option>)}
       </Dropdown>
-      <Dropdown multiselect placeholder="渠道" selectedOptions={channel} onOptionSelect={(_, d) => setChannel(d.selectedOptions)} style={{ minWidth: 130 }}>
+      <Dropdown size={ctl} multiselect placeholder="渠道" selectedOptions={channel} onOptionSelect={(_, d) => setChannel(d.selectedOptions)} style={{ minWidth: 130 }}>
         {channels.map((v) => <Option key={v} value={v}>{v}</Option>)}
       </Dropdown>
-      <DatePicker placeholder="日期" value={date} onSelectDate={(d) => setDate(d)} allowTextInput style={{ minWidth: 150 }} />
+      <DatePicker size={ctl} placeholder="日期" value={date} onSelectDate={(d) => setDate(d)} allowTextInput style={{ minWidth: 150 }} />
       <Menu>
-        <MenuTrigger disableButtonEnhancement><Button icon={<Icon name="columns" />}>列</Button></MenuTrigger>
+        <MenuTrigger disableButtonEnhancement><Button size={ctl} icon={<Icon name="columns" />}>列</Button></MenuTrigger>
         <MenuPopover>
           <MenuList checkedValues={{ cols: visible }} onCheckedValueChange={(_, d) => setVisible(d.checkedItems)}>
             {["customer", "product", "status", "amount", "date", "channel"].map((c) => <MenuItemCheckbox key={c} name="cols" value={c}>{{ customer: "客户", product: "产品", status: "状态", amount: "金额", date: "日期", channel: "渠道" }[c]}</MenuItemCheckbox>)}
           </MenuList>
         </MenuPopover>
       </Menu>
-      <Tooltip content="导出 CSV" relationship="label"><Button icon={<Icon name="download" />} onClick={() => notify("导出已开始", `${filtered.length} 条记录`)} /></Tooltip>
-      <Tooltip content={state === "error" ? "恢复" : "模拟错误"} relationship="label"><Button icon={<Icon name="alert-triangle" />} onClick={() => setState(state === "error" ? "ready" : "error")} /></Tooltip>
+      <Tooltip content="导出 CSV" relationship="label"><Button size={ctl} icon={<Icon name="download" />} onClick={() => notify("导出已开始", `${filtered.length} 条记录`)} /></Tooltip>
+      <Tooltip content={state === "error" ? "恢复" : "模拟错误"} relationship="label"><Button size={ctl} icon={<Icon name="alert-triangle" />} onClick={() => setState(state === "error" ? "ready" : "error")} /></Tooltip>
     </div>
   )
 
   return (
     <div className={l.stack}>
-      <PageHeader title="订单" description={`共 ${ordersData.length} 条订单，${filtered.length} 条匹配筛选。`} action={<Button appearance="primary" icon={<Icon name="plus" />}>新建订单</Button>} />
+      <PageHeader title="订单" description={`共 ${ordersData.length} 条订单，${filtered.length} 条匹配筛选。`} action={<Button appearance="primary" size={ctl} icon={<Icon name="plus" />}>新建订单</Button>} />
       {toolbar}
       {selected.size > 0 ? (
         <MessageBar intent="info">
@@ -193,7 +194,7 @@ export function OrdersPage() {
           <Icon name="inbox" size={40} />
           <Body1>没有匹配的订单</Body1>
           <Caption1>尝试调整搜索或筛选条件</Caption1>
-          <Button onClick={() => { setQuery(""); setStatus([]); setChannel([]); setDate(null) }}>清除筛选</Button>
+          <Button size={ctl} onClick={() => { setQuery(""); setStatus([]); setChannel([]); setDate(null) }}>清除筛选</Button>
         </div>
       ) : isMobile ? (
         <div className={l.stackS}>
@@ -238,15 +239,15 @@ export function OrdersPage() {
       <div className={s.footer}>
         <Caption1 className={l.muted}>第 {page} / {pageCount} 页 · 每页 {PAGE_SIZE} 条</Caption1>
         <div className={l.row}>
-          <Button size="small" icon={<Icon name="chevron-left" />} disabled={page <= 1} onClick={() => setPage(page - 1)}>上一页</Button>
-          {Array.from({ length: Math.min(pageCount, 5) }).map((_, i) => <Button key={i} size="small" appearance={page === i + 1 ? "primary" : "subtle"} onClick={() => setPage(i + 1)}>{i + 1}</Button>)}
-          <Button size="small" iconPosition="after" icon={<Icon name="chevron-right" />} disabled={page >= pageCount} onClick={() => setPage(page + 1)}>下一页</Button>
+          <Button size={isMobile ? "large" : "small"} icon={<Icon name="chevron-left" />} disabled={page <= 1} onClick={() => setPage(page - 1)}>上一页</Button>
+          {Array.from({ length: Math.min(pageCount, 5) }).map((_, i) => <Button key={i} size={isMobile ? "large" : "small"} appearance={page === i + 1 ? "primary" : "subtle"} onClick={() => setPage(i + 1)}>{i + 1}</Button>)}
+          <Button size={isMobile ? "large" : "small"} iconPosition="after" icon={<Icon name="chevron-right" />} disabled={page >= pageCount} onClick={() => setPage(page + 1)}>下一页</Button>
         </div>
       </div>
 
       <OverlayDrawer open={active !== null} onOpenChange={(_, d) => !d.open && setActive(null)} position="end" size={isMobile ? "full" : "medium"}>
         <DrawerHeader>
-          <DrawerHeaderTitle action={<Button appearance="subtle" aria-label="关闭" icon={<Icon name="x" />} onClick={() => setActive(null)} />}>订单 {active?.id}</DrawerHeaderTitle>
+          <DrawerHeaderTitle action={<Button appearance="subtle" size={ctl} aria-label="关闭" icon={<Icon name="x" />} onClick={() => setActive(null)} />}>订单 {active?.id}</DrawerHeaderTitle>
         </DrawerHeader>
         <DrawerBody>
           {active ? (
@@ -259,15 +260,15 @@ export function OrdersPage() {
                 <Caption1 className={l.muted}>金额</Caption1><Body1><Money value={active.amount} /></Body1>
                 <Caption1 className={l.muted}>日期</Caption1><Body1>{active.date}</Body1>
               </div>
-              <TabList defaultSelectedValue="items" size="small">
+              <TabList defaultSelectedValue="items" size={isMobile ? "large" : "small"}>
                 <Tab value="items">商品</Tab><Tab value="timeline">时间线</Tab><Tab value="notes">备注</Tab>
               </TabList>
               <Field label="备注" hint="仅团队内可见"><Textarea placeholder="添加备注..." resize="vertical" /></Field>
               <Checkbox label="通知客户" />
               <div className={l.row}>
-                <Button appearance="primary" onClick={() => { notify("备注已保存"); setActive(null) }}>保存</Button>
-                <Button onClick={() => setActive(null)}>取消</Button>
-                <Button appearance="subtle" icon={<Icon name="trash" />} onClick={() => setPendingDelete(active)}>删除</Button>
+                <Button appearance="primary" size={ctl} onClick={() => { notify("备注已保存"); setActive(null) }}>保存</Button>
+                <Button size={ctl} onClick={() => setActive(null)}>取消</Button>
+                <Button appearance="subtle" size={ctl} icon={<Icon name="trash" />} onClick={() => setPendingDelete(active)}>删除</Button>
               </div>
             </div>
           ) : null}

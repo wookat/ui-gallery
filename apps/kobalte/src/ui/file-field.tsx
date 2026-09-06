@@ -6,7 +6,7 @@ export function FileField(props: { label?: string }) {
     <KobalteFileField multiple accept={["image/*", ".csv", ".pdf"]} class="grid gap-2">
       {props.label ? <KobalteFileField.Label class="text-sm font-medium">{props.label}</KobalteFileField.Label> : null}
       <KobalteFileField.Dropzone class="grid min-h-28 cursor-pointer place-items-center rounded-lg border-2 border-dashed border-zinc-300 text-center text-sm hover:border-blue-500 dark:border-zinc-700">
-        <span><Icon name="upload" class="mx-auto mb-2" />拖拽文件到这里，或 <KobalteFileField.Trigger class="text-blue-600 underline">点击上传</KobalteFileField.Trigger></span>
+        <span><Icon name="upload" class="mx-auto mb-2" />拖拽文件到这里，或 <KobalteFileField.Trigger class="inline-flex min-h-10 items-center px-1 text-blue-600 underline dark:text-blue-400">点击上传</KobalteFileField.Trigger></span>
       </KobalteFileField.Dropzone>
       <KobalteFileField.HiddenInput />
       <KobalteFileField.ItemList class="grid gap-2 text-sm">

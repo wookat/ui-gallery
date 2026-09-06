@@ -23,7 +23,7 @@ const variants = {
 }
 
 const sizes = {
-  sm: "h-9 px-3 text-xs",
+  sm: "h-10 px-3 text-xs",
   md: "h-10 px-4 text-sm",
   lg: "h-11 px-6 text-base",
   icon: "size-10",

@@ -62,7 +62,7 @@ export function ChatPage() {
       <Card className="acme-chat-main" bodyStyle={{ padding: 0, display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
         <div className="acme-between" style={{ padding: "10px 16px", borderBottom: "1px solid var(--semi-color-border)", flexWrap: "nowrap" }}>
           <div className="acme-row" style={{ flexWrap: "nowrap", minWidth: 0 }}><Button className="acme-mobile-only" theme="borderless" type="tertiary" icon={<Icon name="menu" />} aria-label="对话列表" onClick={() => setAsideOpen(true)} /><Text strong ellipsis>{chat.conversations.find((item) => item.id === active)?.title ?? "新对话"}</Text></div>
-          <Select value={model} onChange={(value) => setModel(String(value))} size="small" style={{ width: 150 }} optionList={chat.models.map((value) => ({ value, label: value }))} aria-label="模型" />
+          <Select value={model} onChange={(value) => setModel(String(value))} className="acme-touch-target" style={{ width: 150 }} optionList={chat.models.map((value) => ({ value, label: value }))} aria-label="模型" />
         </div>
         <div className="acme-chat-stream">
           {messages.length ? messages.map((message, index) => <Bubble key={index} message={message} />) : (

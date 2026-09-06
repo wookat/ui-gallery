@@ -21,7 +21,6 @@ export function OrdersPage() {
   const [selected, setSelected] = useState<string[]>([])
   const [detail, setDetail] = useState<Order | null>(null)
   const [pending, setPending] = useState<Order | null>(null)
-  const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(8)
   const [note, setNote] = useState("")
 
@@ -92,7 +91,7 @@ export function OrdersPage() {
               dataSource={mode === "error" ? [] : filtered}
               columns={columns}
               rowSelection={{ selectedRowKeys: selected, onChange: (keys) => setSelected((keys ?? []).map(String)) }}
-              pagination={{ currentPage: page, pageSize, total: filtered.length, onPageChange: (p) => setPage(p ?? 1), showSizeChanger: true, pageSizeOpts: [8, 16, 32], onPageSizeChange: (size) => { setPageSize(size); setPage(1) } }}
+              pagination={{ pageSize, showSizeChanger: true, pageSizeOpts: [8, 16, 32], onPageSizeChange: setPageSize }}
               empty={mode === "error" ? <Empty title="加载失败" description="服务暂时不可用。"><Button onClick={() => setMode("ready")}>重试</Button></Empty> : undefined}
               onRow={(record) => ({ onClick: (event) => { if ((event.target as HTMLElement).closest(".semi-checkbox, .semi-table-column-selection")) return; if (record) openDetail(record) }, style: { cursor: "pointer" } })}
             />

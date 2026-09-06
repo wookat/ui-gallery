@@ -405,6 +405,11 @@ body[theme-mode="dark"] .semi-button-danger.semi-button-borderless {
   align-items: center;
 }
 
+/* 隐藏的 input 以 .semi-checkbox-inner（16×20）定位；改为相对整个 40×40 的 .semi-checkbox 定位 */
+.semi-table .semi-checkbox .semi-checkbox-inner {
+  position: static;
+}
+
 .semi-table .semi-table-column-selection {
   padding-top: 0;
   padding-bottom: 0;

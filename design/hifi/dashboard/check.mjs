@@ -71,6 +71,8 @@ const extras = [
 ];
 const desktopOnly = [['success-rail', 'state=success&sidebar=rail']];
 const mobileOnly = [['success-drawer', 'state=success&open=drawer']];
+// 叠层变体（fixed 抽屉/遮罩/菜单/Popover/Toast）截视口而非整页：整页截图会让 fixed 层只盖住首屏，与真实视口不一致
+const isOverlay = (name) => /-(drawer|order-menu|notifications|account|toast)$/.test(name);
 const perViewport = {
   desktop: [...states.map((s) => [s, `state=${s}`]), ...extras, ...desktopOnly],
   mobile: [...states.map((s) => [s, `state=${s}`]), ...extras, ...mobileOnly],
@@ -101,7 +103,7 @@ for (const [vpName, vp] of Object.entries(viewports)) {
         const vis = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && el.closest('[hidden]') === null; };
         const small = [];
         for (const el of document.querySelectorAll('a, button, [role="tab"], [role="menuitem"], input')) {
-          if (!vis(el) || el.classList.contains('skip')) continue;
+          if (!vis(el)) continue;
           const r = el.getBoundingClientRect();
           if (r.width < w || r.height < w) small.push(`${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}.${[...el.classList].join('.')} ${Math.round(r.width)}x${Math.round(r.height)} "${(el.getAttribute('aria-label') || el.textContent).trim().slice(0, 12)}"`);
         }
@@ -116,7 +118,7 @@ for (const [vpName, vp] of Object.entries(viewports)) {
         };
       }, 40);
       const file = join(outDir, `${vpName}-${theme}-${name}.png`);
-      await page.screenshot({ path: file, fullPage: true });
+      await page.screenshot({ path: file, fullPage: !isOverlay(name), animations: 'disabled' }); // 冻结 skeleton shimmer 等动画，基准图可复现
       shots++;
       let size = statSync(file).size;
       if (size >= 300 * 1024) { // 无损压不下时量化为 256 色 PNG8（ImageMagick）
@@ -180,8 +182,8 @@ await browser.close();
 
   // 审查项：搜索框焦点环 2px；订单菜单按状态禁用 + 方向键漫游；趋势图键盘 + 文字替代
   await page.focus('.search input');
-  const searchRing = await page.evaluate(() => getComputedStyle(document.querySelector('.search')).outlineWidth);
-  ok(searchRing === '2px', `搜索框 focus-within 焦点环 = ${searchRing}（--border-width-focus）`);
+  const searchRing = await page.evaluate(() => [getComputedStyle(document.querySelector('.search input')).outlineWidth, getComputedStyle(document.querySelector('.search input')).outlineStyle]);
+  ok(searchRing[0] === '2px' && searchRing[1] === 'solid', `搜索 input 自身 :focus-visible 焦点环 = ${searchRing.join(' ')}（--border-width-focus）`);
   const menuByStatus = async (status) => {
     await page.click(`#orderRows .order-more[data-status="${status}"]`); // 真实点击（先滚入视口；菜单在滚动时会关闭）
     const r = await page.evaluate(() => [...document.querySelectorAll('#orderMenu [data-action]')].filter((b) => !b.disabled).map((b) => b.getAttribute('data-action')).join(','));
@@ -221,6 +223,42 @@ await browser.close();
     return { card: document.querySelector('#stats .stat').scrollWidth, doc: document.documentElement.scrollWidth };
   });
   ok(longW.doc <= 375 && longW.card <= 375, `375 统计卡 ¥1,186,420,999 无溢出（card=${longW.card} doc=${longW.doc}）`);
+
+  // 审查项：跳转链接热区高 ≥40；未实现导航项文字对比度 ≥4.5:1（亮/暗）；团队动态单据编号不折行
+  const lum = (rgb) => { const [r, g, b] = rgb.match(/\d+(\.\d+)?/g).slice(0, 3).map((c) => { c = +c / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const contrast = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return (l1 + 0.05) / (l2 + 0.05); };
+  for (const theme of ['light', 'dark']) {
+    await mob.goto(`${fileUrl}?state=success&theme=${theme}&open=drawer`);
+    await mob.evaluate(() => document.fonts.ready);
+    await mob.waitForTimeout(300);
+    const a11y = await mob.evaluate(() => {
+      const dis = document.querySelector('#nav .nav-item[aria-disabled="true"]');
+      const skip = document.querySelector('.skip').getBoundingClientRect();
+      const ids = [...document.querySelectorAll('#timeline .ref-id')];
+      return { fg: getComputedStyle(dis).color, bg: getComputedStyle(document.getElementById('sidebar')).backgroundColor, skipH: skip.height, ids: ids.length, idLines: ids.filter((s) => s.getClientRects().length > 1).length };
+    });
+    const ratio = contrast(a11y.fg, a11y.bg);
+    ok(ratio >= 4.5, `${theme}: 未实现导航项文字/侧栏背景对比度 = ${ratio.toFixed(2)}:1 ≥ 4.5`);
+    ok(a11y.skipH >= 40, `${theme}: 跳转链接高度 = ${a11y.skipH} ≥ 40`);
+    ok(a11y.ids >= 2 && a11y.idLines === 0, `${theme}: 375 团队动态 ${a11y.ids} 个单据编号均不折行（折行 ${a11y.idLines}）`);
+  }
+
+  // 审查项：文案极值——长指标名（375/768/1024）与长客户名 + 商品名（375 订单卡）不撑破视口
+  const LONG_LABEL = '近30天全渠道含退款已完成订单销售额合计（不含运费与优惠券）';
+  for (const [vpName, w] of [['mobile', 375], ['tabletSm', 768], ['tablet', 1024]]) {
+    await mob.setViewportSize(viewports[vpName]);
+    await mob.goto(`${fileUrl}?state=success&theme=light`);
+    await mob.waitForTimeout(250);
+    const ext = await mob.evaluate((label) => {
+      document.querySelectorAll('#stats .stat-label').forEach((l) => { l.textContent = label; });
+      const card = document.querySelector('#orderCards .order-card');
+      if (card) { card.querySelector('.oc-mid .name').textContent = '杭州栖木家居有限公司浙江省内采购中心周雅婷（大客户）'; card.querySelector('.oc-mid .items').textContent = '北欧白橡木餐桌 1.4m × 1 · 云朵羊羔绒抱枕 45×45 × 4 · 香薰礼盒 × 2'; }
+      const stat = document.querySelector('#stats .stat').getBoundingClientRect();
+      return { doc: document.documentElement.scrollWidth, statRight: Math.round(stat.right), cardRight: card ? Math.round(card.querySelector('.oc-mid').getBoundingClientRect().right) : 0, nameOver: card ? card.querySelector('.oc-mid .name').getBoundingClientRect().right > card.getBoundingClientRect().right : false };
+    }, LONG_LABEL);
+    ok(ext.doc <= w && ext.statRight <= w, `${w} 长指标名（${LONG_LABEL.length} 字）不撑破视口（doc=${ext.doc} statRight=${ext.statRight}）`);
+    if (w === 375) ok(ext.doc <= w && ext.cardRight <= w && !ext.nameOver, `375 订单卡长客户名 + 商品名不溢出卡片/视口（doc=${ext.doc} cardRight=${ext.cardRight}）`);
+  }
   await b2.close();
 }
 
@@ -263,9 +301,40 @@ await browser.close();
   ok(sm.sw <= 768, `768 documentElement.scrollWidth = ${sm.sw}（.table-wrap 为包含块）`);
   ok(sm.drawerBtn && sm.sidebarOffscreen, '768 为抽屉模式（汉堡按钮可见、侧栏离屏）');
   ok(sm.hint, '768 表格可横向滚动时显示「左右滑动查看更多」提示');
-  await s.click('#drawerOpen');
-  await s.waitForTimeout(300);
-  ok((await s.getAttribute('html', 'data-drawer')) === 'open', '768 汉堡按钮打开抽屉');
+  ok(await s.evaluate(() => document.querySelector('.table-wrap').classList.contains('is-scrollable') && getComputedStyle(document.querySelector('.table-wrap')).backgroundImage.split('linear-gradient').length === 5), '768 表格可横滚时两侧渐隐阴影（.is-scrollable 四层背景）');
+  // 审查项：抽屉关闭时侧栏退出 Tab 序列（inert + visibility:hidden），Tab 从跳转链接直接到汉堡按钮；打开后可聚焦，关闭后焦点回汉堡
+  for (const [vpName, vp] of [['tabletSm', viewports.tabletSm], ['mobile', viewports.mobile]]) {
+    await s.setViewportSize(vp);
+    await s.goto(`${fileUrl}?state=success&theme=light`);
+    await s.waitForTimeout(250);
+    const closed = await s.evaluate(() => { const sb = document.getElementById('sidebar'); return { inert: sb.inert, vis: getComputedStyle(sb).visibility }; });
+    await s.keyboard.press('Tab'); await s.keyboard.press('Tab');
+    const second = await s.evaluate(() => document.activeElement.id);
+    ok(closed.inert && closed.vis === 'hidden' && second === 'drawerOpen', `${vp.width} 抽屉关闭：侧栏 inert=${closed.inert} visibility=${closed.vis}，Tab 序列第 2 位 = #${second}`);
+    const off = [];
+    for (let i = 0; i < 20; i++) { // 真实按 Tab 走 20 步，任何一步焦点都不得落在屏外（侧栏内）
+      await s.keyboard.press('Tab');
+      const f = await s.evaluate(() => { const el = document.activeElement; const r = el.getBoundingClientRect(); return { inSidebar: !!el.closest('#sidebar'), off: r.right <= 0 || r.width === 0, tag: el.tagName + '.' + [...el.classList].join('.') }; });
+      if (f.inSidebar || f.off) off.push(f.tag);
+    }
+    ok(off.length === 0, `${vp.width} 抽屉关闭：Tab 走 20 步无屏外/侧栏内焦点${off.length ? ' → ' + off.slice(0, 3).join(' | ') : ''}`);
+    await s.click('#drawerOpen');
+    await s.waitForTimeout(300);
+    const opened = await s.evaluate(() => ({ drawer: document.documentElement.getAttribute('data-drawer'), inert: document.getElementById('sidebar').inert, vis: getComputedStyle(document.getElementById('sidebar')).visibility, focusInside: document.getElementById('sidebar').contains(document.activeElement) }));
+    ok(opened.drawer === 'open' && !opened.inert && opened.vis === 'visible' && opened.focusInside, `${vp.width} 汉堡按钮打开抽屉：inert 解除、可见、焦点进入侧栏`);
+    await s.keyboard.press('Escape');
+    await s.waitForTimeout(300);
+    ok((await s.evaluate(() => document.activeElement.id)) === 'drawerOpen' && (await s.evaluate(() => document.getElementById('sidebar').inert)), `${vp.width} Escape 关闭抽屉：焦点回汉堡按钮且侧栏重新 inert`);
+  }
+  // 审查项：1024 搜索框 placeholder 省略号；单列时图例限宽与环图并排
+  await t.goto(`${fileUrl}?state=success&theme=light`);
+  await t.waitForTimeout(250);
+  const tl = await t.evaluate(() => {
+    const inp = document.querySelector('.search input'); const lg = document.getElementById('donutLegend').getBoundingClientRect(); const dn = document.getElementById('donut').getBoundingClientRect();
+    return { ellipsis: getComputedStyle(inp).textOverflow, legendW: Math.round(lg.width), sideBySide: Math.abs(dn.top + dn.height / 2 - (lg.top + lg.height / 2)) < dn.height / 2 && dn.right <= lg.left };
+  });
+  ok(tl.ellipsis === 'ellipsis', `1024 搜索框 placeholder text-overflow = ${tl.ellipsis}`);
+  ok(tl.legendW <= 400 && tl.sideBySide, `1024 渠道图例限宽 ${tl.legendW} ≤ 400（--size-form-max）且与环图并排`);
   await b3.close();
 }
 

@@ -166,13 +166,21 @@ export function OrdersPage() {
     header: "操作",
     width: 80,
     cell: (o) => (
-      <ButtonDropdown
-        variant="inline-icon"
-        ariaLabel={`${o.id} 操作`}
-        expandToViewport
-        items={actionItems}
-        onItemClick={({ detail }) => onAction(o, detail.id)}
-      />
+      <div
+        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 40, minHeight: 40, cursor: "pointer" }}
+        onClick={(e) => {
+          e.stopPropagation()
+          if (!(e.target as HTMLElement).closest("button")) e.currentTarget.querySelector("button")?.click()
+        }}
+      >
+        <ButtonDropdown
+          variant="icon"
+          ariaLabel={`${o.id} 操作`}
+          expandToViewport
+          items={actionItems}
+          onItemClick={({ detail }) => onAction(o, detail.id)}
+        />
+      </div>
     ),
   }
   const modeSwitcher = (

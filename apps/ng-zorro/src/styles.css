@@ -8,6 +8,17 @@
     Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol', 'Noto Color Emoji';
   color-scheme: light;
+  --chat-muted: rgba(0, 0, 0, 0.65);
+  --chat-hover: rgba(0, 0, 0, 0.03);
+  --chat-bubble: rgba(0, 0, 0, 0.04);
+  --chat-user-bubble: #1890ff;
+}
+
+html.dark {
+  --chat-muted: rgba(255, 255, 255, 0.65);
+  --chat-hover: rgba(255, 255, 255, 0.06);
+  --chat-bubble: rgba(255, 255, 255, 0.08);
+  --chat-user-bubble: #177ddc;
 }
 
 html,
@@ -64,7 +75,26 @@ body,
 .ant-input-number:not(.ant-input-number-sm){min-height:40px}
 .ant-input-number:not(.ant-input-number-sm) .ant-input-number-input{height:38px}
 .ant-tabs-tab,.ant-menu-horizontal>.ant-menu-item{min-height:40px}
-.ant-pagination-item,.ant-pagination-prev,.ant-pagination-next,.ant-pagination-jump-prev,.ant-pagination-jump-next{min-width:40px;min-height:40px;line-height:38px}
+.ant-tabs-tab .ant-tabs-tab-btn{min-width:40px;text-align:center}
+html .ant-pagination .ant-pagination-item,html .ant-pagination .ant-pagination-prev,html .ant-pagination .ant-pagination-next,html .ant-pagination .ant-pagination-jump-prev,html .ant-pagination .ant-pagination-jump-next,html .ant-pagination.ant-pagination-mini .ant-pagination-item,html .ant-pagination.ant-pagination-mini .ant-pagination-prev,html .ant-pagination.ant-pagination-mini .ant-pagination-next,html .ant-pagination.ant-pagination-mini .ant-pagination-jump-prev,html .ant-pagination.ant-pagination-mini .ant-pagination-jump-next{min-width:40px;height:40px;min-height:40px;line-height:38px}
+html .ant-pagination .ant-pagination-item a{min-width:40px;line-height:38px;display:inline-block}
+html .ant-pagination.ant-pagination-mini .ant-pagination-prev .ant-pagination-item-link,html .ant-pagination.ant-pagination-mini .ant-pagination-next .ant-pagination-item-link{height:40px;line-height:38px}
+html .ant-pagination .ant-pagination-options-quick-jumper input{height:40px}
+html .ant-select-single:not(.ant-select-sm):not(.ant-select-customize-input) .ant-select-selector{height:40px;display:flex;align-items:center}
+html .ant-select-single:not(.ant-select-sm) .ant-select-selector .ant-select-selection-search-input{height:38px}
+html .ant-select-single:not(.ant-select-sm) .ant-select-selector .ant-select-selection-item,html .ant-select-single:not(.ant-select-sm) .ant-select-selector .ant-select-selection-placeholder{line-height:38px}
+html .ant-select-single.ant-select-lg:not(.ant-select-customize-input) .ant-select-selector{height:40px}
+html .ant-select-single.ant-select-lg .ant-select-selector .ant-select-selection-search-input{height:38px}
+html .ant-select-single.ant-select-lg .ant-select-selector .ant-select-selection-item,html .ant-select-single.ant-select-lg .ant-select-selector .ant-select-selection-placeholder{line-height:38px}
+html .ant-select-multiple:not(.ant-select-sm) .ant-select-selector{min-height:40px;align-items:center}
+html .ant-select-sm.ant-select-single:not(.ant-select-customize-input) .ant-select-selector{height:40px}
+html .ant-select-sm.ant-select-single .ant-select-selector .ant-select-selection-search-input{height:38px}
+html .ant-select-sm.ant-select-single .ant-select-selector .ant-select-selection-item,html .ant-select-sm.ant-select-single .ant-select-selector .ant-select-selection-placeholder{line-height:38px}
+html .ant-pagination .ant-pagination-options .ant-select-single .ant-select-selector{height:40px}
+html .ant-input-group-addon .ant-select-single .ant-select-selector{height:38px}
+html .ant-picker:not(.ant-picker-small){min-height:40px}
+html .ant-cascader-picker:not(.ant-select-sm) .ant-select-selector{height:40px}
+.dark .ant-layout-sider-light{background:#141414}
 a.brand{display:inline-flex;align-items:center;min-height:40px}
 .user-card{min-height:40px}
 .ant-drawer-close{width:40px;height:40px}

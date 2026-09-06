@@ -99,7 +99,7 @@ type Order = (typeof orders)[number];
                   <tr>
                     <td>{{ order.id }}</td>
                     <td><span class="customer"><nz-avatar nzSize="small" [nzText]="order.customer.slice(0, 1)" />{{ order.customer }}</span></td>
-                    <td><nz-tag [nzColor]="statusColor(order.status)">{{ order.status }}</nz-tag></td>
+                    <td><nz-tag [nzColor]="statusColor(order.status)">{{ statusLabel(order.status) }}</nz-tag></td>
                     <td nzAlign="right">¥{{ order.amount | number: '1.2-2' }}</td>
                     <td class="col-actions"><a nz-dropdown [nzDropdownMenu]="rowMenu">更多 <ui-icon name="chevron-down" /></a></td>
                   </tr>
@@ -185,6 +185,11 @@ export class DashboardPage {
 
   absoluteDelta(value: number): string {
     return Math.abs(value).toFixed(1);
+  }
+
+  statusLabel(status: Order['status']): string {
+    const labels: Record<string, string> = { paid: '已支付', pending: '处理中', refunded: '已退款', failed: '失败', shipped: '已发货' };
+    return labels[status] ?? status;
   }
 
   statusColor(status: Order['status']): string {

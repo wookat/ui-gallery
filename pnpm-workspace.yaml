@@ -11,5 +11,5 @@ allowBuilds:
   sharp: true
   "@parcel/watcher": true
   workerd: true
-  lmdb: false
-  msgpackr-extract: false
+  lmdb: true
+  msgpackr-extract: true

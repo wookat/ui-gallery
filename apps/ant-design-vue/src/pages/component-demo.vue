@@ -2,7 +2,7 @@
 export const wideDemos = ["Transfer", "Calendar", "Menu", "Table", "DataGrid", "Form", "Layout", "Navbar", "Steps", "Button", "Input", "Select", "Progress", "Tabs", "Pagination", "Descriptions", "Carousel", "Upload", "Alert", "Card", "Grid", "Resizable"]
 </script>
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { message, notification, theme } from "ant-design-vue"
 import { Icon } from "./shared"
 defineProps<{ name: string }>()
@@ -15,6 +15,19 @@ const cascaderOptions = [{ value: "a", label: "选项 A", children: [{ value: "b
 const transferData = [{ key: "1", title: "项目一" }, { key: "2", title: "项目二" }, { key: "3", title: "项目三" }]
 const transferKeys = ref(["2"])
 const backTopBox = ref<HTMLElement>()
+const rateValue = ref(3)
+const rateHalf = ref(2.5)
+const paletteOpen = ref(false)
+const paletteQuery = ref("")
+const paletteCommands = [
+  { key: "dashboard", group: "页面", label: "前往仪表盘", icon: "layout-dashboard", shortcut: "G D" },
+  { key: "orders", group: "页面", label: "前往订单", icon: "shopping-cart", shortcut: "G O" },
+  { key: "settings", group: "页面", label: "前往设置", icon: "settings", shortcut: "G S" },
+  { key: "new", group: "操作", label: "新建订单", icon: "plus", shortcut: "N" },
+  { key: "theme", group: "操作", label: "切换主题", icon: "sun", shortcut: "T" },
+]
+const paletteGroups = [...new Set(paletteCommands.map((item) => item.group))]
+const filteredCommands = computed(() => paletteCommands.filter((item) => item.label.includes(paletteQuery.value.trim())))
 const imageSrc = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="240" height="140"><rect width="240" height="140" rx="12" fill="#e6f4ff"/><circle cx="72" cy="58" r="22" fill="#1677ff"/><path d="M20 120l52-44 40 30 36-24 72 38z" fill="#91caff"/></svg>')}`
 const { token } = theme.useToken()
 function backTopTarget() { return backTopBox.value ?? window }
@@ -25,7 +38,8 @@ function openDrawer(placement: typeof drawerPlacement.value) { drawerPlacement.v
   <template v-else-if="name === 'Button'"><div class="demo-stack"><div v-for="size in sizes" :key="size" class="demo-row"><a-button v-for="type in buttonTypes" :key="type" :type="type" :size="size">{{ sizeLabel[size] }}·{{ type }}</a-button><a-button :size="size" danger>危险</a-button><a-button :size="size" loading>加载中</a-button><a-button :size="size" disabled>禁用</a-button></div></div></template>
   <template v-else-if="name === 'ButtonGroup'"><div class="demo-stack"><a-button-group v-for="size in sizes" :key="size" :size="size"><a-button>左</a-button><a-button>中</a-button><a-button disabled>右</a-button></a-button-group></div></template>
   <template v-else-if="name === 'IconButton'"><div class="demo-row"><a-button v-for="size in sizes" :key="size" :size="size" shape="circle" type="primary"><template #icon><Icon name="plus" :size="16" /></template></a-button><a-button shape="circle"><template #icon><Icon name="search" :size="16" /></template></a-button><a-button shape="circle" loading /><a-button shape="circle" disabled><template #icon><Icon name="bell" :size="16" /></template></a-button></div></template>
-  <template v-else-if="['Input', 'CommandPalette'].includes(name)"><div class="demo-stack"><a-input v-for="size in sizes" :key="size" :size="size" :placeholder="`${sizeLabel[size]}尺寸 · 前缀与清除`" allow-clear><template #prefix><Icon name="search" /></template></a-input><a-input-password placeholder="密码" /><a-input-search placeholder="搜索" enter-button /><a-input placeholder="禁用" disabled /><a-input placeholder="错误状态" status="error" /></div></template>
+  <template v-else-if="name === 'CommandPalette'"><div class="demo-stack"><a-button class="palette-trigger" @click="paletteOpen = true"><Icon name="search" :size="16" /><span class="palette-trigger-text">搜索命令…</span><kbd class="palette-kbd">⌘ K</kbd></a-button><div class="palette-panel"><a-input v-model:value="paletteQuery" placeholder="输入命令或页面名称" :bordered="false" allow-clear class="palette-input"><template #prefix><Icon name="search" /></template></a-input><a-divider class="palette-divider" /><a-menu class="palette-menu" :selected-keys="[filteredCommands[0]?.key ?? '']"><a-menu-item-group v-for="group in paletteGroups" :key="group" :title="group"><a-menu-item v-for="item in filteredCommands.filter((c) => c.group === group)" :key="item.key"><template #icon><Icon :name="item.icon" :size="16" /></template><span class="palette-item"><span>{{ item.label }}</span><kbd class="palette-kbd">{{ item.shortcut }}</kbd></span></a-menu-item></a-menu-item-group><a-empty v-if="!filteredCommands.length" description="没有匹配的命令" :image-style="{ height: '40px' }" /></a-menu><div class="palette-footer muted"><span><kbd class="palette-kbd">↑↓</kbd> 选择</span><span><kbd class="palette-kbd">↵</kbd> 打开</span><span><kbd class="palette-kbd">Esc</kbd> 关闭</span></div></div></div><a-modal v-model:open="paletteOpen" :footer="null" :closable="false" width="520px" wrap-class-name="palette-modal"><a-input v-model:value="paletteQuery" placeholder="输入命令或页面名称" :bordered="false" allow-clear size="large" autofocus><template #prefix><Icon name="search" /></template></a-input><a-divider class="palette-divider" /><a-menu class="palette-menu" @click="paletteOpen = false"><a-menu-item v-for="item in filteredCommands" :key="item.key"><template #icon><Icon :name="item.icon" :size="16" /></template><span class="palette-item"><span>{{ item.label }}</span><kbd class="palette-kbd">{{ item.shortcut }}</kbd></span></a-menu-item></a-menu></a-modal></template>
+  <template v-else-if="name === 'Input'"><div class="demo-stack"><a-input v-for="size in sizes" :key="size" :size="size" :placeholder="`${sizeLabel[size]}尺寸 · 前缀与清除`" allow-clear><template #prefix><Icon name="search" /></template></a-input><a-input-password placeholder="密码" /><a-input-search placeholder="搜索" enter-button /><a-input placeholder="禁用" disabled /><a-input placeholder="错误状态" status="error" /></div></template>
   <template v-else-if="name === 'Textarea'"><div class="demo-stack"><a-textarea show-count :maxlength="100" :rows="3" placeholder="请输入内容" /><a-textarea :rows="2" placeholder="禁用" disabled /><a-textarea :rows="2" placeholder="错误状态" status="error" /></div></template>
   <template v-else-if="name === 'NumberInput'"><div class="demo-stack"><a-input-number v-for="size in sizes" :key="size" :size="size" style="width:100%" :min="0" :max="100" :default-value="size.length" /><a-input-number style="width:100%" :default-value="8" disabled /><a-input-number style="width:100%" status="error" /></div></template>
   <template v-else-if="['Select', 'Combobox'].includes(name)"><div class="demo-stack"><a-select v-for="size in sizes" :key="size" :size="size" show-search style="width:100%" :placeholder="`${sizeLabel[size]}尺寸`"><a-select-option value="one">选项一</a-select-option><a-select-option value="two">选项二</a-select-option></a-select><a-select style="width:100%" default-value="one" disabled><a-select-option value="one">禁用</a-select-option></a-select><a-select style="width:100%" loading placeholder="加载中" /><a-select style="width:100%" status="error" placeholder="错误状态" /></div></template>
@@ -35,7 +49,7 @@ function openDrawer(placement: typeof drawerPlacement.value) { drawerPlacement.v
   <template v-else-if="name === 'Radio'"><div class="demo-stack"><a-radio-group default-value="a"><a-radio value="a">选项 A</a-radio><a-radio value="b">选项 B</a-radio><a-radio value="c" disabled>禁用</a-radio></a-radio-group><a-radio-group v-for="size in sizes" :key="size" :size="size" default-value="a" button-style="solid"><a-radio-button value="a">{{ sizeLabel[size] }}</a-radio-button><a-radio-button value="b">按钮</a-radio-button><a-radio-button value="c" disabled>禁用</a-radio-button></a-radio-group></div></template>
   <template v-else-if="name === 'Switch'"><div class="demo-row"><a-switch checked /><a-switch /><a-switch size="small" checked /><a-switch loading checked /><a-switch disabled /><a-switch checked-children="开" un-checked-children="关" /></div></template>
   <template v-else-if="name === 'Slider'"><div class="demo-stack"><a-slider :default-value="30" /><a-slider range :default-value="[20, 80]" /><a-slider :default-value="50" disabled /></div></template>
-  <template v-else-if="name === 'Rating'"><div class="demo-stack"><a-rate :default-value="3" /><a-rate :default-value="2.5" allow-half /><a-rate :default-value="4" disabled /></div></template>
+  <template v-else-if="name === 'Rating'"><div class="demo-stack"><a-rate v-model:value="rateValue" /><a-rate v-model:value="rateHalf" allow-half /><a-rate :value="4" disabled /></div></template>
   <template v-else-if="name === 'DatePicker'"><div class="demo-stack"><a-date-picker v-for="size in sizes" :key="size" :size="size" style="width:100%" :placeholder="`${sizeLabel[size]}尺寸`" /><a-date-picker style="width:100%" disabled placeholder="禁用" /><a-date-picker style="width:100%" status="error" placeholder="错误状态" /></div></template>
   <template v-else-if="name === 'TimePicker'"><div class="demo-stack"><a-time-picker style="width:100%" /><a-time-picker style="width:100%" disabled placeholder="禁用" /></div></template>
   <template v-else-if="name === 'DateRangePicker'"><div class="demo-stack"><a-range-picker style="width:100%" /><a-range-picker style="width:100%" disabled /></div></template>
@@ -124,6 +138,17 @@ function openDrawer(placement: typeof drawerPlacement.value) { drawerPlacement.v
 .inline-menu-demo, .collapsed-menu-demo { border-inline-end: 0 !important; }
 .collapsed-menu-demo { width: 80px; }
 .pin-row { flex-wrap: nowrap; }
+.palette-trigger { display: inline-flex; align-items: center; gap: 8px; width: 100%; max-width: 360px; }
+.palette-trigger-text { flex: 1; text-align: left; color: var(--app-color-text-secondary); }
+.palette-kbd { font-family: inherit; font-size: 12px; line-height: 1; padding: 3px 6px; border: 1px solid var(--app-color-border); border-radius: 4px; background: var(--app-color-fill-quaternary); }
+.palette-panel { border: 1px solid var(--app-color-border); border-radius: 8px; overflow: hidden; }
+.palette-input { padding: 8px 12px; }
+.palette-divider { margin: 0; }
+.palette-menu { border-inline-end: 0 !important; }
+.palette-menu :deep(.ant-menu-item) { display: flex; align-items: center; }
+.palette-menu :deep(.ant-menu-title-content) { flex: 1; min-width: 0; }
+.palette-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.palette-footer { display: flex; gap: 16px; padding: 8px 12px; font-size: 12px; border-top: 1px solid var(--app-color-border); }
 .pin-cell { width: 40px; min-width: 0; padding-inline: 0; text-align: center; }
 .upload-demo :deep(.ant-upload-drag) { height: auto; }
 .upload-demo :deep(.ant-upload-btn) { padding: 12px 8px; }

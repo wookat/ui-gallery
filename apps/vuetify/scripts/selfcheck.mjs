@@ -59,7 +59,7 @@ for (const route of ["/", "/orders", "/chat"]) {
   }
 }
 for (const route of ["/", "/components"]) {
-  for (const icons of ["lucide", "tabler", "phosphor", "heroicons"]) {
+  for (const icons of ["lucide", "tabler", "phosphor", "heroicons", "native"]) {
     const context = await browser.newContext({ viewport: { width: 375, height: 812 } })
     const page = await context.newPage()
     const errors = []

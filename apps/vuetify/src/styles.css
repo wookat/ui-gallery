@@ -28,6 +28,11 @@
 .v-application .v-pagination .v-btn {
   min-width: 40px !important;
 }
+.v-application .v-breadcrumbs-item--disabled {
+  opacity: 1;
+  color: rgb(var(--v-theme-on-surface));
+  font-weight: 500;
+}
 html {
   overflow-x: hidden;
 }

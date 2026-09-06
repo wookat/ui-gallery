@@ -1,5 +1,5 @@
-// Icon adapter: `?icons=native|lucide|tabler|phosphor|heroicons` (also accepts `?icon=`).
-// `native` uses Vuetify's bundled Material Design Icons (@mdi/font); the other sets
+// Icon adapter: `?icons=lucide|tabler|phosphor|heroicons|native` (also accepts `?icon=`).
+// Defaults to lucide per docs/page-spec.md; `native` uses Vuetify's bundled Material Design Icons (@mdi/font); the other sets
 // are rendered through their official Vue packages.
 import type { IconValue } from "vuetify/lib/composables/icons.mjs"
 import { aliases as mdiAliases } from "vuetify/iconsets/mdi"
@@ -9,7 +9,8 @@ import * as P from "@phosphor-icons/vue"
 import * as H from "@heroicons/vue/24/outline"
 
 export type IconSet = "native" | "lucide" | "tabler" | "phosphor" | "heroicons"
-export const ICON_SETS: IconSet[] = ["native", "lucide", "tabler", "phosphor", "heroicons"]
+export const ICON_SETS: IconSet[] = ["lucide", "tabler", "phosphor", "heroicons", "native"]
+export const DEFAULT_ICON_SET: IconSet = "lucide"
 
 type Entry = [mdi: string, lucide: unknown, tabler: unknown, phosphor: unknown, heroicons: unknown]
 
@@ -125,7 +126,7 @@ export const iconNames = Object.keys(icons) as IconName[]
 export function currentIconSet(): IconSet {
   const params = new URLSearchParams(window.location.search)
   const value = params.get("icons") ?? params.get("icon")
-  return (ICON_SETS as string[]).includes(value ?? "") ? (value as IconSet) : "native"
+  return (ICON_SETS as string[]).includes(value ?? "") ? (value as IconSet) : DEFAULT_ICON_SET
 }
 
 /** Resolve an icon name to something `<v-icon :icon>` accepts for the active set. */

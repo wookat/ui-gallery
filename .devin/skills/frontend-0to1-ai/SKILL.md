@@ -68,6 +68,8 @@ export FE01_SKILL_URL=https://github.com/wookat/company-os/tree/main/skills/fron
 
 会话数量：基础 12 个（阶段 0/1/2/4 各产出+审查，hifi-merge，ux/qa/release）+ 每屏 5 个（hifi、hifi-review、impl、impl-review、merge）+ 修复轮次；8 屏约 52 个。建议先用 `FE01_MAX_SCREENS=2` 在测试仓跑通。
 
+环境变量也可写进 `~/.fe01/config.json`（同名 key；env 优先），run_workflow 不传 env 时从此读取。
+
 ```text
 run_workflow(script_path="<company-os>/skills/frontend-0to1-ai/workflow.py", workflow_name="fe01-<repo>-r1")
 ```

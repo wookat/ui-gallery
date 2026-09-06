@@ -8,6 +8,13 @@ import asyncio
 import json
 import os
 
+# 参数来源：环境变量优先；其次 ~/.fe01/config.json（{"FE01_REPO_SLUG": ..., ...}），便于 run_workflow 不带 env 时取值
+_cfg_path = os.environ.get("FE01_CONFIG", os.path.expanduser("~/.fe01/config.json"))
+if os.path.isfile(_cfg_path):
+    with open(_cfg_path, encoding="utf-8") as f:
+        for _k, _v in json.load(f).items():
+            os.environ.setdefault(_k, str(_v))
+
 REPO_SLUG = os.environ["FE01_REPO_SLUG"]
 REPO = f"github.com/{REPO_SLUG}"
 BASE = os.environ.get("FE01_BASE_BRANCH", "main")

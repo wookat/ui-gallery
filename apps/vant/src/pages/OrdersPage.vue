@@ -47,6 +47,7 @@ const confirmDate = ({ selectedValues }: { selectedValues: string[] }) => {
     <div v-else class="card order-card">
       <div class="toolbar"><van-search v-model="query" shape="round" placeholder="搜索订单号或客户" /><van-dropdown-menu><van-dropdown-item v-model="status" :options="statusOptions" /><van-dropdown-item title="渠道"><template #default><van-checkbox-group v-model="channels" class="column-menu"><van-checkbox name="web">Web</van-checkbox><van-checkbox name="api">API</van-checkbox><van-checkbox name="mobile">Mobile</van-checkbox></van-checkbox-group></template></van-dropdown-item></van-dropdown-menu><van-button plain @click="calendar = true"><AppIcon name="calendar" />{{ dateText }}</van-button><van-popover placement="bottom-end"><van-checkbox-group v-model="columns" class="column-menu"><van-checkbox name="customer">客户</van-checkbox><van-checkbox name="status">状态</van-checkbox><van-checkbox name="amount">金额</van-checkbox></van-checkbox-group><template #reference><van-button plain><AppIcon name="filter" />列</van-button></template></van-popover></div>
       <div class="table-wrap"><div class="data-table orders-table" :style="{ '--orders-columns': gridColumns }"><div class="data-row head"><van-checkbox v-model="selectAll" :indeterminate="partiallySelected" aria-label="全选" /><button type="button" :aria-sort="sortKey === 'date' ? (sortAsc ? 'ascending' : 'descending') : 'none'" @click="sort('date')">订单 / 日期<van-icon :name="sortIcon('date')" /></button><span v-if="columns.includes('customer')">客户</span><span v-if="columns.includes('status')">状态</span><button v-if="columns.includes('amount')" type="button" class="amount" :aria-sort="sortKey === 'amount' ? (sortAsc ? 'ascending' : 'descending') : 'none'" @click="sort('amount')">金额<van-icon :name="sortIcon('amount')" /></button><span>操作</span></div><van-checkbox-group v-model="checked"><div v-for="order in filtered" :key="order.id" class="data-row" @click="selected = order"><van-checkbox :name="order.id" :aria-label="`选择 ${order.id}`" @click.stop /><strong>{{ order.id }}<small>{{ order.date }}</small></strong><span v-if="columns.includes('customer')">{{ order.customer }}</span><van-tag v-if="columns.includes('status')" :type="order.status === 'paid' ? 'success' : order.status === 'failed' ? 'danger' : 'primary'">{{ statusText[order.status] ?? order.status }}</van-tag><strong v-if="columns.includes('amount')" class="amount">¥{{ order.amount.toLocaleString() }}</strong><van-popover placement="left"><van-cell title="编辑" /><van-cell title="删除" @click="remove(order)" /><template #reference><van-button plain size="small" aria-label="更多操作" @click.stop><AppIcon name="more" /></van-button></template></van-popover></div></van-checkbox-group></div></div>
+      <div class="order-cards mobile-only"><van-checkbox-group v-model="checked" class="order-card-group"><article v-for="order in filtered" :key="order.id" class="card" @click="selected = order"><div class="order-card-header"><van-checkbox :name="order.id" :aria-label="`选择 ${order.id}`" @click.stop /><div class="order-card-title"><strong>{{ order.id }}</strong><small>{{ order.date }}</small></div><van-popover placement="left"><van-cell title="编辑" /><van-cell title="删除" @click="remove(order)" /><template #reference><van-button plain size="small" aria-label="更多操作" @click.stop><AppIcon name="more" /></van-button></template></van-popover></div><div class="order-card-customer">{{ order.customer }}</div><div class="order-card-footer"><van-tag :type="order.status === 'paid' ? 'success' : order.status === 'failed' ? 'danger' : 'primary'">{{ statusText[order.status] ?? order.status }}</van-tag><strong class="amount">¥{{ order.amount.toLocaleString() }}</strong></div></article></van-checkbox-group></div>
       <div class="pagination-row"><van-pagination v-model="page" :page-count="Math.ceil(filtered.length / pageSize)" mode="simple" :total-items="orders.length" :items-per-page="pageSize" /><van-dropdown-menu><van-dropdown-item v-model="pageSize" :options="[{ text: '10 条/页', value: 10 }, { text: '20 条/页', value: 20 }, { text: '50 条/页', value: 50 }]" /></van-dropdown-menu><span class="muted">共 {{ filtered.length }} 条</span></div>
     </div>
     <van-popup v-model:show="calendar" position="bottom"><van-calendar type="range" @confirm="confirmDate" /></van-popup>
@@ -66,5 +67,19 @@ const confirmDate = ({ selectedValues }: { selectedValues: string[] }) => {
 .data-row > button { all: unset; display: inline-flex; align-items: center; gap: 4px; min-height: 40px; cursor: pointer; }
 .data-row.head > button.amount { justify-content: flex-end; }
 .pagination-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
-@media (max-width: 767px) { .order-card { padding: 12px; } }
+.order-cards { display: none; }
+.order-card-group { display: contents; }
+.order-card-header, .order-card-footer { display: flex; align-items: center; gap: 8px; }
+.order-card-header { min-width: 0; }
+.order-card-header .van-popover { margin-left: auto; }
+.order-card-title { display: grid; min-width: 0; }
+.order-card-title strong, .order-card-title small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.order-card-title small { color: var(--van-text-color-2); font-size: 12px; margin-top: 3px; }
+.order-card-customer { margin: 10px 0; color: var(--van-text-color-2); }
+.order-card-footer .amount { margin-left: auto; }
+@media (max-width: 767px) {
+  .order-card { padding: 12px; }
+  .table-wrap { display: none; }
+  .order-cards { display: grid; gap: 10px; }
+}
 </style>

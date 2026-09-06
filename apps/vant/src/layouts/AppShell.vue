@@ -73,7 +73,7 @@ const doAction = (label: string) => { profileOpen.value = false; showNotify({ ty
       <main class="shell-content"><RouterView /></main>
     </section>
     <van-popup v-model:show="drawer" position="left" :style="{ width: '78%', height: '100%' }">
-      <div class="dashboard-sidebar" style="width: 100%">
+      <div class="drawer-sidebar" style="width: 100%">
         <RouterLink class="brand" to="/" @click="drawer = false"><span class="brand-mark"><AppIcon name="zap" /></span><span>Acme Console</span></RouterLink>
         <nav class="side-nav">
           <RouterLink v-for="item in nav" :key="item.key" :to="item.path" @click="drawer = false"><AppIcon :name="item.icon" /><span>{{ item.label }}</span></RouterLink>
@@ -98,6 +98,7 @@ const doAction = (label: string) => { profileOpen.value = false; showNotify({ ty
 .popover-item { display: grid; gap: 3px; padding: 9px; border-bottom: 1px solid var(--van-border-color); }
 .popover-item:last-child { border-bottom: 0; }
 .popover-item small { color: var(--van-text-color-2); }
+.drawer-sidebar { padding: 16px 12px; display: flex; flex-direction: column; height: 100%; background: var(--van-background-2); }
 .side-nav :deep(.van-badge) { margin-left: auto; }
 .avatar-placeholder { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--van-primary-color); color: #fff; }
 @media (max-width: 767px) { .desktop-search { display: none; } }

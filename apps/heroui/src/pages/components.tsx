@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import { Accordion, Alert, AlertDialog, Autocomplete, Avatar, Badge, Breadcrumbs, Button, ButtonGroup, Calendar, CalendarYearPicker, Card, Checkbox, CheckboxGroup, Chip, CloseButton, ColorArea, ColorField, ColorPicker, ColorSlider, ColorSwatch, ColorSwatchPicker, ComboBox, DateField, DatePicker, DateRangePicker, Description, Disclosure, DisclosureGroup, Drawer, Dropdown, EmptyState, ErrorMessage, FieldError, Fieldset, Form, Header, Input, InputGroup, InputOTP, Kbd, Label, Link, ListBox, Menu, Meter, Modal, NumberField, Pagination, Popover, ProgressBar, ProgressCircle, Radio, RadioGroup, RangeCalendar, ScrollShadow, SearchField, Select, Separator, Skeleton, Slider, Spinner, Surface, Switch, SwitchGroup, Table, Tabs, Tag, TagGroup, TextArea, TextField, TimeField, toast, ToggleButton, ToggleButtonGroup, Toolbar, Tooltip, Typography } from "@heroui/react"
 import { Icon } from "@/components/icon"
 import contract from "@ui-gallery/spec/contract.json"
@@ -82,7 +82,7 @@ const variantNotes: Record<string, string> = {
   Tree: "HeroUI 未提供，标记为 missing",
   Calendar: "月份网格 · 前后导航",
   Image: "由 aspect-video 与 Tailwind 组合实现",
-  Carousel: "由 ScrollShadow 与 Surface 组合实现",
+  Carousel: "由 Surface 与 Button（上一张/下一张 + 指示点）组合实现",
   Empty: "EmptyState · 空结果",
   Tooltip: "默认提示 · 常开提示",
   Popover: "默认弹出层 · Dialog 内容",
@@ -190,7 +190,7 @@ function Demo({ name }: { name: string }): ReactNode {
     case "Timeline": return <ol className="relative space-y-4 border-l border-border pl-4 text-sm">{team.slice(0, 3).map((m) => <li key={m.email} className="relative"><span className="absolute -left-[21px] top-1 size-2.5 rounded-full bg-accent" /><p className="font-medium">{m.name}</p><p className="text-xs text-muted">{m.lastActive}</p></li>)}</ol>
     case "Calendar": return <Calendar aria-label="日历"><CalendarBody /></Calendar>
     case "Image": return <figure className="overflow-hidden rounded-xl border border-border"><div className="aspect-video bg-[linear-gradient(135deg,var(--accent),var(--surface-secondary))]" /><figcaption className="p-2 text-xs text-muted">占位图（aspect-video + Tailwind）</figcaption></figure>
-    case "Carousel": return <ScrollShadow orientation="horizontal" className="flex w-full max-w-full snap-x gap-3 overflow-x-auto">{[1, 2, 3, 4].map((i) => <Surface key={i} variant="secondary" className="w-40 shrink-0 snap-start rounded-xl p-4 text-sm">卡片 {i}</Surface>)}</ScrollShadow>
+    case "Carousel": return <CarouselDemo />
     case "Empty": return <EmptyState className="py-6"><div className="mx-auto grid size-10 place-items-center rounded-full bg-surface-secondary text-muted"><Icon name="inbox" size={18} /></div><p className="mt-3 font-medium">暂无数据</p><p className="text-xs text-muted">试试调整筛选条件。</p></EmptyState>
     case "Tooltip": return <div className="flex gap-2"><Tooltip><Button variant="secondary">悬停</Button><Tooltip.Content>提示内容</Tooltip.Content></Tooltip><Tooltip isOpen><Button variant="secondary">常开</Button><Tooltip.Content>始终显示</Tooltip.Content></Tooltip></div>
     case "Popover": return <Popover><Button variant="secondary">打开 Popover</Button><Popover.Content><Popover.Dialog><Popover.Heading>标题</Popover.Heading><p className="text-sm text-muted">Popover 内容。</p></Popover.Dialog></Popover.Content></Popover>
@@ -234,6 +234,21 @@ function Demo({ name }: { name: string }): ReactNode {
   }
 }
 
+function CarouselDemo() {
+  const slides = [1, 2, 3, 4]
+  const [index, setIndex] = useState(0)
+  return (
+    <div className="grid w-full min-w-0 gap-3" role="region" aria-roledescription="轮播" aria-label="卡片轮播">
+      <Surface variant="secondary" className="grid h-24 w-full place-items-center rounded-xl p-4 text-sm" aria-live="polite">卡片 {slides[index]} / {slides.length}</Surface>
+      <div className="flex items-center justify-between gap-2">
+        <Button isIconOnly variant="secondary" size="sm" aria-label="上一张" onPress={() => setIndex((i) => (i - 1 + slides.length) % slides.length)}><Icon name="chevron-left" size={16} /></Button>
+        <div className="flex gap-1.5" aria-hidden="true">{slides.map((s, i) => <span key={s} className={`size-2 rounded-full ${i === index ? "bg-accent" : "bg-surface-tertiary"}`} />)}</div>
+        <Button isIconOnly variant="secondary" size="sm" aria-label="下一张" onPress={() => setIndex((i) => (i + 1) % slides.length)}><Icon name="chevron-right" size={16} /></Button>
+      </div>
+    </div>
+  )
+}
+
 function NativeDemo({ name }: { name: string }) {
   switch (name) {
     case "Chip": return <div className="flex flex-wrap gap-2"><Chip>默认</Chip><Chip variant="secondary">secondary</Chip></div>
@@ -251,7 +266,7 @@ function NativeDemo({ name }: { name: string }) {
     case "ScrollShadow": return <ScrollShadow className="h-20 rounded-lg border border-border p-3 text-sm">{team.map((member) => <p key={member.email}>{member.name}</p>)}</ScrollShadow>
     case "CloseButton": return <CloseButton aria-label="关闭" />
     case "Fieldset": return <Fieldset><Fieldset.Legend>联系信息</Fieldset.Legend><TextField><Label>邮箱</Label><Input placeholder="邮箱" /></TextField></Fieldset>
-    case "InputGroup": return <InputGroup><InputGroup.Prefix>https://</InputGroup.Prefix><InputGroup.Input placeholder="地址" /><InputGroup.Suffix>.dev</InputGroup.Suffix></InputGroup>
+    case "InputGroup": return <InputGroup className="w-full min-w-0"><InputGroup.Prefix>https://</InputGroup.Prefix><InputGroup.Input className="min-w-0" placeholder="地址" /><InputGroup.Suffix>.dev</InputGroup.Suffix></InputGroup>
     case "ColorArea": return <ColorArea defaultValue="#006fee" colorSpace="hsb" xChannel="saturation" yChannel="brightness" className="h-24 w-40"><ColorArea.Thumb /></ColorArea>
     case "ColorSlider": return <ColorSlider defaultValue="#006fee" channel="hue" colorSpace="hsb"><ColorSlider.Track><ColorSlider.Thumb /></ColorSlider.Track></ColorSlider>
     case "ColorSwatch": return <div className="flex gap-2"><ColorSwatch color="#006fee" /><ColorSwatch color="#17c964" /><ColorSwatch color="#f31260" /></div>
@@ -288,10 +303,10 @@ export function ComponentsPage() {
   return (
     <div className="space-y-8">
       <PageHeader title="组件全集" description={`HeroUI v3 原生组件、contract 覆盖与组合示例 · implemented ${counts.implemented} / composed ${counts.composed} / missing ${counts.missing}`} action={<Button variant="secondary" onPress={() => document.getElementById("component-index")?.scrollIntoView({ behavior: "smooth" })}>组件索引</Button>} />
-      <div id="component-index" className="flex flex-wrap gap-2">{names.map((name) => <a key={name} href={`#component-${name}`} className="rounded-full border border-border px-3 py-1 text-xs no-underline hover:bg-surface-secondary">{name}</a>)}</div>
+      <div id="component-index" className="flex flex-wrap gap-2">{names.map((name) => <a key={name} href={`#component-${name}`} className="inline-flex min-h-10 items-center rounded-full border border-border px-3 text-xs no-underline hover:bg-surface-secondary">{name}</a>)}</div>
       <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-[repeat(2,minmax(0,1fr))] xl:grid-cols-[repeat(3,minmax(0,1fr))]">
         {names.map((name) => (
-          <Card key={name} id={`component-${name}`} className="min-w-0 scroll-mt-20">
+          <Card key={name} id={`component-${name}`} className="min-w-0 max-w-full overflow-hidden scroll-mt-20">
             <Card.Header>
               <div className="flex items-center justify-between gap-2"><Card.Title className="text-base">{name}</Card.Title><Chip size="sm" color={coverage[name] === "missing" ? "danger" : coverage[name] === "composed" ? "warning" : "success"}>{coverage[name]}</Chip></div>
               <Card.Description>{variantNotes[name] ?? (coverage[name] === "missing" ? "HeroUI 未提供，标记为 missing" : `由 ${name} 组合实现`)}</Card.Description>

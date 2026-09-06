@@ -9,6 +9,24 @@
 
 @source "../node_modules/@heroui/styles/dist/**/*.css";
 
+@layer base {
+  /* derived from HeroUI default --muted / --eclipse, see README */
+  :root {
+    --accent-foreground: var(--eclipse);
+  }
+  :root:not(.dark) {
+    --muted: color-mix(in oklab, oklch(0.5517 0.0138 285.94) 85%, var(--foreground) 15%);
+  }
+}
+
+.button {
+  min-height: 2.5rem;
+}
+
+.button--icon-only {
+  min-width: 2.5rem;
+}
+
 :root {
   --font-sans: "Geist Variable", sans-serif;
 }

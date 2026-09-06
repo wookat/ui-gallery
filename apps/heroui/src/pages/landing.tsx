@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"
+import { Bar, BarChart, ResponsiveContainer, XAxis } from "recharts"
 import { Accordion, Avatar, Button, Card, Chip, Separator } from "@heroui/react"
 import { Icon } from "@/components/icon"
 import landing from "@ui-gallery/spec/mock/landing.json"
@@ -42,20 +43,20 @@ export function LandingPage() {
                   <div key={item.key} className="rounded-xl bg-surface p-3">
                     <p className="truncate text-xs text-muted">{item.label}</p>
                     <p className="mt-1 text-lg font-semibold">{item.unit === "CNY" ? "¥" : ""}{item.value.toLocaleString()}</p>
-                    <p className={`text-xs ${item.delta >= 0 ? "text-success" : "text-danger"}`}>{item.delta >= 0 ? "+" : ""}{item.delta}%</p>
+                    <p className={`text-xs ${item.delta >= 0 ? "text-success-soft-foreground" : "text-danger-soft-foreground"}`}>{item.delta >= 0 ? "+" : ""}{item.delta}%</p>
                   </div>
                 ))}
               </div>
               <div className="grid gap-3 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
                 <div className="rounded-xl bg-surface p-3">
                   <p className="text-xs text-muted">收入趋势</p>
-                  <div className="mt-3 flex h-28 items-end gap-2">
-                    {series.revenue.map((value, index) => (
-                      <div key={series.months[index]} className="flex min-w-0 flex-1 flex-col items-center gap-1">
-                        <div className="w-full rounded-t-md bg-accent/80" style={{ height: `${(value / Math.max(...series.revenue)) * 100}%` }} />
-                        <span className="text-[10px] text-muted">{series.months[index]}</span>
-                      </div>
-                    ))}
+                  <div className="mt-3 h-28">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={series.months.map((month, index) => ({ month, value: series.revenue[index] }))} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+                        <XAxis dataKey="month" tick={{ fontSize: 10, fill: "var(--muted)" }} axisLine={false} tickLine={false} />
+                        <Bar dataKey="value" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
                 <div className="hidden rounded-xl bg-surface p-3 sm:block">

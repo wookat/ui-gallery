@@ -140,7 +140,7 @@ export function ChatPage() {
           )}
         </ScrollShadow>
         <Card.Footer className="flex-col items-stretch gap-3 border-t border-border">
-          <div className="flex flex-wrap gap-2">{chat.suggestions.slice(0, 4).map((s) => <Chip key={s} size="sm" variant="secondary" className="cursor-pointer" onClick={() => setDraft(s)}>{s}</Chip>)}</div>
+          <div className="flex flex-wrap gap-2">{chat.suggestions.slice(0, 4).map((s) => <Button key={s} size="sm" variant="secondary" onPress={() => setDraft(s)}>{s}</Button>)}</div>
           <div className="flex items-end gap-2">
             <Tooltip>
               <Button isIconOnly variant="ghost" aria-label="添加附件" onPress={() => toast.success("附件选择器已打开")}><Icon name="paperclip" size={18} /></Button>

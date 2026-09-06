@@ -13,7 +13,7 @@ type Step = "details" | "config" | "review" | "success"
 function HelpTip({ text }: { text: string }) {
   return (
     <Tooltip>
-      <Button isIconOnly variant="ghost" size="sm" className="size-6 min-w-6 text-muted" aria-label="字段说明"><Icon name="info" size={14} /></Button>
+      <Button isIconOnly variant="ghost" size="sm" className="min-h-10 min-w-10 -my-2 text-muted" aria-label="字段说明"><Icon name="info" size={14} /></Button>
       <Tooltip.Content>{text}</Tooltip.Content>
     </Tooltip>
   )
@@ -85,7 +85,7 @@ export function FormPage() {
               <TextField isRequired value={name} onChange={setName} isInvalid={!!showError(nameError)} className="min-w-0">
                 <Label>项目名称</Label>
                 <Input placeholder="例如：增长分析" className="w-full" />
-                {showError(nameError) ? <Description className="text-danger">{nameError}</Description> : <Description>用于在控制台中展示。</Description>}
+                {showError(nameError) ? <Description className="text-danger-soft-foreground">{nameError}</Description> : <Description>用于在控制台中展示。</Description>}
               </TextField>
               <NumberField value={seats} onChange={setSeats} minValue={1} maxValue={500} className="min-w-0">
                 <Label>成员席位</Label>
@@ -95,7 +95,7 @@ export function FormPage() {
               <TextField isRequired type="email" value={email} onChange={setEmail} isInvalid={!!showError(emailError)} className="min-w-0">
                 <Label>联系邮箱</Label>
                 <Input placeholder="you@acme.dev" className="w-full" />
-                {showError(emailError) ? <Description className="text-danger">{emailError}</Description> : <Description>用于接收项目通知。</Description>}
+                {showError(emailError) ? <Description className="text-danger-soft-foreground">{emailError}</Description> : <Description>用于接收项目通知。</Description>}
               </TextField>
               <div className="grid min-w-0 gap-1.5">
                 <Label>联系电话</Label>
@@ -108,14 +108,14 @@ export function FormPage() {
                     <Input placeholder="13800000000" className="w-full" />
                   </TextField>
                 </div>
-                {showError(phoneError) ? <Description className="text-danger">{phoneError}</Description> : <Description>仅数字，不含区号分隔符。</Description>}
+                {showError(phoneError) ? <Description className="text-danger-soft-foreground">{phoneError}</Description> : <Description>仅数字，不含区号分隔符。</Description>}
               </div>
               <TextField value={description} onChange={setDescription} isInvalid={!!descriptionError} className="min-w-0 sm:col-span-2">
                 <Label>项目描述</Label>
                 <TextArea placeholder="简单描述项目目标..." className="w-full" />
                 <div className="flex items-center justify-between gap-2">
-                  <Description className={descriptionError ? "text-danger" : undefined}>{descriptionError ?? "可选。"}</Description>
-                  <span className={`text-xs ${descriptionError ? "text-danger" : "text-muted"}`} aria-live="polite">{description.length}/{DESCRIPTION_MAX}</span>
+                  <Description className={descriptionError ? "text-danger-soft-foreground" : undefined}>{descriptionError ?? "可选。"}</Description>
+                  <span className={`text-xs ${descriptionError ? "text-danger-soft-foreground" : "text-muted"}`} aria-live="polite">{description.length}/{DESCRIPTION_MAX}</span>
                 </div>
               </TextField>
               <RadioGroup value={plan} onChange={setPlan} variant="secondary" className="min-w-0">

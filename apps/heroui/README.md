@@ -20,6 +20,7 @@
 - `?font=default|inter|geist|noto-sans-sc|lxgw-wenkai`（仓库自托管 OFL 字体）
 - `?icon=` / `?icons=` `lucide|tabler|phosphor|heroicons`（HeroUI 无自带图标库，走 `@ui-gallery/icons-react`）
 - 所有数据来自 `@ui-gallery/spec/mock/*.json`
+- 对比度硬指标（4.5:1）：`--accent-foreground` 改用官方原色 `--eclipse`、light `--muted` 以官方 `--muted` 85% + `--foreground` 15% 派生，不引入新配色
 
 ## 脚本
 

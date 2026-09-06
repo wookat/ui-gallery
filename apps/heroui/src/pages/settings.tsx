@@ -216,7 +216,7 @@ export function SettingsPage() {
       </Tabs>
       <Separator />
       <Card className="border-danger">
-        <Card.Header><Card.Title className="text-danger">危险区域</Card.Title><Card.Description>删除账户后所有数据将不可恢复。</Card.Description></Card.Header>
+        <Card.Header><Card.Title className="text-danger-soft-foreground">危险区域</Card.Title><Card.Description>删除账户后所有数据将不可恢复。</Card.Description></Card.Header>
         <Card.Footer>
           <AlertDialog onOpenChange={(open) => { if (!open) setConfirmText("") }}>
             <Button variant="danger">删除账户</Button>

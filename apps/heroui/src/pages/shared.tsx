@@ -28,7 +28,7 @@ export function SectionCard({ title, description, children, className }: { title
 
 export function StatusBadge({ value }: { value: string }) {
   const color = ["paid", "shipped", "active"].includes(value) ? "success" : ["pending", "due"].includes(value) ? "warning" : "danger"
-  return <Chip color={color} size="sm">{value}</Chip>
+  return <Chip color={color} size="sm" variant="soft">{value}</Chip>
 }
 
 export function SectionDivider({ label }: { label: string }) {

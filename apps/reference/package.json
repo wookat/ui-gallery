@@ -1,0 +1,48 @@
+{
+  "name": "reference",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint . && node tools/no-hardcode.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "preview": "vite preview",
+    "shoot": "node tools/shoot.mjs",
+    "compare": "node tools/compare.mjs",
+    "a11y": "node tools/a11y.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/noto-sans-sc": "^5.3.0",
+    "@tailwindcss/vite": "^4",
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.2.5",
+    "lucide-react": "^1.41.0",
+    "radix-ui": "^1.6.7",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.18.3",
+    "recharts": "^3.8.0",
+    "sonner": "^2.0.8",
+    "tailwindcss": "^4",
+    "vite": "^8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6",
+    "axe-core": "4.13.0",
+    "eslint": "^10",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17",
+    "pixelmatch": "7.2.0",
+    "pngjs": "7.0.0",
+    "typescript": "~6",
+    "typescript-eslint": "^8"
+  }
+}

@@ -1,0 +1,8 @@
+[
+  { "name": "default", "query": "" },
+  { "name": "popover", "query": "open=popover", "overlay": true, "scrollTo": "#overlay" },
+  { "name": "menu", "query": "open=menu", "overlay": true, "scrollTo": "#overlay" },
+  { "name": "sheet", "query": "open=sheet", "overlay": true, "scrollTo": "#overlay" },
+  { "name": "tooltip", "query": "open=tooltip", "overlay": true, "scrollTo": "#overlay" },
+  { "name": "toast", "query": "toast=1", "overlay": true, "scrollTo": "#feedback" }
+]

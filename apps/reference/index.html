@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acme Console</title>
+    <script>
+      // 首帧前落定主题，避免闪白：?theme=light|dark > localStorage > 系统偏好（tokens.css 的 [data-theme] 由此驱动）
+      (function () {
+        var q = new URLSearchParams(location.search).get("theme");
+        var s = localStorage.getItem("theme");
+        var t = q === "dark" || q === "light" ? q : s === "dark" || s === "light" ? s : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

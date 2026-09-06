@@ -1,7 +1,8 @@
 // 阶段 3 门禁：design/hifi/dashboard
 //   node design/hifi/dashboard/check.mjs          → 静态检查 + Playwright 截基准图到 ref/ + 运行时检查
 //   node design/hifi/dashboard/check.mjs --static → 只跑静态检查
-// 依赖：pnpm install --filter @ui-gallery/shoot（playwright）；字体可选：pnpm install --filter shadcn-ui
+// 依赖：pnpm install --filter @ui-gallery/shoot（playwright）；字体：pnpm install --filter shadcn-ui（提供 @fontsource-variable/inter、noto-sans-sc；未安装时截图会回退系统字体，门禁 FAIL）
+// 视口：1440×900 与 375×812 全矩阵截图；1024×900（默认 rail）与 768×1024（抽屉）只截 success/order-menu/侧栏变体，但同样跑溢出/热区/控制台检查
 import { readFileSync, readdirSync, statSync, mkdirSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -57,7 +58,8 @@ const { chromium } = require('playwright');
 const outDir = join(here, 'ref');
 mkdirSync(outDir, { recursive: true });
 const fileUrl = pathToFileURL(join(here, 'index.html')).href;
-const viewports = { desktop: { width: 1440, height: 900 }, mobile: { width: 375, height: 812 } };
+const viewports = { desktop: { width: 1440, height: 900 }, tablet: { width: 1024, height: 900 }, tabletSm: { width: 768, height: 1024 }, mobile: { width: 375, height: 812 } };
+const FONTS = [['Inter Variable', 'Acme 09-06'], ['Noto Sans SC Variable', '销售趋势']]; // [字体家族, 该字体负责渲染的样本文本]
 const states = ['success', 'loading', 'empty', 'error'];
 const extras = [
   ['success-toast', 'state=success&toast=login&hold'],
@@ -69,6 +71,12 @@ const extras = [
 ];
 const desktopOnly = [['success-rail', 'state=success&sidebar=rail']];
 const mobileOnly = [['success-drawer', 'state=success&open=drawer']];
+const perViewport = {
+  desktop: [...states.map((s) => [s, `state=${s}`]), ...extras, ...desktopOnly],
+  mobile: [...states.map((s) => [s, `state=${s}`]), ...extras, ...mobileOnly],
+  tablet: [['success', 'state=success'], ['success-order-menu', 'state=success&open=order-menu'], ['success-expanded', 'state=success&sidebar=expanded']],
+  tabletSm: [['success', 'state=success'], ['success-order-menu', 'state=success&open=order-menu'], ['success-drawer', 'state=success&open=drawer']],
+};
 
 const browser = await chromium.launch();
 let shots = 0;
@@ -78,13 +86,17 @@ for (const [vpName, vp] of Object.entries(viewports)) {
   const errors = [];
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
-  const list = [...states.map((s) => [s, `state=${s}`]), ...extras, ...(vpName === 'desktop' ? desktopOnly : mobileOnly)];
+  const list = perViewport[vpName];
   for (const theme of ['light', 'dark']) {
     for (const [name, query] of list) {
       const url = `${fileUrl}?${query}&theme=${theme}`;
       await page.goto(url);
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(250);
+      if (theme === 'light' && name === 'success') {
+        const loaded = await page.evaluate((fs) => fs.filter(([f, sample]) => document.fonts.check(`16px "${f}"`, sample)).map(([f]) => f), FONTS);
+        ok(loaded.length === FONTS.length, `${vpName}: 字体已加载 ${FONTS.map(([f]) => f).join(' / ')}（未加载时基准图与页面不一致；pnpm install --filter shadcn-ui）${loaded.length === FONTS.length ? '' : ' → 仅 ' + (loaded.join(',') || '无')}`);
+      }
       const m = await page.evaluate((w) => {
         const vis = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && el.closest('[hidden]') === null; };
         const small = [];
@@ -151,7 +163,110 @@ await browser.close();
   ok((await page.getAttribute('html', 'data-state')) === 'loading', '错误态点击重试 → loading');
   await page.waitForFunction(() => document.documentElement.getAttribute('data-state') === 'success');
   ok(true, 'loading → success');
+
+  // 审查项：未实现导航 aria-disabled + Tooltip、点击不跳转
+  await page.goto(`${fileUrl}?state=success&theme=light`);
+  const navMeta = await page.evaluate(() => {
+    const items = [...document.querySelectorAll('#nav .nav-item')];
+    const dis = items.filter((a) => a.getAttribute('aria-disabled') === 'true');
+    return { total: items.length, disabled: dis.length, withHref: dis.filter((a) => a.hasAttribute('href')).length, tip: dis.every((a) => a.getAttribute('data-tip') === '后续轮次提供'),
+      cursor: dis.every((a) => getComputedStyle(a).cursor === 'not-allowed'), focusable: dis.every((a) => a.tabIndex === 0) };
+  });
+  ok(navMeta.total === 8 && navMeta.disabled === 7 && navMeta.withHref === 0, `未实现导航项 7/8 为 aria-disabled 且无 href（${navMeta.disabled}/${navMeta.total}，href=${navMeta.withHref}）`);
+  ok(navMeta.tip && navMeta.cursor && navMeta.focusable, '未实现导航项 Tooltip「后续轮次提供」+ cursor:not-allowed + 可聚焦');
+  await page.click('#nav .nav-item[aria-disabled="true"]', { force: true }); // Playwright 默认拒绝点击 aria-disabled 元素，这里模拟真实点击
+  await page.waitForTimeout(150);
+  ok(page.url().startsWith(fileUrl), `点击未实现导航项不离开页面（${page.url().slice(0, 40)}…）`);
+
+  // 审查项：搜索框焦点环 2px；订单菜单按状态禁用 + 方向键漫游；趋势图键盘 + 文字替代
+  await page.focus('.search input');
+  const searchRing = await page.evaluate(() => getComputedStyle(document.querySelector('.search')).outlineWidth);
+  ok(searchRing === '2px', `搜索框 focus-within 焦点环 = ${searchRing}（--border-width-focus）`);
+  const menuByStatus = async (status) => {
+    await page.click(`#orderRows .order-more[data-status="${status}"]`); // 真实点击（先滚入视口；菜单在滚动时会关闭）
+    const r = await page.evaluate(() => [...document.querySelectorAll('#orderMenu [data-action]')].filter((b) => !b.disabled).map((b) => b.getAttribute('data-action')).join(','));
+    await page.keyboard.press('Escape');
+    return r;
+  };
+  ok((await menuByStatus('pending_shipment')) === 'view,ship,print,cancel', '待发货菜单 = 查看/发货/打印/取消');
+  ok((await menuByStatus('pending_payment')) === 'view,cancel', '待付款菜单 = 查看/取消');
+  for (const s of ['shipped', 'completed', 'refunding']) ok((await menuByStatus(s)) === 'view', `${s} 菜单 = 仅查看详情`);
+  await page.click('#orderRows .order-more[data-status="pending_shipment"]');
+  await page.keyboard.press('ArrowDown');
+  ok((await page.evaluate(() => document.activeElement.getAttribute('data-action'))) === 'ship', '订单菜单 ArrowDown → 标记发货');
+  await page.keyboard.press('End');
+  ok((await page.evaluate(() => document.activeElement.getAttribute('data-action'))) === 'cancel', '订单菜单 End → 取消订单');
+  await page.keyboard.press('Home');
+  ok((await page.evaluate(() => document.activeElement.getAttribute('data-action'))) === 'view', '订单菜单 Home → 查看详情');
+  await page.keyboard.press('ArrowUp');
+  ok((await page.evaluate(() => document.activeElement.getAttribute('data-action'))) === 'cancel', '订单菜单 ArrowUp 从首项循环到末项');
+  await page.keyboard.press('Escape');
+  await page.click('#acctBtn');
+  await page.keyboard.press('ArrowDown');
+  ok((await page.evaluate(() => document.activeElement.getAttribute('role'))) === 'menuitem', '账号菜单 ArrowDown 聚焦 menuitem');
+  await page.keyboard.press('Escape');
+  await page.focus('#trend svg');
+  await page.keyboard.press('ArrowRight');
+  ok(!(await page.isHidden('#chartTip')) && (await page.textContent('#chartTip')).includes('08-08'), '趋势图聚焦后 ArrowRight 显示首点提示（08-08）');
+  await page.keyboard.press('End');
+  ok((await page.textContent('#chartTip')).includes('09-06'), '趋势图 End → 末点 09-06');
+  const alt = await page.evaluate(() => ({ sum: document.getElementById('trendSummary').textContent, rows: document.querySelectorAll('#trendTable tbody tr').length, desc: document.querySelector('#trend svg').getAttribute('aria-describedby') }));
+  ok(alt.desc === 'trendSummary' && alt.sum.includes('¥1,186,420') && alt.rows === 30, `趋势图文字替代：aria-describedby + 摘要含合计 ¥1,186,420 + 数据表 ${alt.rows} 行`);
+
+  // 审查项：统计卡长金额（≥12 字符）不撑破 375
+  const mob = await b2.newPage({ viewport: viewports.mobile });
+  await mob.goto(`${fileUrl}?state=success&theme=light`);
+  const longW = await mob.evaluate(() => {
+    const v = document.querySelector('#stats .stat-value'); v.classList.add('is-long'); v.querySelector('strong').textContent = '¥1,186,420,999';
+    return { card: document.querySelector('#stats .stat').scrollWidth, doc: document.documentElement.scrollWidth };
+  });
+  ok(longW.doc <= 375 && longW.card <= 375, `375 统计卡 ¥1,186,420,999 无溢出（card=${longW.card} doc=${longW.doc}）`);
   await b2.close();
+}
+
+// 平板断点：1024 默认 rail、图例/X 轴不截断不重叠；768 为抽屉且无整页横向滚动
+{
+  const b3 = await chromium.launch();
+  const t = await b3.newPage({ viewport: viewports.tablet });
+  await t.goto(`${fileUrl}?state=success&theme=light`);
+  await t.evaluate(() => document.fonts.ready);
+  await t.waitForTimeout(250);
+  const xLabels = () => { const all = [...document.querySelectorAll('#trend .axis text')]; const maxY = Math.max(...all.map((x) => +x.getAttribute('y'))); return all.filter((x) => +x.getAttribute('y') === maxY).map((x) => x.getBoundingClientRect()).sort((a, b) => a.left - b.left); };
+  await t.evaluate(`window.__xLabels = ${xLabels.toString()}`);
+  const tm = await t.evaluate(() => {
+    const labels = window.__xLabels();
+    let overlap = 0; for (let i = 1; i < labels.length; i++) if (labels[i].left < labels[i - 1].right) overlap++;
+    const legend = [...document.querySelectorAll('#donutLegend .lg-label')].filter((l) => l.scrollWidth > l.clientWidth).length;
+    return { sidebar: document.documentElement.getAttribute('data-sidebar'), sw: document.documentElement.scrollWidth, overlap, legend, hint: document.getElementById('tableHint').classList.contains('is-visible') };
+  });
+  ok(tm.sidebar === 'rail', `1024 侧边栏默认 = ${tm.sidebar}`);
+  ok(tm.sw <= 1024, `1024 documentElement.scrollWidth = ${tm.sw}`);
+  ok(tm.overlap === 0, `1024 趋势图 X 轴标签无重叠（${tm.overlap}）`);
+  ok(tm.legend === 0, `1024 渠道图例名无截断（${tm.legend} 处）`);
+  await t.goto(`${fileUrl}?state=success&theme=light&sidebar=expanded`);
+  await t.waitForTimeout(250);
+  await t.evaluate(`window.__xLabels = ${xLabels.toString()}`);
+  const tm2 = await t.evaluate(() => {
+    const labels = window.__xLabels();
+    let overlap = 0; for (let i = 1; i < labels.length; i++) if (labels[i].left < labels[i - 1].right) overlap++;
+    return { overlap, legend: [...document.querySelectorAll('#donutLegend .lg-label')].filter((l) => l.scrollWidth > l.clientWidth).length, sw: document.documentElement.scrollWidth };
+  });
+  ok(tm2.overlap === 0 && tm2.legend === 0 && tm2.sw <= 1024, `1024 展开侧栏时 X 轴无重叠 / 图例无截断 / 无横向滚动（${tm2.overlap}/${tm2.legend}/${tm2.sw}）`);
+  const s = await b3.newPage({ viewport: viewports.tabletSm });
+  await s.goto(`${fileUrl}?state=success&theme=light`);
+  await s.evaluate(() => document.fonts.ready);
+  await s.waitForTimeout(250);
+  const sm = await s.evaluate(() => {
+    const sb = document.getElementById('sidebar').getBoundingClientRect();
+    return { sw: document.documentElement.scrollWidth, drawerBtn: getComputedStyle(document.getElementById('drawerOpen')).display !== 'none', sidebarOffscreen: sb.right <= 0 || sb.width === 0, hint: document.getElementById('tableHint').classList.contains('is-visible'), th: document.querySelector('th.col-actions .sr-only').getBoundingClientRect().right <= 768 };
+  });
+  ok(sm.sw <= 768, `768 documentElement.scrollWidth = ${sm.sw}（.table-wrap 为包含块）`);
+  ok(sm.drawerBtn && sm.sidebarOffscreen, '768 为抽屉模式（汉堡按钮可见、侧栏离屏）');
+  ok(sm.hint, '768 表格可横向滚动时显示「左右滑动查看更多」提示');
+  await s.click('#drawerOpen');
+  await s.waitForTimeout(300);
+  ok((await s.getAttribute('html', 'data-drawer')) === 'open', '768 汉堡按钮打开抽屉');
+  await b3.close();
 }
 
 const pngs = readdirSync(outDir).filter((f) => f.endsWith('.png'));

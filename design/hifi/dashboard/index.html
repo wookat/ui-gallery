@@ -9,8 +9,10 @@
   · 视觉值全部来自 ../../tokens.css（本文件内 0 个硬编码色值 / 字号 / 间距；仅 @media 查询条件使用 tokens.json 中的 breakpoint 数值）
   · 文案来自 content/dashboard.md；数据来自 mock/*.json（内联于下方 <script type="application/json" id="data">，check.mjs 校验与 mock/ 逐字节一致）
   · 状态：?state=success|loading|empty|error；周期：?period=day|week|month；主题：?theme=light|dark；?toast=login（&hold 不自动消失）；?open=notifications|account|drawer|order-menu 供截图
-  · 字体：OFL 的 Inter Variable / Noto Sans SC Variable（来自 apps/shadcn-ui 依赖 @fontsource-variable/*；未安装时回退到系统字体栈）
+  · 字体：OFL 的 Inter Variable / Noto Sans SC Variable（来自 apps/shadcn-ui 依赖 @fontsource-variable/*，需先 pnpm install --filter shadcn-ui；未安装时回退到系统字体栈，check.mjs 截基准图前会断言字体已加载）
+  · 断点（tokens.breakpoint）：≥1025 侧边栏默认展开；769–1024 默认 icon rail、图表单列；≤768 抽屉 + 单列；<768 最近订单卡片化（768 仍为表格横向滚动）
   · 图标：Lucide（ISC），内联 <symbol> 精灵
+  · 门禁：node design/hifi/dashboard/check.mjs（--static 只跑静态检查）；覆盖 1440/1024/768/375 × 亮/暗 共 56 张基准图 + 运行时断言（字体、断点、溢出、热区、键盘、菜单状态、图表文字替代）
 -->
 <link rel="stylesheet" href="../../tokens.css">
 <link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/inter/index.css">
@@ -165,6 +167,8 @@ input { font: inherit; color: inherit; }
 .nav-item[aria-current="page"] .icon { color: var(--color-role-primary); }
 .nav-item .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nav-item .count-badge { margin-left: auto; }
+.nav-item[aria-disabled="true"] { opacity: 1; pointer-events: auto; cursor: not-allowed; color: var(--color-role-fg-disabled); }
+.nav-item[aria-disabled="true"]:hover { background: transparent; color: var(--color-role-fg-disabled); }
 html[data-state="empty"] .nav-item .count-badge { display: none; }
 html[data-state="empty"] #asOf { display: none; }
 
@@ -224,7 +228,7 @@ html[data-sidebar="rail"] .sidebar-foot .icon-expand { display: block; }
   transition: box-shadow var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
 }
 .search:hover { box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-role-border); }
-.search:focus-within { box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-role-focus-ring); background: var(--color-role-surface); color: var(--color-role-fg); }
+.search:focus-within { outline: var(--border-width-focus) solid var(--color-role-focus-ring); outline-offset: var(--border-focus-offset); background: var(--color-role-surface); color: var(--color-role-fg); }
 .search input { flex: 1; min-width: 0; align-self: stretch; border: 0; background: transparent; outline: 0; color: var(--color-role-fg); font: var(--typography-body); font-family: var(--font-family-sans); }
 .search input::placeholder { color: var(--color-role-fg-muted); }
 .search kbd {
@@ -319,7 +323,8 @@ html[data-state="empty"] .view-empty, html[data-state="error"] .view-error { dis
 .sprite { display: none; }
 .stat-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); min-height: var(--size-sparkline); }
 .stat-value { display: flex; align-items: baseline; gap: var(--space-1); min-width: 0; margin-top: calc(-1 * var(--space-2)); }
-.stat-value strong { font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat-value strong { font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; overflow-wrap: anywhere; }
+.stat-value.is-long strong { font: var(--typography-heading); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; white-space: normal; }
 .stat-unit { color: var(--color-role-fg-muted); font: var(--typography-caption); font-family: var(--font-family-sans); }
 .sparkline { width: var(--hifi-sparkline-w); height: var(--size-sparkline); flex: none; overflow: visible; margin-top: calc(-1 * var(--space-1)); }
 .sparkline path.line { fill: none; stroke: var(--color-chart-line); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -340,7 +345,9 @@ html[data-state="empty"] .view-empty, html[data-state="error"] .view-error { dis
 .legend .sw-line { background: var(--color-chart-line); height: var(--space-1); border-radius: var(--radius-full); }
 .legend .sw-bar { background: var(--color-role-neutral-soft); box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-chart-bar); }
 .trend { position: relative; flex: 1; min-height: var(--size-chart-trend); }
-.trend svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.trend svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; border-radius: var(--radius-sm); }
+.trend svg:focus-visible { outline: var(--border-width-focus) solid var(--color-role-focus-ring); outline-offset: var(--border-focus-offset); }
+.chart-card { position: relative; }
 .trend .grid line { stroke: var(--color-chart-grid); }
 .trend .axis text { fill: var(--color-role-fg-muted); font: var(--typography-caption); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; }
 .trend .bars rect { fill: var(--color-role-neutral-soft); transition: fill var(--motion-fast) var(--motion-ease); }
@@ -378,7 +385,9 @@ html[data-state="empty"] .view-empty, html[data-state="error"] .view-error { dis
 .donut-legend i, .donut circle.seg { background: currentColor; stroke: currentColor; }
 
 /* 最近订单 */
-.table-wrap { overflow-x: auto; margin: 0 calc(-1 * var(--space-6)); padding: 0 var(--space-6); }
+.table-wrap { position: relative; overflow-x: auto; margin: 0 calc(-1 * var(--space-6)); padding: 0 var(--space-6); }
+.table-hint { display: none; margin-top: var(--space-3); }
+.table-hint.is-visible { display: block; }
 table { width: 100%; border-collapse: collapse; }
 th { text-align: left; font: var(--typography-caption); font-family: var(--font-family-sans); font-weight: var(--font-weight-medium); color: var(--color-role-fg-muted); padding: var(--space-2) var(--space-3); border-bottom: var(--border-width-hairline) solid var(--color-role-border); white-space: nowrap; }
 td { padding: var(--space-3); border-bottom: var(--border-width-hairline) solid var(--color-role-border); vertical-align: middle; white-space: nowrap; }
@@ -480,15 +489,22 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
 .toast .icon { color: var(--color-role-success); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(calc(-1 * var(--space-2))); } }
 
-/* ---------- 响应式：≤1023 图标栏默认 + 两列 ---------- */
-@media (max-width: 1023px) {
+/* ---------- 响应式：≤1024 图标栏默认 + 两列 ---------- */
+@media (max-width: 1024px) {
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .charts { grid-template-columns: minmax(0, 1fr); }
   .search { width: var(--size-sidebar-expanded); }
 }
 
-/* ---------- 响应式：≤767 抽屉 + 单列 ---------- */
+/* ---------- 响应式：<768 最近订单卡片化（768 仍为表格横向滚动） ---------- */
 @media (max-width: 767px) {
+  .table-wrap { display: none; }
+  .table-hint { display: none; }
+  .order-cards { display: flex; }
+}
+
+/* ---------- 响应式：≤768 抽屉 + 单列 ---------- */
+@media (max-width: 768px) {
   .only-mobile { display: inline-flex; }
   .sidebar {
     position: fixed; top: 0; left: 0; height: 100vh; width: var(--size-sidebar-drawer);
@@ -522,6 +538,7 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   .stats { gap: var(--space-3); }
   .stat { padding: var(--space-4); gap: var(--space-2); }
   .stat-value strong { font: var(--typography-heading); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; }
+  .stat-value.is-long strong { font: var(--typography-title); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; }
   .stat-value { margin-top: 0; }
   .stat-row { min-height: 0; }
   .sparkline { width: calc(var(--size-sparkline) * 1.5); }
@@ -530,8 +547,7 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   .sk-chart { height: var(--size-chart-trend-mobile); }
   .sk-head { width: 60%; }
   .sk-tabs { width: 100%; }
-  .table-wrap { display: none; }
-  .order-cards { display: flex; }
+  .table-wrap { margin: 0 calc(-1 * var(--space-4)); padding: 0 var(--space-4); }
   .bottom { grid-template-columns: minmax(0, 1fr); }
   .card-head .btn-ghost { margin-right: calc(-1 * var(--space-2)); }
   .state-card { padding: var(--space-12) var(--space-4); }
@@ -673,7 +689,12 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
               <div><h2>销售趋势</h2><span class="t-caption sub">销售额（折线）与订单数（柱）</span></div>
               <div class="legend"><span><i class="sw-line"></i>销售额</span><span><i class="sw-bar"></i>订单数</span></div>
             </div>
-            <div class="trend" id="trend"><svg role="img" aria-label="销售趋势图"></svg><div class="chart-tip" id="chartTip" hidden></div></div>
+            <div class="trend" id="trend">
+              <svg role="img" aria-label="销售趋势图" aria-describedby="trendSummary" aria-keyshortcuts="ArrowLeft ArrowRight Home End" tabindex="0"></svg>
+              <div class="chart-tip" id="chartTip" role="status" aria-live="polite" hidden></div>
+            </div>
+            <p class="sr-only" id="trendSummary"></p>
+            <table class="sr-only" id="trendTable"></table>
           </article>
           <article class="card chart-card">
             <div class="card-head"><div><h2>渠道占比</h2><span class="t-caption sub" id="donutSub">按销售额，近 30 天</span></div></div>
@@ -695,6 +716,7 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
               <tbody id="orderRows"></tbody>
             </table>
           </div>
+          <p class="t-caption table-hint" id="tableHint" aria-hidden="true">左右滑动查看更多</p>
           <div class="order-cards" id="orderCards"></div>
         </article>
 
@@ -807,8 +829,8 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   var period = q.get('period') || 'month';
   if (!/^(day|week|month)$/.test(period)) period = 'month';
 
-  var isMobile = function () { return matchMedia('(max-width: 767px)').matches; };
-  var isTablet = function () { return matchMedia('(max-width: 1023px)').matches; };
+  var isMobile = function () { return matchMedia('(max-width: 768px)').matches; };
+  var isTablet = function () { return matchMedia('(max-width: 1024px)').matches; };
   root.setAttribute('data-sidebar', q.get('sidebar') === 'rail' || (q.get('sidebar') !== 'expanded' && isTablet() && !isMobile()) ? 'rail' : 'expanded');
   $('searchKbd').textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl K';
 
@@ -848,14 +870,17 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   $('nav').innerHTML = D.nav.map(function (g) {
     return '<div class="nav-group"><span class="nav-group-label" id="ng-' + g.group + '">' + esc(g.groupLabel) + '</span><ul aria-labelledby="ng-' + g.group + '">' +
       g.items.map(function (it) {
-        var tip = it.implemented ? '' : ' data-tip="后续轮次提供"';
-        return '<li><a class="nav-item" href="' + esc(it.path) + '"' + (it.key === 'dashboard' ? ' aria-current="page"' : '') + tip +
-          ' data-tip-rail="' + esc(it.label) + '"' + (it.badge ? ' data-badge="' + it.badge + '"' : '') + '>' + icon(it.icon) +
+        // implemented:false → 无 href 的 role=link + aria-disabled（不可点、不 404），仍可聚焦以便键盘用户看到 Tooltip
+        var linkAttrs = it.implemented ? ' href="' + esc(it.path) + '"' : ' role="link" aria-disabled="true" tabindex="0" data-path="' + esc(it.path) + '" data-tip="后续轮次提供"';
+        var railTip = it.implemented ? it.label : it.label + ' · 后续轮次提供';
+        return '<li><a class="nav-item"' + linkAttrs + (it.key === 'dashboard' ? ' aria-current="page"' : '') +
+          ' data-tip-rail="' + esc(railTip) + '"' + (it.badge ? ' data-badge="' + it.badge + '"' : '') + '>' + icon(it.icon) +
           '<span class="nav-label">' + esc(it.label) + '</span>' +
           (it.badge ? '<span class="count-badge' + (it.badgeTone === 'warning' ? ' tone-warning' : '') + '" aria-label="' + esc(it.badgeMeaning) + ' ' + it.badge + '">' + it.badge + '</span>' : '') +
           '</a></li>';
       }).join('') + '</ul></div>';
   }).join('');
+  $('nav').addEventListener('click', function (e) { if (e.target.closest('[aria-disabled="true"]')) e.preventDefault(); });
 
   $('collapseBtn').addEventListener('click', function () {
     var rail = root.getAttribute('data-sidebar') !== 'rail';
@@ -869,7 +894,7 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   var setDrawer = function (open) {
     if (open) root.setAttribute('data-drawer', 'open'); else root.removeAttribute('data-drawer');
     $('drawerOpen').setAttribute('aria-expanded', String(open));
-    if (open) $('nav').querySelector('a').focus(); else $('drawerOpen').focus();
+    if (open) $('nav').querySelector('a[href]').focus(); else $('drawerOpen').focus();
   };
   $('drawerOpen').addEventListener('click', function () { setDrawer(true); });
   $('drawerClose').addEventListener('click', function () { setDrawer(false); });
@@ -911,6 +936,20 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { if (openPop) { var b = openPop.btn; closePop(); b.focus(); } if (root.getAttribute('data-drawer') === 'open') setDrawer(false); }
   });
+  /* WAI-ARIA APG Menu：ArrowUp/Down 循环、Home/End；跳过 disabled 项 */
+  var menuKeys = function (menu) {
+    menu.addEventListener('keydown', function (e) {
+      var items = Array.prototype.filter.call(menu.querySelectorAll('[role="menuitem"]'), function (m) { return !m.disabled && m.getAttribute('aria-disabled') !== 'true'; });
+      var i = items.indexOf(document.activeElement), j = -1;
+      if (e.key === 'ArrowDown') j = i < 0 ? 0 : (i + 1) % items.length;
+      else if (e.key === 'ArrowUp') j = i < 0 ? items.length - 1 : (i - 1 + items.length) % items.length;
+      else if (e.key === 'Home') j = 0;
+      else if (e.key === 'End') j = items.length - 1;
+      if (j < 0 || !items[j]) return;
+      e.preventDefault(); items[j].focus();
+    });
+  };
+  menuKeys($('acctPop'));
   $('themeBtn').addEventListener('click', function () {
     applyTheme(theme === 'dark' ? 'light' : 'dark');
     try { localStorage.setItem('acme.theme', theme); } catch (e) {}
@@ -942,7 +981,7 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
       var value = c.format === 'currency' ? fmtYuan(s.value) : fmtInt(s.value);
       return '<article class="card stat" aria-label="' + esc(c.label) + '">' +
         '<div class="stat-top"><span class="stat-label">' + esc(c.label) + '</span>' + sparkline(s.trend) + '</div>' +
-        '<div class="stat-row"><div class="stat-value"><strong class="num">' + value + '</strong>' + (c.unit ? '<span class="stat-unit">' + esc(c.unit) + '</span>' : '') + '</div></div>' +
+        '<div class="stat-row"><div class="stat-value' + (value.length >= 12 ? ' is-long' : '') + '"><strong class="num">' + value + '</strong>' + (c.unit ? '<span class="stat-unit">' + esc(c.unit) + '</span>' : '') + '</div></div>' +
         '<span class="delta tone-' + tone + '">' + icon(ic) + text + '</span></article>';
     }).join('');
   };
@@ -975,25 +1014,56 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
     var cursor = el('line', { 'class': 'cursor', y1: mT, y2: mT + ih, x1: 0, x2: 0, visibility: 'hidden' }, svg);
     var dot = el('circle', { 'class': 'dot', r: 4, cx: x(n - 1), cy: yG(pts[n - 1].gmv) }, svg);
     var maxLabels = Math.max(2, Math.floor(iw / (tok('--size-sparkline') * 2))), every = Math.ceil((n - 1) / (maxLabels - 1));
+    var labels = [];
     pts.forEach(function (p, i) {
       var last = i === n - 1, show = last || (i % every === 0 && n - 1 - i >= every / 2);
-      if (show) { var lb = el('text', { x: x(i), y: H - tok('--space-1'), 'text-anchor': last && n > maxLabels ? 'end' : 'middle' }, axis); lb.textContent = p.label; }
+      if (show) { var lb = el('text', { x: x(i), y: H - tok('--space-1'), 'text-anchor': last && n > maxLabels ? 'end' : 'middle' }, axis); lb.textContent = p.label; labels.push(lb); }
     });
-    var hit = el('g', { 'class': 'hit' }, svg), tip = $('chartTip');
-    pts.forEach(function (p, i) {
-      var r = el('rect', { x: mL + step * i, y: mT, width: step, height: ih, 'data-i': i }, hit);
-      r.addEventListener('mouseenter', function () {
-        bars.querySelectorAll('rect').forEach(function (b) { b.classList.toggle('is-active', +b.getAttribute('data-i') === i); });
-        cursor.setAttribute('x1', x(i)); cursor.setAttribute('x2', x(i)); cursor.setAttribute('visibility', 'visible');
-        dot.setAttribute('cx', x(i)); dot.setAttribute('cy', yG(p.gmv));
-        tip.innerHTML = '<strong>' + esc(p.label) + '</strong><span>销售额 ' + fmtYuan(p.gmv) + '</span><span>订单数 ' + fmtInt(p.orders) + '</span>';
-        tip.hidden = false; tip.style.left = x(i) + 'px'; tip.style.top = yG(p.gmv) + 'px';
-      });
-    });
-    svg.addEventListener('mouseleave', function () {
+    /* X 轴标签防重叠：从末尾（必留）向左逐个测量，与已保留标签间距 < space-2 的移除 */
+    for (var li = labels.length - 1, keptLeft = Infinity; li >= 0; li--) {
+      var bb = labels[li].getBBox();
+      if (bb.x + bb.width + tok('--space-2') > keptLeft) labels[li].remove(); else keptLeft = bb.x;
+    }
+    var hit = el('g', { 'class': 'hit' }, svg), tip = $('chartTip'), active = -1;
+    var activate = function (i) {
+      active = i; var p = pts[i];
+      bars.querySelectorAll('rect').forEach(function (b) { b.classList.toggle('is-active', +b.getAttribute('data-i') === i); });
+      cursor.setAttribute('x1', x(i)); cursor.setAttribute('x2', x(i)); cursor.setAttribute('visibility', 'visible');
+      dot.setAttribute('cx', x(i)); dot.setAttribute('cy', yG(p.gmv));
+      tip.innerHTML = '<strong>' + esc(p.label) + '</strong><span>销售额 ' + fmtYuan(p.gmv) + '</span><span>订单数 ' + fmtInt(p.orders) + '</span>';
+      tip.hidden = false; tip.style.left = x(i) + 'px'; tip.style.top = yG(p.gmv) + 'px';
+    };
+    var deactivate = function () {
+      active = -1;
       bars.querySelectorAll('rect').forEach(function (b) { b.classList.remove('is-active'); });
       cursor.setAttribute('visibility', 'hidden'); dot.setAttribute('cx', x(n - 1)); dot.setAttribute('cy', yG(pts[n - 1].gmv)); tip.hidden = true;
+    };
+    pts.forEach(function (p, i) {
+      var r = el('rect', { x: mL + step * i, y: mT, width: step, height: ih, 'data-i': i }, hit);
+      r.addEventListener('mouseenter', function () { activate(i); });
     });
+    svg.addEventListener('mouseleave', deactivate);
+    /* 键盘替代：←/→ 逐点、Home/End 首尾，提示框 role=status 朗读 */
+    svg.onkeydown = function (e) {
+      var j = -1;
+      if (e.key === 'ArrowRight') j = active < 0 ? 0 : Math.min(n - 1, active + 1);
+      else if (e.key === 'ArrowLeft') j = active < 0 ? n - 1 : Math.max(0, active - 1);
+      else if (e.key === 'Home') j = 0;
+      else if (e.key === 'End') j = n - 1;
+      else if (e.key === 'Escape' && active >= 0) { deactivate(); return; }
+      if (j < 0) return;
+      e.preventDefault(); activate(j);
+    };
+    svg.onblur = deactivate;
+  };
+  /* 文字替代：同一份 mock 数据生成的摘要 + 数据表（仅供读屏，随周期更新） */
+  var renderTrendText = function () {
+    var pts = D.series[period].points, per = D.meta.periods[period];
+    var gSum = 0, oSum = 0, peak = pts[0];
+    pts.forEach(function (p) { gSum += p.gmv; oSum += p.orders; if (p.gmv > peak.gmv) peak = p; });
+    $('trendSummary').textContent = '销售趋势，' + per.label + '，共 ' + pts.length + ' 个数据点：销售额合计 ' + fmtYuan(gSum) + '，订单数合计 ' + fmtInt(oSum) + '；销售额最高 ' + peak.label + '（' + fmtYuan(peak.gmv) + '）。方向键可逐点查看，完整数值见随后的数据表。';
+    $('trendTable').innerHTML = '<caption>销售趋势数据表（' + esc(per.label) + '）</caption><thead><tr><th scope="col">时间</th><th scope="col">销售额</th><th scope="col">订单数</th></tr></thead><tbody>' +
+      pts.map(function (p) { return '<tr><th scope="row">' + esc(p.label) + '</th><td>' + fmtYuan(p.gmv) + '</td><td>' + fmtInt(p.orders) + '</td></tr>'; }).join('') + '</tbody>';
   };
 
   /* ---------- 渠道占比：环形 ---------- */
@@ -1049,7 +1119,9 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   var openOrderMenu = function (btn) {
     closePop(); if (menuBtn === btn) { closeOrderMenu(); return; } closeOrderMenu();
     var st = btn.getAttribute('data-status');
+    /* IA §3.2：待发货 = 查看/发货/打印/取消；待付款 = 查看/取消；已发货·已完成·退款中 = 仅查看 */
     orderMenu.querySelector('[data-action="ship"]').disabled = st !== 'pending_shipment';
+    orderMenu.querySelector('[data-action="print"]').disabled = st !== 'pending_shipment';
     orderMenu.querySelector('[data-action="cancel"]').disabled = !(st === 'pending_payment' || st === 'pending_shipment');
     orderMenu.hidden = false; menuBtn = btn; btn.setAttribute('aria-expanded', 'true');
     var r = btn.getBoundingClientRect(), mw = orderMenu.offsetWidth, mh = orderMenu.offsetHeight, gap = tok('--space-1');
@@ -1064,6 +1136,7 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
     if (menuBtn && !orderMenu.contains(e.target)) closeOrderMenu();
   });
   orderMenu.addEventListener('click', function (e) { if (e.target.closest('[data-action]')) { var b = menuBtn; closeOrderMenu(); if (b) b.focus(); } });
+  menuKeys(orderMenu);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && menuBtn) { var b = menuBtn; closeOrderMenu(); b.focus(); } });
   window.addEventListener('scroll', closeOrderMenu, true);
 
@@ -1087,7 +1160,7 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   var setPeriod = function (p) {
     period = p; root.setAttribute('data-period', p);
     $('tabs').querySelectorAll('.tab').forEach(function (t) { var on = t.getAttribute('data-period') === p; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
-    renderStats(); renderDonut(); drawTrend();
+    renderStats(); renderDonut(); drawTrend(); renderTrendText();
   };
   $('tabs').addEventListener('click', function (e) { var t = e.target.closest('.tab'); if (t) setPeriod(t.getAttribute('data-period')); });
   $('tabs').addEventListener('keydown', function (e) {
@@ -1116,9 +1189,13 @@ td.col-actions { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   if (open === 'notifications') togglePop($('bellBtn'), $('notifPop'), true);
   if (open === 'account') togglePop($('acctBtn'), $('acctPop'), true);
   if (open === 'drawer') setDrawer(true);
-  if (open === 'order-menu') { var first = document.querySelector(isMobile() ? '#orderCards .order-more' : '#orderRows .order-more'); if (first) openOrderMenu(first); }
-  if ('ResizeObserver' in window) new ResizeObserver(function () { drawTrend(); }).observe($('trend'));
-  else window.addEventListener('resize', drawTrend);
+  if (open === 'order-menu') { var inTable = document.querySelector('#orderRows .order-more'); var first = inTable && inTable.offsetParent ? inTable : document.querySelector('#orderCards .order-more'); if (first) openOrderMenu(first); }
+  /* 表格容器可横向滚动时（如 768）显示滑动提示 */
+  var tableWrap = document.querySelector('.table-wrap');
+  var updateTableHint = function () { $('tableHint').classList.toggle('is-visible', tableWrap.scrollWidth > tableWrap.clientWidth + 1); };
+  updateTableHint();
+  if ('ResizeObserver' in window) { new ResizeObserver(function () { drawTrend(); }).observe($('trend')); new ResizeObserver(updateTableHint).observe(tableWrap); }
+  else window.addEventListener('resize', function () { drawTrend(); updateTableHint(); });
 })();
 </script>
 </body>

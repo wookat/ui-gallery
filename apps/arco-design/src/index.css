@@ -1,0 +1,788 @@
+/* Only layout glue + gallery font switch. Visuals come from Arco's default theme (arco.css). */
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: var(--color-bg-1);
+  color: var(--color-text-1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ?font= switches to a self-hosted OFL font via CSS variable; default keeps Arco's own font stack. */
+html.gallery-font,
+html.gallery-font body,
+html.gallery-font .arco-typography,
+html.gallery-font [class^="arco-"] {
+  font-family: var(--gallery-font);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  padding: 24px;
+  overflow-x: hidden;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.grid > * {
+  min-width: 0;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.login-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 16px;
+  background: var(--color-fill-1);
+}
+
+.login-card {
+  width: min(100%, 460px);
+}
+
+.landing-page {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--color-bg-1);
+}
+
+.landing-nav,
+.landing-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px max(16px, calc((100vw - 1200px) / 2));
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.landing-footer {
+  border-top: 1px solid var(--color-border-2);
+  border-bottom: 0;
+}
+
+.landing-hero,
+.landing-section {
+  width: min(100% - 32px, 1200px);
+  margin: 0 auto;
+  padding: 80px 0;
+}
+
+.landing-hero {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 48px;
+}
+
+.landing-hero .arco-typography-title {
+  font-size: clamp(36px, 5vw, 72px);
+  line-height: 1.1;
+}
+
+.hero-preview,
+.aspect-box {
+  display: grid;
+  min-height: 280px;
+  place-items: center;
+  background: var(--color-fill-2);
+}
+
+.aspect-box {
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  border-radius: 8px;
+}
+
+.logo-cloud,
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  padding: 32px max(16px, calc((100vw - 1200px) / 2));
+  border-block: 1px solid var(--color-border-2);
+  text-align: center;
+}
+
+.numbers {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.feature-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: var(--color-fill-2);
+}
+
+.split-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+
+.recommended {
+  border: 1px solid rgb(var(--primary-6));
+}
+
+.carousel-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.carousel-demo {
+  display: grid;
+  height: 140px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--color-fill-2);
+}
+
+.landing-cta {
+  width: min(100% - 32px, 1200px);
+  margin: 24px auto 80px;
+  padding: 64px 24px;
+  border-radius: 16px;
+  background: var(--color-fill-2);
+  text-align: center;
+}
+
+.chat-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  min-height: 620px;
+  overflow: hidden;
+  border: 1px solid var(--color-border-2);
+  border-radius: 8px;
+}
+
+.chat-sidebar,
+.chat-thread {
+  min-width: 0;
+  padding: 16px;
+}
+
+.chat-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-right: 1px solid var(--color-border-2);
+  background: var(--color-fill-1);
+}
+
+.chat-selected {
+  border-radius: 6px;
+  background: var(--color-fill-2);
+}
+
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.chat-thread-header,
+.chat-composer {
+  flex-wrap: wrap;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.chat-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--color-border-2);
+  border-bottom: 0;
+}
+
+.chat-messages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  padding: 20px;
+  overflow: auto;
+}
+
+.chat-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  max-width: 80%;
+}
+
+.chat-message.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.chat-bubble {
+  min-width: 0;
+  flex: 1 1 auto;
+  max-width: 100%;
+  padding: 12px;
+  overflow-wrap: anywhere;
+  border-radius: 10px;
+  background: var(--color-fill-2);
+}
+
+.chat-message.user .chat-bubble {
+  background: rgb(var(--primary-1));
+}
+
+.chat-bubble pre,
+.chat-bubble table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.qr-placeholder {
+  display: grid;
+  width: 160px;
+  height: 160px;
+  place-items: center;
+  margin-top: 16px;
+  border: 1px dashed var(--color-border-3);
+  border-radius: 8px;
+  background: var(--color-fill-1);
+}
+
+.chat-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+
+.chat-suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: min(100%, 560px);
+  margin-top: 16px;
+}
+
+.chat-suggestion-grid .arco-card {
+  cursor: pointer;
+}
+
+.chat-code {
+  position: relative;
+}
+
+.chat-suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.nav-badge .arco-badge-number {
+  font-weight: 600;
+}
+
+.arco-form-item-control-wrapper .arco-textarea-word-limit,
+.arco-input-word-limit {
+  color: var(--color-text-2);
+}
+
+.arco-form-extra {
+  color: var(--color-text-2);
+}
+
+.chat-code .chat-code-copy {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+.chat-bubble pre {
+  padding-right: 48px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.chat-bubble pre code {
+  white-space: inherit;
+}
+
+.size-row-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.orders-table .arco-pagination-item,
+.orders-table .arco-pagination-jumper-input {
+  min-width: 40px;
+  height: 40px;
+  line-height: 40px;
+}
+
+.orders-table .arco-pagination-option .arco-select-view {
+  min-height: 40px;
+}
+
+.orders-table .arco-pagination-item-simple-pager .arco-pagination-jumper-input {
+  height: 40px;
+}
+
+@media (max-width: 767px) {
+  .orders-table .arco-pagination {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+}
+
+.component-card .arco-pagination {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.component-card .arco-pagination-total-text {
+  white-space: nowrap;
+}
+
+.components-layout {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 24px;
+}
+
+.components-anchor {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+}
+
+.component-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.component-index a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border-2);
+  border-radius: 999px;
+  color: var(--color-text-2);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.component-card {
+  scroll-margin-top: 20px;
+}
+
+.scroll-area-demo {
+  height: 90px;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid var(--color-border-2);
+}
+
+.float-demo {
+  position: relative;
+}
+
+.danger-card {
+  border-color: rgb(var(--danger-6));
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.muted {
+  color: var(--color-text-3);
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scroll-x {
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.calendar-demo .arco-calendar-header-value {
+  white-space: nowrap;
+}
+
+.calendar-demo > .arco-calendar {
+  min-width: 340px;
+}
+
+.desktop-only {
+  display: none;
+}
+
+.mobile-only {
+  display: none;
+}
+
+.app-layout,
+.app-layout > .arco-layout {
+  min-height: 100vh;
+}
+
+.app-sider {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--color-bg-2);
+  border-right: 1px solid var(--color-border-2);
+}
+
+.app-sider > .arco-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.arco-layout-sider-collapsed .nav-label,
+.arco-layout-sider-collapsed .nav-badge {
+  display: none;
+}
+
+/* Contract hit-area floor (>= 40px) for icon-only / compact controls; visuals stay Arco defaults. */
+.hit-area,
+.hit-area.arco-btn {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.notification-list {
+  width: 300px;
+  max-width: calc(100vw - 32px);
+}
+
+.recent-orders .arco-table-td,
+.recent-orders .arco-table-th {
+  white-space: nowrap;
+}
+
+.sider-brand {
+  padding: 20px 18px;
+}
+
+.sider-label {
+  display: block;
+  padding: 0 20px 8px;
+  font-size: 12px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text-1);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 8px;
+  background: rgb(var(--primary-6));
+  color: #fff;
+}
+
+.nav-badge {
+  flex: none;
+  margin-left: auto;
+  line-height: 1;
+}
+
+.sider-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  margin-top: auto;
+}
+
+.sider-user .arco-typography {
+  display: block;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--color-border-2);
+  background: var(--color-bg-1);
+}
+
+.header-left,
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.header-search {
+  width: 240px;
+}
+
+.app-content {
+  min-width: 0;
+  overflow-x: hidden;
+  background: var(--color-bg-1);
+}
+
+.page-header {
+  align-items: flex-end;
+}
+
+.page-header .arco-typography-title {
+  margin: 4px 0;
+}
+
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: .16em;
+}
+
+.arco-card {
+  min-width: 0;
+}
+
+.grid > .arco-card {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .desktop-only {
+    display: block;
+  }
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .settings-tabs.arco-tabs-horizontal > .arco-tabs-header-nav .arco-tabs-header-title {
+    margin: 0 10px;
+  }
+
+  .settings-tabs.arco-tabs-horizontal > .arco-tabs-header-nav .arco-tabs-header-title:first-of-type {
+    margin-left: 0;
+  }
+
+  .page {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .app-header {
+    padding: 0 12px;
+  }
+
+  .header-search,
+  .app-header .arco-breadcrumb {
+    display: none;
+  }
+
+  .mobile-only {
+    display: inline-flex;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .grid-3,
+  .landing-hero,
+  .carousel-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .logo-cloud {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .numbers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .landing-hero,
+  .landing-section {
+    padding: 48px 0;
+  }
+
+  .chat-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chat-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .chat-message {
+    max-width: 95%;
+  }
+
+  /* Contract: >= 40px touch targets on the mobile viewport. */
+  .arco-btn-size-large,
+  .arco-input-size-large,
+  .arco-input-inner-wrapper-size-large,
+  .arco-input-group-wrapper-size-large .arco-input-inner-wrapper,
+  .arco-input-group-wrapper-size-large .arco-input-group-addbefore,
+  .arco-input-group-wrapper-size-large .arco-input-group-addafter,
+  .arco-input-number-size-large .arco-input-inner-wrapper,
+  .arco-select-size-large .arco-select-view,
+  .arco-picker-size-large,
+  .arco-input-tag-size-large,
+  .arco-pagination-item {
+    min-height: 40px;
+  }
+
+  .arco-input-size-large,
+  .arco-input-inner-wrapper-size-large .arco-input,
+  .arco-select-size-large .arco-select-view,
+  .arco-select-size-large .arco-select-view-input,
+  .arco-select-size-large .arco-select-view-value {
+    line-height: 38px;
+  }
+
+  .arco-checkbox,
+  .arco-radio {
+    display: inline-flex;
+    align-items: center;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .arco-checkbox-group .arco-checkbox,
+  .arco-radio-group .arco-radio {
+    margin-right: 12px;
+  }
+
+  .arco-table-th .arco-checkbox,
+  .arco-table-td .arco-checkbox {
+    justify-content: center;
+    margin: -8px 0;
+  }
+
+  .arco-tabs-header-title {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+
+  .arco-tabs-type-capsule .arco-tabs-header-title {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .arco-switch {
+    box-sizing: content-box;
+    padding: 8px 0;
+    background-clip: content-box;
+  }
+
+  .arco-switch .arco-switch-dot {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .components-layout {
+    display: block;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+}

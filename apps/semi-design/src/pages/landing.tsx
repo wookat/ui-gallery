@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Avatar, AvatarGroup, Button, Card, Carousel, Collapse, SideSheet, Tag, Typography } from "@douyinfe/semi-ui"
+import { Avatar, AvatarGroup, Button, Card, Carousel, Collapse, Select, SideSheet, Tag, Typography } from "@douyinfe/semi-ui"
 import landing from "@ui-gallery/spec/mock/landing.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import { Icon } from "@/icons"
@@ -10,6 +10,13 @@ import { useTheme } from "@/theme"
 const { Title, Text, Paragraph } = Typography
 const logos = ["Northwind", "Contoso", "Globex", "Fabrikam", "Initech", "Umbrella"]
 const splits = ["看见全局", "自动化协作", "AI 就在身边"]
+const social = [
+  { name: "github", label: "GitHub" },
+  { name: "globe", label: "网站" },
+  { name: "mail", label: "邮件" },
+  { name: "message-circle", label: "社区" },
+]
+const languages = ["简体中文", "English", "日本語"].map((value) => ({ value, label: value }))
 
 export function LandingPage() {
   const { theme, setTheme } = useTheme()
@@ -20,6 +27,12 @@ export function LandingPage() {
     { href: "#pricing", label: "价格" },
     { href: "#testimonials", label: "评价" },
     { href: "#faq", label: "FAQ" },
+  ]
+  const footerColumns = [
+    { title: "产品", items: landing.features.slice(0, 3).map((item) => ({ href: "#features", label: item.title })) },
+    { title: "解决方案", items: landing.features.slice(3).map((item) => ({ href: "#features", label: item.title })) },
+    { title: "资源", items: [{ href: "#numbers", label: "数据" }, { href: "#pricing", label: "价格" }, { href: "#faq", label: "FAQ" }] },
+    { title: "公司", items: [{ href: "#testimonials", label: "评价" }, { href: "/apps/semi-design/login", label: "登录" }, { href: "#", label: "联系我们" }] },
   ]
   return (
     <div style={{ background: "var(--semi-color-bg-0)" }}>
@@ -100,8 +113,25 @@ export function LandingPage() {
           <div className="acme-landing-inner"><Card bodyStyle={{ padding: 40, textAlign: "center" }}><Title heading={2}>准备好开始了吗？</Title><Text type="secondary">{landing.hero.social}</Text><div className="acme-row" style={{ justifyContent: "center", marginTop: 20 }}><Link to="/login"><Button theme="solid" size="large">{landing.hero.primary}</Button></Link><Button theme="light" size="large">{landing.hero.secondary}</Button></div></Card></div>
         </section>
       </main>
-      <footer style={{ borderTop: "1px solid var(--semi-color-border)", padding: "24px 16px" }}>
-        <div className="acme-landing-inner acme-between"><Text type="tertiary">© 2026 Acme Console</Text><div className="acme-row" style={{ gap: 16 }}>{links.map((link) => <Typography.Text key={link.href} link={{ href: link.href }}>{link.label}</Typography.Text>)}</div></div>
+      <footer style={{ borderTop: "1px solid var(--semi-color-border)", padding: "48px 16px 24px" }}>
+        <div className="acme-landing-inner acme-page" style={{ gap: 32 }}>
+          <div className="acme-footer-grid">
+            <div className="acme-page" style={{ gap: 12 }}><Brand /><Text type="tertiary" size="small">{landing.hero.subtitle}</Text></div>
+            {footerColumns.map((column) => (
+              <div key={column.title} className="acme-page" style={{ gap: 10 }}>
+                <Text strong>{column.title}</Text>
+                {column.items.map((item) => <Typography.Text key={item.label} link={{ href: item.href }} type="tertiary" className="acme-footer-link">{item.label}</Typography.Text>)}
+              </div>
+            ))}
+          </div>
+          <div className="acme-between" style={{ borderTop: "1px solid var(--semi-color-border)", paddingTop: 20 }}>
+            <Text type="tertiary" size="small">© 2026 Acme Console</Text>
+            <div className="acme-row" style={{ gap: 12 }}>
+              <div className="acme-row acme-footer-social" style={{ gap: 4 }}>{social.map((item) => <Button key={item.name} theme="borderless" type="tertiary" icon={<Icon name={item.name} />} aria-label={item.label} />)}</div>
+              <Select defaultValue="简体中文" optionList={languages} size="default" prefix={<Icon name="globe" />} style={{ width: 150 }} aria-label="语言" />
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   )

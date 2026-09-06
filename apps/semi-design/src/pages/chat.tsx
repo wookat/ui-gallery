@@ -22,7 +22,7 @@ function Bubble({ message }: { message: Message }) {
           {message.streaming ? <span className="acme-row" style={{ gap: 6 }}><Spin size="small" /><Text type="tertiary" size="small">生成中…</Text></span> : null}
         </div>
         {message.sources?.length ? <div className="acme-row" style={{ marginTop: 6 }}><Text type="tertiary" size="small">来源：</Text>{message.sources.map((source) => <Tag key={source} size="small" type="ghost">{source}</Tag>)}</div> : null}
-        {!isUser && !message.streaming ? <div className="acme-row" style={{ marginTop: 4, gap: 0 }}><Tooltip content="复制"><Button size="small" theme="borderless" type="tertiary" icon={<Icon name="copy" size={14} />} aria-label="复制" onClick={() => Toast.success("已复制")} /></Tooltip><Tooltip content="重新生成"><Button size="small" theme="borderless" type="tertiary" icon={<Icon name="refresh-cw" size={14} />} aria-label="重新生成" /></Tooltip><Tooltip content="赞"><Button size="small" theme="borderless" type="tertiary" icon={<Icon name="thumbs-up" size={14} />} aria-label="赞" /></Tooltip></div> : null}
+        {!isUser && !message.streaming ? <div className="acme-row acme-touch-actions" style={{ marginTop: 2, gap: 0 }}><Tooltip content="复制"><Button theme="borderless" type="tertiary" icon={<Icon name="copy" size={16} />} aria-label="复制" onClick={() => Toast.success("已复制")} /></Tooltip><Tooltip content="重新生成"><Button theme="borderless" type="tertiary" icon={<Icon name="refresh-cw" size={16} />} aria-label="重新生成" /></Tooltip><Tooltip content="赞"><Button theme="borderless" type="tertiary" icon={<Icon name="thumbs-up" size={16} />} aria-label="赞" /></Tooltip></div> : null}
       </div>
     </div>
   )

@@ -81,6 +81,17 @@ export function SettingsPage() {
               <div className="acme-between"><div><Title heading={4} style={{ margin: 0 }}>{pro.name}</Title><Text type="tertiary">{money(pro.price ?? 0)} / 月 · {pro.features.join(" · ")}</Text></div><Button theme="light">更换计划</Button></div>
               <div style={{ marginTop: 16 }}><div className="acme-between"><Text size="small">本月席位使用</Text><Text size="small" type="tertiary">{team.length} / 10</Text></div><Progress percent={team.length * 10} aria-label="席位使用" /></div>
             </SectionCard>
+            <SectionCard title="计划对比" description="随时升级或降级，按月计费。">
+              <div className="acme-grid-3 acme-grid">
+                {plans.map((plan) => (
+                  <Card key={plan.name} style={plan.recommended ? { borderColor: "var(--semi-color-primary)" } : undefined} title={<div className="acme-between"><span>{plan.name}</span>{plan.recommended ? <Badge type="primary" count="推荐" /> : null}</div>}>
+                    <Title heading={3} style={{ margin: "0 0 12px" }}>{plan.price === null ? "定制" : plan.price === 0 ? "免费" : money(plan.price)}{plan.price ? <Text type="tertiary" size="normal"> / 月</Text> : null}</Title>
+                    <div className="acme-page" style={{ gap: 8, marginBottom: 16 }}>{plan.features.map((feature) => <span key={feature} className="acme-row" style={{ flexWrap: "nowrap", gap: 6 }}><Icon name="check" size={14} /><Text size="small">{feature}</Text></span>)}</div>
+                    <Button block theme={plan.recommended ? "solid" : "light"} disabled={plan.name === pro.name} onClick={() => Toast.success(`已切换到 ${plan.name}（演示）`)}>{plan.name === pro.name ? "当前计划" : plan.price === null ? "联系销售" : "选择"}</Button>
+                  </Card>
+                ))}
+              </div>
+            </SectionCard>
             <SectionCard title="支付方式"><div className="acme-between"><span className="acme-row"><Icon name="credit-card" size={20} /><Text>Visa •••• 4242 · 08/28</Text></span><Button theme="light" size="small">更新</Button></div></SectionCard>
             <SectionCard title="账单历史">
               <div className="acme-scroll-x">

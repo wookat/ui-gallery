@@ -51,9 +51,9 @@ export function OrdersPage() {
     { title: "状态", dataIndex: "status", render: (value: string) => <StatusTag value={value} /> },
     { title: "金额", dataIndex: "amount", align: "right" as const, sorter: (a?: Order, b?: Order) => (a?.amount ?? 0) - (b?.amount ?? 0), render: (value: number) => <Text style={{ fontVariantNumeric: "tabular-nums" }}>{money(value)}</Text> },
     {
-      title: "", dataIndex: "actions", width: 56, render: (_: unknown, record: Order) => (
+      title: "", dataIndex: "actions", width: 64, render: (_: unknown, record: Order) => (
         <span onClick={(event) => event.stopPropagation()}><Dropdown trigger="click" position="bottomRight" render={<Dropdown.Menu><Dropdown.Item onClick={() => openDetail(record)}>查看详情</Dropdown.Item><Dropdown.Item onClick={() => { void navigator.clipboard?.writeText(record.id); Toast.success("已复制订单号") }}>复制订单号</Dropdown.Item><Dropdown.Divider /><Dropdown.Item type="danger" onClick={() => setPending(record)}>删除</Dropdown.Item></Dropdown.Menu>}>
-          <Button theme="borderless" type="tertiary" size="small" icon={<Icon name="ellipsis" />} aria-label="更多操作" />
+          <Button theme="borderless" type="tertiary" icon={<Icon name="ellipsis" />} aria-label="更多操作" />
         </Dropdown></span>
       ),
     },
@@ -83,7 +83,7 @@ export function OrdersPage() {
         {mode === "empty" || (mode === "ready" && filtered.length === 0) ? (
           <Empty image={<IllustrationNoResult style={{ width: 150, height: 150 }} />} darkModeImage={<IllustrationNoResultDark style={{ width: 150, height: 150 }} />} title="没有匹配的订单" description="调整筛选条件或清除搜索后重试。"><Button onClick={() => { setQuery(""); setStatus("all"); setChannels([]); setRange(null); setMode("ready") }}>清除筛选</Button></Empty>
         ) : (
-          <div className="acme-scroll-x">
+          <div className="acme-scroll-x acme-touch-table">
             <Table
               rowKey="id"
               scroll={{ x: 760 }}

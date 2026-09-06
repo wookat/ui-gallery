@@ -274,6 +274,138 @@ body[theme-mode="dark"] .acme-bubble.user {
   display: none !important;
 }
 
+/* 状态文本改用 Semi 调色板中同色系更深一档（-active）的官方 token，满足正文 4.5:1 */
+.semi-typography.semi-typography-secondary {
+  color: rgba(var(--semi-grey-7), 1);
+}
+
+.semi-typography.semi-typography-success {
+  color: var(--semi-color-success-active);
+}
+
+.semi-typography.semi-typography-warning {
+  color: var(--semi-color-warning-active);
+}
+
+.semi-typography.semi-typography-danger {
+  color: var(--semi-color-danger-active);
+}
+
+/* 亮色下 secondary/warning/danger 的 X-5 底色配白字不足 4.5:1：solid 底色与浅色变体文字统一改用 -active（深一档）token */
+body:not([theme-mode="dark"]) .semi-button-secondary:not(.semi-button-light):not(.semi-button-outline):not(.semi-button-borderless):not(.semi-button-disabled) {
+  background-color: var(--semi-color-secondary-active);
+}
+
+body:not([theme-mode="dark"]) .semi-button-warning:not(.semi-button-light):not(.semi-button-outline):not(.semi-button-borderless):not(.semi-button-disabled) {
+  background-color: var(--semi-color-warning-active);
+}
+
+body:not([theme-mode="dark"]) .semi-button-danger:not(.semi-button-light):not(.semi-button-outline):not(.semi-button-borderless):not(.semi-button-disabled) {
+  background-color: var(--semi-color-danger-active);
+}
+
+body:not([theme-mode="dark"]) .semi-button-secondary.semi-button-light:not(.semi-button-disabled),
+body:not([theme-mode="dark"]) .semi-button-secondary.semi-button-outline:not(.semi-button-disabled),
+body:not([theme-mode="dark"]) .semi-button-secondary.semi-button-borderless:not(.semi-button-disabled) {
+  color: var(--semi-color-secondary-active);
+}
+
+body:not([theme-mode="dark"]) .semi-button-warning.semi-button-light:not(.semi-button-disabled),
+body:not([theme-mode="dark"]) .semi-button-warning.semi-button-outline:not(.semi-button-disabled),
+body:not([theme-mode="dark"]) .semi-button-warning.semi-button-borderless:not(.semi-button-disabled) {
+  color: var(--semi-color-warning-active);
+}
+
+body:not([theme-mode="dark"]) .semi-button-danger.semi-button-light:not(.semi-button-disabled),
+body:not([theme-mode="dark"]) .semi-button-danger.semi-button-outline:not(.semi-button-disabled),
+body:not([theme-mode="dark"]) .semi-button-danger.semi-button-borderless:not(.semi-button-disabled) {
+  color: var(--semi-color-danger-active);
+}
+
+body[theme-mode="dark"] .semi-button-tertiary.semi-button-solid:not(.semi-button-disabled) {
+  color: var(--semi-color-bg-0);
+}
+
+/* 暗色下 Semi 的 X-5 主色偏亮，白字/同色字对比不足：solid 用深色底文字，light/borderless 用 -active（更亮一档）文字 */
+body[theme-mode="dark"] .semi-button-primary:not(.semi-button-light):not(.semi-button-outline):not(.semi-button-borderless),
+body[theme-mode="dark"] .semi-button-secondary:not(.semi-button-light):not(.semi-button-outline):not(.semi-button-borderless),
+body[theme-mode="dark"] .semi-button-warning:not(.semi-button-light):not(.semi-button-outline):not(.semi-button-borderless),
+body[theme-mode="dark"] .semi-button-danger:not(.semi-button-light):not(.semi-button-outline):not(.semi-button-borderless) {
+  color: var(--semi-color-bg-0);
+}
+
+body[theme-mode="dark"] .semi-button-primary.semi-button-light,
+body[theme-mode="dark"] .semi-button-primary.semi-button-outline,
+body[theme-mode="dark"] .semi-button-primary.semi-button-borderless {
+  color: var(--semi-color-primary-active);
+}
+
+body[theme-mode="dark"] .semi-button-secondary.semi-button-light,
+body[theme-mode="dark"] .semi-button-secondary.semi-button-outline,
+body[theme-mode="dark"] .semi-button-secondary.semi-button-borderless {
+  color: var(--semi-color-secondary-active);
+}
+
+body[theme-mode="dark"] .semi-button-warning.semi-button-light,
+body[theme-mode="dark"] .semi-button-warning.semi-button-outline,
+body[theme-mode="dark"] .semi-button-warning.semi-button-borderless {
+  color: var(--semi-color-warning-active);
+}
+
+body[theme-mode="dark"] .semi-button-danger.semi-button-light,
+body[theme-mode="dark"] .semi-button-danger.semi-button-outline,
+body[theme-mode="dark"] .semi-button-danger.semi-button-borderless {
+  color: var(--semi-color-danger-active);
+}
+
+/* 表格行选择框 / 行内图标按钮 / 消息操作按钮：点击热区 ≥ 40px */
+.semi-table .semi-checkbox {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.semi-table .semi-table-column-selection {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.semi-table .semi-button.semi-button-with-icon-only,
+.acme-touch-actions .semi-button,
+.acme-footer-social .semi-button {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+/* 表格分页：移动端允许换行，信息文字不逐字竖排 */
+.semi-table-pagination-outer {
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 8px 0;
+}
+
+.semi-table-pagination-outer .semi-table-pagination-info {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.semi-table-pagination-outer .semi-page {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.acme-footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(4, minmax(0, 1fr));
+  gap: 32px 24px;
+}
+
+.acme-footer-link.semi-typography {
+  font-weight: 400;
+}
+
 .acme-login {
   min-height: 100vh;
   display: grid;
@@ -321,6 +453,18 @@ body[theme-mode="dark"] .acme-bubble.user {
 
   .acme-components-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .acme-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .acme-footer-grid > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  .semi-table-pagination-outer {
+    justify-content: center;
   }
 
   .acme-shell-header .semi-button,

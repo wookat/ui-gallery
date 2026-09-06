@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { marked } from "marked"
 import { ElMessage } from "element-plus"
 import chat from "@ui-gallery/spec/mock/chat.json"
@@ -12,6 +12,31 @@ const draft = ref("")
 const model = ref(chat.models[0])
 const copied = ref(false)
 const selected = computed(() => chat.conversations.find((item) => item.id === active.value))
+const messagesEl = ref<HTMLElement>()
+const scrollToLatest = () => {
+  const el = messagesEl.value
+  if (el) el.scrollTop = el.scrollHeight
+}
+onMounted(() => {
+  nextTick(scrollToLatest)
+  document.fonts?.ready.then(() => nextTick(scrollToLatest))
+  const el = messagesEl.value
+  if (el && "ResizeObserver" in window) {
+    const observer = new ResizeObserver(scrollToLatest)
+    for (const child of el.children) observer.observe(child)
+    el.addEventListener("wheel", () => observer.disconnect(), { once: true, passive: true })
+    el.addEventListener("touchstart", () => observer.disconnect(), { once: true, passive: true })
+    onBeforeUnmount(() => observer.disconnect())
+  }
+})
+watch(active, () => nextTick(scrollToLatest))
+type Conversation = (typeof chat.conversations)[number]
+const groupOf = (item: Conversation) => (/刚刚|分钟|小时|今天/.test(item.time) ? "今天" : /昨天|^周/.test(item.time) ? "本周" : "更早")
+const groups = computed(() =>
+  ["今天", "本周", "更早"]
+    .map((label) => ({ label, items: chat.conversations.filter((item) => groupOf(item) === label) }))
+    .filter((group) => group.items.length),
+)
 const render = (content: string) => marked.parse(content) as string
 const selectConversation = (id: string, closeDrawer = false) => {
   active.value = id
@@ -39,28 +64,28 @@ const copy = (text: string) => {
       <el-button v-if="mobile" @click="conversationsOpen = true"><Icon name="message-square" />对话列表</el-button>
     </div>
     <el-drawer v-if="mobile" v-model="conversationsOpen" title="对话" direction="ltr" size="290px"><div class="conversation-list">
-      <el-input placeholder="搜索对话"><template #prefix><Icon name="search" /></template></el-input><el-button type="primary" class="full-width new-chat"><Icon name="plus" />新建对话</el-button><el-button
-        v-for="item in chat.conversations"
+      <el-input placeholder="搜索对话"><template #prefix><Icon name="search" /></template></el-input><el-button type="primary" class="full-width new-chat"><Icon name="plus" />新建对话</el-button><template v-for="group in groups" :key="group.label"><div class="group-label">{{ group.label }}</div><el-button
+        v-for="item in group.items"
         :key="item.id"
         class="conversation"
         :type="active === item.id ? 'primary' : 'default'"
         plain
         @click="selectConversation(item.id, true)"
-      ><span>{{ item.title }}<small>{{ item.time }}</small></span><el-badge v-if="item.unread" :value="item.unread" /></el-button></div></el-drawer>
+      ><span>{{ item.title }}<small>{{ item.time }}</small></span><el-badge v-if="item.unread" :value="item.unread" /></el-button></template></div></el-drawer>
     <el-card class="chat-card"><aside v-if="!mobile" class="conversation-pane">
                                  <div class="conversation-heading">
                                    <b>对话</b><el-button text><Icon name="plus" /></el-button>
                                  </div>
                                  <el-input placeholder="搜索对话"><template #prefix><Icon name="search" /></template></el-input><el-button type="primary" class="full-width new-chat"><Icon name="plus" />新建对话</el-button>
                                  <div class="conversation-list">
-                                   <el-button
-                                     v-for="item in chat.conversations"
+                                   <template v-for="group in groups" :key="group.label"><div class="group-label">{{ group.label }}</div><el-button
+                                     v-for="item in group.items"
                                      :key="item.id"
                                      class="conversation"
                                      :type="active === item.id ? 'primary' : 'default'"
                                      plain
                                      @click="active = item.id"
-                                   ><span>{{ item.title }}<small>{{ item.time }}</small></span><el-badge v-if="item.unread" :value="item.unread" /></el-button>
+                                   ><span>{{ item.title }}<small>{{ item.time }}</small></span><el-badge v-if="item.unread" :value="item.unread" /></el-button></template>
                                  </div>
                                </aside>
       <section class="chat-main">
@@ -70,7 +95,7 @@ const copy = (text: string) => {
           </div>
           <el-select v-model="model" style="width: 150px"><el-option v-for="item in chat.models" :key="item" :label="item" :value="item" /></el-select>
         </header>
-        <div class="messages">
+        <div ref="messagesEl" class="messages">
           <template v-if="selected?.id === chat.conversations[0].id"><div v-for="(message, index) in chat.messages" :key="index" class="message" :class="message.role">
             <el-avatar>{{ message.role === "user" ? "林" : "AI" }}</el-avatar>
             <div class="message-body">
@@ -190,6 +215,15 @@ const copy = (text: string) => {
 }
 .conversation small {
   color: var(--el-text-color-secondary);
+}
+.group-label {
+  margin: 8px 0 2px;
+  padding: 0 4px;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+.group-label:first-child {
+  margin-top: 0;
 }
 .chat-main {
   display: flex;
@@ -362,13 +396,23 @@ kbd {
   }
 }
 @media (max-width: 767px) {
+  .chat-card {
+    overflow: visible;
+  }
   .chat-card > :deep(.el-card__body) {
     display: block;
-    height: calc(100vh - 190px);
-    min-height: 480px;
+    height: auto;
+    min-height: 0;
+  }
+  .chat-main {
+    display: block;
   }
   .messages {
+    max-height: 55vh;
     padding: 16px;
+  }
+  .chat-empty {
+    min-height: 320px;
   }
   .message-body {
     max-width: 88%;

@@ -330,12 +330,9 @@ const handlePin = (index: number, value: string) => {
             inactive-text="N"
           /><el-switch v-model="switched" loading /><el-switch v-model="switched" disabled />
         </div>
-        <div v-else-if="section.name === 'Slider'" class="demo-grid cols-2">
-          <el-slider v-model="slider" show-stops :step="10" show-input /><el-slider v-model="range" range /><el-slider
-            v-model="slider"
-            vertical
-            height="200px"
-          /><el-slider v-model="slider" disabled />
+        <div v-else-if="section.name === 'Slider'" class="slider-demo">
+          <div class="demo-stack"><el-slider v-model="slider" show-stops :step="10" show-input /><el-slider v-model="range" range /><el-slider v-model="slider" disabled /></div>
+          <el-slider v-model="slider" vertical height="120px" />
         </div>
         <div v-else-if="section.name === 'Rating'" class="demo-row">
           <el-rate v-model="rating" allow-half show-text /><el-rate v-model="rating" show-score :max="10" /><el-rate
@@ -980,6 +977,15 @@ const handlePin = (index: number, value: string) => {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+.slider-demo {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.slider-demo .demo-stack {
+  flex: 1;
+  min-width: 0;
 }
 .qr-demo {
   width: 152px;

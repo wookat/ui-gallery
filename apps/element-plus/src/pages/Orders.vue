@@ -8,6 +8,8 @@ const query = ref("")
 const status = ref("")
 const channels = ref<string[]>([])
 const mode = ref("normal")
+const page = ref(1)
+const pageSize = ref(10)
 const selected = ref<any>()
 const drawer = ref(false)
 const dialog = ref(false)
@@ -98,7 +100,7 @@ const remove = async (row: any) => {
           /><el-table-column label="金额" align="right" sortable min-width="110"><template #default="{ row }">¥{{ row.amount.toLocaleString() }}</template></el-table-column><el-table-column label="状态" min-width="100"><template #default="{ row }"><el-tag :type="tagType(row.status)">{{ row.status }}</el-tag></template></el-table-column><el-table-column label="操作" min-width="85"><template #default="{ row }"><el-dropdown><el-button text><Icon name="more-horizontal" /></el-button><template #dropdown><el-dropdown-menu><el-dropdown-item>编辑</el-dropdown-item><el-dropdown-item divided @click.stop="remove(row)">删除</el-dropdown-item></el-dropdown-menu></template></el-dropdown></template></el-table-column></el-table>
         </div>
       </div>
-      <el-pagination class="pagination" layout="total, sizes, prev, pager, next" :total="visible.length" :page-size="10" />
+      <el-pagination class="pagination" layout="total, sizes, prev, pager, next" :total="visible.length" v-model:current-page="page" v-model:page-size="pageSize" />
     </el-card>
     <el-drawer v-model="drawer" title="订单详情" size="min(100%, 480px)"><el-descriptions v-if="selected" :column="1" border><el-descriptions-item label="订单号">{{ selected.id }}</el-descriptions-item><el-descriptions-item label="客户">{{ selected.customer }} · {{ selected.email }}</el-descriptions-item><el-descriptions-item label="产品">{{ selected.product }}</el-descriptions-item><el-descriptions-item label="金额">¥{{ selected.amount.toLocaleString() }}</el-descriptions-item><el-descriptions-item label="渠道">{{ selected.channel }}</el-descriptions-item></el-descriptions><el-tabs class="drawer-tabs"><el-tab-pane label="备注"><el-input type="textarea" :rows="5" placeholder="添加备注..." /></el-tab-pane><el-tab-pane label="活动"><el-empty description="暂无活动" /></el-tab-pane></el-tabs></el-drawer>
     <el-dialog v-model="dialog" title="删除订单"><p>确认删除吗？</p></el-dialog>

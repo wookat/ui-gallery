@@ -13,9 +13,18 @@ const moduleOn = (x: number, y: number) => {
 
 <template>
   <svg class="qr-placeholder" viewBox="0 0 21 21" role="img" aria-label="示例二维码" shape-rendering="crispEdges">
-    <rect width="21" height="21" fill="white" />
+    <rect width="21" height="21" class="qr-bg" />
     <template v-for="y in size" :key="y">
-      <rect v-for="x in size" :key="x" v-show="moduleOn(x - 1, y - 1)" :x="x - 1" :y="y - 1" width="1" height="1" fill="#111827" />
+      <rect v-for="x in size" :key="x" v-show="moduleOn(x - 1, y - 1)" :x="x - 1" :y="y - 1" width="1" height="1" class="qr-module" />
     </template>
   </svg>
 </template>
+
+<style scoped>
+.qr-bg {
+  fill: var(--el-bg-color);
+}
+.qr-module {
+  fill: var(--el-text-color-primary);
+}
+</style>

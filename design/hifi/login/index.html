@@ -13,9 +13,13 @@
   - 图标：界面图标 Lucide（ISC，inline SVG，stroke=currentColor）；第三方登录图标 simple-icons（CC0-1.0，单色 fill=currentColor），不用官方彩色 Logo。
   - 字体：tokens.css 声明的 Inter Variable / Noto Sans SC Variable（均 OFL-1.1）。为让稿子在任何机器上按令牌字体渲染，
     这里通过 fontsource 的 CDN 样式加载；实现阶段改用 @fontsource-variable/inter 与 @fontsource-variable/noto-sans-sc 包（brief §5）。
+    离线打开会回退系统字体、与 ref/ 基准图失配：shoot.mjs 会断言两款字体已加载（document.fonts.check），截图需联网。
+  - 禁用态不整体降透明度（opacity.disabled 会把文字压到 ≈2–3:1）：文字保留 fg-muted / on-neutral-soft，底色改 surface-muted / neutral-soft；
+    loading 中的主按钮保持 primary 全色 + spinner（文字 on-primary ≥4.5:1）。
   URL 参数（供审查与截图）：
   - ?state=default|invalid|loading|error|success   默认 default。
       invalid：两字段内联错误（error.email.format / error.password.short）+ aria-invalid。
+              error.email.required / error.password.required 复用同一内联错误形态（.err + aria-invalid），仅文案不同，不单独出态。
       loading：主按钮 disabled + spinner + submit.loading；全表单只读；第三方按钮 disabled。
       error：表单卡顶部 Alert（alert.invalid），可关闭；&alert=locked → alert.locked；&alert=network → alert.network（warning，带「重试」）。
       success：实现中 = 立即跳 /?toast=login，由 dashboard 渲染 toast.success；本稿以「表单只读 + 右上角 Toast『欢迎回来，若琳』」
@@ -146,6 +150,8 @@
     transition: background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
   }
   .alert .close:hover { background: var(--color-role-surface); color: var(--color-role-fg); }
+  .alert:focus-visible { outline-color: var(--color-role-danger); }
+  .alert[data-variant="warning"]:focus-visible { outline-color: var(--color-role-warning); }
   [data-state="error"] .alert { display: grid; }
 
   /* ===== 表单 ===== */
@@ -202,7 +208,7 @@
   .check input:checked + .box { background: var(--color-role-primary); border-color: var(--color-role-primary); }
   .check input:checked + .box svg { opacity: 1; }
   .check input:focus-visible + .box { outline: var(--border-width-focus) solid var(--color-role-focus-ring); outline-offset: var(--border-focus-offset); }
-  .check input:disabled ~ * { color: var(--color-role-fg-disabled); }
+  .check input:disabled ~ * { color: var(--color-role-fg-muted); }
   .check input:disabled + .box { background: var(--color-role-surface-muted); border-color: var(--color-role-border); }
   .check input:disabled:checked + .box { background: var(--color-role-fg-disabled); border-color: var(--color-role-fg-disabled); }
   .check input:disabled { cursor: not-allowed; }
@@ -223,7 +229,10 @@
   .btn-secondary:hover:not(:disabled) { background: var(--color-role-surface-muted); border-color: var(--color-role-border-strong); }
   .btn-secondary:active:not(:disabled) { background: var(--color-role-neutral-soft); }
   .btn-secondary .icon-sm { color: var(--color-role-fg-muted); }
-  .btn:disabled, .btn[aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; }
+  .btn:disabled, .btn[aria-disabled="true"] { cursor: not-allowed; }
+  .btn-primary:disabled { background: var(--color-role-neutral-soft); border-color: var(--color-role-neutral-soft); color: var(--color-role-on-neutral-soft); }
+  .btn-primary[aria-busy="true"]:disabled { background: var(--color-role-primary); border-color: var(--color-role-primary); color: var(--color-role-on-primary); cursor: progress; }
+  .btn-secondary:disabled { background: var(--color-role-surface-muted); border-color: var(--color-role-border); color: var(--color-role-fg-muted); }
   .btn .label-loading, .btn .spinner { display: none; }
   [data-state="loading"] .btn-primary .label-idle { display: none; }
   [data-state="loading"] .btn-primary .label-loading { display: inline; }
@@ -235,7 +244,7 @@
   .oauth { display: grid; grid-template-columns: 1fr; gap: var(--space-2); }
 
   .signup { display: flex; align-items: center; justify-content: center; gap: var(--space-1); margin: var(--space-4) 0 0; color: var(--color-role-fg-muted); }
-  .signup a { display: inline-flex; align-items: center; min-height: var(--size-hit); padding: 0 var(--space-1); font: var(--typography-label); border-radius: var(--radius-sm); }
+  .signup a { display: inline-flex; align-items: center; min-height: var(--size-hit); padding: 0 var(--space-1); font: var(--typography-label); border-radius: var(--radius-sm); white-space: nowrap; }
 
   .footer-mobile { display: none; }
 
@@ -446,8 +455,9 @@
         email.value = 'locked@qimu-home.cn';
       } else if (variant === 'network') {
         alertBox.setAttribute('data-variant', 'warning');
-        alertBox.querySelector('.icon-danger').hidden = true;
-        alertBox.querySelector('.icon-warning').hidden = false;
+        // SVGElement 没有 hidden IDL 属性，必须写 DOM 属性才能命中 [hidden]
+        alertBox.querySelector('.icon-danger').setAttribute('hidden', '');
+        alertBox.querySelector('.icon-warning').removeAttribute('hidden');
         alertText.setAttribute('data-key', 'alert.network');
         alertText.textContent = '网络异常，请检查连接后重试。';
         retry.hidden = false;

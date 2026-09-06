@@ -10,7 +10,7 @@ export function FileField(props: { label?: string }) {
       </KobalteFileField.Dropzone>
       <KobalteFileField.HiddenInput />
       <KobalteFileField.ItemList class="grid gap-2 text-sm">
-        {(file) => <KobalteFileField.Item class="flex items-center justify-between rounded border border-zinc-200 px-3 py-2 dark:border-zinc-700"><span class="min-w-0 truncate"><KobalteFileField.ItemName>{file.name}</KobalteFileField.ItemName> <KobalteFileField.ItemSize class="text-xs text-zinc-500 dark:text-zinc-400" /></span><KobalteFileField.ItemDeleteTrigger class="text-red-600" aria-label={`移除 ${file.name}`}>移除</KobalteFileField.ItemDeleteTrigger></KobalteFileField.Item>}
+        {(file) => <KobalteFileField.Item class="flex items-center justify-between rounded border border-zinc-200 px-3 py-2 dark:border-zinc-700"><span class="min-w-0 truncate"><KobalteFileField.ItemName>{file.name}</KobalteFileField.ItemName> <KobalteFileField.ItemSize class="text-xs text-zinc-500 dark:text-zinc-400" /></span><KobalteFileField.ItemDeleteTrigger class="text-red-600 dark:text-red-400" aria-label={`移除 ${file.name}`}>移除</KobalteFileField.ItemDeleteTrigger></KobalteFileField.Item>}
       </KobalteFileField.ItemList>
     </KobalteFileField>
   )

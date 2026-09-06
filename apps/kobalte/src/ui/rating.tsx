@@ -1,9 +1,9 @@
 import { Rating as KobalteRating } from "@kobalte/core/rating"
 import { Icon } from "@/icons"
 
-export function Rating(props: { value?: number; defaultValue?: number; allowHalf?: boolean; readOnly?: boolean; disabled?: boolean; label?: string; size?: number }) {
+export function Rating(props: { value?: number; defaultValue?: number; onChange?: (value: number) => void; allowHalf?: boolean; readOnly?: boolean; disabled?: boolean; label?: string; size?: number }) {
   return (
-    <KobalteRating value={props.value} defaultValue={props.defaultValue} allowHalf={props.allowHalf} readOnly={props.readOnly} disabled={props.disabled} aria-label={props.label ?? "评分"} class="grid gap-1">
+    <KobalteRating value={props.value} defaultValue={props.defaultValue} onChange={props.onChange} allowHalf={props.allowHalf} readOnly={props.readOnly} disabled={props.disabled} aria-label={props.label ?? "评分"} class="grid gap-1">
       <KobalteRating.Label class="sr-only">{props.label ?? "评分"}</KobalteRating.Label>
       <KobalteRating.Control class="flex items-center gap-1">
         {Array.from({ length: 5 }, (_, index) => (

@@ -1,11 +1,13 @@
 import { TextField as KobalteTextField } from "@kobalte/core/text-field"
 import { createSignal, splitProps, type JSX, type ParentProps } from "solid-js"
 import { Icon } from "@/icons"
+import { FieldHint } from "@/ui/hint"
 
 type TextFieldProps = ParentProps<{
   id?: string
   name?: string
   label?: string
+  hint?: string
   description?: string
   error?: string
   placeholder?: string
@@ -37,7 +39,7 @@ export function TextField(props: TextFieldProps) {
       validationState={props.error ? "invalid" : "valid"}
       class={`${props.label ? "grid gap-1.5" : ""} ${local.class ?? ""}`}
     >
-      {props.label ? <KobalteTextField.Label class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{props.label}{props.required ? <span class="ml-1 text-red-600">*</span> : null}</KobalteTextField.Label> : null}
+      {props.label ? <KobalteTextField.Label class="inline-flex items-center text-sm font-medium text-zinc-800 dark:text-zinc-200">{props.label}{props.required ? <span class="ml-1 text-red-600 dark:text-red-400">*</span> : null}{props.hint ? <FieldHint text={props.hint} /> : null}</KobalteTextField.Label> : null}
       <div class="flex min-h-10 items-center rounded-md border border-zinc-300 bg-white px-3 shadow-sm focus-within:ring-2 focus-within:ring-blue-500 data-[invalid]:border-red-500 dark:border-zinc-700 dark:bg-zinc-900">
         {props.prefix ? <span class="mr-2 text-zinc-500 dark:text-zinc-400">{props.prefix}</span> : null}
         <KobalteTextField.Input
@@ -64,11 +66,11 @@ export function TextField(props: TextFieldProps) {
 
 export function TextArea(props: TextFieldProps & { rows?: number; maxLength?: number }) {
   return (
-    <KobalteTextField class={`grid gap-1.5 ${props.class ?? ""}`} validationState={props.error ? "invalid" : "valid"}>
-      {props.label ? <KobalteTextField.Label class="text-sm font-medium">{props.label}{props.required ? <span class="ml-1 text-red-600">*</span> : null}</KobalteTextField.Label> : null}
-      <KobalteTextField.TextArea rows={props.rows ?? 4} maxLength={props.maxLength} class="w-full rounded-md border border-zinc-300 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100" placeholder={props.placeholder} onInput={props.onInput} aria-label={props.label} />
+    <KobalteTextField class={`grid min-w-0 gap-1.5 ${props.class ?? ""}`} validationState={props.error ? "invalid" : "valid"}>
+      {props.label ? <KobalteTextField.Label class="inline-flex items-center text-sm font-medium">{props.label}{props.required ? <span class="ml-1 text-red-600 dark:text-red-400">*</span> : null}{props.hint ? <FieldHint text={props.hint} /> : null}</KobalteTextField.Label> : null}
+      <KobalteTextField.TextArea rows={props.rows ?? 4} maxLength={props.maxLength} class="min-w-0 max-w-full w-full rounded-md border border-zinc-300 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100" placeholder={props.placeholder} onInput={props.onInput} aria-label={props.label} />
       {props.description ? <KobalteTextField.Description class="text-xs text-zinc-500 dark:text-zinc-400">{props.description}</KobalteTextField.Description> : null}
-      {props.error ? <KobalteTextField.ErrorMessage class="text-xs text-red-600">{props.error}</KobalteTextField.ErrorMessage> : null}
+      {props.error ? <KobalteTextField.ErrorMessage class="text-xs text-red-600 dark:text-red-400">{props.error}</KobalteTextField.ErrorMessage> : null}
     </KobalteTextField>
   )
 }

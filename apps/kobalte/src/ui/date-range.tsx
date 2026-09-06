@@ -10,6 +10,7 @@ type DateRangePickerProps = {
   onChange?: (value: DateRange) => void
   month?: string
   class?: string
+  single?: boolean
 }
 
 const weekdays = ["一", "二", "三", "四", "五", "六", "日"]
@@ -37,6 +38,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
   }
   const pick = (date: string) => {
     const current = range()
+    if (props.single) return update({ start: date, end: date })
     if (!current.start || current.end) return update({ start: date, end: null })
     if (date < current.start) return update({ start: date, end: current.start })
     update({ start: current.start, end: date })
@@ -61,14 +63,15 @@ export function DateRangePicker(props: DateRangePickerProps) {
   const isEdge = (date: string) => date === range().start || date === range().end
   const text = () => {
     const current = range()
-    if (!current.start) return "选择日期范围"
+    if (!current.start) return props.single ? "选择日期" : "选择日期范围"
+    if (props.single) return current.start
     return `${current.start} → ${current.end ?? "…"}`
   }
   return (
     <div class={props.class}>
       <Show when={props.label}><span class="mb-1.5 block text-sm font-medium">{props.label}</span></Show>
       <Popover open={open()} onOpenChange={setOpen} gutter={4}>
-        <Popover.Trigger class="flex h-10 w-full items-center justify-between gap-2 rounded-md border border-zinc-300 bg-white px-3 text-left text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100" aria-label={props.label ?? "日期范围"}>
+        <Popover.Trigger class="flex h-10 w-full items-center justify-between gap-2 rounded-md border border-zinc-300 bg-white px-3 text-left text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100" aria-label={props.label ?? (props.single ? "日期" : "日期范围")}>
           <span class={range().start ? "" : "text-zinc-500 dark:text-zinc-400"}>{text()}</span>
           <Icon name="calendar" size={16} />
         </Popover.Trigger>
@@ -79,7 +82,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
               <Popover.Title class="text-sm font-medium">{cursor().year} 年 {cursor().month + 1} 月</Popover.Title>
               <button type="button" class="grid size-10 place-items-center rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800" aria-label="下个月" onClick={() => shift(1)}>›</button>
             </div>
-            <Popover.Description class="sr-only">先点开始日期，再点结束日期</Popover.Description>
+            <Popover.Description class="sr-only">{props.single ? "点击选择日期" : "先点开始日期，再点结束日期"}</Popover.Description>
             <div class="grid grid-cols-7 gap-y-1 text-center text-xs">
               <For each={weekdays}>{(day) => <span class="py-1 font-medium text-zinc-500 dark:text-zinc-400">{day}</span>}</For>
               <For each={days()}>{(date) => (
@@ -105,4 +108,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
       </Popover>
     </div>
   )
+}
+
+export function DatePicker(props: { label?: string; value?: string | null; onChange?: (value: string | null) => void; class?: string }) {
+  return <DateRangePicker single label={props.label} value={{ start: props.value ?? null, end: props.value ?? null }} onChange={(range) => props.onChange?.(range.start)} class={props.class} />
 }

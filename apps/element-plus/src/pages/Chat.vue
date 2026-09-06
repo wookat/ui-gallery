@@ -135,7 +135,7 @@ const copy = (text: string) => {
   padding: 0;
   overflow: hidden;
 }
-.chat-card :deep(.el-card__body) {
+.chat-card > :deep(.el-card__body) {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   height: calc(100vh - 190px);
@@ -362,7 +362,7 @@ kbd {
   }
 }
 @media (max-width: 767px) {
-  .chat-card :deep(.el-card__body) {
+  .chat-card > :deep(.el-card__body) {
     display: block;
     height: calc(100vh - 190px);
     min-height: 480px;

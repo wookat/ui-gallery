@@ -52,6 +52,13 @@ import {
   ClockIcon,
   UploadIcon,
 } from "@radix-ui/react-icons"
+import {
+  EyeIcon as HeroEye,
+  EyeSlashIcon as HeroEyeSlash,
+} from "@heroicons/react/24/outline"
+import { Eye as PhEye, EyeSlash as PhEyeSlash } from "@phosphor-icons/react"
+import { IconEye, IconEyeOff } from "@tabler/icons-react"
+import { Eye, EyeOff } from "lucide-react"
 import { Icon as SharedIcon } from "@ui-gallery/icons-react"
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>
@@ -136,10 +143,38 @@ const native = {
   "inbox-icon": ArchiveIcon,
 } as unknown as Record<string, IconType>
 
+const overrides: Record<string, Record<string, IconType>> = {
+  lucide: { eye: Eye, "eye-off": EyeOff },
+  tabler: { eye: IconEye, "eye-off": IconEyeOff },
+  phosphor: {
+    eye: PhEye as unknown as IconType,
+    "eye-off": PhEyeSlash as unknown as IconType,
+  },
+  heroicons: {
+    eye: HeroEye,
+    "eye-off": HeroEyeSlash,
+  },
+}
+
 export function Icon({ name, size = 18, ...props }: Props) {
   const params = new URLSearchParams(window.location.search)
   const family = params.get("icons") ?? params.get("icon")
+  const shared =
+    family === "tabler" || family === "phosphor" || family === "heroicons"
+      ? family
+      : "lucide"
   if (family !== "native") {
+    const Override = overrides[shared][name]
+    if (Override) {
+      return (
+        <Override
+          width={size}
+          height={size}
+          aria-hidden="true"
+          {...(props as SVGProps<SVGSVGElement>)}
+        />
+      )
+    }
     return <SharedIcon name={name} size={size} />
   }
   const Component = native[name] ?? QuestionMarkCircledIcon

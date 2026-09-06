@@ -81,7 +81,15 @@ export function AppShell({ children }: { children: ReactNode }) {
         display={{ initial: "none", md: "block" }}
         width="260px"
         p="4"
-        style={{ borderRight: "1px solid var(--gray-a5)", flexShrink: 0 }}
+        style={{
+          borderRight: "1px solid var(--gray-a5)",
+          flexShrink: 0,
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          overflowY: "auto",
+          boxSizing: "border-box",
+        }}
       >
         <aside>
           <Flex direction="column" gap="6" height="100%">
@@ -112,6 +120,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <IconButton
               size="3"
               variant="ghost"
+              aria-label={collapsed ? "展开侧栏" : "折叠侧栏"}
               onClick={() => setCollapsed((value) => !value)}
               style={{ minHeight: "40px", minWidth: "40px" }}
             >

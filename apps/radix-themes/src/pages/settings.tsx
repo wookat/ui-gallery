@@ -205,7 +205,12 @@ export function SettingsPage() {
                       </Table.Cell>
                       <Table.Cell>{member.lastActive}</Table.Cell>
                       <Table.Cell>
-                        <IconButton variant="ghost">
+                        <IconButton
+                          size="3"
+                          variant="ghost"
+                          aria-label="移除成员"
+                          style={{ minHeight: "40px", minWidth: "40px" }}
+                        >
                           <Icon name="trash" />
                         </IconButton>
                       </Table.Cell>

@@ -363,7 +363,12 @@ export function LandingPage() {
                 © Acme Console
               </Text>
               <Flex gap="2">
-                <IconButton variant="ghost">
+                <IconButton
+                  size="3"
+                  variant="ghost"
+                  aria-label="社交媒体"
+                  style={{ minHeight: "40px", minWidth: "40px" }}
+                >
                   <Icon name="globe" />
                 </IconButton>
                 <Select.Root defaultValue="zh">

@@ -19,9 +19,11 @@ import {
   Badge,
   Box,
   Card,
+  DropdownMenu,
   Flex,
   Grid,
   Heading,
+  IconButton,
   Progress,
   Skeleton,
   Switch,
@@ -36,6 +38,28 @@ import stats from "@ui-gallery/spec/mock/stats.json"
 import tasks from "@ui-gallery/spec/mock/tasks.json"
 import { Icon } from "@/icons"
 import { PageHeader, StatusBadge } from "./shared"
+
+function OrderActions() {
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger>
+        <IconButton
+          size="3"
+          variant="ghost"
+          aria-label="订单操作"
+          style={{ minHeight: "40px", minWidth: "40px" }}
+        >
+          <Icon name="more-horizontal" />
+        </IconButton>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content>
+        <DropdownMenu.Item>查看详情</DropdownMenu.Item>
+        <DropdownMenu.Item>编辑</DropdownMenu.Item>
+        <DropdownMenu.Item color="red">删除</DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  )
+}
 
 export function DashboardPage() {
   const [period, setPeriod] = useState("month")
@@ -222,6 +246,9 @@ export function DashboardPage() {
                   <Table.ColumnHeaderCell align="right">
                     金额
                   </Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell align="right">
+                    操作
+                  </Table.ColumnHeaderCell>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
@@ -242,6 +269,9 @@ export function DashboardPage() {
                     </Table.Cell>
                     <Table.Cell align="right">
                       ¥{order.amount.toLocaleString()}
+                    </Table.Cell>
+                    <Table.Cell align="right">
+                      <OrderActions />
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -267,9 +297,12 @@ export function DashboardPage() {
                       </Text>
                     </Box>
                   </Flex>
-                  <Flex direction="column" align="end" gap="1">
-                    <StatusBadge value={order.status} />
-                    <Text size="2">¥{order.amount.toLocaleString()}</Text>
+                  <Flex align="center" gap="2">
+                    <Flex direction="column" align="end" gap="1">
+                      <StatusBadge value={order.status} />
+                      <Text size="2">¥{order.amount.toLocaleString()}</Text>
+                    </Flex>
+                    <OrderActions />
                   </Flex>
                 </Flex>
               </Card>

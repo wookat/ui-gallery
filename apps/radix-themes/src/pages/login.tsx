@@ -80,14 +80,16 @@ export function LoginPage() {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                 >
-                  <TextField.Slot side="right">
+                  <TextField.Slot side="right" style={{ paddingRight: 0 }}>
                     <IconButton
-                      size="2"
+                      size="3"
                       variant="ghost"
+                      aria-label={show ? "隐藏密码" : "显示密码"}
                       type="button"
                       onClick={() => setShow((value) => !value)}
+                      style={{ minHeight: "40px", minWidth: "40px" }}
                     >
-                      <Icon name={show ? "eye-off" : "eye"} size={15} />
+                      <Icon name={show ? "eye-off" : "eye"} size={18} />
                     </IconButton>
                   </TextField.Slot>
                 </TextField.Root>
@@ -98,9 +100,19 @@ export function LoginPage() {
                 ) : null}
               </label>
               <Flex align="center" justify="between">
-                <Flex align="center" gap="2">
-                  <Checkbox /> <Text size="2">记住我</Text>
-                </Flex>
+                <Text as="label" size="2">
+                  <Flex
+                    align="center"
+                    gap="2"
+                    style={{
+                      minHeight: "40px",
+                      padding: "0 var(--space-2)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Checkbox size="3" /> 记住我
+                  </Flex>
+                </Text>
                 <Button
                   variant="ghost"
                   size="3"

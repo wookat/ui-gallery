@@ -71,7 +71,13 @@ function MarkdownMessage({ content }: { content: string }) {
           >
             {children}
           </Box>
-          <IconButton size="1" variant="ghost" onClick={copy}>
+          <IconButton
+            size="3"
+            variant="ghost"
+            aria-label="复制代码"
+            style={{ minHeight: "40px", minWidth: "40px", flexShrink: 0 }}
+            onClick={copy}
+          >
             <Icon name={copied ? "check" : "copy"} />
           </IconButton>
         </Flex>
@@ -175,7 +181,12 @@ export function ChatPage() {
       <Box display={{ initial: "block", md: "none" }}>
         <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
           <Dialog.Trigger>
-            <IconButton variant="soft">
+            <IconButton
+              size="3"
+              variant="soft"
+              aria-label="打开会话列表"
+              style={{ minHeight: "40px", minWidth: "40px" }}
+            >
               <Icon name="menu" />
             </IconButton>
           </Dialog.Trigger>
@@ -282,7 +293,12 @@ export function ChatPage() {
             />
             <Flex gap="2" align="center" justify="between" wrap="wrap">
               <Flex gap="2" align="center">
-                <IconButton variant="soft">
+                <IconButton
+                  size="3"
+                  variant="soft"
+                  aria-label="添加附件"
+                  style={{ minHeight: "40px", minWidth: "40px" }}
+                >
                   <Icon name="paperclip" />
                 </IconButton>
                 <Select.Root defaultValue={chat.models[0]}>

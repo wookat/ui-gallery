@@ -318,10 +318,18 @@ export function OrdersPage() {
                 共 {filtered.length} 条
               </Text>
               <Flex gap="2">
-                <Button size="2" variant="soft">
+                <Button
+                  size="3"
+                  variant="soft"
+                  style={{ minHeight: "40px", minWidth: "40px" }}
+                >
                   1
                 </Button>
-                <Button size="2" variant="ghost">
+                <Button
+                  size="3"
+                  variant="ghost"
+                  style={{ minHeight: "40px", minWidth: "40px" }}
+                >
                   2
                 </Button>
                 <Select.Root defaultValue="10">

@@ -49,7 +49,7 @@ const copy = async (value: string) => {
             <div class="bubble"><small class="bubble-meta">{{ message.role === "user" ? "林晓" : "AI 助手" }} · 刚刚</small><div v-if="message.role === 'assistant'" class="markdown" v-html="renderMarkdown(message.content)" /><div v-else>{{ message.content }}</div><div v-if="message.role === 'assistant'" class="inline"><van-tag v-for="source in message.sources" :key="source" plain>{{ source }}</van-tag><van-button v-if="message.content.includes('SELECT')" plain size="small" @click="copy(message.content)"><AppIcon name="copy" />{{ copied ? "已复制" : "复制" }}</van-button></div><van-collapse v-if="message.tool"><van-collapse-item :title="`工具调用 · ${message.tool.name}`" name="tool"><pre>{{ JSON.stringify(message.tool.args, null, 2) }}</pre></van-collapse-item></van-collapse><div v-if="message.streaming" class="inline muted"><van-loading type="spinner" size="14" />正在输入...</div></div>
           </article>
         </div>
-        <div class="composer"><div class="inline suggestion-row"><van-tag v-for="suggestion in chat.suggestions" :key="suggestion" plain @click="draft = suggestion">{{ suggestion }}</van-tag></div><van-field v-model="draft" type="textarea" autosize rows="2" maxlength="2000" show-word-limit placeholder="向 AI 助手提问..."><template #left-icon><AppIcon name="paperclip" /></template><template #button><van-button type="primary" round @click="draft = ''"><AppIcon name="send" /></van-button></template></van-field><small class="muted">Enter 发送 · Shift + Enter 换行</small></div>
+        <div class="composer"><div class="inline suggestion-row"><van-button v-for="suggestion in chat.suggestions" :key="suggestion" plain round size="small" @click="draft = suggestion">{{ suggestion }}</van-button></div><van-field v-model="draft" type="textarea" autosize rows="2" maxlength="2000" show-word-limit placeholder="向 AI 助手提问..."><template #left-icon><AppIcon name="paperclip" /></template><template #button><van-button type="primary" round @click="draft = ''"><AppIcon name="send" /></van-button></template></van-field><small class="muted">Enter 发送 · Shift + Enter 换行</small></div>
       </section>
     </div>
     <van-popup v-model:show="drawer" position="left" :style="{ width: '82%', height: '100%' }"><div class="chat-sidebar" style="height: 100%"><div class="between"><strong>对话</strong><van-button plain @click="drawer = false">关闭</van-button></div><van-search v-model="conversationQuery" placeholder="搜索对话" /><van-cell v-for="item in conversations" :key="item.id" :title="item.title" :label="item.time" @click="selected = item.id; drawer = false"><template #value><van-badge v-if="item.unread" :content="item.unread" /></template></van-cell></div></van-popup>
@@ -69,7 +69,7 @@ const copy = async (value: string) => {
 .chat-sidebar .van-cell__title span { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .chat-sidebar .van-cell__value { flex: 0 0 auto; display: inline-flex; align-items: center; margin-right: 6px; }
 .suggestion-row { margin-bottom: 10px; overflow-x: auto; flex-wrap: nowrap; }
-.suggestion-row .van-tag { cursor: pointer; white-space: nowrap; }
+.suggestion-row .van-button { flex: 0 0 auto; white-space: nowrap; }
 .suggestion-grid { display: grid; gap: 8px; max-width: 320px; }
 .suggestion-grid .van-button { white-space: normal; height: auto; min-height: 42px; }
 .message pre { overflow: auto; }

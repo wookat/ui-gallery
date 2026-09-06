@@ -4,7 +4,7 @@
     { "slug": "shadcn-ui", "name": "shadcn/ui", "framework": "react", "repo": "shadcn-ui/ui", "pkg": "shadcn", "round": 0, "status": "reference" },
 
     { "slug": "mui", "name": "MUI Material", "framework": "react", "repo": "mui/material-ui", "pkg": "@mui/material", "round": 1 },
-    { "slug": "antd", "name": "Ant Design", "framework": "react", "repo": "ant-design/ant-design", "pkg": "antd", "round": 1 },
+    { "slug": "antd", "name": "Ant Design", "framework": "react", "repo": "ant-design/ant-design", "pkg": "antd", "round": 1, "status": "merged" },
     { "slug": "mantine", "name": "Mantine", "framework": "react", "repo": "mantinedev/mantine", "pkg": "@mantine/core", "round": 1 },
     { "slug": "chakra-ui", "name": "Chakra UI v3", "framework": "react", "repo": "chakra-ui/chakra-ui", "pkg": "@chakra-ui/react", "round": 1, "status": "merged" },
     { "slug": "heroui", "name": "HeroUI", "framework": "react", "repo": "heroui-inc/heroui", "pkg": "@heroui/react", "round": 1 },

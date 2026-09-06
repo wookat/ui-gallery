@@ -96,7 +96,7 @@ const seed: RawMessage[] = chat.messages;
                 <div class="row wrap text-xs muted">
                   <span>{{ m.role === 'user' ? '你' : '助手' }} · 刚刚</span>
                   @if (m.role === 'assistant') {
-                    <p-button [text]="true" severity="secondary" size="small" [rounded]="true" pTooltip="复制" ariaLabel="复制" (onClick)="copy(m.content)"><app-icon name="copy" [size]="14" /></p-button>
+                    <p-button class="icon-btn" [text]="true" severity="secondary" size="small" [rounded]="true" pTooltip="复制" ariaLabel="复制" (onClick)="copy(m.content)"><app-icon name="copy" [size]="14" /></p-button>
                   }
                   @for (s of m.sources ?? []; track s) { <p-chip [label]="s" styleClass="src"><app-icon name="link" [size]="12" /></p-chip> }
                 </div>
@@ -151,7 +151,7 @@ const seed: RawMessage[] = chat.messages;
     .msg.user .col { align-items: flex-end; }
     :host ::ng-deep .bot { background: var(--p-primary-color); color: var(--p-primary-contrast-color); }
     .bubble { padding: 0.75rem 1rem; border-radius: 1rem; background: var(--p-content-hover-background); font-size: 0.9375rem; line-height: 1.6; max-width: 100%; overflow-x: auto; }
-    .msg.user .bubble { background: var(--p-primary-color); color: var(--p-primary-contrast-color); }
+    .msg.user .bubble { background: var(--p-highlight-background); color: var(--p-highlight-color); }
     .md ::ng-deep p { margin: 0 0 0.5rem; } .md ::ng-deep p:last-child { margin: 0; }
     .md ::ng-deep pre { background: var(--p-surface-900); color: var(--p-surface-0); padding: 0.75rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.8125rem; white-space: pre-wrap; }
     .md ::ng-deep pre code { white-space: pre-wrap; overflow-wrap: anywhere; }

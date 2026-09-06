@@ -18,7 +18,7 @@ export const iconSets: IconSet[] = ['native', 'lucide', 'tabler', 'phosphor', 'h
 export class SettingsService {
   private readonly doc = inject(DOCUMENT);
   readonly dark = signal(false);
-  readonly icons = signal<IconSet>('native');
+  readonly icons = signal<IconSet>('lucide');
   readonly font = signal<FontKey>('default');
 
   constructor() {

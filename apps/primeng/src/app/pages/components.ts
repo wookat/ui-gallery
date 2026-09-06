@@ -820,7 +820,7 @@ type Coverage = 'implemented' | 'composed' | 'missing';
 
       <section class="demo" id="c-Code" [hidden]="hide('Code')">
         <h2>Code <span class="cov composed">composed</span> <span class="note">pre/code + 复制按钮（PrimeNG Editor 依赖 Quill，未引入）</span></h2>
-        <div class="code"><div class="row between"><span class="text-xs muted">sql</span><p-button [text]="true" severity="secondary" size="small" [rounded]="true" (onClick)="toast('success', '已复制')" ariaLabel="复制"><app-icon name="copy" [size]="14" /></p-button></div><pre>{{ codeSample }}</pre></div>
+        <div class="code"><div class="row between"><span class="text-xs muted">sql</span><p-button class="icon-btn" [text]="true" severity="secondary" size="small" [rounded]="true" (onClick)="toast('success', '已复制')" ariaLabel="复制"><app-icon name="copy" [size]="14" /></p-button></div><pre>{{ codeSample }}</pre></div>
       </section>
 
       <section class="demo" id="c-Divider" [hidden]="hide('Divider')">

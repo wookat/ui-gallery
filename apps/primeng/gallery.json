@@ -94,5 +94,5 @@
     "Link": "composed"
   },
   "externals": { "chart": "chart.js", "icons": "@ng-icons/*", "markdown": "marked" },
-  "notes": "PrimeNG 21 + @primeuix/themes Aura preset (official default), dark mode via darkModeSelector '.dark'. PrimeIcons are the default icon set; ?icons= (alias ?icon=) switches to lucide/tabler/phosphor/heroicons via @ng-icons. Fonts self-hosted via @fontsource-variable and lxgw-wenkai-screen-webfont."
+  "notes": "PrimeNG 21 + @primeuix/themes Aura preset (official default), dark mode via darkModeSelector '.dark'. Lucide is the default icon set; ?icons=native (alias ?icon=native) switches to PrimeIcons, while other values select tabler/phosphor/heroicons via @ng-icons. Fonts self-hosted via @fontsource-variable and lxgw-wenkai-screen-webfont."
 }

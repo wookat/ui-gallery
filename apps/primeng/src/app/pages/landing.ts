@@ -32,12 +32,12 @@ import { SettingsService } from '../settings.service';
           @for (l of links; track l) { <a href="#{{ l.id }}">{{ l.label }}</a> }
         </nav>
         <div class="row">
-          <p-button [text]="true" severity="secondary" [rounded]="true" (onClick)="settings.toggleDark()" [ariaLabel]="settings.dark() ? '切换到浅色' : '切换到深色'">
+          <p-button class="icon-btn" [text]="true" severity="secondary" [rounded]="true" (onClick)="settings.toggleDark()" [ariaLabel]="settings.dark() ? '切换到浅色' : '切换到深色'">
             <app-icon [name]="settings.dark() ? 'sun' : 'moon'" />
           </p-button>
           <p-button label="登录" [text]="true" severity="secondary" routerLink="/login" queryParamsHandling="preserve" styleClass="hide-mobile" />
           <p-button [label]="hero.primary" routerLink="/" queryParamsHandling="preserve" styleClass="hide-mobile" />
-          <p-button [text]="true" severity="secondary" [rounded]="true" styleClass="show-mobile" (onClick)="menu.set(true)" ariaLabel="菜单"><app-icon name="menu" /></p-button>
+          <p-button class="icon-btn" [text]="true" severity="secondary" [rounded]="true" styleClass="show-mobile" (onClick)="menu.set(true)" ariaLabel="菜单"><app-icon name="menu" /></p-button>
         </div>
       </div>
     </header>
@@ -241,8 +241,8 @@ import { SettingsService } from '../settings.service';
     :host ::ng-deep .quote .p-card-body { display: flex; flex-direction: column; gap: 0.75rem; height: 100%; }
     .stars { color: var(--p-amber-500); gap: 0.125rem; }
     .q { flex: 1; margin: 0; }
-    .cta-banner { background: var(--p-primary-color); color: var(--p-primary-contrast-color); border-radius: 1.25rem; padding: 3rem 1.5rem; text-align: center; display: flex; flex-direction: column; gap: 1rem; align-items: center; }
-    .cta-banner p { margin: 0; opacity: 0.85; max-width: 36rem; }
+    .cta-banner { background: var(--p-content-hover-background); color: var(--p-text-color); border: 1px solid var(--p-content-border-color); border-radius: 1.25rem; padding: 3rem 1.5rem; text-align: center; display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+    .cta-banner p { margin: 0; color: var(--p-text-muted-color); max-width: 36rem; }
     .footer { border-top: 1px solid var(--p-content-border-color); padding: 3rem 0 2rem; }
     .flink { font-size: 0.875rem; color: var(--p-text-muted-color); text-decoration: none; }
     .flink:hover { color: var(--p-text-color); }

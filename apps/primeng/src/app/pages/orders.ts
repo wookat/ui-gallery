@@ -102,7 +102,7 @@ interface Column { field: keyof Order; header: string }
                   </td>
                 }
                 <td class="stack-actions">
-                  <p-button [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="openMenu($event, o)" ariaLabel="更多操作"><app-icon name="more-horizontal" /></p-button>
+                  <p-button class="icon-btn" [text]="true" [rounded]="true" severity="secondary" size="small" (onClick)="openMenu($event, o)" ariaLabel="更多操作"><app-icon name="more-horizontal" /></p-button>
                 </td>
               </tr>
             </ng-template>

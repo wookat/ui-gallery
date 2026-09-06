@@ -69,10 +69,10 @@ interface NavItem {
 
       <div class="main">
         <header class="topbar">
-          <p-button class="hide-mobile" [text]="true" severity="secondary" (onClick)="collapsed.set(!collapsed())" pTooltip="收起/展开侧栏" tooltipPosition="bottom" ariaLabel="切换侧栏">
+          <p-button class="hide-mobile icon-btn" [text]="true" severity="secondary" (onClick)="collapsed.set(!collapsed())" pTooltip="收起/展开侧栏" tooltipPosition="bottom" ariaLabel="切换侧栏">
             <app-icon name="menu" />
           </p-button>
-          <p-button class="show-mobile" [text]="true" severity="secondary" (onClick)="mobileOpen.set(true)" ariaLabel="打开菜单">
+          <p-button class="show-mobile icon-btn" [text]="true" severity="secondary" (onClick)="mobileOpen.set(true)" ariaLabel="打开菜单">
             <app-icon name="menu" />
           </p-button>
           <p-breadcrumb class="hide-mobile" [model]="crumbs()" [home]="home" />
@@ -81,7 +81,7 @@ interface NavItem {
             <p-inputicon><app-icon name="search" [size]="14" /></p-inputicon>
             <input pInputText type="text" placeholder="搜索..." pSize="small" />
           </p-iconfield>
-          <p-button [text]="true" severity="secondary" (onClick)="notif.toggle($event)" ariaLabel="通知">
+          <p-button class="icon-btn" [text]="true" severity="secondary" (onClick)="notif.toggle($event)" ariaLabel="通知">
             <p-overlaybadge [value]="unread" severity="danger" size="small">
               <app-icon name="bell" />
             </p-overlaybadge>
@@ -97,10 +97,10 @@ interface NavItem {
               }
             </div>
           </p-popover>
-          <p-button [text]="true" severity="secondary" (onClick)="toggleTheme()" pTooltip="切换主题" tooltipPosition="bottom" ariaLabel="切换主题">
+          <p-button class="icon-btn" [text]="true" severity="secondary" (onClick)="toggleTheme()" pTooltip="切换主题" tooltipPosition="bottom" ariaLabel="切换主题">
             <app-icon [name]="settings.dark() ? 'sun' : 'moon'" />
           </p-button>
-          <p-button [text]="true" [rounded]="true" severity="secondary" (onClick)="userMenu.toggle($event)" ariaLabel="用户菜单">
+          <p-button class="icon-btn" [text]="true" [rounded]="true" severity="secondary" (onClick)="userMenu.toggle($event)" ariaLabel="用户菜单">
             <p-avatar [label]="me.name.slice(0, 1)" shape="circle" size="normal" />
           </p-button>
           <p-menu #userMenu [model]="userItems" [popup]="true" appendTo="body" />

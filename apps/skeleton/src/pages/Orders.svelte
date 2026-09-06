@@ -193,7 +193,7 @@
         <Popover.Content class="card p-3 bg-surface-100-900 shadow-xl space-y-2 w-40">
           {#each allColumns as c (c.key)}
             <Switch checked={!hidden.includes(c.key)} onCheckedChange={() => toggleColumn(c.key)} class="flex items-center justify-between w-full py-3 text-sm">
-              <Switch.Label>{c.label}</Switch.Label>
+              <Switch.Label class="text-sm">{c.label}</Switch.Label>
               <Switch.Control><Switch.Thumb /></Switch.Control>
               <Switch.HiddenInput />
             </Switch>

@@ -347,7 +347,7 @@
             <dt class="opacity-60">附件</dt><dd>{files.length} 个文件</dd>
           </dl>
           <Switch checked={notify} onCheckedChange={(d) => (notify = d.checked)} class="flex items-center justify-between w-full py-3 text-sm">
-            <Switch.Label>创建后通知团队成员</Switch.Label>
+            <Switch.Label class="text-sm">创建后通知团队成员</Switch.Label>
             <Switch.Control><Switch.Thumb /></Switch.Control>
             <Switch.HiddenInput />
           </Switch>

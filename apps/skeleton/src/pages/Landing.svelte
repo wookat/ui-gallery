@@ -210,7 +210,7 @@
       {#each footerColumns as [title, links] (title)}
         <div class="space-y-2">
           <p class="font-medium">{title}</p>
-        <ul class="space-y-1 opacity-70">{#each links as [href, label] (label)}<li><a class="inline-flex min-w-10 items-center min-h-10 hover:text-primary-500" {href} use:link>{label}</a></li>{/each}</ul>
+          <ul class="space-y-1 opacity-70">{#each links as [href, label] (label)}<li><a class="inline-flex min-w-10 items-center min-h-10 hover:text-primary-500" {href} use:link>{label}</a></li>{/each}</ul>
         </div>
       {/each}
     </div>

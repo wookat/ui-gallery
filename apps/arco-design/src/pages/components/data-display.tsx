@@ -29,11 +29,11 @@ export function DataDisplayDemo({ name }: DemoProps) {
 const columns = [{ title: "订单号", dataIndex: "id" }, { title: "客户", dataIndex: "customer" }, { title: "金额", dataIndex: "amount", render: (value: number) => `¥${value.toFixed(2)}` }, { title: "状态", dataIndex: "status", render: (value: string) => <StatusTag value={value} /> }]
 
 function TableDemo() {
-  return <DemoSection><div className="scroll-x"><Table rowKey="id" data={orderRows.slice(0, 4)} columns={columns} pagination={false} size="small" /><Table rowKey="id" data={orderRows.slice(0, 2)} columns={columns} pagination={false} size="mini" border={{ wrapper: true, cell: true }} stripe style={{ marginTop: 16 }} /><Table rowKey="id" data={[]} columns={columns} pagination={false} loading style={{ marginTop: 16 }} /></div><Empty description="空表格状态" /></DemoSection>
+  return <DemoSection><div className="scroll-x"><Table rowKey="id" data={orderRows.slice(0, 4)} columns={columns} pagination={false} size="small" scroll={{ x: 520 }} /><Table rowKey="id" data={orderRows.slice(0, 2)} columns={columns} pagination={false} size="mini" border={{ wrapper: true, cell: true }} stripe style={{ marginTop: 16 }} scroll={{ x: 520 }} /><Table rowKey="id" data={[]} columns={columns} pagination={false} loading style={{ marginTop: 16 }} scroll={{ x: 520 }} /></div><Empty description="空表格状态" /></DemoSection>
 }
 
 function DataGridDemo() {
-  return <div className="scroll-x"><Table rowKey="id" data={orderRows} columns={[{ ...columns[0], sorter: true }, { ...columns[1], filters: [{ text: "林晓", value: "林晓" }], onFilter: (value, row) => row.customer === value }, ...columns.slice(2)]} rowSelection={{}} pagination={{ pageSize: 5, showTotal: true }} expandedRowRender={(record) => <Typography.Text type="secondary">{record.product} · {record.channel} · {record.date}</Typography.Text>} /></div>
+  return <div className="scroll-x"><Table rowKey="id" data={orderRows} columns={[{ ...columns[0], sorter: true }, { ...columns[1], filters: [{ text: "林晓", value: "林晓" }], onFilter: (value, row) => row.customer === value }, ...columns.slice(2)]} rowSelection={{}} pagination={{ pageSize: 5, showTotal: true }} expandedRowRender={(record) => <Typography.Text type="secondary">{record.product} · {record.channel} · {record.date}</Typography.Text>} scroll={{ x: 640 }} /></div>
 }
 
 function DescriptionsDemo() {
@@ -77,7 +77,7 @@ function TreeDemo() {
 }
 
 function CalendarDemo() {
-  return <DemoSection><Calendar /><Calendar panel style={{ marginTop: 16 }} /></DemoSection>
+  return <DemoSection><div className="scroll-x calendar-demo"><Calendar /></div><div className="scroll-x calendar-demo"><Calendar panel style={{ marginTop: 16 }} /></div></DemoSection>
 }
 
 function ImageDemo() {

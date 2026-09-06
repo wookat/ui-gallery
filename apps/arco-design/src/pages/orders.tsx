@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Alert, Button, Card, DatePicker, Descriptions, Drawer, Dropdown, Empty, Input, Menu, Message, Popconfirm, Result, Select, Skeleton, Space, Table, Tabs, Timeline } from "@arco-design/web-react"
+import { Alert, Button, Card, DatePicker, Descriptions, Drawer, Dropdown, Empty, Input, Menu, Message, Modal, Popconfirm, Select, Skeleton, Space, Table, Tabs, Timeline } from "@arco-design/web-react"
 import orders from "@ui-gallery/spec/mock/orders.json"
 import { Icon } from "@/components/icon"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -20,9 +20,9 @@ export function OrdersPage() {
     { title: "产品", dataIndex: "product" },
     { title: "状态", dataIndex: "status", filters: ["paid", "pending", "refunded", "failed", "shipped"].map((value) => ({ text: value, value })), render: (value: unknown) => <StatusBadge value={String(value)} /> },
     { title: "金额", dataIndex: "amount", align: "right" as const, render: (value: unknown) => `¥${Number(value).toLocaleString()}` },
-    { title: "操作", render: () => <Dropdown droplist={<Menu><Menu.Item key="edit">编辑</Menu.Item><Menu.Item key="copy">复制订单</Menu.Item><Menu.Item key="delete">删除</Menu.Item></Menu>}><Button type="text" className="hit-area" icon={<Icon name="more-horizontal" />} aria-label="行操作" onClick={(event) => event.stopPropagation()} /></Dropdown> },
+    { title: "操作", render: (_: unknown, record: Order) => <Dropdown droplist={<Menu onClickMenuItem={(key, event) => { event?.stopPropagation(); if (key === "edit") setSelected(record); if (key === "copy") Message.success(`已复制订单 ${record.id}`); if (key === "delete") Modal.confirm({ title: "确定删除订单吗？", content: `订单 ${record.id} 删除后不可恢复。`, okButtonProps: { status: "danger" }, onOk: () => { Message.success("订单已删除") } }) }}><Menu.Item key="edit">编辑</Menu.Item><Menu.Item key="copy">复制订单</Menu.Item><Menu.Item key="delete">删除</Menu.Item></Menu>}><Button type="text" className="hit-area" icon={<Icon name="more-horizontal" />} aria-label="行操作" onClick={(event) => event.stopPropagation()} /></Dropdown> },
   ]
-  const stateContent = mode === "loading" ? <Skeleton text={{ rows: 5 }} /> : mode === "empty" ? <Empty description="暂无订单" /> : mode === "error" ? <Result status="error" title="加载失败" subTitle="请稍后重试" /> : <div className="scroll-x orders-table"><Table rowKey="id" columns={columns} data={filtered} rowSelection={{}} scroll={{ x: 760 }} pagination={{ defaultPageSize: 8, sizeOptions: [8, 16, 32], sizeCanChange: true, showTotal: !isMobile, showJumper: !isMobile, simple: isMobile }} onRow={(record) => ({ onClick: () => setSelected(record) })} /></div>
+  const stateContent = mode === "loading" ? <Skeleton text={{ rows: 5 }} /> : mode === "empty" ? <Empty description="暂无订单" /> : mode === "error" ? <Alert type="error" title="加载失败" content="订单数据加载失败，请重试。" action={<Button size="small" type="primary" status="danger" onClick={() => setMode("all")}>重试</Button>} /> : <div className="scroll-x orders-table"><Table rowKey="id" columns={columns} data={filtered} rowSelection={{}} scroll={{ x: 760 }} pagination={{ defaultPageSize: 8, sizeOptions: [8, 16, 32], sizeCanChange: true, showTotal: !isMobile, showJumper: !isMobile, simple: isMobile }} onRow={(record) => ({ onClick: () => setSelected(record) })} /></div>
   return (
     <>
       <PageHeader title="订单管理" description="搜索、筛选并查看全部订单。" action={<Button size="large" className="hit-area" icon={<Icon name="download" />}>导出</Button>} />

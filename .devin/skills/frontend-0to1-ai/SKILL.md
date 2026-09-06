@@ -63,6 +63,7 @@ export FE01_STACK_HINT="React 19 + Vite + Tailwind v4 + shadcn（无样式基座
 export FE01_DEPLOY_CMD="pnpm exec wrangler deploy"   # 留空则不部署
 export FE01_MAX_CONCURRENT=12                        # 组织并发上限 100，勿设太高
 export FE01_MAX_SCREENS=12                           # 单轮最多屏数；更多屏分轮
+export FE01_APP_DIR=apps/reference   # 工程目录（monorepo 时用；默认 . = 仓库根）
 export FE01_SKILL_URL=https://github.com/wookat/company-os/tree/main/skills/frontend-0to1-ai  # 子会话读模板的位置
 ```
 

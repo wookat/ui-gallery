@@ -23,6 +23,7 @@ STACK = os.environ.get("FE01_STACK_HINT", "React 19 + Vite + TypeScript + Tailwi
 DEPLOY_CMD = os.environ.get("FE01_DEPLOY_CMD", "")
 MAX_CONCURRENT = int(os.environ.get("FE01_MAX_CONCURRENT", "12"))
 MAX_SCREENS = int(os.environ.get("FE01_MAX_SCREENS", "12"))
+APP_DIR = os.environ.get("FE01_APP_DIR", ".").strip("/") or "."
 SKILL_URL = os.environ.get("FE01_SKILL_URL", "https://github.com/wookat/company-os/tree/main/skills/frontend-0to1-ai")
 
 _brief_in = os.environ["FE01_BRIEF_INPUT"]
@@ -113,6 +114,7 @@ RELEASE_SCHEMA = {
 # ---------- 公共规则 ----------
 COMMON = f"""
 仓库：https://{REPO} ；集成分支 `{INT}`（不存在则从 `{BASE}` 切出）。方法论与模板：{SKILL_URL}（SKILL.md、templates/brief.md、templates/tokens.json、templates/ai-context.md、templates/visual-qa.md）——开工前先读；若目标仓库内有 `.devin/skills/frontend-0to1-ai/` 副本则优先读它。
+目录约定：`docs/frontend/`、`design/`、`content/`、`mock/` 在仓库根；工程目录为 `{APP_DIR}/`（prompt 中的 `src/`、`tools/*.mjs`、`AGENTS.md`、`pnpm lint/typecheck/build` 均相对于该目录；`.` 表示就是仓库根）。
 硬性规则：
 - 只做本阶段的事：设计阶段（0–3）不得写业务实现代码；实现阶段不得改设计稿与令牌（有问题写进 notes 交回）。
 - 禁止 lorem ipsum / 随机数字 / 占位人名头像；内容来自 docs/frontend/00-brief.md 指向的 content/ 与 mock/。

@@ -33,7 +33,7 @@ export function DashboardPage() {
       </Tabs>
       <Grid.Row gutter={[16, 16]}>
         {stats.map((item) => <Grid.Col key={item.key} xs={24} sm={12} xl={6}><Card>
-          <div className="between"><Typography.Text type="secondary">{item.label}</Typography.Text><Badge count={`${item.delta > 0 ? "+" : ""}${item.delta}%`} /></div>
+          <div className="between"><Typography.Text type="secondary">{item.label}</Typography.Text><Badge text={`${item.delta > 0 ? "+" : ""}${item.delta}%`} color={item.delta >= 0 ? "green" : "red"} /></div>
           <Typography.Title heading={3}>{item.unit === "CNY" ? `¥${item.value.toLocaleString()}` : `${item.value}${item.unit ?? ""}`}</Typography.Title>
           <div style={{ height: 48 }}><ResponsiveContainer width="100%" height="100%"><AreaChart data={item.trend.map((value, index) => ({ value, index }))}><Area dataKey="value" isAnimationActive={false} stroke="rgb(var(--primary-6))" fill="rgb(var(--primary-6))" fillOpacity={0.12} /></AreaChart></ResponsiveContainer></div>
         </Card></Grid.Col>)}

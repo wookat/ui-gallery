@@ -327,6 +327,13 @@ html.gallery-font [class^="arco-"] {
 
 .chat-bubble pre {
   padding-right: 48px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.chat-bubble pre code {
+  white-space: inherit;
 }
 
 .size-row-item {
@@ -682,6 +689,70 @@ html.gallery-font [class^="arco-"] {
 
   .chat-message {
     max-width: 95%;
+  }
+
+  /* Contract: >= 40px touch targets on the mobile viewport. */
+  .arco-btn-size-large,
+  .arco-input-size-large,
+  .arco-input-inner-wrapper-size-large,
+  .arco-input-group-wrapper-size-large .arco-input-inner-wrapper,
+  .arco-input-group-wrapper-size-large .arco-input-group-addbefore,
+  .arco-input-group-wrapper-size-large .arco-input-group-addafter,
+  .arco-input-number-size-large .arco-input-inner-wrapper,
+  .arco-select-size-large .arco-select-view,
+  .arco-picker-size-large,
+  .arco-input-tag-size-large,
+  .arco-pagination-item {
+    min-height: 40px;
+  }
+
+  .arco-input-size-large,
+  .arco-input-inner-wrapper-size-large .arco-input,
+  .arco-select-size-large .arco-select-view,
+  .arco-select-size-large .arco-select-view-input,
+  .arco-select-size-large .arco-select-view-value {
+    line-height: 38px;
+  }
+
+  .arco-checkbox,
+  .arco-radio {
+    display: inline-flex;
+    align-items: center;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .arco-checkbox-group .arco-checkbox,
+  .arco-radio-group .arco-radio {
+    margin-right: 12px;
+  }
+
+  .arco-table-th .arco-checkbox,
+  .arco-table-td .arco-checkbox {
+    justify-content: center;
+    margin: -8px 0;
+  }
+
+  .arco-tabs-header-title {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+
+  .arco-tabs-type-capsule .arco-tabs-header-title {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .arco-switch {
+    box-sizing: content-box;
+    padding: 8px 0;
+    background-clip: content-box;
+  }
+
+  .arco-switch .arco-switch-dot {
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .components-layout {

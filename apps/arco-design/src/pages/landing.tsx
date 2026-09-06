@@ -22,6 +22,6 @@ export function LandingPage() {
       <section id="faq" className="landing-section faq"><Typography.Title heading={2}>常见问题</Typography.Title><Collapse accordion>{landing.faq.map((item) => <Collapse.Item key={item.q} name={item.q} header={item.q}>{item.a}</Collapse.Item>)}</Collapse></section>
       <section className="landing-cta"><Typography.Title heading={2}>准备好让团队更高效了吗？</Typography.Title><Typography.Paragraph>从今天开始，把工作放进一个控制台。</Typography.Paragraph><Button type="primary" size="large" onClick={() => navigate("/login")}>免费开始 <Icon name="arrow-right" /></Button></section>
     </main>
-    <footer className="landing-footer"><Typography.Text>© 2026 Acme Console</Typography.Text><Space><a href="#features">产品</a><a href="#pricing">价格</a><a href="#faq">帮助中心</a><Select size="small" defaultValue="zh" options={[{ label: "中文", value: "zh" }, { label: "English", value: "en" }]} /></Space></footer>
+    <footer className="landing-footer"><Typography.Text>© 2026 Acme Console</Typography.Text><Space><a href="#features">产品</a><a href="#pricing">价格</a><a href="#faq">帮助中心</a><Select defaultValue="zh" options={[{ label: "中文", value: "zh" }, { label: "English", value: "en" }]} /></Space></footer>
   </div>
 }

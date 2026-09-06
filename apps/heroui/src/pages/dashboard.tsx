@@ -1,4 +1,4 @@
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Avatar, Button, Card, Chip, Label, ProgressBar, ScrollShadow, Skeleton, Table, Tabs } from "@heroui/react"
 import { Icon } from "@/components/icon"
 import activity from "@ui-gallery/spec/mock/activity.json"
@@ -65,6 +65,16 @@ export function DashboardPage() {
               </ProgressBar>
             ))}
           </Card.Content>
+        </Card>
+      </div>
+      <div className="grid min-w-0 gap-4 md:grid-cols-2">
+        <Card className="min-w-0">
+          <Card.Header><Card.Title>订单柱状图</Card.Title><Card.Description>按月份的订单数量</Card.Description></Card.Header>
+          <Card.Content><div className="h-64 min-w-0"><ResponsiveContainer width="100%" height="100%"><BarChart data={trend}><CartesianGrid vertical={false} stroke="var(--border)" /><XAxis dataKey="month" stroke="var(--muted)" tickLine={false} axisLine={false} /><YAxis stroke="var(--muted)" tickLine={false} axisLine={false} width={36} /><Tooltip /><Bar dataKey="orders" fill="var(--accent)" radius={[4, 4, 0, 0]} isAnimationActive={false} /></BarChart></ResponsiveContainer></div></Card.Content>
+        </Card>
+        <Card className="min-w-0">
+          <Card.Header><Card.Title>渠道占比</Card.Title><Card.Description>订单来源渠道分布</Card.Description></Card.Header>
+          <Card.Content><div className="h-64 min-w-0"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={series.byChannel} dataKey="value" nameKey="name" innerRadius="55%" outerRadius="78%" paddingAngle={2} isAnimationActive={false}>{series.byChannel.map((item, index) => <Cell key={item.name} fill={["var(--accent)", "var(--success)", "var(--warning)", "var(--danger)"][index % 4]} />)}</Pie><Tooltip /></PieChart></ResponsiveContainer></div></Card.Content>
         </Card>
       </div>
       <div className="grid min-w-0 gap-4 xl:grid-cols-[repeat(2,minmax(0,1fr))]">

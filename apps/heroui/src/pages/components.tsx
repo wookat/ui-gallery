@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { Accordion, Alert, AlertDialog, Autocomplete, Avatar, Badge, Breadcrumbs, Button, ButtonGroup, Calendar, Card, Checkbox, CheckboxGroup, Chip, CloseButton, ColorArea, ColorPicker, ColorSlider, ColorSwatch, ComboBox, DateField, DatePicker, DateRangePicker, Description, Disclosure, Drawer, Dropdown, EmptyState, FieldError, Fieldset, Form, Input, InputGroup, InputOTP, Kbd, Label, Link, ListBox, Menu, Meter, Modal, NumberField, Pagination, Popover, ProgressBar, ProgressCircle, Radio, RadioGroup, RangeCalendar, ScrollShadow, SearchField, Select, Separator, Skeleton, Slider, Spinner, Surface, Switch, Table, Tabs, Tag, TagGroup, TextArea, TextField, TimeField, toast, ToggleButton, ToggleButtonGroup, Toolbar, Tooltip, Typography } from "@heroui/react"
+import { Accordion, Alert, AlertDialog, Autocomplete, Avatar, Badge, Breadcrumbs, Button, ButtonGroup, Calendar, CalendarYearPicker, Card, Checkbox, CheckboxGroup, Chip, CloseButton, ColorArea, ColorField, ColorPicker, ColorSlider, ColorSwatch, ColorSwatchPicker, ComboBox, DateField, DatePicker, DateRangePicker, Description, Disclosure, DisclosureGroup, Drawer, Dropdown, EmptyState, ErrorMessage, FieldError, Fieldset, Form, Header, Input, InputGroup, InputOTP, Kbd, Label, Link, ListBox, Menu, Meter, Modal, NumberField, Pagination, Popover, ProgressBar, ProgressCircle, Radio, RadioGroup, RangeCalendar, ScrollShadow, SearchField, Select, Separator, Skeleton, Slider, Spinner, Surface, Switch, SwitchGroup, Table, Tabs, Tag, TagGroup, TextArea, TextField, TimeField, toast, ToggleButton, ToggleButtonGroup, Toolbar, Tooltip, Typography } from "@heroui/react"
 import { Icon } from "@/components/icon"
 import contract from "@ui-gallery/spec/contract.json"
 import team from "@ui-gallery/spec/mock/team.json"
@@ -7,8 +7,126 @@ import orders from "@ui-gallery/spec/mock/orders.json"
 import { coverage } from "../coverage"
 import { PageHeader, StatusBadge } from "./shared"
 
-const nativeExtras = ["Chip", "CheckboxGroup", "SwitchGroup", "TagGroup", "Toolbar", "Disclosure", "DisclosureGroup", "Meter", "ProgressCircle", "RangeCalendar", "SearchField", "Surface", "ScrollShadow", "CloseButton", "Fieldset", "InputGroup", "ColorArea", "ColorSlider", "ColorSwatch", "ColorField", "AlertDialog", "ListBox", "ToggleButton", "ToggleButtonGroup", "Header", "Description", "ErrorMessage", "FieldError"]
+const nativeExtras = ["Chip", "CheckboxGroup", "SwitchGroup", "TagGroup", "Toolbar", "Disclosure", "DisclosureGroup", "Meter", "ProgressCircle", "RangeCalendar", "SearchField", "Surface", "ScrollShadow", "CloseButton", "Fieldset", "InputGroup", "ColorArea", "ColorSlider", "ColorSwatch", "ColorSwatchPicker", "ColorField", "CalendarYearPicker", "AlertDialog", "ListBox", "ToggleButton", "ToggleButtonGroup", "Header", "Description", "ErrorMessage", "FieldError"]
+const nativeNotes: Record<string, string> = {
+  Chip: "default/secondary Chip",
+  CheckboxGroup: "secondary variant · two choices",
+  SwitchGroup: "通知开关组",
+  TagGroup: "可移除标签组",
+  Toolbar: "ToggleButton 工具栏",
+  Disclosure: "单项可展开内容",
+  DisclosureGroup: "多项可展开内容",
+  Meter: "64% Meter",
+  ProgressCircle: "sm/md 圆形进度",
+  RangeCalendar: "日期范围日历",
+  SearchField: "搜索图标、输入与清除",
+  Surface: "secondary/tertiary Surface",
+  ScrollShadow: "可滚动成员列表",
+  CloseButton: "关闭按钮",
+  Fieldset: "Legend 与字段组",
+  InputGroup: "前缀、输入、后缀",
+  ColorArea: "HSB 饱和度/亮度区域",
+  ColorSlider: "HSB 色相滑块",
+  ColorSwatch: "三个颜色色块",
+  ColorSwatchPicker: "三个可选颜色色块",
+  ColorField: "颜色输入字段",
+  CalendarYearPicker: "Calendar 年份触发器与年份网格",
+  AlertDialog: "危险确认对话框",
+  ListBox: "单选列表",
+  ToggleButton: "未选中/已选中",
+  ToggleButtonGroup: "多选切换组",
+  Header: "分组标题",
+  Description: "辅助说明文本",
+  ErrorMessage: "错误提示文本",
+  FieldError: "字段错误文本",
+}
 const items = [{ id: "one", label: "选项一" }, { id: "two", label: "选项二" }, { id: "three", label: "选项三" }]
+const variantNotes: Record<string, string> = {
+  Typography: "h1–h6、body、body-sm、Paragraph、Prose、caption、blockquote、ul/ol",
+  Button: "primary/secondary/tertiary/outline/ghost/danger · sm/md/lg · pending · disabled · ButtonGroup",
+  ButtonGroup: "primary 与 secondary · sm · 横向分组",
+  IconButton: "primary/secondary/ghost/danger · sm · icon-only",
+  Input: "default · disabled · invalid · FieldError",
+  Textarea: "default 多行输入",
+  NumberInput: "步进器 · minValue · 增减按钮",
+  Select: "单选 · ListBox · 默认值",
+  MultiSelect: "multiple · 双选项 · ListBox",
+  Combobox: "可输入筛选 · 默认选项",
+  Autocomplete: "搜索筛选 · 清除 · 弹出列表",
+  Checkbox: "checked/unchecked/disabled · secondary",
+  Radio: "selected/unselected/disabled · secondary",
+  Switch: "selected/unselected/disabled",
+  Slider: "range · 双 Thumb · 输出值",
+  Rating: "组合 ToggleButtonGroup · 1–5 星",
+  DatePicker: "日期输入 · Calendar 弹出层",
+  TimePicker: "时间字段",
+  DateRangePicker: "起止日期 · RangeCalendar",
+  ColorPicker: "ColorArea · ColorSlider · ColorSwatch",
+  Upload: "组合拖拽区 · 多文件列表",
+  Cascader: "组合 Select · 层级选项",
+  Transfer: "组合双 ListBox",
+  Mention: "HeroUI 未提供，标记为 missing",
+  PinInput: "InputOTP · 数字输入槽",
+  Form: "字段校验 · FieldError · 提交状态",
+  Table: "排序 · 多选 · mock orders 行",
+  DataGrid: "由 Table 与 Tailwind 组合实现",
+  Descriptions: "由 dl/dt/dd 与 Tailwind 组合实现",
+  List: "ListBox · 分组与选中状态",
+  Card: "secondary · Header/Content/Footer",
+  Avatar: "sm/md/lg · fallback · Badge 状态点",
+  AvatarGroup: "由 Avatar 与 Tailwind 组合实现",
+  Badge: "danger/success/accent · sm · icon/avatar anchors",
+  Tag: "TagGroup 可选/可移除 · Chip 多颜色/变体/尺寸",
+  Statistic: "由 Card 与 Typography 组合实现",
+  Timeline: "由列表与 Separator 组合实现",
+  Tree: "HeroUI 未提供，标记为 missing",
+  Calendar: "月份网格 · 前后导航",
+  Image: "由 aspect-video 与 Tailwind 组合实现",
+  Carousel: "由 ScrollShadow 与 Surface 组合实现",
+  Empty: "EmptyState · 空结果",
+  Tooltip: "默认提示 · 常开提示",
+  Popover: "默认弹出层 · Dialog 内容",
+  QRCode: "HeroUI 未提供，标记为 missing",
+  Segmented: "ToggleButtonGroup · single selection",
+  Alert: "default/accent/success/warning/danger · title/description",
+  Toast: "default/success/warning/danger · 触发按钮",
+  Notification: "toast.info · description",
+  Dialog: "default · scrollable · fullscreen",
+  Drawer: "left/right/top/bottom placements",
+  Progress: "ProgressBar determinate/indeterminate · sizes · ProgressCircle · Steps",
+  Skeleton: "圆形与文本骨架",
+  Spinner: "sm/md/lg · accent",
+  Result: "由 EmptyState 与 Button 组合实现",
+  Popconfirm: "Popover · danger/secondary actions",
+  Menu: "vertical · sections · multiple selection",
+  Dropdown: "trigger · Menu · action items",
+  Breadcrumb: "首页 · 订单 · 详情",
+  Tabs: "primary 概览/分析/禁用 · secondary vertical",
+  Pagination: "上一页/下一页 · active page",
+  Steps: "由 ol、圆点与 Separator 组合实现",
+  Anchor: "由 Link 与边框组合实现",
+  BackTop: "由 Button 与滚动行为组合实现",
+  Affix: "由 sticky 与滚动容器组合实现",
+  Navbar: "由 Surface、Link、Button 组合实现",
+  Sidebar: "由 Surface、ListBox 组合实现",
+  CommandPalette: "由 Modal、Autocomplete、Kbd 组合实现",
+  Grid: "由 CSS Grid 与 Surface 组合实现",
+  Stack: "由 flex-col 与 Surface 组合实现",
+  Layout: "由 CSS Grid 与 Surface 组合实现",
+  Container: "由 Surface 与 max-width 组合实现",
+  AspectRatio: "由 aspect-video 与 Surface 组合实现",
+  Resizable: "HeroUI 未提供，标记为 missing",
+  ScrollArea: "ScrollShadow · 长列表",
+  Accordion: "展开/收起 · 两个项目",
+  ThemeProvider: "由 light/dark 作用域组合实现",
+  Watermark: "HeroUI 未提供，标记为 missing",
+  Tour: "HeroUI 未提供，标记为 missing",
+  FloatButton: "由 icon-only Button 与定位组合实现",
+  Kbd: "command/shift/Esc 快捷键",
+  Code: "由 code 与 Surface 组合实现",
+  Divider: "水平/垂直 Separator",
+  Link: "默认/禁用/外部链接",
+}
 
 const CalendarBody = () => (
   <>
@@ -35,7 +153,7 @@ function Buttons() {
 
 function Demo({ name }: { name: string }): ReactNode {
   switch (name) {
-    case "Typography": return <div className="space-y-1"><Typography type="h3">标题文字</Typography><Typography type="body" className="text-muted">正文与辅助说明。</Typography><Typography type="body-sm">body-sm 文本</Typography></div>
+    case "Typography": return <div className="space-y-2"><div className="grid gap-1">{(["h1", "h2", "h3", "h4", "h5", "h6"] as const).map((type) => <Typography key={type} type={type}>{type} 标题</Typography>)}</div><Typography type="body">body 正文</Typography><Typography type="body-sm" className="text-muted">body-sm 辅助文本</Typography><Typography.Paragraph>Paragraph 段落</Typography.Paragraph><Typography.Prose><p>Prose 内容</p><ul><li>Prose 列表</li></ul></Typography.Prose><span className="text-xs text-muted">caption 注释</span><blockquote className="border-l-2 border-accent pl-3 text-sm text-muted">引用内容</blockquote><ul className="list-disc pl-5 text-sm"><li>无序列表</li><li>第二项</li></ul><ol className="list-decimal pl-5 text-sm"><li>有序列表</li><li>第二项</li></ol></div>
     case "Button": return <Buttons />
     case "ButtonGroup": return <div className="space-y-2"><ButtonGroup><Button>保存</Button><Button>另存为</Button><Button>取消</Button></ButtonGroup><ButtonGroup variant="secondary" size="sm"><Button>日</Button><Button>周</Button><Button>月</Button></ButtonGroup></div>
     case "IconButton": return <div className="flex gap-2"><Button isIconOnly aria-label="添加"><Icon name="plus" size={16} /></Button><Button isIconOnly variant="secondary" aria-label="编辑"><Icon name="pencil" size={16} /></Button><Button isIconOnly variant="ghost" size="sm" aria-label="更多"><Icon name="more-horizontal" size={16} /></Button><Button isIconOnly variant="danger" aria-label="删除"><Icon name="trash" size={16} /></Button></div>
@@ -46,8 +164,8 @@ function Demo({ name }: { name: string }): ReactNode {
     case "MultiSelect": return <Select selectionMode="multiple" defaultValue={["one", "two"]}><Label>多选（Select selectionMode=multiple）</Label><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><Options /></Select.Popover></Select>
     case "Combobox": return <ComboBox defaultItems={items}><Label>组合框</Label><ComboBox.InputGroup><Input placeholder="输入或选择" /><ComboBox.Trigger /></ComboBox.InputGroup><ComboBox.Popover><ListBox>{(item: (typeof items)[number]) => <ListBox.Item id={item.id} textValue={item.label}>{item.label}<ListBox.ItemIndicator /></ListBox.Item>}</ListBox></ComboBox.Popover></ComboBox>
     case "Autocomplete": return <Autocomplete><Label>自动补全</Label><Autocomplete.Trigger><Autocomplete.Value /><Autocomplete.ClearButton /><Autocomplete.Indicator /></Autocomplete.Trigger><Autocomplete.Popover><Autocomplete.Filter><SearchField aria-label="搜索"><SearchField.Group><SearchField.SearchIcon /><SearchField.Input placeholder="搜索..." /></SearchField.Group></SearchField><Options /></Autocomplete.Filter></Autocomplete.Popover></Autocomplete>
-    case "Checkbox": return <CheckboxGroup defaultValue={["a"]}><Label>复选</Label><Checkbox value="a"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control>已选择</Checkbox.Content></Checkbox><Checkbox value="b"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control>未选择</Checkbox.Content></Checkbox><Checkbox value="c" isDisabled><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control>禁用</Checkbox.Content></Checkbox></CheckboxGroup>
-    case "Radio": return <RadioGroup defaultValue="one"><Label>单选组</Label><Radio value="one"><Radio.Content><Radio.Control><Radio.Indicator /></Radio.Control>选项一</Radio.Content></Radio><Radio value="two"><Radio.Content><Radio.Control><Radio.Indicator /></Radio.Control>选项二</Radio.Content></Radio><Radio value="three" isDisabled><Radio.Content><Radio.Control><Radio.Indicator /></Radio.Control>禁用</Radio.Content></Radio></RadioGroup>
+    case "Checkbox": return <CheckboxGroup variant="secondary" defaultValue={["a"]}><Label>复选</Label><Checkbox value="a" variant="secondary"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control>已选择</Checkbox.Content></Checkbox><Checkbox value="b" variant="secondary"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control>未选择</Checkbox.Content></Checkbox><Checkbox value="c" variant="secondary" isDisabled><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control>禁用</Checkbox.Content></Checkbox></CheckboxGroup>
+    case "Radio": return <RadioGroup variant="secondary" defaultValue="one"><Label>单选组</Label><Radio value="one"><Radio.Content><Radio.Control><Radio.Indicator /></Radio.Control>选项一</Radio.Content></Radio><Radio value="two"><Radio.Content><Radio.Control><Radio.Indicator /></Radio.Control>选项二</Radio.Content></Radio><Radio value="three" isDisabled><Radio.Content><Radio.Control><Radio.Indicator /></Radio.Control>禁用</Radio.Content></Radio></RadioGroup>
     case "Switch": return <div className="flex gap-4"><Switch defaultSelected aria-label="开"><Switch.Control><Switch.Thumb /></Switch.Control></Switch><Switch aria-label="关"><Switch.Control><Switch.Thumb /></Switch.Control></Switch><Switch isDisabled aria-label="禁用"><Switch.Control><Switch.Thumb /></Switch.Control></Switch><Switch size="sm" defaultSelected aria-label="小"><Switch.Control><Switch.Thumb /></Switch.Control></Switch></div>
     case "Slider": return <Slider defaultValue={[20, 70]} maxValue={100}><Label>范围</Label><Slider.Output /><Slider.Track>{({ state }) => <><Slider.Fill />{state.values.map((_, i) => <Slider.Thumb key={i} index={i} />)}</>}</Slider.Track></Slider>
     case "Rating": return <ToggleButtonGroup selectionMode="multiple" defaultSelectedKeys={["1", "2", "3", "4"]} aria-label="评分">{["1", "2", "3", "4", "5"].map((v) => <ToggleButton key={v} id={v} isIconOnly aria-label={`${v} 星`}><Icon name="star" size={16} /></ToggleButton>)}</ToggleButtonGroup>
@@ -80,17 +198,17 @@ function Demo({ name }: { name: string }): ReactNode {
     case "Alert": return <div className="grid gap-2">{(["default", "accent", "success", "warning", "danger"] as const).map((s) => <Alert key={s} status={s}><Alert.Indicator /><Alert.Content><Alert.Title>{s}</Alert.Title><Alert.Description>状态提示。</Alert.Description></Alert.Content></Alert>)}</div>
     case "Toast": return <div className="flex flex-wrap gap-2"><Button size="sm" onPress={() => toast("默认提示")}>default</Button><Button size="sm" variant="secondary" onPress={() => toast.success("操作成功")}>success</Button><Button size="sm" variant="secondary" onPress={() => toast.warning("注意")}>warning</Button><Button size="sm" variant="danger-soft" onPress={() => toast.danger("出错了")}>danger</Button></div>
     case "Notification": return <Button size="sm" variant="secondary" onPress={() => toast.info("新的订单已到达", { description: `${orders[0].customer} · ¥${orders[0].amount.toLocaleString()}` })}>发送通知（toast + description）</Button>
-    case "Dialog": return <div className="flex gap-2"><Modal><Button variant="secondary">Modal</Button><Modal.Backdrop><Modal.Container><Modal.Dialog><Modal.CloseTrigger /><Modal.Header><Modal.Heading>对话框</Modal.Heading></Modal.Header><Modal.Body>HeroUI Modal 内容。</Modal.Body><Modal.Footer><Button slot="close" variant="secondary">关闭</Button></Modal.Footer></Modal.Dialog></Modal.Container></Modal.Backdrop></Modal><AlertDialog><Button variant="danger-soft">AlertDialog</Button><AlertDialog.Backdrop><AlertDialog.Container><AlertDialog.Dialog><AlertDialog.Header><AlertDialog.Icon status="danger" /><AlertDialog.Heading>确认？</AlertDialog.Heading></AlertDialog.Header><AlertDialog.Body>此操作不可撤销。</AlertDialog.Body><AlertDialog.Footer><Button slot="close" variant="secondary">取消</Button><Button slot="close" variant="danger">确认</Button></AlertDialog.Footer></AlertDialog.Dialog></AlertDialog.Container></AlertDialog.Backdrop></AlertDialog></div>
-    case "Drawer": return <Drawer><Button variant="secondary">打开 Drawer</Button><Drawer.Backdrop><Drawer.Content placement="right"><Drawer.Dialog><Drawer.CloseTrigger /><Drawer.Header><Drawer.Heading>抽屉</Drawer.Heading></Drawer.Header><Drawer.Body>HeroUI Drawer 内容。</Drawer.Body></Drawer.Dialog></Drawer.Content></Drawer.Backdrop></Drawer>
-    case "Progress": return <div className="flex items-center gap-4"><div className="flex-1 space-y-3"><ProgressBar value={64}><Label>进度</Label><ProgressBar.Output /><ProgressBar.Track><ProgressBar.Fill /></ProgressBar.Track></ProgressBar><Meter value={40}><Label>存储</Label><Meter.Output /><Meter.Track><Meter.Fill /></Meter.Track></Meter></div><ProgressCircle value={64} aria-label="圆形进度"><ProgressCircle.Track><ProgressCircle.TrackCircle /><ProgressCircle.FillCircle /></ProgressCircle.Track></ProgressCircle></div>
+    case "Dialog": return <div className="flex flex-wrap gap-2"><Modal><Button variant="secondary">默认</Button><Modal.Backdrop><Modal.Container><Modal.Dialog><Modal.CloseTrigger /><Modal.Header><Modal.Heading>默认对话框</Modal.Heading></Modal.Header><Modal.Body>HeroUI Modal 内容。</Modal.Body><Modal.Footer><Button slot="close" variant="secondary">关闭</Button></Modal.Footer></Modal.Dialog></Modal.Container></Modal.Backdrop></Modal><Modal><Button variant="secondary">可滚动</Button><Modal.Backdrop><Modal.Container scroll="inside"><Modal.Dialog><Modal.Header><Modal.Heading>可滚动内容</Modal.Heading></Modal.Header><Modal.Body className="max-h-48 overflow-y-auto">{Array.from({ length: 8 }, (_, index) => <p key={index}>滚动内容 {index + 1}</p>)}</Modal.Body></Modal.Dialog></Modal.Container></Modal.Backdrop></Modal><Modal><Button variant="secondary">全屏</Button><Modal.Backdrop><Modal.Container size="full" className="h-screen w-screen max-w-none"><Modal.Dialog><Modal.CloseTrigger /><Modal.Header><Modal.Heading>全屏对话框</Modal.Heading></Modal.Header><Modal.Body>全屏内容</Modal.Body></Modal.Dialog></Modal.Container></Modal.Backdrop></Modal></div>
+    case "Drawer": return <div className="flex flex-wrap gap-2">{(["left", "right", "top", "bottom"] as const).map((placement) => <Drawer key={placement}><Button variant="secondary">{placement} Drawer</Button><Drawer.Backdrop><Drawer.Content placement={placement}><Drawer.Dialog><Drawer.CloseTrigger /><Drawer.Header><Drawer.Heading>{placement} 抽屉</Drawer.Heading></Drawer.Header><Drawer.Body>HeroUI Drawer 内容。</Drawer.Body></Drawer.Dialog></Drawer.Content></Drawer.Backdrop></Drawer>)}</div>
+    case "Progress": return <div className="space-y-4"><div className="space-y-3"><ProgressBar value={64} size="sm"><Label>小尺寸</Label><ProgressBar.Output /><ProgressBar.Track><ProgressBar.Fill /></ProgressBar.Track></ProgressBar><ProgressBar value={42} size="lg"><Label>确定进度</Label><ProgressBar.Output /><ProgressBar.Track><ProgressBar.Fill /></ProgressBar.Track></ProgressBar><ProgressBar isIndeterminate><Label>加载中</Label><ProgressBar.Track><ProgressBar.Fill /></ProgressBar.Track></ProgressBar></div><div className="flex items-center gap-4"><ProgressCircle value={64} aria-label="圆形进度"><ProgressCircle.Track><ProgressCircle.TrackCircle /><ProgressCircle.FillCircle /></ProgressCircle.Track></ProgressCircle><ol className="flex items-center gap-2 text-xs">{["信息", "配置", "确认"].map((s, i) => <li key={s} className="flex items-center gap-1"><span className="grid size-6 place-items-center rounded-full bg-accent text-accent-foreground">{i + 1}</span>{s}</li>)}</ol></div></div>
     case "Skeleton": return <div className="flex gap-3"><Skeleton className="size-10 rounded-full" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-3/4 rounded-lg" /><Skeleton className="h-4 w-1/2 rounded-lg" /></div></div>
     case "Spinner": return <div className="flex items-center gap-4"><Spinner size="sm" /><Spinner /><Spinner size="lg" /><Spinner color="accent" /></div>
     case "Result": return <EmptyState className="py-6"><div className="mx-auto grid size-10 place-items-center rounded-full bg-success-soft text-success-soft-foreground"><Icon name="check" size={18} /></div><p className="mt-3 font-medium">提交成功</p><Button size="sm" className="mt-3">返回</Button></EmptyState>
     case "Popconfirm": return <Popover><Button variant="danger-soft" size="sm">删除</Button><Popover.Content><Popover.Dialog><Popover.Heading>确认删除？</Popover.Heading><div className="mt-3 flex gap-2"><Button slot="close" size="sm" variant="secondary">取消</Button><Button slot="close" size="sm" variant="danger">确认</Button></div></Popover.Dialog></Popover.Content></Popover>
-    case "Menu": return <Menu aria-label="菜单" className="max-w-56 rounded-xl border border-border p-1"><Menu.Item id="new"><Icon name="plus" size={16} /><Label>新建</Label><Kbd><Kbd.Abbr keyValue="command" />N</Kbd></Menu.Item><Menu.Item id="copy"><Icon name="copy" size={16} /><Label>复制</Label></Menu.Item><Menu.Item id="delete"><Icon name="trash" size={16} /><Label>删除</Label></Menu.Item></Menu>
+    case "Menu": return <div className="space-y-3"><Menu aria-label="菜单" className="max-w-56 rounded-xl border border-border p-1"><Menu.Section><Menu.Item id="new"><Icon name="plus" size={16} /><Label>新建</Label></Menu.Item><Menu.Item id="copy"><Icon name="copy" size={16} /><Label>复制</Label></Menu.Item></Menu.Section><Menu.Section><Menu.Item id="delete" variant="danger"><Icon name="trash" size={16} /><Label>删除</Label></Menu.Item></Menu.Section></Menu><Menu aria-label="多选菜单" selectionMode="multiple" className="max-w-56 rounded-xl border border-border p-1"><Menu.Item id="a"><Label>选项一</Label><Menu.ItemIndicator /></Menu.Item><Menu.Item id="b"><Label>选项二</Label><Menu.ItemIndicator /></Menu.Item></Menu></div>
     case "Dropdown": return <Dropdown><Button variant="secondary">下拉菜单<Icon name="chevron-down" size={16} /></Button><Dropdown.Popover><Dropdown.Menu aria-label="操作"><Dropdown.Item id="edit"><Label>编辑</Label></Dropdown.Item><Dropdown.Item id="dup"><Label>复制</Label></Dropdown.Item><Dropdown.Item id="del"><Label>删除</Label></Dropdown.Item></Dropdown.Menu></Dropdown.Popover></Dropdown>
     case "Breadcrumb": return <Breadcrumbs><Breadcrumbs.Item href="#">首页</Breadcrumbs.Item><Breadcrumbs.Item href="#">订单</Breadcrumbs.Item><Breadcrumbs.Item>{orders[0].id}</Breadcrumbs.Item></Breadcrumbs>
-    case "Tabs": return <Tabs defaultSelectedKey="a"><Tabs.ListContainer><Tabs.List aria-label="示例"><Tabs.Tab id="a">概览<Tabs.Indicator /></Tabs.Tab><Tabs.Tab id="b">分析<Tabs.Indicator /></Tabs.Tab><Tabs.Tab id="c" isDisabled>禁用<Tabs.Indicator /></Tabs.Tab></Tabs.List></Tabs.ListContainer><Tabs.Panel id="a" className="text-sm text-muted">概览内容</Tabs.Panel><Tabs.Panel id="b" className="text-sm text-muted">分析内容</Tabs.Panel></Tabs>
+    case "Tabs": return <div className="space-y-4"><Tabs variant="primary" defaultSelectedKey="a"><Tabs.ListContainer><Tabs.List aria-label="主选项"><Tabs.Tab id="a">概览<Tabs.Indicator /></Tabs.Tab><Tabs.Tab id="b">分析<Tabs.Indicator /></Tabs.Tab><Tabs.Tab id="c" isDisabled>禁用<Tabs.Indicator /></Tabs.Tab></Tabs.List></Tabs.ListContainer><Tabs.Panel id="a" className="text-sm text-muted">概览内容</Tabs.Panel><Tabs.Panel id="b" className="text-sm text-muted">分析内容</Tabs.Panel></Tabs><Tabs orientation="vertical" variant="secondary" defaultSelectedKey="a" className="min-h-20"><Tabs.ListContainer><Tabs.List aria-label="垂直选项"><Tabs.Tab id="a">概览<Tabs.Indicator /></Tabs.Tab><Tabs.Tab id="b">分析<Tabs.Indicator /></Tabs.Tab></Tabs.List></Tabs.ListContainer><Tabs.Panel id="a" className="text-sm text-muted">垂直内容</Tabs.Panel><Tabs.Panel id="b" className="text-sm text-muted">第二内容</Tabs.Panel></Tabs></div>
     case "Pagination": return <Pagination><Pagination.Content><Pagination.Item><Pagination.Previous><Pagination.PreviousIcon /></Pagination.Previous></Pagination.Item><Pagination.Item><Pagination.Link isActive>1</Pagination.Link></Pagination.Item><Pagination.Item><Pagination.Link>2</Pagination.Link></Pagination.Item><Pagination.Item><Pagination.Ellipsis /></Pagination.Item><Pagination.Item><Pagination.Link>9</Pagination.Link></Pagination.Item><Pagination.Item><Pagination.Next><Pagination.NextIcon /></Pagination.Next></Pagination.Item></Pagination.Content></Pagination>
     case "Steps": return <ol className="flex items-center gap-2 text-xs">{["信息", "配置", "确认"].map((s, i) => <li key={s} className="flex items-center gap-2"><span className={`grid size-6 place-items-center rounded-full ${i === 0 ? "bg-accent text-accent-foreground" : "bg-surface-secondary text-muted"}`}>{i + 1}</span><span>{s}</span>{i < 2 ? <Separator className="w-6" /> : null}</li>)}</ol>
     case "Anchor": return <nav className="space-y-1 border-l border-border pl-3 text-sm"><Link href="#component-Button" className="block">Button</Link><Link href="#component-Table" className="block text-muted">Table</Link><Link href="#component-Tabs" className="block text-muted">Tabs</Link></nav>
@@ -116,18 +234,48 @@ function Demo({ name }: { name: string }): ReactNode {
   }
 }
 
+function NativeDemo({ name }: { name: string }) {
+  switch (name) {
+    case "Chip": return <div className="flex flex-wrap gap-2"><Chip>默认</Chip><Chip variant="secondary">secondary</Chip></div>
+    case "CheckboxGroup": return <CheckboxGroup variant="secondary" defaultValue={["one"]}><Label>选择项</Label><Checkbox value="one" variant="secondary"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>选项一</Label></Checkbox.Content></Checkbox><Checkbox value="two" variant="secondary"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>选项二</Label></Checkbox.Content></Checkbox></CheckboxGroup>
+    case "SwitchGroup": return <SwitchGroup><Label>通知</Label><Switch defaultSelected aria-label="邮件"><Switch.Control><Switch.Thumb /></Switch.Control></Switch><Switch aria-label="推送"><Switch.Control><Switch.Thumb /></Switch.Control></Switch></SwitchGroup>
+    case "TagGroup": return <TagGroup aria-label="标签"><TagGroup.List><Tag id="one" textValue="标签一">标签一<Tag.RemoveButton /></Tag><Tag id="two" textValue="标签二">标签二<Tag.RemoveButton /></Tag></TagGroup.List></TagGroup>
+    case "Toolbar": return <Toolbar aria-label="格式" className="flex flex-wrap gap-1 rounded-xl border border-border p-1"><ToggleButton id="bold" aria-label="加粗"><Icon name="bold" size={16} /></ToggleButton><ToggleButton id="italic" aria-label="斜体"><Icon name="italic" size={16} /></ToggleButton><CloseButton aria-label="关闭" /></Toolbar>
+    case "Disclosure": return <Disclosure><Disclosure.Heading><Disclosure.Trigger>Disclosure 折叠<Disclosure.Indicator /></Disclosure.Trigger></Disclosure.Heading><Disclosure.Content>单项折叠内容。</Disclosure.Content></Disclosure>
+    case "DisclosureGroup": return <DisclosureGroup><Disclosure><Disclosure.Heading><Disclosure.Trigger>第一项<Disclosure.Indicator /></Disclosure.Trigger></Disclosure.Heading><Disclosure.Content>第一项内容。</Disclosure.Content></Disclosure><Disclosure><Disclosure.Heading><Disclosure.Trigger>第二项<Disclosure.Indicator /></Disclosure.Trigger></Disclosure.Heading><Disclosure.Content>第二项内容。</Disclosure.Content></Disclosure></DisclosureGroup>
+    case "Meter": return <Meter value={64}><Label>存储</Label><Meter.Output /><Meter.Track><Meter.Fill /></Meter.Track></Meter>
+    case "ProgressCircle": return <div className="flex gap-3"><ProgressCircle value={40} size="sm" aria-label="小进度"><ProgressCircle.Track><ProgressCircle.TrackCircle /><ProgressCircle.FillCircle /></ProgressCircle.Track></ProgressCircle><ProgressCircle value={80} aria-label="大进度"><ProgressCircle.Track><ProgressCircle.TrackCircle /><ProgressCircle.FillCircle /></ProgressCircle.Track></ProgressCircle></div>
+    case "RangeCalendar": return <RangeCalendar aria-label="日期范围"><CalendarBody /></RangeCalendar>
+    case "SearchField": return <SearchField aria-label="搜索"><SearchField.Group><SearchField.SearchIcon /><SearchField.Input placeholder="输入搜索词" /><SearchField.ClearButton /></SearchField.Group></SearchField>
+    case "Surface": return <div className="flex gap-2"><Surface variant="secondary" className="rounded-lg p-3 text-sm">secondary</Surface><Surface variant="tertiary" className="rounded-lg p-3 text-sm">tertiary</Surface></div>
+    case "ScrollShadow": return <ScrollShadow className="h-20 rounded-lg border border-border p-3 text-sm">{team.map((member) => <p key={member.email}>{member.name}</p>)}</ScrollShadow>
+    case "CloseButton": return <CloseButton aria-label="关闭" />
+    case "Fieldset": return <Fieldset><Fieldset.Legend>联系信息</Fieldset.Legend><TextField><Label>邮箱</Label><Input placeholder="邮箱" /></TextField></Fieldset>
+    case "InputGroup": return <InputGroup><InputGroup.Prefix>https://</InputGroup.Prefix><InputGroup.Input placeholder="地址" /><InputGroup.Suffix>.dev</InputGroup.Suffix></InputGroup>
+    case "ColorArea": return <ColorArea defaultValue="#006fee" colorSpace="hsb" xChannel="saturation" yChannel="brightness" className="h-24 w-40"><ColorArea.Thumb /></ColorArea>
+    case "ColorSlider": return <ColorSlider defaultValue="#006fee" channel="hue" colorSpace="hsb"><ColorSlider.Track><ColorSlider.Thumb /></ColorSlider.Track></ColorSlider>
+    case "ColorSwatch": return <div className="flex gap-2"><ColorSwatch color="#006fee" /><ColorSwatch color="#17c964" /><ColorSwatch color="#f31260" /></div>
+    case "ColorSwatchPicker": return <ColorSwatchPicker aria-label="颜色" defaultValue="#006fee" className="flex gap-2"><ColorSwatchPicker.Item color="#006fee"><ColorSwatchPicker.Swatch /><ColorSwatchPicker.Indicator>✓</ColorSwatchPicker.Indicator></ColorSwatchPicker.Item><ColorSwatchPicker.Item color="#17c964"><ColorSwatchPicker.Swatch /><ColorSwatchPicker.Indicator>✓</ColorSwatchPicker.Indicator></ColorSwatchPicker.Item><ColorSwatchPicker.Item color="#f31260"><ColorSwatchPicker.Swatch /><ColorSwatchPicker.Indicator>✓</ColorSwatchPicker.Indicator></ColorSwatchPicker.Item></ColorSwatchPicker>
+    case "ColorField": return <ColorField aria-label="颜色"><ColorField.Group><ColorField.Input /></ColorField.Group></ColorField>
+    case "CalendarYearPicker": return <Calendar aria-label="年份"><Calendar.Header><CalendarYearPicker.Trigger><CalendarYearPicker.TriggerHeading /><CalendarYearPicker.TriggerIndicator /></CalendarYearPicker.Trigger></Calendar.Header><CalendarYearPicker.Grid><CalendarYearPicker.GridBody>{({ year, formattedYear }) => <CalendarYearPicker.Cell year={year}>{formattedYear}</CalendarYearPicker.Cell>}</CalendarYearPicker.GridBody></CalendarYearPicker.Grid></Calendar>
+    case "AlertDialog": return <AlertDialog><Button variant="danger-soft">打开确认框</Button><AlertDialog.Backdrop><AlertDialog.Container><AlertDialog.Dialog><AlertDialog.Header><AlertDialog.Icon status="danger" /><AlertDialog.Heading>确认操作</AlertDialog.Heading></AlertDialog.Header><AlertDialog.Body>此操作需要确认。</AlertDialog.Body><AlertDialog.Footer><Button slot="close" variant="secondary">取消</Button><Button slot="close" variant="danger">确认</Button></AlertDialog.Footer></AlertDialog.Dialog></AlertDialog.Container></AlertDialog.Backdrop></AlertDialog>
+    case "ListBox": return <ListBox aria-label="列表" selectionMode="single" defaultSelectedKeys={["one"]}><ListBox.Item id="one" textValue="选项一">选项一<ListBox.ItemIndicator /></ListBox.Item><ListBox.Item id="two" textValue="选项二">选项二<ListBox.ItemIndicator /></ListBox.Item></ListBox>
+    case "ToggleButton": return <div className="flex gap-2"><ToggleButton id="one">未选中</ToggleButton><ToggleButton id="two" isSelected>已选中</ToggleButton></div>
+    case "ToggleButtonGroup": return <ToggleButtonGroup selectionMode="multiple" defaultSelectedKeys={["one"]} aria-label="多选"><ToggleButton id="one">选项一</ToggleButton><ToggleButton id="two">选项二</ToggleButton></ToggleButtonGroup>
+    case "Header": return <Header className="text-sm font-semibold">分组标题</Header>
+    case "Description": return <Description>辅助说明文本。</Description>
+    case "ErrorMessage": return <ErrorMessage>错误提示文本。</ErrorMessage>
+    case "FieldError": return <FieldError>字段错误文本。</FieldError>
+    default: return <EmptyState className="py-3"><p className="text-sm">未提供示例</p></EmptyState>
+  }
+}
+
 function NativeExtras() {
   return (
     <Card>
       <Card.Header><Card.Title>HeroUI 独有组件</Card.Title><Card.Description>contract 之外、HeroUI v3 直接导出的组件。</Card.Description></Card.Header>
-      <Card.Content className="space-y-5">
-        <div className="flex flex-wrap gap-2">{nativeExtras.map((n) => <Chip key={n} variant="secondary" size="sm">{n}</Chip>)}</div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Toolbar aria-label="格式" className="rounded-xl border border-border p-1"><ToggleButtonGroup selectionMode="multiple" aria-label="样式"><ToggleButton isIconOnly id="b" aria-label="加粗"><Icon name="bold" size={16} /></ToggleButton><ToggleButton isIconOnly id="i" aria-label="斜体"><Icon name="italic" size={16} /></ToggleButton></ToggleButtonGroup><Separator orientation="vertical" className="h-5" /><CloseButton aria-label="关闭" /></Toolbar>
-          <Disclosure><Disclosure.Heading><Disclosure.Trigger>Disclosure 折叠<Disclosure.Indicator /></Disclosure.Trigger></Disclosure.Heading><Disclosure.Content className="text-sm text-muted">单项折叠内容。</Disclosure.Content></Disclosure>
-          <SearchField aria-label="搜索"><SearchField.Group><SearchField.SearchIcon /><SearchField.Input placeholder="SearchField" /><SearchField.ClearButton /></SearchField.Group></SearchField>
-          <TextField><Label>InputGroup</Label><InputGroup><InputGroup.Prefix>https://</InputGroup.Prefix><InputGroup.Input placeholder="acme.dev" /></InputGroup></TextField>
-        </div>
+      <Card.Content className="grid min-w-0 gap-4 md:grid-cols-2">
+        {nativeExtras.map((name) => <Card key={name} className="min-w-0"><Card.Header><Card.Title className="text-sm">{name}</Card.Title><Card.Description>{nativeNotes[name]}</Card.Description></Card.Header><Card.Content className="min-w-0 overflow-x-auto"><NativeDemo name={name} /></Card.Content></Card>)}
       </Card.Content>
     </Card>
   )
@@ -146,7 +294,7 @@ export function ComponentsPage() {
           <Card key={name} id={`component-${name}`} className="min-w-0 scroll-mt-20">
             <Card.Header>
               <div className="flex items-center justify-between gap-2"><Card.Title className="text-base">{name}</Card.Title><Chip size="sm" color={coverage[name] === "missing" ? "danger" : coverage[name] === "composed" ? "warning" : "success"}>{coverage[name]}</Chip></div>
-              <Card.Description>default · disabled · loading · error variants</Card.Description>
+              <Card.Description>{variantNotes[name] ?? (coverage[name] === "missing" ? "HeroUI 未提供，标记为 missing" : `由 ${name} 组合实现`)}</Card.Description>
             </Card.Header>
             <Card.Content className="min-w-0 max-w-full overflow-x-auto"><Demo name={name} /></Card.Content>
           </Card>

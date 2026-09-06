@@ -24,7 +24,7 @@ function CodeBlock({ children, ...props }: ComponentProps<"pre">) {
   return (
     <div className="group relative min-w-0">
       <pre {...props}>{children}</pre>
-      <Button isIconOnly size="sm" variant="secondary" aria-label="复制代码" className="absolute right-2 top-2 size-8 min-w-8" onPress={copy}>
+      <Button isIconOnly size="md" variant="secondary" aria-label="复制代码" className="absolute right-2 top-2 min-h-10 min-w-10" onPress={copy}>
         <Icon name="copy" size={14} />
       </Button>
     </div>
@@ -87,7 +87,7 @@ export function ChatPage() {
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-2 border-b border-border">
           <div className="flex min-w-0 items-center gap-2">
             <Drawer isOpen={drawerOpen} onOpenChange={setDrawerOpen}>
-              <Button isIconOnly variant="ghost" size="sm" aria-label="打开对话列表" className="lg:hidden"><Icon name="list" size={18} /></Button>
+              <Button isIconOnly variant="ghost" size="md" aria-label="打开对话列表" className="min-h-10 min-w-10 lg:hidden"><Icon name="list" size={18} /></Button>
               <Drawer.Backdrop>
                 <Drawer.Content placement="left" className="w-80 max-w-[85vw]">
                   <Drawer.Dialog>
@@ -106,7 +106,7 @@ export function ChatPage() {
             <Select.Popover><ListBox>{chat.models.map((m) => <ListBox.Item key={m} id={m} textValue={m}>{m}<ListBox.ItemIndicator /></ListBox.Item>)}</ListBox></Select.Popover>
           </Select>
         </Card.Header>
-        <ScrollShadow className="min-h-0 min-w-0 flex-1 p-4">
+        <ScrollShadow className="min-h-0 min-w-0 flex-1 px-4 pb-24 pt-4">
           {empty ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
               <div className="grid size-12 place-items-center rounded-full bg-accent-soft text-accent-soft-foreground"><Icon name="bot" /></div>

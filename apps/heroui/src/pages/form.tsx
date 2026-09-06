@@ -10,10 +10,6 @@ const timezones = [{ id: "Asia/Shanghai", label: "Asia/Shanghai (UTC+8)" }, { id
 const DESCRIPTION_MAX = 200
 type Step = "details" | "config" | "review" | "success"
 
-function RequiredLabel({ children }: { children: string }) {
-  return <Label>{children}<span aria-hidden="true" className="ml-0.5 text-danger">*</span></Label>
-}
-
 function HelpTip({ text }: { text: string }) {
   return (
     <Tooltip>
@@ -73,12 +69,12 @@ export function FormPage() {
     <div className="min-w-0 space-y-6">
       <PageHeader title="创建项目" description="用三步完成一个新的工作区配置。" />
       <Tabs selectedKey={step} onSelectionChange={(key) => setStep(key as Step)} className="min-w-0">
-        <Tabs.ListContainer className="max-w-full overflow-x-auto">
-          <Tabs.List aria-label="创建步骤" className="w-full max-w-full">
-            <Tabs.Tab id="details" className="min-w-0 flex-1 px-2 text-xs sm:flex-none sm:px-3 sm:text-sm">1. 基本信息<Tabs.Indicator /></Tabs.Tab>
-            <Tabs.Tab id="config" className="min-w-0 flex-1 px-2 text-xs sm:flex-none sm:px-3 sm:text-sm">2. 详细配置<Tabs.Indicator /></Tabs.Tab>
-            <Tabs.Tab id="review" className="min-w-0 flex-1 px-2 text-xs sm:flex-none sm:px-3 sm:text-sm">3. 确认提交<Tabs.Indicator /></Tabs.Tab>
-            <Tabs.Tab id="success" isDisabled={step !== "success"} className="min-w-0 flex-1 px-2 text-xs sm:flex-none sm:px-3 sm:text-sm">完成<Tabs.Indicator /></Tabs.Tab>
+        <Tabs.ListContainer>
+          <Tabs.List aria-label="创建步骤" className="w-full">
+            <Tabs.Tab id="details" className="min-w-0 flex-1 px-2 text-xs sm:text-sm">1. 基本信息<Tabs.Indicator /></Tabs.Tab>
+            <Tabs.Tab id="config" className="min-w-0 flex-1 px-2 text-xs sm:text-sm">2. 详细配置<Tabs.Indicator /></Tabs.Tab>
+            <Tabs.Tab id="review" className="min-w-0 flex-1 px-2 text-xs sm:text-sm">3. 确认提交<Tabs.Indicator /></Tabs.Tab>
+            <Tabs.Tab id="success" isDisabled={step !== "success"} className="min-w-0 flex-1 px-2 text-xs sm:text-sm">完成<Tabs.Indicator /></Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
 
@@ -87,7 +83,7 @@ export function FormPage() {
             <Card.Header><Card.Title>基本信息</Card.Title><Card.Description>告诉我们项目的基础信息。带 * 的为必填项。</Card.Description></Card.Header>
             <Card.Content className="grid min-w-0 gap-5 sm:grid-cols-2">
               <TextField isRequired value={name} onChange={setName} isInvalid={!!showError(nameError)} className="min-w-0">
-                <RequiredLabel>项目名称</RequiredLabel>
+                <Label>项目名称</Label>
                 <Input placeholder="例如：增长分析" className="w-full" />
                 {showError(nameError) ? <Description className="text-danger">{nameError}</Description> : <Description>用于在控制台中展示。</Description>}
               </TextField>
@@ -97,12 +93,12 @@ export function FormPage() {
                 <Description>1 - 500 之间。</Description>
               </NumberField>
               <TextField isRequired type="email" value={email} onChange={setEmail} isInvalid={!!showError(emailError)} className="min-w-0">
-                <RequiredLabel>联系邮箱</RequiredLabel>
+                <Label>联系邮箱</Label>
                 <Input placeholder="you@acme.dev" className="w-full" />
                 {showError(emailError) ? <Description className="text-danger">{emailError}</Description> : <Description>用于接收项目通知。</Description>}
               </TextField>
               <div className="grid min-w-0 gap-1.5">
-                <RequiredLabel>联系电话</RequiredLabel>
+                <Label>联系电话</Label>
                 <div className="flex min-w-0 gap-2">
                   <Select aria-label="国家码" value={countryCode} onChange={(key) => setCountryCode(String(key))} className="w-28 shrink-0">
                     <Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger>
@@ -122,17 +118,17 @@ export function FormPage() {
                   <span className={`text-xs ${descriptionError ? "text-danger" : "text-muted"}`} aria-live="polite">{description.length}/{DESCRIPTION_MAX}</span>
                 </div>
               </TextField>
-              <RadioGroup value={plan} onChange={setPlan} className="min-w-0">
+              <RadioGroup value={plan} onChange={setPlan} variant="secondary" className="min-w-0">
                 <Label>项目可见性</Label>
-                <Radio value="team"><Radio.Control><Radio.Indicator /></Radio.Control><Radio.Content><Label>团队内可见</Label></Radio.Content></Radio>
-                <Radio value="org"><Radio.Control><Radio.Indicator /></Radio.Control><Radio.Content><Label>组织内可见</Label></Radio.Content></Radio>
-                <Radio value="pro"><Radio.Control><Radio.Indicator /></Radio.Control><Radio.Content><Label>仅自己</Label></Radio.Content></Radio>
+                <Radio value="team"><Radio.Content><Radio.Control><Radio.Indicator /></Radio.Control><Label>团队内可见</Label></Radio.Content></Radio>
+                <Radio value="org"><Radio.Content><Radio.Control><Radio.Indicator /></Radio.Control><Label>组织内可见</Label></Radio.Content></Radio>
+                <Radio value="pro"><Radio.Content><Radio.Control><Radio.Indicator /></Radio.Control><Label>仅自己</Label></Radio.Content></Radio>
               </RadioGroup>
-              <CheckboxGroup value={modules} onChange={setModules} className="min-w-0">
+              <CheckboxGroup value={modules} onChange={setModules} variant="secondary" className="min-w-0">
                 <Label>启用模块</Label>
-                <Checkbox value="analytics"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>数据分析</Label></Checkbox.Content></Checkbox>
-                <Checkbox value="billing"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>计费</Label></Checkbox.Content></Checkbox>
-                <Checkbox value="chat"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>AI 助手</Label></Checkbox.Content></Checkbox>
+                <Checkbox value="analytics" variant="secondary"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>数据分析</Label></Checkbox.Content></Checkbox>
+                <Checkbox value="billing" variant="secondary"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>计费</Label></Checkbox.Content></Checkbox>
+                <Checkbox value="chat" variant="secondary"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>AI 助手</Label></Checkbox.Content></Checkbox>
               </CheckboxGroup>
               <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-4 sm:col-span-2">
                 <div><p className="font-medium">公开项目</p><p className="text-sm text-muted">允许通过链接访问只读视图</p></div>
@@ -287,7 +283,7 @@ export function FormPage() {
                 <div className="flex justify-between gap-4 border-b border-border pb-2"><dt className="text-muted">标签</dt><dd className="flex flex-wrap justify-end gap-1">{tags.map((t) => <Chip key={t} size="sm" variant="secondary">{t}</Chip>)}</dd></div>
               </dl>
               <ProgressBar value={agreed ? 100 : 90} aria-label="完成度"><div className="flex justify-between"><Label>完成度</Label><ProgressBar.Output /></div><ProgressBar.Track><ProgressBar.Fill /></ProgressBar.Track></ProgressBar>
-              <Checkbox isSelected={agreed} onChange={setAgreed}><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>我同意服务条款与隐私政策</Label></Checkbox.Content></Checkbox>
+              <Checkbox isSelected={agreed} onChange={setAgreed} variant="secondary"><Checkbox.Content><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Label>我同意服务条款与隐私政策</Label></Checkbox.Content></Checkbox>
               <div className="flex justify-between"><Button variant="secondary" onPress={() => setStep("config")}>上一步</Button><Button isDisabled={!agreed} onPress={() => setStep("success")}>提交项目</Button></div>
             </Card.Content>
           </Card>

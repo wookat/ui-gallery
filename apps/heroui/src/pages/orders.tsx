@@ -1,5 +1,5 @@
 import { useMemo, useState, type ComponentProps } from "react"
-import { Alert, AlertDialog, Button, Calendar, Card, Checkbox, Drawer, Dropdown, EmptyState, Input, Label, ListBox, Pagination, Popover, Select, Skeleton, Table, TextField, toast } from "@heroui/react"
+import { Alert, AlertDialog, Button, Calendar, Card, Checkbox, Drawer, Dropdown, EmptyState, Input, Label, ListBox, Pagination, Popover, Select, Skeleton, Table, TextField, toast, ToggleButton, ToggleButtonGroup } from "@heroui/react"
 import { Icon } from "@/components/icon"
 import orders from "@ui-gallery/spec/mock/orders.json"
 import { PageHeader, StatusBadge } from "./shared"
@@ -8,19 +8,27 @@ type Order = (typeof orders)[number]
 type TableContentProps = ComponentProps<typeof Table.Content>
 type Selection = Parameters<NonNullable<TableContentProps["onSelectionChange"]>>[0]
 type SortDescriptor = Parameters<NonNullable<TableContentProps["onSortChange"]>>[0]
-const statuses = ["all", "paid", "pending", "shipped", "failed"]
+type LoadState = "loading" | "error" | "ready"
+const statuses = [...new Set(orders.map((order) => order.status))]
+const loadFromUrl = (): LoadState => {
+  const value = new URLSearchParams(window.location.search).get("state")
+  return value === "loading" || value === "error" ? value : "ready"
+}
 
 export function OrdersPage() {
   const [query, setQuery] = useState("")
-  const [status, setStatus] = useState("all")
+  const [status, setStatus] = useState<Set<string>>(new Set())
+  const [load, setLoad] = useState<LoadState>(loadFromUrl)
   const [selected, setSelected] = useState<Order | null>(null)
   const [date, setDate] = useState<string | null>(null)
   const [columns, setColumns] = useState(new Set(["customer", "amount", "status"]))
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set())
   const [sort, setSort] = useState<SortDescriptor>({ column: "date", direction: "descending" })
+  const [page, setPage] = useState(1)
+  const pageSize = 10
   const showCustomer = columns.has("customer")
   const filtered = useMemo(() => {
-    const list = orders.filter((order) => order.id.toLowerCase().includes(query.toLowerCase()) && (status === "all" || order.status === status))
+    const list = orders.filter((order) => order.id.toLowerCase().includes(query.toLowerCase()) && (!status.size || status.has(order.status)))
     const dir = sort.direction === "ascending" ? 1 : -1
     return [...list].sort((a, b) => {
       if (sort.column === "amount") return (a.amount - b.amount) * dir
@@ -28,6 +36,9 @@ export function OrdersPage() {
       return a[key].localeCompare(b[key]) * dir
     })
   }, [query, status, sort])
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const current = Math.min(page, pageCount)
+  const visible = filtered.slice((current - 1) * pageSize, current * pageSize)
   const selectedCount = selectedKeys === "all" ? filtered.length : selectedKeys.size
   const remove = () => { toast.success("订单已删除"); setSelected(null) }
 
@@ -40,12 +51,12 @@ export function OrdersPage() {
       </Alert>
       <Card>
         <Card.Content className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_180px_200px_auto]">
-            <TextField aria-label="搜索订单号" value={query} onChange={setQuery}><Input placeholder="搜索订单号..." /></TextField>
-            <Select aria-label="状态" value={status} onChange={(key) => setStatus(String(key))}>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_240px_200px_auto]">
+            <TextField aria-label="搜索订单号" value={query} onChange={(value) => { setQuery(value); setPage(1) }}><Input placeholder="搜索订单号..." /></TextField>
+            <Select aria-label="状态" selectionMode="multiple" placeholder="全部状态" value={[...status]} onChange={(keys) => { setStatus(new Set(keys.map(String))); setPage(1) }}>
               <Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger>
               <Select.Popover>
-                <ListBox>{statuses.map((item) => <ListBox.Item key={item} id={item} textValue={item}>{item === "all" ? "全部状态" : item}<ListBox.ItemIndicator /></ListBox.Item>)}</ListBox>
+                <ListBox>{statuses.map((item) => <ListBox.Item key={item} id={item} textValue={item}>{item}<ListBox.ItemIndicator /></ListBox.Item>)}</ListBox>
               </Select.Popover>
             </Select>
             <Popover>
@@ -72,8 +83,23 @@ export function OrdersPage() {
                 </Dropdown.Menu>
               </Dropdown.Popover>
             </Dropdown>
+            <ToggleButtonGroup selectionMode="single" selectedKeys={[load]} onSelectionChange={(keys) => { const [next] = [...keys]; if (next) setLoad(next as LoadState) }} aria-label="演示状态" className="sm:col-span-2 lg:col-span-1">
+              <ToggleButton id="ready">就绪</ToggleButton>
+              <ToggleButton id="loading">加载中</ToggleButton>
+              <ToggleButton id="error">出错</ToggleButton>
+            </ToggleButtonGroup>
           </div>
-          {filtered.length ? (
+          {load === "loading" ? (
+            <div className="space-y-3" aria-label="订单加载中">
+              {Array.from({ length: 4 }, (_, index) => <div key={index} className="flex gap-3"><Skeleton className="h-5 flex-1 rounded" /><Skeleton className="h-5 w-24 rounded" /><Skeleton className="h-5 w-20 rounded" /></div>)}
+            </div>
+          ) : load === "error" ? (
+            <Alert status="danger">
+              <Alert.Indicator />
+              <Alert.Content><Alert.Title>订单加载失败</Alert.Title><Alert.Description>暂时无法加载订单列表。</Alert.Description></Alert.Content>
+              <Button variant="secondary" onPress={() => setLoad("ready")}>重试</Button>
+            </Alert>
+          ) : filtered.length ? (
             <>
               <div className="hidden md:block">
                 <Table>
@@ -89,15 +115,24 @@ export function OrdersPage() {
                         <Table.Column id="actions" className="text-right">操作</Table.Column>
                       </Table.Header>
                       <Table.Body>
-                        {filtered.map((order) => (
-                          <Table.Row key={order.id} id={order.id}>
-                            <Table.Cell><Checkbox slot="selection" aria-label={`选择 ${order.id}`}><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control></Checkbox></Table.Cell>
+                        {visible.map((order) => (
+                          <Table.Row key={order.id} id={order.id} className="cursor-pointer" onClick={() => setSelected(order)}>
+                            <Table.Cell><Checkbox slot="selection" variant="secondary" aria-label={`选择 ${order.id}`} onClick={(event) => event.stopPropagation()}><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control></Checkbox></Table.Cell>
                             <Table.Cell className="font-medium">{order.id}</Table.Cell>
                             {showCustomer ? <Table.Cell>{order.customer}</Table.Cell> : null}
                             <Table.Cell><StatusBadge value={order.status} /></Table.Cell>
                             <Table.Cell>{order.date}</Table.Cell>
                             <Table.Cell className="text-right">¥{order.amount.toLocaleString()}</Table.Cell>
-                            <Table.Cell className="text-right"><Button size="sm" variant="ghost" onPress={() => setSelected(order)}>详情</Button></Table.Cell>
+                            <Table.Cell className="text-right">
+                              <Dropdown>
+                                <Dropdown.Trigger><Button isIconOnly variant="ghost" size="sm" aria-label="操作" onClick={(event) => event.stopPropagation()}><Icon name="more-horizontal" size={16} /></Button></Dropdown.Trigger>
+                                <Dropdown.Popover><Dropdown.Menu aria-label="订单操作" onAction={(key) => { if (key === "view") setSelected(order); if (key === "edit") toast.success(`已触发：编辑 ${order.id}`); if (key === "delete") toast.success(`已触发：删除 ${order.id}`) }}>
+                                  <Dropdown.Item id="view"><Label>查看详情</Label></Dropdown.Item>
+                                  <Dropdown.Item id="edit"><Label>编辑</Label></Dropdown.Item>
+                                  <Dropdown.Item id="delete" variant="danger"><Label>删除</Label></Dropdown.Item>
+                                </Dropdown.Menu></Dropdown.Popover>
+                              </Dropdown>
+                            </Table.Cell>
                           </Table.Row>
                         ))}
                       </Table.Body>
@@ -107,8 +142,8 @@ export function OrdersPage() {
               </div>
               {selectedCount > 0 ? <p className="hidden text-sm text-muted md:block">已选择 {selectedCount} 条订单</p> : null}
               <div className="grid gap-3 md:hidden">
-                {filtered.map((order) => (
-                  <Card key={order.id} className="cursor-pointer" onClick={() => setSelected(order)}>
+                {visible.map((order) => (
+                  <Card key={order.id} className="cursor-pointer" onClick={() => setSelected(order)} onKeyDown={(event) => { if (event.key === "Enter") setSelected(order) }}>
                     <Card.Header className="flex-row items-center justify-between"><Card.Title className="text-base">{order.id}</Card.Title><StatusBadge value={order.status} /></Card.Header>
                     <Card.Content className="flex justify-between text-sm text-muted"><span>{order.customer}</span><span>¥{order.amount.toLocaleString()}</span></Card.Content>
                   </Card>
@@ -120,21 +155,19 @@ export function OrdersPage() {
               <div className="mx-auto grid size-12 place-items-center rounded-full bg-surface-secondary text-muted"><Icon name="inbox" /></div>
               <h3 className="mt-4 font-semibold">没有找到订单</h3>
               <p className="mt-1 text-sm text-muted">调整搜索或筛选条件后重试。</p>
-              <Button className="mt-4" variant="secondary" onPress={() => { setQuery(""); setStatus("all") }}>清除筛选</Button>
+              <Button className="mt-4" variant="secondary" onPress={() => { setQuery(""); setStatus(new Set()); setPage(1) }}>清除筛选</Button>
             </EmptyState>
           )}
-          <Pagination>
+          {load === "ready" && filtered.length ? <Pagination>
             <Pagination.Summary>共 {filtered.length} 条</Pagination.Summary>
             <Pagination.Content>
-              <Pagination.Item><Pagination.Previous><Pagination.PreviousIcon /></Pagination.Previous></Pagination.Item>
-              <Pagination.Item><Pagination.Link isActive>1</Pagination.Link></Pagination.Item>
-              <Pagination.Item><Pagination.Link>2</Pagination.Link></Pagination.Item>
-              <Pagination.Item><Pagination.Next><Pagination.NextIcon /></Pagination.Next></Pagination.Item>
+              <Pagination.Item><Pagination.Previous className="min-h-10 min-w-10" isDisabled={current === 1} onPress={() => setPage((value) => Math.max(1, value - 1))}><Pagination.PreviousIcon /></Pagination.Previous></Pagination.Item>
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map((value) => <Pagination.Item key={value}><Pagination.Link className="min-h-10 min-w-10" isActive={current === value} onPress={() => setPage(value)}>{value}</Pagination.Link></Pagination.Item>)}
+              <Pagination.Item><Pagination.Next className="min-h-10 min-w-10" isDisabled={current === pageCount} onPress={() => setPage((value) => Math.min(pageCount, value + 1))}><Pagination.NextIcon /></Pagination.Next></Pagination.Item>
             </Pagination.Content>
-          </Pagination>
+          </Pagination> : null}
         </Card.Content>
       </Card>
-      <div className="grid gap-3 sm:grid-cols-2"><Skeleton className="h-16 rounded-lg" /><Skeleton className="h-16 rounded-lg" /></div>
       <Drawer isOpen={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
         <Drawer.Backdrop>
           <Drawer.Content placement="right">

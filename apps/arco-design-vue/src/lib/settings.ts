@@ -2,6 +2,7 @@ import { ref } from "vue"
 
 export type Theme = "light" | "dark"
 export const FONTS: Record<string, string> = {
+  default: "var(--arco-default-font)",
   inter: "'Inter Variable', sans-serif",
   geist: "'Geist Variable', sans-serif",
   "noto-sans-sc": "'Noto Sans SC Variable', sans-serif",

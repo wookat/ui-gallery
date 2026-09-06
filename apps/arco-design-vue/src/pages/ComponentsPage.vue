@@ -105,8 +105,15 @@ function notify() {
       </a-space>
     </PageHeader>
 
-    <div class="components-layout">
-      <div class="stack" style="gap: 16px; min-width: 0">
+    <a-card :bordered="true" class="components-index">
+      <a-anchor :change-hash="false" direction="horizontal" line-less :boundary="80" smooth>
+        <a-anchor-link v-for="name in names" :key="name" :href="`#${name}`">
+          <a-space size="mini"><span>{{ name }}</span><a-tag v-if="coverage[name] !== 'implemented'" :color="coverage[name] === 'composed' ? 'orange' : 'red'" size="small">{{ coverage[name] }}</a-tag></a-space>
+        </a-anchor-link>
+      </a-anchor>
+    </a-card>
+
+    <div class="stack" style="gap: 16px; min-width: 0">
         <DemoBlock name="Typography" arco="a-typography">
           <a-typography class="block">
             <a-typography-title :heading="1">H1 标题</a-typography-title>
@@ -394,8 +401,8 @@ function notify() {
         <DemoBlock name="Badge" arco="a-badge">
           <a-badge :count="5"><a-avatar shape="square" /></a-badge>
           <a-badge :count="120" :max-count="99"><a-avatar shape="square" /></a-badge>
-          <a-badge dot><a-avatar shape="square" /></a-badge>
-          <a-badge :count="0" show-zero><a-avatar shape="square" /></a-badge>
+          <a-badge dot :count="1"><a-avatar shape="square" /></a-badge>
+          <a-badge :count="0"><a-avatar shape="square" /></a-badge>
           <a-badge text="new"><a-avatar shape="square" /></a-badge>
           <a-badge status="success" text="Success" />
           <a-badge status="processing" text="Processing" />
@@ -834,53 +841,27 @@ createApp(App).use(ArcoVue).mount("#app")</code></pre>
           <a-link :hoverable="false">无 hover 背景</a-link>
           <a-link href="https://arco.design" target="_blank" rel="noreferrer">外链<template #icon><Icon name="external-link" :size="14" /></template></a-link>
         </DemoBlock>
-      </div>
-
-      <aside class="components-anchor hide-mobile">
-        <a-anchor :change-hash="false" line-less :boundary="80" smooth style="max-height: calc(100vh - 120px); overflow: auto">
-          <a-anchor-link v-for="name in names" :key="name" :href="`#${name}`">
-            <a-space size="mini"><span>{{ name }}</span><a-tag v-if="coverage[name] !== 'implemented'" :color="coverage[name] === 'composed' ? 'orange' : 'red'" size="small">{{ coverage[name] }}</a-tag></a-space>
-          </a-anchor-link>
-        </a-anchor>
-      </aside>
     </div>
   </div>
 </template>
 
 <style scoped>
-.components-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
-  gap: 24px;
-  align-items: start;
+.components-index :deep(.arco-anchor-list) {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.components-layout > .stack {
-  grid-template-columns: minmax(0, 1fr);
+.components-index :deep(.arco-anchor-link) {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
 }
 
-.components-layout > .stack > :deep(.demo) {
+.components-page > .stack > :deep(.demo) {
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
-}
-
-.components-anchor {
-  position: sticky;
-  top: 76px;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.components-anchor :deep(.arco-anchor-link-item) {
-  padding: 0;
-}
-
-.components-anchor :deep(.arco-anchor-link) {
-  display: flex;
-  align-items: center;
-  min-height: 40px;
-  font-size: 12px;
 }
 
 .grid-cell {
@@ -959,12 +940,6 @@ createApp(App).use(ArcoVue).mount("#app")</code></pre>
   border: 1px solid var(--color-border-3);
   border-bottom-width: 2px;
   border-radius: 4px;
-}
-
-@media (max-width: 1023px) {
-  .components-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 @media (max-width: 767px) {

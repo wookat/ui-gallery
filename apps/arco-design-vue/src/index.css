@@ -103,8 +103,10 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
 
 .arco-tabs-tab:not(.demo .arco-tabs-tab) {
   min-height: 40px;
+  min-width: 40px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 }
 
 .arco-link:not(.demo .arco-link) {
@@ -126,6 +128,19 @@ body:not([arco-theme="dark"]) .arco-btn-outline.arco-btn-status-danger:not(:disa
 .arco-picker:not(.demo .arco-picker),
 .arco-textarea-wrapper:not(.demo .arco-textarea-wrapper) {
   min-height: 40px;
+}
+
+.arco-input-wrapper:not(.demo .arco-input-wrapper) .arco-icon-hover {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: -13px -6px;
+}
+
+.arco-empty-description:not(.demo .arco-empty-description) {
+  color: var(--color-text-2);
 }
 
 .arco-textarea-wrapper:not(.demo .arco-textarea-wrapper) .arco-textarea {

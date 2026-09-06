@@ -6,7 +6,7 @@ import * as Phosphor from "@phosphor-icons/vue"
 import * as Hero from "@heroicons/vue/24/outline"
 
 export type IconFamily = "native" | "lucide" | "tabler" | "phosphor" | "heroicons"
-export const ICON_FAMILIES: IconFamily[] = ["native", "lucide", "tabler", "phosphor", "heroicons"]
+export const ICON_FAMILIES: IconFamily[] = ["lucide", "tabler", "phosphor", "heroicons", "native"]
 
 type Table = Record<string, Component>
 
@@ -469,10 +469,10 @@ const heroicons: Table = {
 const families: Record<IconFamily, Table> = { native, lucide, tabler, phosphor, heroicons }
 
 export function iconFamily(): IconFamily {
-  if (typeof window === "undefined") return "native"
+  if (typeof window === "undefined") return "lucide"
   const params = new URLSearchParams(window.location.search)
   const value = params.get("icons") ?? params.get("icon")
-  return ICON_FAMILIES.includes(value as IconFamily) ? (value as IconFamily) : "native"
+  return ICON_FAMILIES.includes(value as IconFamily) ? (value as IconFamily) : "lucide"
 }
 
 export function resolveIcon(name: string): Component {

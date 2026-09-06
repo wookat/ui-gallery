@@ -148,7 +148,7 @@ const columns = [
           </a-timeline>
         </a-card>
         <a-card title="任务进度" :bordered="true">
-          <a-tabs default-active-key="all" size="small">
+          <a-tabs default-active-key="all">
             <a-tab-pane key="all" title="全部">
               <div class="stack">
                 <div v-for="task in tasks" :key="task.title" class="stack" style="gap: 4px">
@@ -158,7 +158,7 @@ const columns = [
               </div>
             </a-tab-pane>
             <a-tab-pane key="mine" title="我的">
-              <a-empty description="暂无分配给我的任务" />
+              <a-empty><template #description><a-typography-text type="secondary">暂无分配给我的任务</a-typography-text></template></a-empty>
             </a-tab-pane>
           </a-tabs>
         </a-card>

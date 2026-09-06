@@ -26,7 +26,7 @@
     "chart": "vue-echarts",
     "markdown": "markdown-it"
   },
-  "notes": "@arco-design/web-vue 官方默认主题（arco.css），暗色用 body[arco-theme=dark]；默认 Arco 自带图标，?icon= 可切 lucide/tabler/phosphor/heroicons。",
+  "notes": "@arco-design/web-vue 官方默认主题（arco.css），暗色用 body[arco-theme=dark]；图标默认 lucide，?icons=tabler|phosphor|heroicons 切换，?icons=native 用 Arco 自带图标。",
   "coverage": {
     "Typography": "implemented",
     "Button": "implemented",

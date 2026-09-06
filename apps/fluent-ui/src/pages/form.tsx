@@ -48,6 +48,7 @@ const useStyles = makeStyles({
   line: { flex: "1 1 24px", height: "1px", backgroundColor: tokens.colorNeutralStroke2, minWidth: "16px" },
   grid: { display: "grid", gap: tokens.spacingHorizontalM, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))" },
   full: { gridColumn: "1 / -1" },
+  radioWrap: { flexWrap: "wrap" },
   color: { width: "48px", height: "32px", padding: 0, border: `1px solid ${tokens.colorNeutralStroke1}`, borderRadius: tokens.borderRadiusMedium, backgroundColor: "transparent" },
   dropzone: { border: `1px dashed ${tokens.colorNeutralStroke1}`, borderRadius: tokens.borderRadiusMedium, padding: tokens.spacingVerticalXL, textAlign: "center", color: tokens.colorNeutralForeground3, display: "flex", flexDirection: "column", alignItems: "center", gap: tokens.spacingVerticalXS, cursor: "pointer" },
   summary: { display: "grid", gridTemplateColumns: "minmax(80px, auto) 1fr", gap: `${tokens.spacingVerticalXS} ${tokens.spacingHorizontalL}` },
@@ -152,7 +153,7 @@ export function FormPage() {
             <Field label="手机号" validationMessage={err("phone")} validationState={state("phone")} hint="选填，用于接收短信通知"><Input type="tel" value={form.phone} onChange={(_, d) => set("phone", d.value)} placeholder="13800000000" /></Field>
             <Field label="年龄"><SpinButton value={form.age} min={0} max={120} onChange={(_, d) => set("age", d.value ?? form.age)} /></Field>
             <Field label="角色" required>
-              <RadioGroup layout="horizontal" value={form.role} onChange={(_, d) => set("role", d.value)}>
+              <RadioGroup layout="horizontal" className={s.radioWrap} value={form.role} onChange={(_, d) => set("role", d.value)}>
                 <Radio value="owner" label="Owner" /><Radio value="admin" label="Admin" /><Radio value="member" label="Member" /><Radio value="viewer" label="Viewer" />
               </RadioGroup>
             </Field>

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import { useQuasar } from "quasar"
+import {
+  QSpinner, QSpinnerAudio, QSpinnerBall, QSpinnerBars, QSpinnerBox, QSpinnerClock, QSpinnerComment, QSpinnerCube, QSpinnerDots,
+  QSpinnerFacebook, QSpinnerGears, QSpinnerGrid, QSpinnerHearts, QSpinnerHourglass, QSpinnerInfinity, QSpinnerIos, QSpinnerOrbit,
+  QSpinnerOval, QSpinnerPie, QSpinnerPuff, QSpinnerRadio, QSpinnerRings, QSpinnerTail, useQuasar,
+} from "quasar"
 import notifications from "@ui-gallery/spec/mock/notifications.json"
 import AppIcon from "../../icons/AppIcon.vue"
 import DemoBlock from "./DemoBlock.vue"
@@ -20,7 +24,11 @@ const refresh = ref(false)
 const slide = ref(false)
 const ajax = ref()
 
-const spinners = ["QSpinner", "QSpinnerAudio", "QSpinnerBall", "QSpinnerBars", "QSpinnerBox", "QSpinnerClock", "QSpinnerComment", "QSpinnerCube", "QSpinnerDots", "QSpinnerFacebook", "QSpinnerGears", "QSpinnerGrid", "QSpinnerHearts", "QSpinnerHourglass", "QSpinnerInfinity", "QSpinnerIos", "QSpinnerOrbit", "QSpinnerOval", "QSpinnerPie", "QSpinnerPuff", "QSpinnerRadio", "QSpinnerRings", "QSpinnerTail"]
+const spinners = {
+  QSpinner, QSpinnerAudio, QSpinnerBall, QSpinnerBars, QSpinnerBox, QSpinnerClock, QSpinnerComment, QSpinnerCube, QSpinnerDots,
+  QSpinnerFacebook, QSpinnerGears, QSpinnerGrid, QSpinnerHearts, QSpinnerHourglass, QSpinnerInfinity, QSpinnerIos, QSpinnerOrbit,
+  QSpinnerOval, QSpinnerPie, QSpinnerPuff, QSpinnerRadio, QSpinnerRings, QSpinnerTail,
+}
 const aliases: Record<string, string[]> = {
   QBanner: ["Alert"],
   Notify: ["Notification", "Toast"],
@@ -93,7 +101,7 @@ function startAjax() {
       <div class="row q-gutter-sm q-mt-md"><q-skeleton v-for="animation in ['pulse', 'pulse-x', 'pulse-y', 'fade', 'blink', 'none']" :key="animation" width="100px" height="24px" :animation="animation" /></div>
     </template>
     <template v-else-if="name === 'QSpinner'">
-      <div class="row q-col-gutter-sm items-start"><div v-for="spinner in spinners" :id="spinner === 'QSpinner' ? undefined : slug(spinner)" :key="spinner" class="col-6 col-sm-3 text-center q-pa-sm"><component :is="spinner" :style="{ color: 'var(--q-primary)' }" size="2em" /><div class="text-caption q-mt-xs">{{ spinner }}</div></div></div>
+      <div class="row q-col-gutter-sm items-start"><div v-for="(spinner, spinnerName) in spinners" :id="spinnerName === 'QSpinner' ? undefined : slug(spinnerName)" :key="spinnerName" class="col-6 col-sm-3 text-center q-pa-sm"><component :is="spinner" color="primary" size="2em" /><div class="text-caption q-mt-xs">{{ spinnerName }}</div></div></div>
     </template>
     <template v-else-if="name === 'Result'">
       <div class="row q-col-gutter-md"><q-card v-for="result in [{ icon: 'check-circle', color: 'positive', title: '成功' }, { icon: 'x-circle', color: 'negative', title: '失败' }, { icon: 'info', color: 'info', title: '提示' }, { icon: 'alert-triangle', color: 'warning', title: '警告' }]" :key="result.title" bordered class="col-12 col-sm-3 text-center q-pa-md"><AppIcon :name="result.icon" :size="36" :class="`text-${result.color}`" /><div class="text-h6 q-mt-sm">{{ result.title }}</div><div class="text-caption text-grey-7">操作结果说明</div></q-card></div>

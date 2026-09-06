@@ -19,10 +19,11 @@ const notes = ref("")
 const state = new URLSearchParams(window.location.search).get("state") ?? ""
 const loading = ref(state === "loading")
 const error = ref(state === "error")
+const empty = ref(state === "empty")
 const visible = ref({ id: true, customer: true, status: true, date: true, amount: true, channel: true })
 const pagination = ref({ page: 1, rowsPerPage: 10 })
 const channelOptions = ["web", "ios", "android", "api"]
-const filtered = computed(() => orders.filter((order) =>
+const filtered = computed(() => empty.value ? [] : orders.filter((order) =>
   (!query.value || `${order.id} ${order.customer} ${order.product}`.toLowerCase().includes(query.value.toLowerCase())) &&
   (status.value === "all" || order.status === status.value) &&
   (!channels.value.length || channels.value.includes(order.channel)),
@@ -38,6 +39,7 @@ const columns = computed(() => [
 ].filter((column) => column.name === "actions" || visible.value[column.name as keyof typeof visible.value]))
 
 function clearFilters() {
+  empty.value = false
   query.value = ""
   status.value = "all"
   channels.value = []
@@ -78,7 +80,7 @@ function retry() {
           <div class="col-6 col-sm-2"><q-select v-model="status" dense outlined emit-value map-options :options="[{ label: '全部状态', value: 'all' }, ...Object.keys(statusColors).map((value) => ({ label: value, value }))]" label="状态" /></div>
           <div class="col-6 col-sm-2"><q-input :model-value="dateLabel" dense outlined label="日期范围" readonly><template #append><AppIcon name="calendar" :size="18" /></template><q-popup-proxy cover transition-show="scale" transition-hide="scale"><q-date v-model="dateRange" range><div class="row items-center justify-end q-gutter-sm"><q-btn v-close-popup flat color="primary" label="确定" /></div></q-date></q-popup-proxy></q-input></div>
           <div class="col-12 col-sm-2"><q-select v-model="channels" dense outlined multiple use-chips :options="channelOptions" label="渠道" /></div>
-          <div class="col-auto"><q-btn outline round dense><AppIcon name="sliders" /><q-menu><q-list style="min-width: 180px"><q-item-label header>显示列</q-item-label><q-item v-for="column in columns.filter((item) => item.name !== 'actions' && item.name !== 'id')" :key="column.name"><q-item-section>{{ column.label }}</q-item-section><q-item-section side><q-toggle v-model="visible[column.name as keyof typeof visible]" /></q-item-section></q-item></q-list></q-menu></q-btn></div>
+          <div class="col-auto"><q-btn outline round><AppIcon name="sliders" /><q-menu><q-list style="min-width: 180px"><q-item-label header>显示列</q-item-label><q-item v-for="column in columns.filter((item) => item.name !== 'actions' && item.name !== 'id')" :key="column.name"><q-item-section>{{ column.label }}</q-item-section><q-item-section side><q-toggle v-model="visible[column.name as keyof typeof visible]" /></q-item-section></q-item></q-list></q-menu></q-btn></div>
         </div>
         <q-banner v-if="error" class="bg-negative text-white rounded-borders"><template #avatar><AppIcon name="alert-triangle" /></template>订单加载失败，请重试。<template #action><q-btn flat color="white" label="重试" @click="retry" /></template></q-banner>
         <div v-if="!loading && !error && !filtered.length" class="column items-center q-pa-xl text-center">
@@ -105,7 +107,7 @@ function retry() {
             </template>
             <template #body-cell-status="slot"><q-td :props="slot"><q-chip dense :color="statusColors[slot.value] ?? 'grey'" text-color="white">{{ slot.value }}</q-chip></q-td></template>
             <template #body-cell-amount="slot"><q-td :props="slot">¥{{ Number(slot.value).toLocaleString() }}</q-td></template>
-            <template #body-cell-actions="slot"><q-td :props="slot"><q-btn flat round dense @click.stop><AppIcon name="more-horizontal" /><q-menu><q-list><q-item clickable v-close-popup @click="choose(slot.row)"><q-item-section avatar><AppIcon name="edit" /></q-item-section><q-item-section>编辑</q-item-section></q-item><q-item clickable v-close-popup @click="confirmDelete(slot.row)"><q-item-section avatar><AppIcon name="trash" /></q-item-section><q-item-section>删除</q-item-section></q-item></q-list></q-menu></q-btn></q-td></template>
+            <template #body-cell-actions="slot"><q-td :props="slot"><q-btn flat round @click.stop><AppIcon name="more-horizontal" /><q-menu><q-list><q-item clickable v-close-popup @click="choose(slot.row)"><q-item-section avatar><AppIcon name="edit" /></q-item-section><q-item-section>编辑</q-item-section></q-item><q-item clickable v-close-popup @click="confirmDelete(slot.row)"><q-item-section avatar><AppIcon name="trash" /></q-item-section><q-item-section>删除</q-item-section></q-item></q-list></q-menu></q-btn></q-td></template>
           </q-table>
         </div>
       </q-card-section>
@@ -113,7 +115,7 @@ function retry() {
 
     <q-drawer :model-value="!!selected" side="right" bordered overlay :width="360" @update:model-value="(open) => { if (!open) selected = null }">
       <div v-if="selected" class="q-pa-md">
-        <div class="row items-center justify-between"><div class="text-h6">{{ selected.id }}</div><q-btn flat round dense @click="selected = null"><AppIcon name="x" /></q-btn></div>
+        <div class="row items-center justify-between"><div class="text-h6">{{ selected.id }}</div><q-btn flat round @click="selected = null"><AppIcon name="x" /></q-btn></div>
         <q-list separator class="q-mt-md">
           <q-item><q-item-section><q-item-label caption>客户</q-item-label><q-item-label>{{ selected.customer }}</q-item-label></q-item-section></q-item>
           <q-item><q-item-section><q-item-label caption>邮箱</q-item-label><q-item-label>{{ selected.email }}</q-item-label></q-item-section></q-item>

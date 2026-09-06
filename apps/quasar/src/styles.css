@@ -45,7 +45,25 @@ body {
 
 .landing-split-placeholder {
   min-height: 240px;
-  color: var(--q-color-grey-7);
+  display: grid;
+  place-items: center;
+  background: #f2f3f5;
+  color: #616161;
+}
+
+body.body--dark .landing-screenshot,
+body.body--dark .landing-split-placeholder {
+  border-color: #424242;
+  background: #1d1d1d;
+  color: #9e9e9e;
+}
+
+body.body--dark .text-grey-7 {
+  color: #9e9e9e !important;
+}
+
+body.body--dark .text-grey-8 {
+  color: #bdbdbd !important;
 }
 
 .logo-placeholder {
@@ -79,6 +97,15 @@ body.body--dark .logo-placeholder {
 
 .settings-tabs {
   min-height: 0;
+}
+
+.settings-tabs.q-tabs--vertical .q-tab {
+  justify-content: flex-start;
+  padding-left: 12px;
+}
+
+.settings-tabs.q-tabs--vertical .q-tab__content {
+  align-items: flex-start;
 }
 
 .qr-placeholder {

@@ -108,17 +108,17 @@ function submit() {
           <div class="row q-col-gutter-md">
             <div class="col-12 col-sm-6">
               <q-input v-model="date" label="开始日期 *" :rules="[rules.required]" lazy-rules readonly>
-                <template #append><q-btn flat round dense type="button"><AppIcon name="calendar" /><q-popup-proxy cover transition-show="scale" transition-hide="scale"><q-date v-model="date" mask="YYYY-MM-DD" /></q-popup-proxy></q-btn></template>
+                <template #append><q-btn flat round type="button"><AppIcon name="calendar" /><q-popup-proxy cover transition-show="scale" transition-hide="scale"><q-date v-model="date" mask="YYYY-MM-DD" /></q-popup-proxy></q-btn></template>
               </q-input>
             </div>
             <div class="col-12 col-sm-6">
               <q-input v-model="time" label="开始时间" readonly>
-                <template #append><q-btn flat round dense type="button"><AppIcon name="clock" /><q-popup-proxy cover transition-show="scale" transition-hide="scale"><q-time v-model="time" format24h /></q-popup-proxy></q-btn></template>
+                <template #append><q-btn flat round type="button"><AppIcon name="clock" /><q-popup-proxy cover transition-show="scale" transition-hide="scale"><q-time v-model="time" format24h /></q-popup-proxy></q-btn></template>
               </q-input>
             </div>
           </div>
           <q-input :model-value="dateLabel" label="日期范围" readonly>
-            <template #append><q-btn flat round dense type="button"><AppIcon name="calendar" /><q-popup-proxy cover transition-show="scale" transition-hide="scale"><q-date v-model="rangeDate" range /></q-popup-proxy></q-btn></template>
+            <template #append><q-btn flat round type="button"><AppIcon name="calendar" /><q-popup-proxy cover transition-show="scale" transition-hide="scale"><q-date v-model="rangeDate" range /></q-popup-proxy></q-btn></template>
           </q-input>
           <div>
             <div class="text-body2 q-mb-sm">预算区间 <span class="inline-help"><AppIcon name="circle-help" size="16" /><q-tooltip>设置项目预算区间</q-tooltip></span></div>
@@ -127,7 +127,7 @@ function submit() {
           <div class="row items-center q-gutter-lg">
             <q-rating v-model="rating" size="2em" color="primary" />
             <q-input v-model="color" label="主题颜色" readonly style="max-width: 180px">
-              <template #append><q-btn flat round dense type="button" :style="{ color }"><AppIcon name="edit" /><q-popup-proxy cover><q-color v-model="color" /></q-popup-proxy></q-btn></template>
+              <template #append><q-btn flat round type="button" :style="{ color }"><AppIcon name="edit" /><q-popup-proxy cover><q-color v-model="color" /></q-popup-proxy></q-btn></template>
             </q-input>
           </div>
           <div class="row q-col-gutter-md">

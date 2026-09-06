@@ -41,13 +41,13 @@ async function submit() {
           <template #avatar><AppIcon name="alert-circle" /></template>
           登录失败，请检查邮箱和密码后重试。
         </q-banner>
-        <q-form class="q-gutter-md" @submit.prevent="submit">
+        <q-form class="q-gutter-y-md" @submit.prevent="submit">
           <q-input v-model="email" label="邮箱" type="email" :rules="emailRules" lazy-rules>
             <template #prepend><AppIcon name="mail" /></template>
           </q-input>
           <q-input v-model="password" label="密码" :type="visible ? 'text' : 'password'" :rules="passwordRules" lazy-rules>
             <template #prepend><AppIcon name="lock" /></template>
-            <template #append><q-btn flat round dense type="button" @click="visible = !visible"><AppIcon :name="visible ? 'eye-off' : 'eye'" /></q-btn></template>
+            <template #append><q-btn flat round type="button" @click="visible = !visible"><AppIcon :name="visible ? 'eye-off' : 'eye'" /></q-btn></template>
           </q-input>
           <div class="row items-center justify-between">
             <q-checkbox v-model="remember" label="记住我" />

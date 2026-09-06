@@ -87,9 +87,10 @@ function sparkline(values: number[]) {
               { name: 'amount', label: '金额', field: 'amount', align: 'right' },
               { name: 'actions', label: '', field: 'actions', align: 'right' },
             ]" row-key="id">
+              <template #body-cell-customer="slot"><q-td :props="slot"><div class="row items-center no-wrap q-gutter-sm"><q-avatar size="28px" color="primary" text-color="white">{{ String(slot.value).slice(0, 1) }}</q-avatar><span>{{ slot.value }}</span></div></q-td></template>
               <template #body-cell-status="slot"><q-td :props="slot"><q-chip dense :color="statusColors[slot.value] ?? 'grey'" text-color="white">{{ slot.value }}</q-chip></q-td></template>
               <template #body-cell-amount="slot"><q-td :props="slot">¥{{ Number(slot.value).toLocaleString() }}</q-td></template>
-              <template #body-cell-actions="slot"><q-td :props="slot"><q-btn flat round dense><AppIcon name="more-horizontal" /><q-menu><q-list><q-item clickable v-close-popup><q-item-section>查看详情</q-item-section></q-item></q-list></q-menu></q-btn></q-td></template>
+              <template #body-cell-actions="slot"><q-td :props="slot"><q-btn flat round><AppIcon name="more-horizontal" /><q-menu><q-list><q-item clickable v-close-popup><q-item-section>查看详情</q-item-section></q-item></q-list></q-menu></q-btn></q-td></template>
             </q-table></div>
           </q-card>
         </div>

@@ -49,8 +49,8 @@ function inviteMember() {
   <div class="q-gutter-y-lg">
     <PageHeader title="设置" description="管理个人资料、团队与账单。" />
     <div class="row q-col-gutter-lg items-start">
-      <div class="col-12 col-md-2">
-        <q-tabs v-model="tab" :vertical="$q.screen.gt.sm" :scrollable="$q.screen.lt.md" outside-arrows mobile-arrows dense align="left" inline-label no-caps active-color="primary" indicator-color="primary" class="settings-tabs text-grey-8">
+      <div class="col-12 col-md-3">
+        <q-tabs v-model="tab" :vertical="$q.screen.gt.sm" :scrollable="$q.screen.lt.md" outside-arrows mobile-arrows align="left" inline-label no-caps active-color="primary" indicator-color="primary" class="settings-tabs text-grey-8">
           <q-tab name="profile" label="个人资料" />
           <q-tab name="security" label="账号安全" />
           <q-tab name="notifications" label="通知" />
@@ -61,7 +61,7 @@ function inviteMember() {
       <div class="col-12 col-md-9">
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="profile" class="q-pa-none">
-            <q-card bordered><q-card-section><div class="text-h6">个人资料</div></q-card-section><q-card-section class="q-gutter-md">
+            <q-card bordered><q-card-section><div class="text-h6">个人资料</div></q-card-section><q-card-section class="q-gutter-y-md">
               <div class="row items-center q-gutter-md"><q-avatar size="72px" color="primary" text-color="white">林</q-avatar><q-btn outline label="上传头像" /></div>
               <q-input v-model="name" label="姓名" />
               <q-input v-model="bio" label="个人简介" type="textarea" />
@@ -71,7 +71,7 @@ function inviteMember() {
           </q-tab-panel>
 
           <q-tab-panel name="security" class="q-pa-none q-gutter-md">
-            <q-card bordered><q-card-section><div class="text-h6">账号安全</div></q-card-section><q-card-section class="q-gutter-md">
+            <q-card bordered><q-card-section><div class="text-h6">账号安全</div></q-card-section><q-card-section class="q-gutter-y-md">
               <q-input v-model="currentPassword" label="当前密码" type="password" />
               <q-input v-model="newPassword" label="新密码" type="password" />
               <q-input v-model="confirmPassword" label="确认新密码" type="password" />
@@ -94,7 +94,7 @@ function inviteMember() {
             <q-card bordered><q-card-section><div class="text-h6">团队成员</div></q-card-section><div class="table-scroll"><q-table flat :rows="teamRows" :columns="columns" row-key="email">
               <template #body-cell-name="slot"><q-td :props="slot"><div class="row items-center q-gutter-sm"><q-avatar size="30px" color="primary" text-color="white">{{ String(slot.value).slice(0, 1) }}</q-avatar><div><div>{{ slot.value }}</div><div class="text-caption text-grey-7">{{ slot.row.email }}</div></div></div></q-td></template>
               <template #body-cell-role="slot"><q-td :props="slot"><q-select v-model="slot.row.role" dense borderless :options="roles" /></q-td></template>
-              <template #body-cell-actions="slot"><q-td :props="slot"><q-btn flat round dense><AppIcon name="trash" /></q-btn></q-td></template>
+              <template #body-cell-actions="slot"><q-td :props="slot"><q-btn flat round><AppIcon name="trash" /></q-btn></q-td></template>
             </q-table></div><q-card-section><div class="row q-col-gutter-sm"><div class="col"><q-input v-model="invite" dense outlined label="成员邮箱" /></div><div class="col-auto"><q-btn color="primary" label="邀请" @click="inviteMember" /></div></div></q-card-section></q-card>
           </q-tab-panel>
 

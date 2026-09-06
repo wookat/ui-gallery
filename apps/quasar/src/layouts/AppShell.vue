@@ -67,10 +67,9 @@ function navigate(path: string) {
         <q-item-section v-if="!mini || $q.screen.lt.md"><q-item-label>林晓</q-item-label><q-item-label caption>管理员</q-item-label></q-item-section>
       </q-item>
       <q-btn
-        style="position: absolute; right: -12px; top: 72px; z-index: 1"
+        style="position: absolute; right: -12px; top: 64px; z-index: 1"
         round
-        dense
-        size="sm"
+        :aria-label="mini ? '展开侧栏' : '折叠侧栏'"
         color="primary"
         @click="mini = !mini"
       ><AppIcon :name="mini ? 'chevron-right' : 'chevron-left'" /></q-btn>
@@ -78,7 +77,7 @@ function navigate(path: string) {
 
     <q-header bordered>
       <q-toolbar>
-        <q-btn v-if="$q.screen.lt.md" flat round dense aria-label="打开导航" @click="drawer = !drawer"><AppIcon name="menu" /></q-btn>
+        <q-btn v-if="$q.screen.lt.md" flat round aria-label="打开导航" @click="drawer = !drawer"><AppIcon name="menu" /></q-btn>
         <q-breadcrumbs class="gt-sm" active-color="white">
           <q-breadcrumbs-el to="/"><span class="text-white">Acme Console</span></q-breadcrumbs-el>
           <q-breadcrumbs-el :label="current" />
@@ -87,7 +86,7 @@ function navigate(path: string) {
         <q-input v-model="search" class="gt-xs" dense outlined debounce="250" placeholder="搜索..." style="width: 220px">
           <template #prepend><AppIcon name="search" :size="16" /></template>
         </q-input>
-        <q-btn flat round dense aria-label="通知">
+        <q-btn flat round aria-label="通知">
           <AppIcon name="bell" />
           <q-badge floating rounded color="negative">3</q-badge>
           <q-menu anchor="bottom right" self="top right">
@@ -100,8 +99,8 @@ function navigate(path: string) {
             </q-list>
           </q-menu>
         </q-btn>
-        <q-btn flat round dense :aria-label="isDark ? '切换亮色' : '切换暗色'" @click="toggleTheme"><AppIcon :name="isDark ? 'sun' : 'moon'" /></q-btn>
-        <q-btn flat round dense aria-label="账户"><q-avatar size="32px" color="primary" text-color="white">林</q-avatar>
+        <q-btn flat round :aria-label="isDark ? '切换亮色' : '切换暗色'" @click="toggleTheme"><AppIcon :name="isDark ? 'sun' : 'moon'" /></q-btn>
+        <q-btn flat round aria-label="账户"><q-avatar size="32px" color="primary" text-color="white">林</q-avatar>
           <q-menu anchor="bottom right" self="top right">
             <q-list style="min-width: 180px">
               <q-item-label header>林晓</q-item-label>

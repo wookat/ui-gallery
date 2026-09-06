@@ -72,7 +72,7 @@ function send() {
               </div>
             </q-chat-message>
           </template>
-        </div><div class="chat-composer q-pa-md"><div class="row q-gutter-xs q-mb-sm gt-xs"><q-chip v-for="suggestion in chat.suggestions" :key="suggestion" clickable @click="useSuggestion(suggestion)">{{ suggestion }}</q-chip></div><div class="row items-end q-gutter-sm"><q-btn flat round><AppIcon name="paperclip" /></q-btn><q-input v-model="input" type="textarea" autogrow :rows="1" label="输入消息" class="col" @keydown.enter.exact.prevent="send" /><q-select v-model="model" dense outlined :options="chat.models" style="width: 150px" /><q-btn round color="primary" @click="send"><AppIcon name="send" color="white" /></q-btn></div><div class="text-caption text-grey-7 q-mt-xs">Enter 发送 · Shift+Enter 换行 · {{ input.length }}/2000</div></div></main>
+        </div><div class="chat-composer q-pa-md"><div class="row q-gutter-xs q-mb-sm gt-xs"><q-chip v-for="suggestion in chat.suggestions" :key="suggestion" clickable @click="useSuggestion(suggestion)">{{ suggestion }}</q-chip></div><div class="row items-end q-gutter-sm"><q-btn flat round><AppIcon name="paperclip" /></q-btn><q-input v-model="input" type="textarea" autogrow :rows="1" label="输入消息" class="col" @keydown.enter.exact.prevent="send" /><q-select v-model="model" dense outlined :options="chat.models" class="gt-xs" style="width: 150px" /><q-btn round color="primary" @click="send"><AppIcon name="send" color="white" /></q-btn></div><div class="text-caption text-grey-7 q-mt-xs">Enter 发送 · Shift+Enter 换行 · {{ input.length }}/2000</div></div></main>
       </div>
     </q-card>
   </div>

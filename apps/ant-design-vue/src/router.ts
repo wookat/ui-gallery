@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router"
-import DashboardPage from "./pages/dashboard.vue"
 import OrdersPage from "./pages/orders.vue"
 import FormPage from "./pages/form.vue"
 import SettingsPage from "./pages/settings.vue"
@@ -12,7 +11,7 @@ const router = createRouter({
   history: createWebHistory("/apps/ant-design-vue"),
   routes: [
     { path: "/login", component: LoginPage },
-    { path: "/", component: DashboardPage },
+    { path: "/", component: () => import("./pages/dashboard.vue") },
     { path: "/orders", component: OrdersPage },
     { path: "/form", component: FormPage },
     { path: "/settings", component: SettingsPage },

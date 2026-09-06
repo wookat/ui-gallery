@@ -1,4 +1,4 @@
-import { h, type Component, type FunctionalComponent } from "vue"
+import { h, ref, type Component, type FunctionalComponent } from "vue"
 import {
   AppstoreOutlined,
   ArrowDownOutlined,
@@ -19,7 +19,9 @@ import {
   GithubOutlined,
   GlobalOutlined,
   LayoutOutlined,
+  LeftOutlined,
   LinkOutlined,
+  RightOutlined,
   LockOutlined,
   LoginOutlined,
   MenuOutlined,
@@ -41,6 +43,7 @@ import {
   ThunderboltOutlined,
   UploadOutlined,
   UserOutlined,
+  WechatOutlined,
 } from "@ant-design/icons-vue"
 import {
   ArrowDown,
@@ -50,17 +53,21 @@ import {
   Bot,
   Boxes,
   Check,
+  ChevronLeft,
+  ChevronRight,
   CircleHelp,
   Copy,
   Download,
   Edit3,
   FilePlus,
   Filter,
+  Github,
   Globe,
   LayoutDashboard,
   Lock,
   LogIn,
   Menu,
+  MessageCircle,
   MessageSquare,
   Moon,
   MoreHorizontal,
@@ -86,9 +93,15 @@ import {
 import {
   IconArrowDown,
   IconArrowUp,
+  IconApps,
   IconBell,
+  IconBolt,
+  IconBrandGithub,
+  IconBrandWechat,
   IconChartBar,
   IconCheck,
+  IconChevronLeft,
+  IconChevronRight,
   IconCopy,
   IconDots,
   IconDownload,
@@ -107,6 +120,7 @@ import {
   IconPaperclip,
   IconPlus,
   IconRefresh,
+  IconRobot,
   IconSearch,
   IconSend,
   IconSettings,
@@ -120,12 +134,16 @@ import {
   IconUpload,
   IconUser,
   IconUsers,
+  IconWorld,
   IconX,
 } from "@tabler/icons-vue"
 import {
   PhArrowDown,
   PhArrowUp,
   PhBell,
+  PhCaretLeft,
+  PhCaretRight,
+  PhChartBar,
   PhChatText,
   PhCheck,
   PhClipboard,
@@ -135,9 +153,11 @@ import {
   PhFaders,
   PhFilePlus,
   PhGear,
+  PhGithubLogo,
   PhGlobe,
   PhHouse,
   PhLightning,
+  PhList,
   PhLock,
   PhMagicWand,
   PhMagnifyingGlass as PhSearch,
@@ -147,10 +167,14 @@ import {
   PhPencil,
   PhPlugs,
   PhPlus,
+  PhQuestion,
   PhRepeat,
+  PhRobot,
   PhShield,
   PhShoppingCart,
+  PhSignIn,
   PhSparkle,
+  PhSquaresFour,
   PhStar,
   PhSun,
   PhTag,
@@ -158,14 +182,19 @@ import {
   PhUploadSimple as PhUpload,
   PhUser,
   PhUsers,
+  PhWechatLogo,
   PhX,
 } from "@phosphor-icons/vue"
 import {
   ArrowDownIcon,
   ArrowPathIcon,
+  ArrowRightEndOnRectangleIcon,
   ArrowUpIcon,
+  Bars3Icon,
   BellIcon,
   ChartBarIcon,
+  ChatBubbleLeftRightIcon,
+  ChatBubbleOvalLeftIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -173,6 +202,7 @@ import {
   ChevronUpIcon,
   ClipboardIcon,
   CloudArrowUpIcon,
+  CodeBracketIcon,
   Cog6ToothIcon,
   EllipsisHorizontalIcon,
   FolderPlusIcon,
@@ -194,6 +224,7 @@ import {
   ShieldCheckIcon,
   ShoppingCartIcon,
   SparklesIcon,
+  Squares2X2Icon,
   StarIcon,
   SunIcon,
   TagIcon,
@@ -247,6 +278,9 @@ const native: Record<string, Component> = {
   "file-text": FileTextOutlined,
   lock: LockOutlined,
   github: GithubOutlined,
+  wechat: WechatOutlined,
+  "chevron-left": LeftOutlined,
+  "chevron-right": RightOutlined,
 }
 
 const lucide: Record<string, Component> = {
@@ -289,6 +323,10 @@ const lucide: Record<string, Component> = {
   "more-horizontal": MoreHorizontal,
   "circle-help": CircleHelp,
   lock: Lock,
+  github: Github,
+  wechat: MessageCircle,
+  "chevron-left": ChevronLeft,
+  "chevron-right": ChevronRight,
 }
 
 const tabler: Record<string, Component> = {
@@ -296,14 +334,14 @@ const tabler: Record<string, Component> = {
   "shopping-cart": IconShoppingCart,
   "file-plus": IconFilePlus,
   "message-square": IconMessage,
-  boxes: IconHome,
-  globe: IconHome,
+  boxes: IconApps,
+  globe: IconWorld,
   settings: IconSettings,
   "log-in": IconLogin,
-  zap: IconSparkles,
+  zap: IconBolt,
   shield: IconShield,
   "bar-chart": IconChartBar,
-  bot: IconSparkles,
+  bot: IconRobot,
   plug: IconLink,
   search: IconSearch,
   bell: IconBell,
@@ -331,6 +369,12 @@ const tabler: Record<string, Component> = {
   "more-horizontal": IconDots,
   "circle-help": IconInfoCircle,
   lock: IconLock,
+  home: IconHome,
+  sparkles: IconSparkles,
+  github: IconBrandGithub,
+  wechat: IconBrandWechat,
+  "chevron-left": IconChevronLeft,
+  "chevron-right": IconChevronRight,
 }
 
 const phosphor: Record<string, Component> = {
@@ -338,18 +382,18 @@ const phosphor: Record<string, Component> = {
   "shopping-cart": PhShoppingCart,
   "file-plus": PhFilePlus,
   "message-square": PhChatText,
-  boxes: PhHouse,
+  boxes: PhSquaresFour,
   globe: PhGlobe,
   settings: PhGear,
-  "log-in": PhMagicWand,
+  "log-in": PhSignIn,
   zap: PhLightning,
   shield: PhShield,
-  "bar-chart": PhSparkle,
-  bot: PhMagicWand,
+  "bar-chart": PhChartBar,
+  bot: PhRobot,
   plug: PhPlugs,
   search: PhSearch,
   bell: PhBell,
-  menu: PhDotsThree,
+  menu: PhList,
   moon: PhMoon,
   sun: PhSun,
   user: PhUser,
@@ -371,20 +415,25 @@ const phosphor: Record<string, Component> = {
   "arrow-up": PhArrowUp,
   "arrow-down": PhArrowDown,
   "more-horizontal": PhDotsThree,
-  "circle-help": PhMagicWand,
+  "circle-help": PhQuestion,
   lock: PhLock,
   "file-text": PhClipboard,
+  sparkles: PhSparkle,
+  github: PhGithubLogo,
+  wechat: PhWechatLogo,
+  "chevron-left": PhCaretLeft,
+  "chevron-right": PhCaretRight,
 }
 
 const hero: Record<string, Component> = {
   "layout-dashboard": HomeIcon,
   "shopping-cart": ShoppingCartIcon,
   "file-plus": FolderPlusIcon,
-  "message-square": ListBulletIcon,
-  boxes: ListBulletIcon,
+  "message-square": ChatBubbleLeftRightIcon,
+  boxes: Squares2X2Icon,
   globe: GlobeAltIcon,
   settings: Cog6ToothIcon,
-  "log-in": PowerIcon,
+  "log-in": ArrowRightEndOnRectangleIcon,
   zap: RocketLaunchIcon,
   shield: ShieldCheckIcon,
   "bar-chart": ChartBarIcon,
@@ -392,7 +441,7 @@ const hero: Record<string, Component> = {
   plug: LinkIcon,
   search: MagnifyingGlassIcon,
   bell: BellIcon,
-  menu: ListBulletIcon,
+  menu: Bars3Icon,
   moon: MoonIcon,
   sun: SunIcon,
   user: UserIcon,
@@ -421,19 +470,26 @@ const hero: Record<string, Component> = {
   "chevron-up": ChevronUpIcon,
   link: LinkIcon,
   lock: LockClosedIcon,
+  list: ListBulletIcon,
+  power: PowerIcon,
+  github: CodeBracketIcon,
+  wechat: ChatBubbleOvalLeftIcon,
 }
 
-const selected: "native" | "lucide" | "tabler" | "phosphor" | "heroicons" = (() => {
-  const params = new URLSearchParams(window.location.search)
-  const value = params.get("icons") ?? params.get("icon")
-  return value === "tabler" || value === "phosphor" || value === "heroicons" || value === "lucide" ? value : "native"
-})()
+type IconSet = "native" | "lucide" | "tabler" | "phosphor" | "heroicons"
+const selected = ref<IconSet>("native")
+
+export function setIconSet(value: string | null | undefined) {
+  selected.value = value === "tabler" || value === "phosphor" || value === "heroicons" || value === "lucide" ? value : "native"
+}
+setIconSet(new URLSearchParams(window.location.search).get("icons") ?? new URLSearchParams(window.location.search).get("icon"))
 
 function lookup(name: string): Component {
-  if (selected === "tabler") return tabler[name] ?? IconInfoCircle
-  if (selected === "phosphor") return phosphor[name] ?? PhMagicWand
-  if (selected === "heroicons") return hero[name] ?? InformationCircleIcon
-  if (selected === "lucide") return lucide[name] ?? CircleHelp
+  const set = selected.value
+  if (set === "tabler") return tabler[name] ?? IconInfoCircle
+  if (set === "phosphor") return phosphor[name] ?? PhMagicWand
+  if (set === "heroicons") return hero[name] ?? InformationCircleIcon
+  if (set === "lucide") return lucide[name] ?? CircleHelp
   return native[name] ?? QuestionCircleOutlined
 }
 

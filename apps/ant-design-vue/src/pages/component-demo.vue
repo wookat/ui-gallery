@@ -119,7 +119,8 @@ function openDrawer(placement: typeof drawerPlacement.value) { drawerPlacement.v
   <a-card v-else size="small">组合示例：{{ name }}</a-card>
 </template>
 <style scoped>
-.carousel-wrap { width: 100%; display: block; min-width: 0; overflow: hidden; }
+.carousel-wrap { width: 100%; max-width: 640px; display: block; min-width: 0; overflow: hidden; contain: inline-size; }
+.carousel-wrap :deep(.slick-slider) { max-width: 100%; }
 .carousel-wrap :deep(.slick-list) { overflow: hidden; }
 .carousel-wrap :deep(.slick-slide) { width: 100%; }
 .carousel-slide { height: 80px; line-height: 80px; text-align: center; background: var(--app-color-primary); color: var(--app-color-white); }

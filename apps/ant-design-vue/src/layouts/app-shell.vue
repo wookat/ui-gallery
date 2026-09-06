@@ -23,8 +23,11 @@ function navigate() { mobileOpen.value = false }
 
 <template>
   <a-layout class="app-layout">
-    <a-layout-sider v-model:collapsed="collapsed" collapsible :trigger="null" breakpoint="md" collapsed-width="0" class="desktop-sider">
-      <RouterLink class="brand" to="/"><span class="brand-mark">A</span><span v-if="!collapsed">Acme Console</span></RouterLink>
+    <a-layout-sider v-model:collapsed="collapsed" collapsible :trigger="null" class="desktop-sider">
+      <div class="sider-head">
+        <RouterLink class="brand" to="/"><span class="brand-mark">A</span><span v-if="!collapsed">Acme Console</span></RouterLink>
+        <a-button class="sider-collapse" type="text" :aria-label="collapsed ? '展开侧边栏' : '折叠侧边栏'" @click="collapsed = !collapsed"><Icon :name="collapsed ? 'chevron-right' : 'chevron-left'" /></a-button>
+      </div>
       <a-menu mode="inline" :selected-keys="selected" theme="dark">
         <a-menu-item v-for="item in nav" :key="item.key"><RouterLink :to="item.path" class="nav-link"><Icon :name="item.icon" /><span>{{ item.label }}</span><a-badge v-if="item.badge" :count="item.badge" /></RouterLink></a-menu-item>
       </a-menu>

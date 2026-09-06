@@ -25,7 +25,7 @@ async function submit() {
       </a-form>
       <a-divider>或</a-divider>
       <a-space direction="vertical" block>
-        <a-button block><Icon name="globe" />使用 Google 登录</a-button><a-button block><Icon name="github" />使用 GitHub 登录</a-button><a-button block>使用微信登录</a-button>
+        <a-button block><template #icon><Icon name="globe" /></template>使用 Google 登录</a-button><a-button block><template #icon><Icon name="github" /></template>使用 GitHub 登录</a-button><a-button block><template #icon><Icon name="wechat" /></template>使用微信登录</a-button>
       </a-space>
       <p class="login-footer muted">还没有账户？ <a-typography-link href="#">立即注册</a-typography-link></p>
     </a-card>

@@ -6,6 +6,13 @@ html, body, #app { min-height: 100%; margin: 0; }
 body { font-family: var(--font-sans); }
 .app-layout { min-height: 100vh; }
 .desktop-sider { position: sticky; top: 0; height: 100vh; overflow: auto; }
+.sider-head { display: flex; align-items: center; justify-content: space-between; padding-right: 12px; }
+.sider-head .brand { flex: 1; min-width: 0; }
+.sider-collapse { flex: none; color: var(--app-color-white); }
+.sider-collapse:hover { color: var(--app-color-white); }
+.ant-layout-sider-collapsed .sider-head { flex-direction: column; justify-content: center; padding: 8px 0; gap: 4px; }
+.ant-layout-sider-collapsed .sider-head .brand { height: auto; padding: 8px 0; }
+.ant-layout-sider-collapsed .sider-user { justify-content: center; }
 .brand { height: 64px; display: flex; align-items: center; gap: 10px; padding: 0 20px; color: var(--app-color-white); font-weight: 700; white-space: nowrap; }
 .brand:hover { color: var(--app-color-white); }
 .brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: var(--app-color-primary); color: var(--app-color-white); font-size: 18px; }
@@ -58,6 +65,7 @@ body { font-family: var(--font-sans); }
 .message.user .bubble { background: var(--app-color-primary-bg); color: var(--app-color-text); }
 .composer { padding: 16px; border-top: 1px solid var(--app-color-border); }
 .component-index { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.component-index .ant-btn { padding-inline: 10px; }
 .component-grid { display: grid; gap: 16px; grid-auto-flow: dense; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 .component-grid > * { min-width: 0; }
 .component-section { scroll-margin-top: 90px; }

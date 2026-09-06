@@ -908,12 +908,16 @@ createApp(App).use(ArcoVue).mount("#app")</pre></a-typography-paragraph>
 .popup-anchor {
   position: relative;
   display: inline-flex;
-  padding-bottom: 0;
-  margin-bottom: 96px;
+  vertical-align: middle;
+}
+
+.popup-anchor :deep(.arco-trigger-popup) {
+  width: max-content;
+  max-width: calc(100vw - 48px);
 }
 
 :deep(.demo-body):has(.popup-anchor) {
-  padding-bottom: 110px;
+  padding-bottom: 100px;
 }
 
 :global(.kbd) {

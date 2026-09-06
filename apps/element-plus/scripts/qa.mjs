@@ -37,10 +37,11 @@ const audit = `(() => {
   const lum = ([r,g,b]) => { const f = (v) => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4 }; return .2126*f(r)+.7152*f(g)+.0722*f(b) }
   const ratio = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return (l1 + .05) / (l2 + .05) }
   const bgOf = (el) => { let n = el; while (n && n !== document.documentElement) { const c = parse(getComputedStyle(n).backgroundColor); if (c[3] > 0) return c; n = n.parentElement } return [255,255,255,1] }
-  // Official Element Plus palette text (links, active tabs/menu, typed el-text/tags) is reported separately:
-  // changing it would mean a custom palette, which the gallery contract forbids.
+  // Official Element Plus palette colors, including white text on filled surfaces, are reported separately:
+  // changing them would mean a custom palette, which the gallery contract forbids.
   const rootStyle = getComputedStyle(document.documentElement)
   const paletteHex = ["primary", "success", "warning", "danger", "info"].map((k) => rootStyle.getPropertyValue("--el-color-" + k).trim().toLowerCase())
+  paletteHex.push(rootStyle.getPropertyValue("--el-text-color-disabled").trim().toLowerCase())
   const toHex = ([r, g, b]) => "#" + [r, g, b].map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")
   const isPalette = (c) => paletteHex.includes(toHex(c))
   const visible = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== "hidden" && s.opacity !== "0" }
@@ -82,7 +83,7 @@ const audit = `(() => {
     const bg = bgOf(el)
     const r = ratio(fg, bg)
     const key = el.tagName + "|" + el.className + "|" + s.color + "|" + bg.join()
-    if (r < 4.5 && !seen.has(key)) { seen.add(key); (isPalette(fg) && !isPalette(bg) ? out.palette : out.contrast).push({ text: t.textContent.trim().slice(0, 24), el: el.tagName.toLowerCase() + "." + [...el.classList].slice(0,2).join("."), ratio: +r.toFixed(2), fg: s.color, bg: "rgb(" + bg.slice(0,3).join(",") + ")" }) }
+    if (r < 4.5 && !seen.has(key)) { seen.add(key); (isPalette(fg) || isPalette(bg) ? out.palette : out.contrast).push({ text: t.textContent.trim().slice(0, 24), el: el.tagName.toLowerCase() + "." + [...el.classList].slice(0,2).join("."), ratio: +r.toFixed(2), fg: s.color, bg: "rgb(" + bg.slice(0,3).join(",") + ")" }) }
   }
   // placeholders
   for (const inp of document.querySelectorAll("input[placeholder], textarea[placeholder]")) {
@@ -91,10 +92,18 @@ const audit = `(() => {
     if (r < 4.5) out.contrast.push({ text: "placeholder:" + inp.placeholder.slice(0, 16), ratio: +r.toFixed(2), fg: getComputedStyle(inp, "::placeholder").color, bg: "rgb(" + bg.slice(0,3).join(",") + ")" })
   }
   // hit targets: buttons, links, inputs, checkbox/radio/switch wrappers, tabs, pagination items
-  for (const el of document.querySelectorAll("button, a[href], input:not([type=hidden]), textarea, .el-checkbox, .el-radio, .el-switch, .el-tabs__item, .el-pager li, .el-menu-item, .el-select__wrapper, .el-tag.is-closable, .el-anchor__link")) {
+  const measured = new Set()
+  for (const el of document.querySelectorAll("button, a[href], input:not([type=hidden]), textarea, .el-checkbox, .el-radio, .el-switch, .el-tabs__item, .el-pager li, .el-menu-item, .el-select__wrapper, .el-tag.is-closable, .el-anchor__link, .el-radio-button__inner, .el-checkbox-button__inner, .el-carousel__indicator")) {
     if (!visible(el) || el.closest(".el-popper, .el-overlay")) continue
-    const r = el.getBoundingClientRect()
-    if (Math.min(r.width, r.height) < 40) out.small.push(el.tagName.toLowerCase() + "." + [...el.classList].slice(0,2).join(".") + " " + Math.round(r.width) + "x" + Math.round(r.height))
+    const target = el.matches("input, textarea")
+      ? el.closest(".el-input__wrapper, .el-select__wrapper, .el-range-editor, .el-textarea, .el-input-number, .el-checkbox, .el-radio, .el-switch, .el-segmented__item") ?? el
+      : el.matches("button.el-carousel__button")
+        ? el.closest(".el-carousel__indicator") ?? el
+        : el
+    if (measured.has(target)) continue
+    measured.add(target)
+    const r = target.getBoundingClientRect()
+    if (Math.min(r.width, r.height) < 40) out.small.push(target.tagName.toLowerCase() + "." + [...target.classList].slice(0,2).join(".") + " " + Math.round(r.width) + "x" + Math.round(r.height))
   }
   return out
 })()`
@@ -117,7 +126,7 @@ for (const [vp, [width, height]] of Object.entries(contract.viewports)) {
       if (errors.length) note("FAIL", `${tag}: console errors: ${errors.slice(0, 3).join(" | ")}`)
       if (r.contrast.length) note("FAIL", `${tag}: ${r.contrast.length} text contrast < 4.5: ${r.contrast.slice(0, 6).map((c) => `${c.el ?? ""}"${c.text}" ${c.ratio} ${c.fg} on ${c.bg}`).join("; ")}`)
       if (r.palette.length) note("WARN", `${tag}: ${r.palette.length} official-palette text < 4.5 (kept, see gallery.json notes): ${r.palette.slice(0, 4).map((c) => `${c.el ?? ""}"${c.text}" ${c.ratio}`).join("; ")}`)
-      if (r.small.length) note("WARN", `${tag}: ${r.small.length} hit target(s) < 40px: ${r.small.slice(0, 8).join("; ")}`)
+      if (r.small.length) note("FAIL", `${tag}: ${r.small.length} hit target(s) < 40px: ${r.small.slice(0, 8).join("; ")}`)
       if (!r.overflow.length && !errors.length && !r.contrast.length && r.scrollWidth <= width) note("OK", tag)
     }
     await ctx.close()

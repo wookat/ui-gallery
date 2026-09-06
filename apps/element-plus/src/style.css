@@ -15,38 +15,6 @@ a { color: var(--el-color-primary); text-decoration: none; }
    placeholders / secondary text / inactive steps reach 4.5:1 on white. */
 html:not(.dark) { --el-text-color-secondary: #5f6368; --el-text-color-placeholder: #6b6f76; }
 
-/* Filled surfaces (primary/success/warning/danger/info) use a dark foreground instead of white:
-   white on the official palette is ~2.2–3:1, dark text on it is ≥6:1 in both themes. */
-:root { --ug-on-color: #0f172a; }
-.el-button--primary:not(.is-plain):not(.is-text):not(.is-link),
-.el-button--success:not(.is-plain):not(.is-text):not(.is-link),
-.el-button--warning:not(.is-plain):not(.is-text):not(.is-link),
-.el-button--danger:not(.is-plain):not(.is-text):not(.is-link),
-.el-button--info:not(.is-plain):not(.is-text):not(.is-link) {
-  --el-button-text-color: var(--ug-on-color);
-  --el-button-hover-text-color: var(--ug-on-color);
-  --el-button-active-text-color: var(--ug-on-color);
-}
-.el-radio-button { --el-radio-button-checked-text-color: var(--ug-on-color); }
-.el-checkbox-button { --el-checkbox-button-checked-text-color: var(--ug-on-color); }
-.el-tag--dark, .el-tag--dark.el-tag--primary, .el-tag--dark.el-tag--success, .el-tag--dark.el-tag--warning,
-.el-tag--dark.el-tag--danger, .el-tag--dark.el-tag--info { --el-tag-text-color: var(--ug-on-color); }
-.el-segmented { --el-segmented-item-selected-color: var(--ug-on-color); }
-.el-badge__content { color: var(--ug-on-color); }
-.el-alert.is-dark, .el-alert.is-dark .el-alert__title, .el-alert.is-dark .el-alert__description { color: var(--ug-on-color); }
-.el-pagination.is-background .el-pager li.is-active { color: var(--ug-on-color); }
-.el-date-table td.current:not(.disabled) .el-date-table-cell__text { color: var(--ug-on-color); }
-.el-switch__core .el-switch__inner-wrapper { color: var(--ug-on-color); }
-.el-avatar { --el-avatar-bg-color: var(--el-color-primary); --el-avatar-text-color: var(--ug-on-color); }
-.brand-mark { color: var(--ug-on-color); }
-
-/* Checked checkbox/radio labels: regular text color instead of the palette color. */
-.el-checkbox__input.is-checked + .el-checkbox__label,
-.el-radio__input.is-checked + .el-radio__label { color: var(--el-text-color-regular); }
-html:not(.dark) .el-form-item__error { color: #b93838; }
-html:not(.dark) .el-check-tag.is-checked { color: #1d5fa8; }
-.el-step__title.is-finish, .el-step__description.is-finish { color: var(--el-text-color-regular); }
-
 /* Intentional horizontal scroll regions: always show a thin scrollbar so the affordance is visible. */
 [data-scroll-x] { width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--el-border-color-darker) transparent; }
 [data-scroll-x]::-webkit-scrollbar { height: 8px; }
@@ -54,11 +22,35 @@ html:not(.dark) .el-check-tag.is-checked { color: #1d5fa8; }
 
 /* Hit targets ≥ 40px (global component size is "large"; the rest is handled here). */
 .icon-btn { width: 40px; height: 40px; padding: 0; }
-.el-table .caret-wrapper { height: 40px; width: 24px; justify-content: center; }
+.el-carousel__arrow { width: 40px; height: 40px; }
+.el-tabs__item { min-width: 40px; justify-content: center; }
+.el-anchor__link { display: inline-block; min-width: 40px; min-height: 40px; }
+.el-breadcrumb a { display: inline-flex; align-items: center; min-height: 40px; }
+.el-table .caret-wrapper { height: 40px; width: 40px; justify-content: center; }
 .el-table .el-checkbox { display: inline-flex; min-width: 40px; min-height: 40px; align-items: center; justify-content: center; }
-.el-checkbox, .el-radio { min-height: 40px; }
+.el-input__wrapper, .el-select__wrapper, .el-range-editor, .el-textarea, .el-input-number { min-height: 40px; }
+.el-input--small .el-input__wrapper, .el-select--small .el-select__wrapper, .el-range-editor--small, .el-textarea--small, .el-input-number--small { min-height: 40px; }
+.el-checkbox, .el-radio { min-width: 40px; min-height: 40px; align-items: center; }
+.el-radio, .el-radio-button__inner, .el-checkbox-button__inner { display: inline-flex; }
+.el-radio-button__inner, .el-checkbox-button__inner { min-height: 40px; align-items: center; }
+.el-radio-button--small .el-radio-button__inner, .el-checkbox-button--small .el-checkbox-button__inner { min-height: 40px; }
 .el-carousel__indicator { padding: 19px 6px; }
 .el-link { display: inline-flex; min-height: 40px; align-items: center; }
+.el-button.is-link, .el-button.is-text { min-width: 40px; min-height: 40px; }
+.components-page .demo-row > .el-button.is-link,
+.components-page .demo-row > .el-button.is-text { min-width: 40px; }
+.el-button.is-circle { min-width: 40px; }
+.el-button.el-dropdown__caret-button { min-width: 40px; }
+.el-tag.is-closable { min-height: 40px; }
+.el-tag__close { min-width: 40px; min-height: 40px; }
+.el-pagination button, .el-pagination .el-pager li { min-width: 40px; min-height: 40px; }
+.el-pagination .btn-prev, .el-pagination .btn-next { min-width: 40px; min-height: 40px; }
+.components-page .component-card .el-pagination .btn-prev, .components-page .component-card .el-pagination .btn-next, .components-page .component-card .el-pagination .el-pager li { min-width: 40px; }
+.el-calendar__button-group .el-button--small { min-height: 40px; }
+.el-date-picker button, .el-date-range-picker button { min-width: 40px; min-height: 40px; }
+.el-date-editor .el-button--small { min-height: 40px; }
+.component-card a[href] { display: inline-flex; align-items: center; min-width: 40px; min-height: 40px; }
+.el-table__expand-icon { display: inline-flex; min-width: 40px; min-height: 40px; align-items: center; justify-content: center; }
 .el-menu-item { min-height: 40px; }
 
 /* Deterministic screenshots: no entrance animation on tags. */

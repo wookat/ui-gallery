@@ -37,7 +37,7 @@ const submit = () => { formRef.value?.validate((ok) => { if (!ok) return; failed
 .login-card { width: min(100%, 420px); }
 .login-brand { display: flex; align-items: center; gap: 12px; }
 .login-brand h1 { margin: 0; font-size: 24px; }
-.brand-mark { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 10px; background: var(--el-color-primary); font-weight: 700; font-size: 20px; }
+.brand-mark { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 10px; background: var(--el-color-primary); color: #fff; font-weight: 700; font-size: 20px; }
 .login-form { margin-top: 22px; }
 .login-options, .oauth { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .oauth { justify-content: center; flex-wrap: wrap; }

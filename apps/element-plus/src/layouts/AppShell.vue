@@ -66,7 +66,7 @@ const toggleTheme = () => {
 .shell { min-height: 100vh; }
 .sidebar { position: relative; display: flex; flex-direction: column; border-right: 1px solid var(--el-border-color); background: var(--el-bg-color); transition: width .2s; }
 .brand { display: flex; align-items: center; gap: 10px; height: 64px; padding: 0 18px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; background: var(--el-color-primary); }
+.brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; background: var(--el-color-primary); color: #fff; }
 .sidebar :deep(.el-menu) { border-right: 0; flex: 1; }
 .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 18px; border-top: 1px solid var(--el-border-color); cursor: pointer; }
 .collapse-button { position: absolute; right: 8px; bottom: 80px; }

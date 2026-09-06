@@ -24,7 +24,7 @@ const yearly = ref(false)
       <section id="faq" class="section faq"><h2>常见问题</h2><el-collapse accordion><el-collapse-item v-for="item in landing.faq" :key="item.q" :title="item.q"><p>{{ item.a }}</p></el-collapse-item></el-collapse></section>
       <section class="cta"><h2>准备好让团队更高效了吗？</h2><p>从今天开始，把工作放进一个控制台。</p><el-button type="primary" size="large">免费开始</el-button></section>
     </main>
-    <footer><div class="brand"><span class="brand-mark">A</span>Acme Console</div><div class="footer-links"><el-link>产品</el-link><el-link>价格</el-link><el-link>帮助中心</el-link><el-link>隐私条款</el-link></div><span class="muted">© 2026 Acme Console · <el-select model-value="zh-CN" size="small" style="width: 110px"><el-option label="简体中文" value="zh-CN" /></el-select></span></footer>
+    <footer><div class="brand"><span class="brand-mark">A</span>Acme Console</div><div class="footer-links"><el-link>产品</el-link><el-link>价格</el-link><el-link>帮助中心</el-link><el-link>隐私条款</el-link></div><span class="muted">© 2026 Acme Console · <el-select model-value="zh-CN" style="width: 110px"><el-option label="简体中文" value="zh-CN" /></el-select></span></footer>
   </div>
 </template>
 
@@ -33,7 +33,7 @@ const yearly = ref(false)
 .landing-nav { justify-content: space-between; min-width: 0; }
 .landing-nav :deep(.el-menu) { min-width: 0; flex: 1; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; white-space: nowrap; }
-.brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; background: var(--el-color-primary); }
+.brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; background: var(--el-color-primary); color: #fff; }
 .nav-actions { display: flex; gap: 8px; align-items: center; }
 .hero { max-width: 900px; margin: auto; padding: 90px 24px 60px; text-align: center; }
 .hero h1 { margin: 18px 0; font-size: clamp(36px, 7vw, 68px); line-height: 1.08; }

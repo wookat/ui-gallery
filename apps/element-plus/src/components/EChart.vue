@@ -20,7 +20,10 @@ onMounted(() => {
   new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
 })
 watch(() => props.option, render, { deep: true })
-onBeforeUnmount(() => { observer?.disconnect(); chart?.dispose() })
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  chart?.dispose()
+})
 </script>
 
 <template><div ref="el" class="echart" :style="{ height: props.height ?? '280px' }" /></template>

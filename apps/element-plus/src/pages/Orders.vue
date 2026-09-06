@@ -4,27 +4,214 @@ import { ElMessage, ElMessageBox } from "element-plus"
 import ordersData from "@ui-gallery/spec/mock/orders.json"
 import Icon from "@/icons/Icon.vue"
 import { useMobile } from "@/composables/useMobile"
-const query = ref(""); const status = ref(""); const channels = ref<string[]>([]); const mode = ref("normal"); const selected = ref<any>(); const drawer = ref(false); const dialog = ref(false)
+const query = ref("")
+const status = ref("")
+const channels = ref<string[]>([])
+const mode = ref("normal")
+const selected = ref<any>()
+const drawer = ref(false)
+const dialog = ref(false)
 const mobile = useMobile()
-const visible = computed(() => ordersData.filter((item) => (!query.value || `${item.id} ${item.customer} ${item.product}`.toLowerCase().includes(query.value.toLowerCase())) && (!status.value || item.status === status.value) && (!channels.value.length || channels.value.includes(item.channel))))
-const tagType = (value: string) => ({ paid: "success", pending: "warning", refunded: "info", failed: "danger", shipped: "" }[value] ?? "info") as any
-const remove = async (row: any) => { try { await ElMessageBox.confirm(`确认删除订单 ${row.id}？`, "删除确认", { type: "warning" }); ElMessage.success("订单已删除") } catch { return } }
+const selectOrder = (row: any) => {
+  selected.value = row
+  drawer.value = true
+}
+const visible = computed(() =>
+  ordersData.filter(
+    (item) =>
+      (!query.value || `${item.id} ${item.customer} ${item.product}`.toLowerCase().includes(query.value.toLowerCase())) &&
+      (!status.value || item.status === status.value) &&
+      (!channels.value.length || channels.value.includes(item.channel)),
+  ),
+)
+const tagType = (value: string) =>
+  (({ paid: "success", pending: "warning", refunded: "info", failed: "danger", shipped: "" })[value] ?? "info") as any
+const remove = async (row: any) => {
+  try {
+    await ElMessageBox.confirm(`确认删除订单 ${row.id}？`, "删除确认", { type: "warning" })
+    ElMessage.success("订单已删除")
+  } catch {
+    return
+  }
+}
 </script>
 
 <template>
-  <div class="page"><div class="page-header"><div><h1 class="page-title">订单</h1><p class="page-subtitle">查看、筛选与管理所有订单。</p></div><el-button type="primary"><Icon name="download" />导出</el-button></div>
-    <el-card><div class="toolbar"><el-input v-model="query" clearable placeholder="搜索订单、客户或产品" class="query"><template #prefix><Icon name="search" /></template></el-input><el-select v-model="status" clearable placeholder="状态" style="width: 130px"><el-option label="已支付" value="paid" /><el-option label="待处理" value="pending" /><el-option label="已退款" value="refunded" /><el-option label="失败" value="failed" /></el-select><el-date-picker type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" style="width: 240px" /><el-select v-model="channels" multiple collapse-tags placeholder="渠道" style="width: 150px"><el-option v-for="channel in ['web','ios','android','api']" :key="channel" :label="channel" :value="channel" /></el-select><el-popover placement="bottom-end" title="显示列" trigger="click"><template #reference><el-button><Icon name="sliders" />列</el-button></template><el-checkbox-group model-value="['id','customer','product','amount','status']"><el-checkbox value="id">订单号</el-checkbox><el-checkbox value="customer">客户</el-checkbox><el-checkbox value="product">产品</el-checkbox><el-checkbox value="amount">金额</el-checkbox></el-checkbox-group></el-popover></div>
-      <el-radio-group v-model="mode" class="state-switch"><el-radio-button value="normal">正常</el-radio-button><el-radio-button value="empty">空</el-radio-button><el-radio-button value="loading">加载</el-radio-button><el-radio-button value="error">错误</el-radio-button></el-radio-group>
-      <el-alert v-if="mode === 'error'" title="订单加载失败，请稍后重试。" type="error" show-icon><template #default><el-button @click="mode = 'normal'">重试</el-button></template></el-alert>
-      <el-empty v-else-if="mode === 'empty'" description="暂无订单"><el-button type="primary" @click="mode = 'normal'">清除筛选</el-button></el-empty>
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">订单</h1>
+        <p class="page-subtitle">查看、筛选与管理所有订单。</p>
+      </div>
+      <el-button type="primary"><Icon name="download" />导出</el-button>
+    </div>
+    <el-card
+      ><div class="toolbar">
+        <el-input v-model="query" clearable placeholder="搜索订单、客户或产品" class="query"
+          ><template #prefix><Icon name="search" /></template></el-input
+        ><el-select v-model="status" clearable placeholder="状态" style="width: 130px"
+          ><el-option label="已支付" value="paid" /><el-option label="待处理" value="pending" /><el-option
+            label="已退款"
+            value="refunded" /><el-option label="失败" value="failed" /></el-select
+        ><el-date-picker type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" style="width: 240px" /><el-select
+          v-model="channels"
+          multiple
+          collapse-tags
+          placeholder="渠道"
+          style="width: 150px"
+          ><el-option v-for="channel in ['web', 'ios', 'android', 'api']" :key="channel" :label="channel" :value="channel" /></el-select
+        ><el-popover placement="bottom-end" title="显示列" trigger="click"
+          ><template #reference
+            ><el-button><Icon name="sliders" />列</el-button></template
+          ><el-checkbox-group model-value="['id','customer','product','amount','status']"
+            ><el-checkbox value="id">订单号</el-checkbox><el-checkbox value="customer">客户</el-checkbox
+            ><el-checkbox value="product">产品</el-checkbox><el-checkbox value="amount">金额</el-checkbox></el-checkbox-group
+          ></el-popover
+        >
+      </div>
+      <el-radio-group v-model="mode" class="state-switch"
+        ><el-radio-button value="normal">正常</el-radio-button><el-radio-button value="empty">空</el-radio-button
+        ><el-radio-button value="loading">加载</el-radio-button><el-radio-button value="error">错误</el-radio-button></el-radio-group
+      >
+      <el-alert v-if="mode === 'error'" title="订单加载失败，请稍后重试。" type="error" show-icon
+        ><template #default><el-button @click="mode = 'normal'">重试</el-button></template></el-alert
+      >
+      <el-empty v-else-if="mode === 'empty'" description="暂无订单"
+        ><el-button type="primary" @click="mode = 'normal'">清除筛选</el-button></el-empty
+      >
       <div v-else-if="mode === 'loading'" v-loading="true" class="loading-table" />
-      <div v-else-if="mobile" class="order-cards"><el-card v-for="row in visible" :key="row.id" shadow="never" class="order-card" @click="selected = row; drawer = true"><div class="order-card-head"><strong>{{ row.id }}</strong><span class="muted">{{ row.customer }}</span></div><div>{{ row.product }}</div><div class="order-card-meta muted">{{ row.channel }} · {{ row.date }}</div><div class="order-card-foot"><el-tag :type="tagType(row.status)">{{ row.status }}</el-tag><strong>¥{{ row.amount.toLocaleString() }}</strong><el-button text type="primary" @click.stop="selected = row; drawer = true">查看</el-button></div></el-card></div>
-      <div v-else><div class="table-scroll" data-scroll-x><el-table :data="visible" @row-click="(row) => { selected = row; drawer = true }"><el-table-column type="selection" min-width="45" /><el-table-column prop="id" label="订单号" sortable min-width="115" /><el-table-column prop="customer" label="客户" sortable min-width="120" /><el-table-column prop="product" label="产品" min-width="130" /><el-table-column prop="channel" label="渠道" min-width="100" /><el-table-column prop="date" label="日期" sortable min-width="120" /><el-table-column label="金额" align="right" sortable min-width="110"><template #default="{ row }">¥{{ row.amount.toLocaleString() }}</template></el-table-column><el-table-column label="状态" min-width="100"><template #default="{ row }"><el-tag :type="tagType(row.status)">{{ row.status }}</el-tag></template></el-table-column><el-table-column label="操作" min-width="85"><template #default="{ row }"><el-dropdown><el-button text><Icon name="more-horizontal" /></el-button><template #dropdown><el-dropdown-menu><el-dropdown-item>编辑</el-dropdown-item><el-dropdown-item divided @click.stop="remove(row)">删除</el-dropdown-item></el-dropdown-menu></template></el-dropdown></template></el-table-column></el-table></div></div>
+      <div v-else-if="mobile" class="order-cards">
+        <el-card v-for="row in visible" :key="row.id" shadow="never" class="order-card" @click="selectOrder(row)"
+          ><div class="order-card-head">
+            <strong>{{ row.id }}</strong
+            ><span class="muted">{{ row.customer }}</span>
+          </div>
+          <div>{{ row.product }}</div>
+          <div class="order-card-meta muted">{{ row.channel }} · {{ row.date }}</div>
+          <div class="order-card-foot">
+            <el-tag :type="tagType(row.status)">{{ row.status }}</el-tag
+            ><strong>¥{{ row.amount.toLocaleString() }}</strong
+            ><el-button text type="primary" @click.stop="selectOrder(row)">查看</el-button>
+          </div></el-card
+        >
+      </div>
+      <div v-else>
+        <div class="table-scroll" data-scroll-x>
+          <el-table
+            :data="visible"
+            @row-click="
+              (row) => {
+                selected = row
+                drawer = true
+              }
+            "
+            ><el-table-column type="selection" min-width="45" /><el-table-column
+              prop="id"
+              label="订单号"
+              sortable
+              min-width="115"
+            /><el-table-column prop="customer" label="客户" sortable min-width="120" /><el-table-column
+              prop="product"
+              label="产品"
+              min-width="130"
+            /><el-table-column prop="channel" label="渠道" min-width="100" /><el-table-column
+              prop="date"
+              label="日期"
+              sortable
+              min-width="120"
+            /><el-table-column label="金额" align="right" sortable min-width="110"
+              ><template #default="{ row }">¥{{ row.amount.toLocaleString() }}</template></el-table-column
+            ><el-table-column label="状态" min-width="100"
+              ><template #default="{ row }"
+                ><el-tag :type="tagType(row.status)">{{ row.status }}</el-tag></template
+              ></el-table-column
+            ><el-table-column label="操作" min-width="85"
+              ><template #default="{ row }"
+                ><el-dropdown
+                  ><el-button text><Icon name="more-horizontal" /></el-button
+                  ><template #dropdown
+                    ><el-dropdown-menu
+                      ><el-dropdown-item>编辑</el-dropdown-item
+                      ><el-dropdown-item divided @click.stop="remove(row)">删除</el-dropdown-item></el-dropdown-menu
+                    ></template
+                  ></el-dropdown
+                ></template
+              ></el-table-column
+            ></el-table
+          >
+        </div>
+      </div>
       <el-pagination class="pagination" layout="total, sizes, prev, pager, next" :total="visible.length" :page-size="10" />
     </el-card>
-    <el-drawer v-model="drawer" title="订单详情" size="min(100%, 480px)"><el-descriptions v-if="selected" :column="1" border><el-descriptions-item label="订单号">{{ selected.id }}</el-descriptions-item><el-descriptions-item label="客户">{{ selected.customer }} · {{ selected.email }}</el-descriptions-item><el-descriptions-item label="产品">{{ selected.product }}</el-descriptions-item><el-descriptions-item label="金额">¥{{ selected.amount.toLocaleString() }}</el-descriptions-item><el-descriptions-item label="渠道">{{ selected.channel }}</el-descriptions-item></el-descriptions><el-tabs class="drawer-tabs"><el-tab-pane label="备注"><el-input type="textarea" :rows="5" placeholder="添加备注..." /></el-tab-pane><el-tab-pane label="活动"><el-empty description="暂无活动" /></el-tab-pane></el-tabs></el-drawer>
+    <el-drawer v-model="drawer" title="订单详情" size="min(100%, 480px)"
+      ><el-descriptions v-if="selected" :column="1" border
+        ><el-descriptions-item label="订单号">{{ selected.id }}</el-descriptions-item
+        ><el-descriptions-item label="客户">{{ selected.customer }} · {{ selected.email }}</el-descriptions-item
+        ><el-descriptions-item label="产品">{{ selected.product }}</el-descriptions-item
+        ><el-descriptions-item label="金额">¥{{ selected.amount.toLocaleString() }}</el-descriptions-item
+        ><el-descriptions-item label="渠道">{{ selected.channel }}</el-descriptions-item></el-descriptions
+      ><el-tabs class="drawer-tabs"
+        ><el-tab-pane label="备注"><el-input type="textarea" :rows="5" placeholder="添加备注..." /></el-tab-pane
+        ><el-tab-pane label="活动"><el-empty description="暂无活动" /></el-tab-pane></el-tabs
+    ></el-drawer>
     <el-dialog v-model="dialog" title="删除订单"><p>确认删除吗？</p></el-dialog>
   </div>
 </template>
 
-<style scoped>.toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }.query { width: 260px; }.state-switch { margin: 0 0 16px; }.loading-table { min-height: 360px; }.pagination { justify-content: flex-end; margin-top: 18px; }.drawer-tabs { margin-top: 24px; }.order-cards { display: grid; gap: 12px; }.order-card { cursor: pointer; }.order-card-head, .order-card-foot { display: flex; align-items: center; gap: 10px; }.order-card-head span { margin-left: auto; }.order-card-meta { margin-top: 6px; }.order-card-foot { margin-top: 12px; }.order-card-foot strong { margin-left: auto; }@media (max-width: 767px) { .toolbar > * { width: 100% !important; } .query { width: 100%; } }</style>
+<style scoped>
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.query {
+  width: 260px;
+}
+.state-switch {
+  margin: 0 0 16px;
+}
+.loading-table {
+  min-height: 360px;
+}
+.pagination {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.drawer-tabs {
+  margin-top: 24px;
+}
+.order-cards {
+  display: grid;
+  gap: 12px;
+}
+.order-card {
+  cursor: pointer;
+}
+.order-card-head,
+.order-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.order-card-head span {
+  margin-left: auto;
+}
+.order-card-meta {
+  margin-top: 6px;
+}
+.order-card-foot {
+  margin-top: 12px;
+}
+.order-card-foot strong {
+  margin-left: auto;
+}
+@media (max-width: 767px) {
+  .toolbar > * {
+    width: 100% !important;
+  }
+  .query {
+    width: 100%;
+  }
+}
+</style>

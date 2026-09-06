@@ -37,7 +37,11 @@ const status = (name: string) => coverage[name] ?? "composed"
 const anchors = computed(() => sections.map((item) => ({ label: item.name, value: sectionId(item.name) })))
 const activeSection = ref("")
 const mobile = useMobile()
-const jump = async (id: string) => { activeSection.value = id; await nextTick(); document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }) }
+const jump = async (id: string) => {
+  activeSection.value = id
+  await nextTick()
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+}
 
 const input = ref("")
 const number = ref(12.5)
@@ -64,17 +68,28 @@ const segmented = ref("monthly")
 const dialog = ref(false)
 const dialogMode = ref("")
 const nestedDialog = ref(false)
-const openDialog = (mode: string) => { dialogMode.value = mode; dialog.value = true }
+const openDialog = (mode: string) => {
+  dialogMode.value = mode
+  dialog.value = true
+}
 const drawer = ref(false)
 const drawerDirection = ref<"ltr" | "rtl" | "ttb" | "btt">("rtl")
-const openDrawer = (direction: "ltr" | "rtl" | "ttb" | "btt") => { drawerDirection.value = direction; drawer.value = true }
+const openDrawer = (direction: typeof drawerDirection.value) => {
+  drawerDirection.value = direction
+  drawer.value = true
+}
 const command = ref(false)
 const tour = ref(false)
 const loadingArea = ref(true)
 const skeletonLoading = ref(true)
 const dark = ref(document.documentElement.classList.contains("dark"))
 let themeObserver: MutationObserver | undefined
-onMounted(() => { themeObserver = new MutationObserver(() => { dark.value = document.documentElement.classList.contains("dark") }); themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] }) })
+onMounted(() => {
+  themeObserver = new MutationObserver(() => {
+    dark.value = document.documentElement.classList.contains("dark")
+  })
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+})
 onBeforeUnmount(() => themeObserver?.disconnect())
 const menuCollapse = ref(false)
 const tableSelection = ref<typeof orders>([])
@@ -84,120 +99,846 @@ const formState = ref({ name: "", email: "", agreement: false })
 const uploadFiles = ref([])
 const imageData = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='480' height='300'><rect width='480' height='300' fill='#e5e7eb'/><path d='M0 230L120 120l90 80 80-100 190 130v70H0z' fill='#cbd5e1'/><circle cx='350' cy='90' r='36' fill='#94a3b8'/></svg>")}`
 const tableRows = orders.slice(0, 6)
-const tableV2Rows = Array.from({ length: 500 }, (_, index) => ({ id: index + 1, name: `订单 ${index + 1}`, owner: team[index % team.length]?.name ?? "", status: index % 3 === 0 ? "已完成" : "处理中" }))
-const tableV2Columns = [{ key: "id", dataKey: "id", title: "ID", width: 80 }, { key: "name", dataKey: "name", title: "订单", width: 180 }, { key: "owner", dataKey: "owner", title: "负责人", width: 140 }, { key: "status", dataKey: "status", title: "状态", width: 120 }]
+const tableV2Rows = Array.from({ length: 500 }, (_, index) => ({
+  id: index + 1,
+  name: `订单 ${index + 1}`,
+  owner: team[index % team.length]?.name ?? "",
+  status: index % 3 === 0 ? "已完成" : "处理中",
+}))
+const tableV2Columns = [
+  { key: "id", dataKey: "id", title: "ID", width: 80 },
+  { key: "name", dataKey: "name", title: "订单", width: 180 },
+  { key: "owner", dataKey: "owner", title: "负责人", width: 140 },
+  { key: "status", dataKey: "status", title: "状态", width: 120 },
+]
 const teamTransferData = [
   ...team.map((item) => ({ key: item.email, label: item.name })),
   ...nav.map((item) => ({ key: `nav-${item.key}`, label: item.label })),
 ]
-const treeData = ["owner", "admin", "member", "viewer"].map((role) => ({ label: role, children: team.filter((item) => item.role === role).map((item) => ({ label: item.name })) }))
-const cascaderOptions = [{ value: "cn", label: "中国", children: [{ value: "sh", label: "上海" }, { value: "bj", label: "北京" }] }, { value: "us", label: "美国", children: [{ value: "ny", label: "纽约" }] }]
-const selectOptions = [{ label: "选项一", value: "one" }, { label: "选项二", value: "two" }, { label: "禁用选项", value: "disabled", disabled: true }]
+const treeData = ["owner", "admin", "member", "viewer"].map((role) => ({
+  label: role,
+  children: team.filter((item) => item.role === role).map((item) => ({ label: item.name })),
+}))
+const cascaderOptions = [
+  {
+    value: "cn",
+    label: "中国",
+    children: [
+      { value: "sh", label: "上海" },
+      { value: "bj", label: "北京" },
+    ],
+  },
+  { value: "us", label: "美国", children: [{ value: "ny", label: "纽约" }] },
+]
+const selectOptions = [
+  { label: "选项一", value: "one" },
+  { label: "选项二", value: "two" },
+  { label: "禁用选项", value: "disabled", disabled: true },
+]
 const imageFits = ["fill", "contain", "cover", "none", "scale-down"] as const
 const cardShadows = ["always", "hover", "never"] as const
 const notificationPosition = ref<"top-left" | "top-right" | "bottom-left" | "bottom-right">("top-right")
 const progressStatuses = ["success", "exception", "warning", undefined, "info"] as const
-const progressStatus = (value: typeof progressStatuses[number]) => value === "info" ? undefined : value
-const filteredSuggestions = (query: string, callback: (items: { value: string; email: string }[]) => void) => callback(team.filter((item) => item.name.toLowerCase().includes(query.toLowerCase())).map((item) => ({ value: item.name, email: item.email })))
+const progressStatus = (value: (typeof progressStatuses)[number]) => (value === "info" ? undefined : value)
+const filteredSuggestions = (query: string, callback: (items: { value: string; email: string }[]) => void) =>
+  callback(
+    team.filter((item) => item.name.toLowerCase().includes(query.toLowerCase())).map((item) => ({ value: item.name, email: item.email })),
+  )
 const filterCombobox = (query: string) => selectOptions.filter((item) => item.label.includes(query))
-const filteredTree = computed(() => treeFilter.value ? treeData.map((item) => ({ ...item, children: item.children?.filter((child) => child.label.includes(treeFilter.value)) })).filter((item) => item.label.includes(treeFilter.value) || item.children?.length) : treeData)
-const showMessage = (type: "success" | "warning" | "info" | "error", plain = false) => ElMessage({ type, message: `${type} message`, plain, showClose: true })
-const showMessageWithAction = () => ElMessage({ duration: 0, showClose: true, message: h("span", null, [h("span", null, "已导出 5 条订单 "), h(ElButton, { size: "small", link: true, type: "primary", onClick: () => ElMessage.closeAll() }, () => "撤销")]) })
-const showNotification = (type: "success" | "warning" | "info" | "error") => ElNotification({ type, title: `${type} notification`, message: h("span", null, [h("span", null, "带操作的通知 "), h(ElButton, { size: "small", link: true, type: "primary", onClick: () => ElNotification.closeAll() }, () => "撤销")]), position: notificationPosition.value, offset: 48 })
-const showLoading = () => { const service = ElLoading.service({ text: "加载演示数据", background: "rgba(0, 0, 0, .45)" }); window.setTimeout(() => service.close(), 1500) }
-const handlePin = (index: number, value: string) => { pin.value[index] = value; if (value && index < pin.value.length - 1) (document.querySelectorAll(".pin-input input")[index + 1] as HTMLInputElement | undefined)?.focus() }
+const filteredTree = computed(() =>
+  treeFilter.value
+    ? treeData
+        .map((item) => ({ ...item, children: item.children?.filter((child) => child.label.includes(treeFilter.value)) }))
+        .filter((item) => item.label.includes(treeFilter.value) || item.children?.length)
+    : treeData,
+)
+const showMessage = (type: "success" | "warning" | "info" | "error", plain = false) =>
+  ElMessage({ type, message: `${type} message`, plain, showClose: true })
+const showMessageWithAction = () =>
+  ElMessage({
+    duration: 0,
+    showClose: true,
+    message: h("span", null, [
+      h("span", null, "已导出 5 条订单 "),
+      h(ElButton, { size: "small", link: true, type: "primary", onClick: () => ElMessage.closeAll() }, () => "撤销"),
+    ]),
+  })
+const showNotification = (type: "success" | "warning" | "info" | "error") =>
+  ElNotification({
+    type,
+    title: `${type} notification`,
+    message: h("span", null, [
+      h("span", null, "带操作的通知 "),
+      h(ElButton, { size: "small", link: true, type: "primary", onClick: () => ElNotification.closeAll() }, () => "撤销"),
+    ]),
+    position: notificationPosition.value,
+    offset: 48,
+  })
+const showLoading = () => {
+  const service = ElLoading.service({ text: "加载演示数据", background: "rgba(0, 0, 0, .45)" })
+  window.setTimeout(() => service.close(), 1500)
+}
+const handlePin = (index: number, value: string) => {
+  pin.value[index] = value
+  if (value && index < pin.value.length - 1)
+    (document.querySelectorAll(".pin-input input")[index + 1] as HTMLInputElement | undefined)?.focus()
+}
 </script>
 
 <template>
   <div class="page components-page">
-    <div class="page-header"><div><h1 class="page-title">Kitchen Sink</h1><p class="page-subtitle">每个契约组件均以独立卡片展示 variant、size、state 和真实交互。</p></div><el-button type="primary" @click="showNotification('success')">发送通知</el-button></div>
-    <el-card class="index-card"><div class="desktop-anchor"><el-anchor direction="horizontal" type="underline"><el-anchor-link v-for="item in anchors" :key="item.value" :href="`#${item.value}`">{{ item.label }}</el-anchor-link></el-anchor></div><el-select class="mobile-anchor" :model-value="activeSection" placeholder="跳转到组件分节" @change="jump"><el-option v-for="item in anchors" :key="item.value" :label="item.label" :value="item.value" /></el-select><div class="coverage"><el-tag v-for="[name, value] in Object.entries(coverage)" :key="name" :type="value === 'implemented' ? 'success' : 'warning'" :disable-transitions="true">{{ name }} · {{ value }}</el-tag></div></el-card>
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Kitchen Sink</h1>
+        <p class="page-subtitle">每个契约组件均以独立卡片展示 variant、size、state 和真实交互。</p>
+      </div>
+      <el-button type="primary" @click="showNotification('success')">发送通知</el-button>
+    </div>
+    <el-card class="index-card"
+      ><div class="desktop-anchor">
+        <el-anchor direction="horizontal" type="underline"
+          ><el-anchor-link v-for="item in anchors" :key="item.value" :href="`#${item.value}`">{{ item.label }}</el-anchor-link></el-anchor
+        >
+      </div>
+      <el-select class="mobile-anchor" :model-value="activeSection" placeholder="跳转到组件分节" @change="jump"
+        ><el-option v-for="item in anchors" :key="item.value" :label="item.label" :value="item.value"
+      /></el-select>
+      <div class="coverage">
+        <el-tag
+          v-for="[name, value] in Object.entries(coverage)"
+          :key="name"
+          :type="value === 'implemented' ? 'success' : 'warning'"
+          :disable-transitions="true"
+          >{{ name }} · {{ value }}</el-tag
+        >
+      </div></el-card
+    >
     <section v-for="section in sections" :id="sectionId(section.name)" :key="section.name" class="sink-section">
-      <el-card class="component-card"><template #header><div class="component-header"><div><strong>{{ section.name }}</strong><span>{{ section.description }}</span></div><el-tag :type="status(section.name) === 'implemented' ? 'success' : 'warning'" size="small">{{ status(section.name) }}</el-tag></div></template>
-        <div v-if="section.name === 'Typography'" class="demo-stack"><div class="heading-grid"><h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><h5>Heading 5</h5><h6>Heading 6</h6></div><p>正文与 <code>const value = true</code>、<kbd>⌘ K</kbd>。</p><blockquote>blockquote 引用内容。</blockquote><ul><li>无序列表项目</li></ul><ol><li>有序列表项目</li></ol><div class="demo-row"><el-text v-for="size in textSizes" :key="size" :size="size">{{ size }}</el-text><el-text v-for="type in types" :key="type" :type="type">{{ type }}</el-text></div></div>
-        <div v-else-if="section.name === 'Button'" class="demo-stack"><div class="demo-row" v-for="type in types" :key="type"><el-button :type="type">default</el-button><el-button :type="type" plain>plain</el-button><el-button :type="type" round>round</el-button><el-button :type="type" circle><Plus /></el-button></div><div class="demo-row"><el-button v-for="size in sizes" :key="size" :size="size" data-size-demo>size {{ size }}</el-button><el-button loading>loading</el-button><el-button loading><template #loading><el-icon class="is-loading"><Loading /></el-icon></template>custom loading</el-button><el-button disabled>disabled</el-button><el-button text>text</el-button><el-button link>link</el-button><el-button bg>bg</el-button></div></div>
-        <div v-else-if="section.name === 'ButtonGroup'" class="demo-stack"><el-button-group><el-button>上一页</el-button><el-button>下一页</el-button></el-button-group><el-button-group><el-button><Edit /></el-button><el-button><Delete /></el-button></el-button-group><el-button-group type="primary"><el-button>保存</el-button><el-button>发布</el-button></el-button-group><el-button-group v-for="size in sizes" :key="size" :size="size" data-size-demo><el-button>左</el-button><el-button>右</el-button></el-button-group></div>
-        <div v-else-if="section.name === 'IconButton'" class="demo-row"><template v-for="type in types" :key="type"><el-button v-for="size in sizes" :key="size" :type="type" :size="size" circle data-size-demo><Plus /></el-button></template><el-button circle disabled><Plus /></el-button><el-button circle loading /></div>
-        <div v-else-if="section.name === 'Input'" class="demo-grid cols-3"><el-input v-model="input" prefix-icon="Search" suffix-icon="Edit" clearable placeholder="请输入内容" /><el-input v-model="input" prepend="https://" append=".com" placeholder="请输入内容" /><el-input v-model="input" type="password" show-password placeholder="请输入内容" /><el-input v-model="input" prefix-icon="Search" clearable placeholder="搜索" /><el-input disabled model-value="disabled" /><el-input v-for="size in sizes" :key="size" v-model="input" :size="size" data-size-demo placeholder="请输入内容" /></div>
-        <div v-else-if="section.name === 'Textarea'" class="demo-grid cols-2"><el-input type="textarea" :rows="3" /><el-input type="textarea" :autosize="{ minRows: 2, maxRows: 5 }" maxlength="80" show-word-limit /><el-input type="textarea" disabled /><el-input type="textarea" resize="none" /></div>
-        <div v-else-if="section.name === 'NumberInput'" class="demo-row"><el-input-number v-model="number" :step="0.5" :precision="2" /><el-input-number v-model="number" controls-position="right" /><el-input-number v-for="size in sizes" :key="size" v-model="number" :size="size" data-size-demo :min="0" :max="100" /><el-input-number v-model="number" disabled /></div>
-        <div v-else-if="section.name === 'Select'" class="demo-row"><el-select v-model="selected"><el-option-group label="常用"><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-option-group></el-select><el-select v-model="selected" filterable clearable /><el-select v-for="size in sizes" :key="size" v-model="selected" :size="size" data-size-demo /><el-select v-model="selected" disabled /></div>
-        <div v-else-if="section.name === 'MultiSelect'" class="demo-row"><el-select v-model="selectedMany" multiple collapse-tags collapse-tags-tooltip :max-collapse-tags="1" multiple-limit="3"><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-select><el-select v-model="selectedMany" multiple disabled><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-select></div>
-        <div v-else-if="section.name === 'Combobox'" class="demo-row"><el-select v-model="selected" filterable allow-create default-first-option :filter-method="filterCombobox"><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-select></div>
-        <div v-else-if="section.name === 'Autocomplete'" class="demo-grid cols-2"><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" placeholder="输入 a 试试" /><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" trigger-on-focus clearable placeholder="输入 a 试试" /><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" clearable placeholder="输入 a 试试"><template #default="{ item }"><span>{{ item.value }} · {{ item.email }}</span></template></el-autocomplete><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" disabled placeholder="输入 a 试试" /></div>
-        <div v-else-if="section.name === 'Checkbox'" class="demo-stack"><el-checkbox v-model="checked">基础</el-checkbox><el-checkbox v-model="indeterminate" :indeterminate="indeterminate">indeterminate</el-checkbox><el-checkbox-group v-model="selectedMany"><el-checkbox v-for="item in ['one', 'two', 'three']" :key="item" :value="item" border>{{ item }}</el-checkbox></el-checkbox-group></div>
-        <div v-else-if="section.name === 'Radio'" class="demo-stack"><el-radio-group v-model="radio"><el-radio value="a">A</el-radio><el-radio value="b">B</el-radio></el-radio-group><el-radio-group v-model="radio"><el-radio-button value="a">A</el-radio-button><el-radio-button value="b">B</el-radio-button></el-radio-group><el-radio value="a" border>border</el-radio></div>
-        <div v-else-if="section.name === 'Switch'" class="demo-row"><el-switch v-model="switched" size="large" active-text="是" inactive-text="否" /><el-switch v-model="switched" inline-prompt active-text="Y" inactive-text="N" /><el-switch v-model="switched" loading /><el-switch v-model="switched" disabled /></div>
-        <div v-else-if="section.name === 'Slider'" class="demo-grid cols-2"><el-slider v-model="slider" show-stops :step="10" show-input /><el-slider v-model="range" range /><el-slider v-model="slider" vertical height="200px" /><el-slider v-model="slider" disabled /></div>
-        <div v-else-if="section.name === 'Rating'" class="demo-row"><el-rate v-model="rating" allow-half show-text /><el-rate v-model="rating" show-score :max="10" /><el-rate v-model="rating" disabled /></div>
-        <div v-else-if="section.name === 'DatePicker'" class="demo-row"><el-date-picker v-model="date" type="date" /><el-date-picker v-model="date" type="week" /><el-date-picker v-model="date" type="month" /><el-date-picker v-model="date" type="year" /><el-date-picker v-model="date" type="datetime" /><el-date-picker v-model="date" type="dates" /><el-date-picker v-model="date" disabled /><el-date-picker v-for="size in sizes" :key="size" v-model="date" type="date" :size="size" data-size-demo /></div>
-        <div v-else-if="section.name === 'TimePicker'" class="demo-row"><el-time-picker v-model="time" placeholder="选择时间" /><el-time-picker v-model="time" arrow-control placeholder="选择时间" /><el-time-picker v-model="timeRange" is-range placeholder="选择时间" /><el-time-picker v-model="time" disabled placeholder="选择时间" /><el-time-select v-model="time" start="08:30" step="00:30" end="18:30" /></div>
-        <div v-else-if="section.name === 'DateRangePicker'" class="demo-row"><el-date-picker v-model="dateRange" type="daterange" /><el-date-picker v-model="dateRange" type="datetimerange" /><el-date-picker v-model="dateRange" type="monthrange" unlink-panels :shortcuts="[{ text: '今天', value: new Date() }, { text: '最近 7 天', value: new Date() }, { text: '最近 30 天', value: new Date() }]" /></div>
-        <div v-else-if="section.name === 'ColorPicker'" class="demo-row"><el-color-picker v-model="color" /><el-color-picker v-model="color" show-alpha /><el-color-picker v-model="color" :predefine="['#409EFF', '#67C23A', '#E6A23C', '#F56C6C']" /></div>
-        <div v-else-if="section.name === 'Upload'" class="demo-row"><el-upload action="#" :auto-upload="false" :file-list="uploadFiles"><el-button type="primary">点击上传</el-button></el-upload><el-upload drag action="#" :auto-upload="false">拖拽上传</el-upload><el-upload action="#" list-type="picture-card" :auto-upload="false"><el-icon><Plus /></el-icon></el-upload></div>
-        <div v-else-if="section.name === 'Cascader'" class="demo-row"><el-cascader :options="cascaderOptions" /><el-cascader :options="cascaderOptions" multiple collapse-tags filterable /><el-cascader :options="cascaderOptions" disabled /><el-cascader-panel :options="cascaderOptions" /></div>
-        <div v-else-if="section.name === 'Transfer'" class="transfer-demo"><el-transfer v-model="selectedMany" :data="teamTransferData" filterable :titles="['可选成员', '已选成员']" /></div>
-        <div v-else-if="section.name === 'Mention'" class="demo-row"><el-mention v-model="mention" :options="team.map((item) => ({ value: item.name }))" prefix="@" type="textarea" disabled /></div>
-        <div v-else-if="section.name === 'PinInput'" class="pin-input"><el-input v-for="(_, index) in pin" :key="index" maxlength="1" :model-value="pin[index]" @update:model-value="handlePin(index, $event)" /></div>
-        <div v-else-if="section.name === 'Form'" class="demo-stack"><el-form v-for="position in formPositions" :key="position" :model="formState" :label-position="position"><el-form-item label="姓名" required><el-input v-model="formState.name" /></el-form-item><el-form-item label="邮箱" error="校验错误示例"><el-input v-model="formState.email" /></el-form-item></el-form><el-form :model="formState" inline><el-form-item label="帮助文案"><el-input v-model="formState.name" /></el-form-item><el-form-item><el-checkbox v-model="formState.agreement">必填</el-checkbox></el-form-item></el-form></div>
-        <div v-else-if="section.name === 'Table'"><div class="table-scroll" data-scroll-x><el-table :data="tableRows" stripe border height="280" show-summary sum-text="合计" @selection-change="tableSelection = $event" @sort-change="({ prop, order }) => tableSort = `${prop} ${order ?? ''}`"><el-table-column type="selection" width="55" /><el-table-column prop="id" label="订单号" sortable min-width="130" /><el-table-column v-if="!mobile" prop="customer" label="客户" min-width="130" /><el-table-column v-if="!mobile" prop="product" label="产品" min-width="150" /><el-table-column prop="amount" label="金额" min-width="110" /><el-table-column prop="status" label="状态" /><el-table-column v-if="!mobile" type="expand"><template #default="{ row }"><pre>{{ JSON.stringify(row, null, 2) }}</pre></template></el-table-column></el-table></div><small class="muted">selection {{ tableSelection.length }} · sort {{ tableSort || "none" }}</small></div>
-        <div v-else-if="section.name === 'DataGrid'"><div style="height: 260px"><el-auto-resizer><template #default="{ height, width }"><el-table-v2 :columns="tableV2Columns" :data="tableV2Rows" :width="width" :height="height" /></template></el-auto-resizer></div></div>
-        <div v-else-if="section.name === 'Descriptions'"><el-descriptions title="团队成员" border :column="2"><el-descriptions-item label="姓名">{{ team[0].name }}</el-descriptions-item><el-descriptions-item label="角色">{{ team[0].role }}</el-descriptions-item><el-descriptions-item label="邮箱">{{ team[0].email }}</el-descriptions-item><el-descriptions-item label="状态">{{ team[0].lastActive }}</el-descriptions-item></el-descriptions></div>
-        <div v-else-if="section.name === 'List'" class="list-box"><div v-for="item in team" :key="item.email" class="list-item"><el-avatar>{{ item.name.slice(0, 1) }}</el-avatar><span class="list-text">{{ item.name }}<small>{{ item.email }}</small></span><el-tag>{{ item.role }}</el-tag></div></div>
-        <div v-else-if="section.name === 'Card'" class="demo-grid cols-3"><el-card v-for="shadow in cardShadows" :key="shadow" :shadow="shadow"><template #header>shadow={{ shadow }}</template>内容<template #footer>footer</template></el-card></div>
-        <div v-else-if="section.name === 'Avatar'" class="demo-row"><el-avatar v-for="size in sizes" :key="size" :size="size" data-size-demo>A</el-avatar><el-avatar v-for="size in sizes" :key="`square-${size}`" :size="size" data-size-demo shape="square">A</el-avatar><el-avatar icon="UserFilled" /><el-avatar>林</el-avatar><el-avatar :src="imageData" fit="cover" /></div>
-        <div v-else-if="section.name === 'AvatarGroup'" class="demo-row"><el-avatar-group :max="3" size="small"><el-avatar v-for="item in team" :key="item.email">{{ item.name.slice(0, 1) }}</el-avatar></el-avatar-group><el-avatar-group :max="5" size="large"><el-avatar v-for="item in team" :key="item.email">{{ item.name.slice(0, 1) }}</el-avatar></el-avatar-group></div>
-        <div v-else-if="section.name === 'Badge'" class="demo-row badge-row"><el-badge :value="12"><el-button>数字</el-button></el-badge><el-badge is-dot><el-button>dot</el-button></el-badge><el-badge v-for="type in types" :key="type" :value="type" :type="type"><el-button>{{ type }}</el-button></el-badge></div>
-        <div v-else-if="section.name === 'Tag'" class="demo-stack"><div v-for="type in types" :key="type" class="demo-row"><el-tag v-for="effect in ['dark', 'light', 'plain']" :key="effect" :type="type" :effect="effect">{{ type }}</el-tag></div><div class="demo-row"><el-tag v-for="size in sizes" :key="size" :size="size" data-size-demo>size {{ size }}</el-tag></div><div class="demo-row"><el-check-tag checked>check-tag</el-check-tag><el-button @click="tags.push(`tag-${tags.length + 1}`)">动态 tag</el-button><el-tag v-for="tag in tags" :key="tag" closable>{{ tag }}</el-tag></div></div>
-        <div v-else-if="section.name === 'Statistic'" class="demo-row"><el-statistic title="Revenue" :value="12345.678" :precision="2" /><el-statistic title="Users" :value="1280" /><el-countdown title="Countdown" :value="Date.now() + 86400000" /></div>
-        <div v-else-if="section.name === 'Timeline'"><el-timeline><el-timeline-item v-for="(item, index) in team.slice(0, 4)" :key="item.email" :timestamp="item.lastActive" :type="types[index]">{{ item.name }}</el-timeline-item></el-timeline></div>
-        <div v-else-if="section.name === 'Tree'"><el-input v-model="treeFilter" clearable /><el-tree :data="filteredTree" show-checkbox draggable default-expand-all /><el-tree-v2 :data="treeData" :height="160" default-expand-all /></div>
+      <el-card class="component-card"
+        ><template #header
+          ><div class="component-header">
+            <div>
+              <strong>{{ section.name }}</strong
+              ><span>{{ section.description }}</span>
+            </div>
+            <el-tag :type="status(section.name) === 'implemented' ? 'success' : 'warning'" size="small">{{ status(section.name) }}</el-tag>
+          </div></template
+        >
+        <div v-if="section.name === 'Typography'" class="demo-stack">
+          <div class="heading-grid">
+            <h1>Heading 1</h1>
+            <h2>Heading 2</h2>
+            <h3>Heading 3</h3>
+            <h4>Heading 4</h4>
+            <h5>Heading 5</h5>
+            <h6>Heading 6</h6>
+          </div>
+          <p>正文与 <code>const value = true</code>、<kbd>⌘ K</kbd>。</p>
+          <blockquote>blockquote 引用内容。</blockquote>
+          <ul>
+            <li>无序列表项目</li>
+          </ul>
+          <ol>
+            <li>有序列表项目</li>
+          </ol>
+          <div class="demo-row">
+            <el-text v-for="size in textSizes" :key="size" :size="size">{{ size }}</el-text
+            ><el-text v-for="type in types" :key="type" :type="type">{{ type }}</el-text>
+          </div>
+        </div>
+        <div v-else-if="section.name === 'Button'" class="demo-stack">
+          <div class="demo-row" v-for="type in types" :key="type">
+            <el-button :type="type">default</el-button><el-button :type="type" plain>plain</el-button
+            ><el-button :type="type" round>round</el-button><el-button :type="type" circle><Plus /></el-button>
+          </div>
+          <div class="demo-row">
+            <el-button v-for="size in sizes" :key="size" :size="size" data-size-demo>size {{ size }}</el-button
+            ><el-button loading>loading</el-button
+            ><el-button loading
+              ><template #loading
+                ><el-icon class="is-loading"><Loading /></el-icon></template
+              >custom loading</el-button
+            ><el-button disabled>disabled</el-button><el-button text>text</el-button><el-button link>link</el-button
+            ><el-button bg>bg</el-button>
+          </div>
+        </div>
+        <div v-else-if="section.name === 'ButtonGroup'" class="demo-stack">
+          <el-button-group><el-button>上一页</el-button><el-button>下一页</el-button></el-button-group
+          ><el-button-group
+            ><el-button><Edit /></el-button><el-button><Delete /></el-button></el-button-group
+          ><el-button-group type="primary"><el-button>保存</el-button><el-button>发布</el-button></el-button-group
+          ><el-button-group v-for="size in sizes" :key="size" :size="size" data-size-demo
+            ><el-button>左</el-button><el-button>右</el-button></el-button-group
+          >
+        </div>
+        <div v-else-if="section.name === 'IconButton'" class="demo-row">
+          <template v-for="type in types" :key="type"
+            ><el-button v-for="size in sizes" :key="size" :type="type" :size="size" circle data-size-demo><Plus /></el-button></template
+          ><el-button circle disabled><Plus /></el-button><el-button circle loading />
+        </div>
+        <div v-else-if="section.name === 'Input'" class="demo-grid cols-3">
+          <el-input v-model="input" prefix-icon="Search" suffix-icon="Edit" clearable placeholder="请输入内容" /><el-input
+            v-model="input"
+            prepend="https://"
+            append=".com"
+            placeholder="请输入内容"
+          /><el-input v-model="input" type="password" show-password placeholder="请输入内容" /><el-input
+            v-model="input"
+            prefix-icon="Search"
+            clearable
+            placeholder="搜索"
+          /><el-input disabled model-value="disabled" /><el-input
+            v-for="size in sizes"
+            :key="size"
+            v-model="input"
+            :size="size"
+            data-size-demo
+            placeholder="请输入内容"
+          />
+        </div>
+        <div v-else-if="section.name === 'Textarea'" class="demo-grid cols-2">
+          <el-input type="textarea" :rows="3" /><el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 5 }"
+            maxlength="80"
+            show-word-limit
+          /><el-input type="textarea" disabled /><el-input type="textarea" resize="none" />
+        </div>
+        <div v-else-if="section.name === 'NumberInput'" class="demo-row">
+          <el-input-number v-model="number" :step="0.5" :precision="2" /><el-input-number
+            v-model="number"
+            controls-position="right"
+          /><el-input-number
+            v-for="size in sizes"
+            :key="size"
+            v-model="number"
+            :size="size"
+            data-size-demo
+            :min="0"
+            :max="100"
+          /><el-input-number v-model="number" disabled />
+        </div>
+        <div v-else-if="section.name === 'Select'" class="demo-row">
+          <el-select v-model="selected"
+            ><el-option-group label="常用"
+              ><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-option-group></el-select
+          ><el-select v-model="selected" filterable clearable /><el-select
+            v-for="size in sizes"
+            :key="size"
+            v-model="selected"
+            :size="size"
+            data-size-demo
+          /><el-select v-model="selected" disabled />
+        </div>
+        <div v-else-if="section.name === 'MultiSelect'" class="demo-row">
+          <el-select v-model="selectedMany" multiple collapse-tags collapse-tags-tooltip :max-collapse-tags="1" multiple-limit="3"
+            ><el-option v-for="item in selectOptions" :key="item.value" v-bind="item" /></el-select
+          ><el-select v-model="selectedMany" multiple disabled
+            ><el-option v-for="item in selectOptions" :key="item.value" v-bind="item"
+          /></el-select>
+        </div>
+        <div v-else-if="section.name === 'Combobox'" class="demo-row">
+          <el-select v-model="selected" filterable allow-create default-first-option :filter-method="filterCombobox"
+            ><el-option v-for="item in selectOptions" :key="item.value" v-bind="item"
+          /></el-select>
+        </div>
+        <div v-else-if="section.name === 'Autocomplete'" class="demo-grid cols-2">
+          <el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" placeholder="输入 a 试试" /><el-autocomplete
+            v-model="input"
+            :fetch-suggestions="filteredSuggestions"
+            trigger-on-focus
+            clearable
+            placeholder="输入 a 试试"
+          /><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" clearable placeholder="输入 a 试试"
+            ><template #default="{ item }"
+              ><span>{{ item.value }} · {{ item.email }}</span></template
+            ></el-autocomplete
+          ><el-autocomplete v-model="input" :fetch-suggestions="filteredSuggestions" disabled placeholder="输入 a 试试" />
+        </div>
+        <div v-else-if="section.name === 'Checkbox'" class="demo-stack">
+          <el-checkbox v-model="checked">基础</el-checkbox
+          ><el-checkbox v-model="indeterminate" :indeterminate="indeterminate">indeterminate</el-checkbox
+          ><el-checkbox-group v-model="selectedMany"
+            ><el-checkbox v-for="item in ['one', 'two', 'three']" :key="item" :value="item" border>{{
+              item
+            }}</el-checkbox></el-checkbox-group
+          >
+        </div>
+        <div v-else-if="section.name === 'Radio'" class="demo-stack">
+          <el-radio-group v-model="radio"><el-radio value="a">A</el-radio><el-radio value="b">B</el-radio></el-radio-group
+          ><el-radio-group v-model="radio"
+            ><el-radio-button value="a">A</el-radio-button><el-radio-button value="b">B</el-radio-button></el-radio-group
+          ><el-radio value="a" border>border</el-radio>
+        </div>
+        <div v-else-if="section.name === 'Switch'" class="demo-row">
+          <el-switch v-model="switched" size="large" active-text="是" inactive-text="否" /><el-switch
+            v-model="switched"
+            inline-prompt
+            active-text="Y"
+            inactive-text="N"
+          /><el-switch v-model="switched" loading /><el-switch v-model="switched" disabled />
+        </div>
+        <div v-else-if="section.name === 'Slider'" class="demo-grid cols-2">
+          <el-slider v-model="slider" show-stops :step="10" show-input /><el-slider v-model="range" range /><el-slider
+            v-model="slider"
+            vertical
+            height="200px"
+          /><el-slider v-model="slider" disabled />
+        </div>
+        <div v-else-if="section.name === 'Rating'" class="demo-row">
+          <el-rate v-model="rating" allow-half show-text /><el-rate v-model="rating" show-score :max="10" /><el-rate
+            v-model="rating"
+            disabled
+          />
+        </div>
+        <div v-else-if="section.name === 'DatePicker'" class="demo-row">
+          <el-date-picker v-model="date" type="date" /><el-date-picker v-model="date" type="week" /><el-date-picker
+            v-model="date"
+            type="month"
+          /><el-date-picker v-model="date" type="year" /><el-date-picker v-model="date" type="datetime" /><el-date-picker
+            v-model="date"
+            type="dates"
+          /><el-date-picker v-model="date" disabled /><el-date-picker
+            v-for="size in sizes"
+            :key="size"
+            v-model="date"
+            type="date"
+            :size="size"
+            data-size-demo
+          />
+        </div>
+        <div v-else-if="section.name === 'TimePicker'" class="demo-row">
+          <el-time-picker v-model="time" placeholder="选择时间" /><el-time-picker
+            v-model="time"
+            arrow-control
+            placeholder="选择时间"
+          /><el-time-picker v-model="timeRange" is-range placeholder="选择时间" /><el-time-picker
+            v-model="time"
+            disabled
+            placeholder="选择时间"
+          /><el-time-select v-model="time" start="08:30" step="00:30" end="18:30" />
+        </div>
+        <div v-else-if="section.name === 'DateRangePicker'" class="demo-row">
+          <el-date-picker v-model="dateRange" type="daterange" /><el-date-picker v-model="dateRange" type="datetimerange" /><el-date-picker
+            v-model="dateRange"
+            type="monthrange"
+            unlink-panels
+            :shortcuts="[
+              { text: '今天', value: new Date() },
+              { text: '最近 7 天', value: new Date() },
+              { text: '最近 30 天', value: new Date() },
+            ]"
+          />
+        </div>
+        <div v-else-if="section.name === 'ColorPicker'" class="demo-row">
+          <el-color-picker v-model="color" /><el-color-picker v-model="color" show-alpha /><el-color-picker
+            v-model="color"
+            :predefine="['#409EFF', '#67C23A', '#E6A23C', '#F56C6C']"
+          />
+        </div>
+        <div v-else-if="section.name === 'Upload'" class="demo-row">
+          <el-upload action="#" :auto-upload="false" :file-list="uploadFiles"><el-button type="primary">点击上传</el-button></el-upload
+          ><el-upload drag action="#" :auto-upload="false">拖拽上传</el-upload
+          ><el-upload action="#" list-type="picture-card" :auto-upload="false"
+            ><el-icon><Plus /></el-icon
+          ></el-upload>
+        </div>
+        <div v-else-if="section.name === 'Cascader'" class="demo-row">
+          <el-cascader :options="cascaderOptions" /><el-cascader :options="cascaderOptions" multiple collapse-tags filterable /><el-cascader
+            :options="cascaderOptions"
+            disabled
+          /><el-cascader-panel :options="cascaderOptions" />
+        </div>
+        <div v-else-if="section.name === 'Transfer'" class="transfer-demo">
+          <el-transfer v-model="selectedMany" :data="teamTransferData" filterable :titles="['可选成员', '已选成员']" />
+        </div>
+        <div v-else-if="section.name === 'Mention'" class="demo-row">
+          <el-mention v-model="mention" :options="team.map((item) => ({ value: item.name }))" prefix="@" type="textarea" disabled />
+        </div>
+        <div v-else-if="section.name === 'PinInput'" class="pin-input">
+          <el-input
+            v-for="(_, index) in pin"
+            :key="index"
+            maxlength="1"
+            :model-value="pin[index]"
+            @update:model-value="handlePin(index, $event)"
+          />
+        </div>
+        <div v-else-if="section.name === 'Form'" class="demo-stack">
+          <el-form v-for="position in formPositions" :key="position" :model="formState" :label-position="position"
+            ><el-form-item label="姓名" required><el-input v-model="formState.name" /></el-form-item
+            ><el-form-item label="邮箱" error="校验错误示例"><el-input v-model="formState.email" /></el-form-item></el-form
+          ><el-form :model="formState" inline
+            ><el-form-item label="帮助文案"><el-input v-model="formState.name" /></el-form-item
+            ><el-form-item><el-checkbox v-model="formState.agreement">必填</el-checkbox></el-form-item></el-form
+          >
+        </div>
+        <div v-else-if="section.name === 'Table'">
+          <div class="table-scroll" data-scroll-x>
+            <el-table
+              :data="tableRows"
+              stripe
+              border
+              height="280"
+              show-summary
+              sum-text="合计"
+              @selection-change="tableSelection = $event"
+              @sort-change="({ prop, order }) => (tableSort = `${prop} ${order ?? ''}`)"
+              ><el-table-column type="selection" width="55" /><el-table-column
+                prop="id"
+                label="订单号"
+                sortable
+                min-width="130"
+              /><el-table-column v-if="!mobile" prop="customer" label="客户" min-width="130" /><el-table-column
+                v-if="!mobile"
+                prop="product"
+                label="产品"
+                min-width="150"
+              /><el-table-column prop="amount" label="金额" min-width="110" /><el-table-column prop="status" label="状态" /><el-table-column
+                v-if="!mobile"
+                type="expand"
+                ><template #default="{ row }">
+                  <pre>{{ JSON.stringify(row, null, 2) }}</pre>
+                </template></el-table-column
+              ></el-table
+            >
+          </div>
+          <small class="muted">selection {{ tableSelection.length }} · sort {{ tableSort || "none" }}</small>
+        </div>
+        <div v-else-if="section.name === 'DataGrid'">
+          <div style="height: 260px">
+            <el-auto-resizer
+              ><template #default="{ height, width }"
+                ><el-table-v2 :columns="tableV2Columns" :data="tableV2Rows" :width="width" :height="height" /></template
+            ></el-auto-resizer>
+          </div>
+        </div>
+        <div v-else-if="section.name === 'Descriptions'">
+          <el-descriptions title="团队成员" border :column="2"
+            ><el-descriptions-item label="姓名">{{ team[0].name }}</el-descriptions-item
+            ><el-descriptions-item label="角色">{{ team[0].role }}</el-descriptions-item
+            ><el-descriptions-item label="邮箱">{{ team[0].email }}</el-descriptions-item
+            ><el-descriptions-item label="状态">{{ team[0].lastActive }}</el-descriptions-item></el-descriptions
+          >
+        </div>
+        <div v-else-if="section.name === 'List'" class="list-box">
+          <div v-for="item in team" :key="item.email" class="list-item">
+            <el-avatar>{{ item.name.slice(0, 1) }}</el-avatar
+            ><span class="list-text"
+              >{{ item.name }}<small>{{ item.email }}</small></span
+            ><el-tag>{{ item.role }}</el-tag>
+          </div>
+        </div>
+        <div v-else-if="section.name === 'Card'" class="demo-grid cols-3">
+          <el-card v-for="shadow in cardShadows" :key="shadow" :shadow="shadow"
+            ><template #header>shadow={{ shadow }}</template
+            >内容<template #footer>footer</template></el-card
+          >
+        </div>
+        <div v-else-if="section.name === 'Avatar'" class="demo-row">
+          <el-avatar v-for="size in sizes" :key="size" :size="size" data-size-demo>A</el-avatar
+          ><el-avatar v-for="size in sizes" :key="`square-${size}`" :size="size" shape="square" data-size-demo>A</el-avatar
+          ><el-avatar icon="UserFilled" /><el-avatar>林</el-avatar><el-avatar :src="imageData" fit="cover" />
+        </div>
+        <div v-else-if="section.name === 'AvatarGroup'" class="demo-row">
+          <el-avatar-group :max="3" size="small"
+            ><el-avatar v-for="item in team" :key="item.email">{{ item.name.slice(0, 1) }}</el-avatar></el-avatar-group
+          ><el-avatar-group :max="5" size="large"
+            ><el-avatar v-for="item in team" :key="item.email">{{ item.name.slice(0, 1) }}</el-avatar></el-avatar-group
+          >
+        </div>
+        <div v-else-if="section.name === 'Badge'" class="demo-row badge-row">
+          <el-badge :value="12"><el-button>数字</el-button></el-badge
+          ><el-badge is-dot><el-button>dot</el-button></el-badge
+          ><el-badge v-for="type in types" :key="type" :value="type" :type="type"
+            ><el-button>{{ type }}</el-button></el-badge
+          >
+        </div>
+        <div v-else-if="section.name === 'Tag'" class="demo-stack">
+          <div v-for="type in types" :key="type" class="demo-row">
+            <el-tag v-for="effect in ['dark', 'light', 'plain']" :key="effect" :type="type" :effect="effect">{{ type }}</el-tag>
+          </div>
+          <div class="demo-row">
+            <el-tag v-for="size in sizes" :key="size" :size="size" data-size-demo>size {{ size }}</el-tag>
+          </div>
+          <div class="demo-row">
+            <el-check-tag checked>check-tag</el-check-tag><el-button @click="tags.push(`tag-${tags.length + 1}`)">动态 tag</el-button
+            ><el-tag v-for="tag in tags" :key="tag" closable>{{ tag }}</el-tag>
+          </div>
+        </div>
+        <div v-else-if="section.name === 'Statistic'" class="demo-row">
+          <el-statistic title="Revenue" :value="12345.678" :precision="2" /><el-statistic title="Users" :value="1280" /><el-countdown
+            title="Countdown"
+            :value="Date.now() + 86400000"
+          />
+        </div>
+        <div v-else-if="section.name === 'Timeline'">
+          <el-timeline
+            ><el-timeline-item
+              v-for="(item, index) in team.slice(0, 4)"
+              :key="item.email"
+              :timestamp="item.lastActive"
+              :type="types[index]"
+              >{{ item.name }}</el-timeline-item
+            ></el-timeline
+          >
+        </div>
+        <div v-else-if="section.name === 'Tree'">
+          <el-input v-model="treeFilter" clearable /><el-tree :data="filteredTree" show-checkbox draggable default-expand-all /><el-tree-v2
+            :data="treeData"
+            :height="160"
+            default-expand-all
+          />
+        </div>
         <div v-else-if="section.name === 'Calendar'"><el-calendar v-model="date" /></div>
-        <div v-else-if="section.name === 'Image'" class="demo-grid cols-3"><div v-for="fit in imageFits" :key="fit" class="image-demo"><el-image :src="imageData" :fit="fit" style="width: min(150px, 100%); height: 92px" :preview-src-list="[imageData]" /><small>{{ fit }}</small></div></div>
-        <div v-else-if="section.name === 'Carousel'" class="carousel-demo"><el-carousel height="150px"><el-carousel-item v-for="item in 3" :key="item"><div class="slide">default {{ item }}</div></el-carousel-item></el-carousel><el-carousel height="150px" type="card"><el-carousel-item v-for="item in 3" :key="item"><div class="slide">default {{ item }}</div></el-carousel-item></el-carousel></div>
+        <div v-else-if="section.name === 'Image'" class="demo-grid cols-3">
+          <div v-for="fit in imageFits" :key="fit" class="image-demo">
+            <el-image :src="imageData" :fit="fit" style="width: min(150px, 100%); height: 92px" :preview-src-list="[imageData]" /><small>{{
+              fit
+            }}</small>
+          </div>
+        </div>
+        <div v-else-if="section.name === 'Carousel'" class="carousel-demo">
+          <el-carousel height="150px"
+            ><el-carousel-item v-for="item in 3" :key="item"
+              ><div class="slide">default {{ item }}</div></el-carousel-item
+            ></el-carousel
+          ><el-carousel height="150px" type="card"
+            ><el-carousel-item v-for="item in 3" :key="item"
+              ><div class="slide">default {{ item }}</div></el-carousel-item
+            ></el-carousel
+          >
+        </div>
         <div v-else-if="section.name === 'Empty'" class="demo-row"><el-empty /><el-empty description="自定义描述" :image-size="80" /></div>
-        <div v-else-if="section.name === 'Tooltip'" class="tooltip-grid"><el-tooltip v-for="placement in ['top', 'bottom', 'left', 'right']" :key="placement" :placement="placement" content="tooltip"><el-button>{{ placement }}</el-button></el-tooltip></div>
-        <div v-else-if="section.name === 'Popover'" class="demo-row"><el-popover v-for="trigger in ['hover', 'click', 'focus', 'contextmenu']" :key="trigger" :trigger="trigger" title="Popover"><template #reference><el-button>{{ trigger }}</el-button></template>自定义内容</el-popover></div>
+        <div v-else-if="section.name === 'Tooltip'" class="tooltip-grid">
+          <el-tooltip v-for="placement in ['top', 'bottom', 'left', 'right']" :key="placement" :placement="placement" content="tooltip"
+            ><el-button>{{ placement }}</el-button></el-tooltip
+          >
+        </div>
+        <div v-else-if="section.name === 'Popover'" class="demo-row">
+          <el-popover v-for="trigger in ['hover', 'click', 'focus', 'contextmenu']" :key="trigger" :trigger="trigger" title="Popover"
+            ><template #reference
+              ><el-button>{{ trigger }}</el-button></template
+            >自定义内容</el-popover
+          >
+        </div>
         <div v-else-if="section.name === 'QRCode'" class="qr-demo"><QrPlaceholder /></div>
-        <div v-else-if="section.name === 'Progress'" class="demo-grid cols-2"><el-progress v-for="type in progressStatuses" :key="type || 'primary'" :percentage="68" :status="progressStatus(type)" /><el-progress type="circle" :percentage="68" /></div>
-        <div v-else-if="section.name === 'Skeleton'"><el-switch v-model="skeletonLoading" /><el-skeleton :loading="skeletonLoading" animated :rows="4" /></div>
-        <div v-else-if="section.name === 'Segmented'" class="demo-row"><el-segmented v-model="segmented" :options="['daily', 'weekly', 'monthly']" /><el-segmented v-model="segmented" size="small" block disabled :options="['日报', '周报', '月报']" /></div>
-        <div v-else-if="section.name === 'Alert'" class="demo-grid cols-2"><el-alert v-for="type in ['success', 'warning', 'info', 'error']" :key="type" :title="`${type} alert`" :type="type" description="带描述、图标和可关闭状态" show-icon closable center /></div>
-        <div v-else-if="section.name === 'Toast'" class="demo-row"><el-tag effect="plain">ElMessage</el-tag><el-button v-for="type in types.slice(0, 4)" :key="type" @click="showMessage(type)">{{ type }}</el-button><el-button plain @click="showMessage('success', true)">plain</el-button><el-button @click="showMessageWithAction">带操作</el-button></div>
-        <div v-else-if="section.name === 'Notification'" class="demo-stack"><el-radio-group v-model="notificationPosition"><el-radio v-for="position in ['top-left', 'top-right', 'bottom-left', 'bottom-right']" :key="position" :value="position">{{ position }}</el-radio></el-radio-group><div class="demo-row"><el-button v-for="type in types.slice(0, 4)" :key="type" @click="showNotification(type)">{{ type }}</el-button></div></div>
-        <div v-else-if="section.name === 'Dialog'" class="demo-row"><el-button v-for="mode in ['普通', 'align-center', 'fullscreen', '滚动内容', 'draggable', '嵌套']" :key="mode" @click="openDialog(mode)">{{ mode }}</el-button><el-dialog v-model="dialog" :align-center="dialogMode === 'align-center'" :fullscreen="dialogMode === 'fullscreen'" :draggable="dialogMode === 'draggable'" title="Dialog"><p v-for="n in (dialogMode === '滚动内容' ? 12 : 1)" :key="n">内容 {{ n }}</p><el-button v-if="dialogMode === '嵌套'" @click="nestedDialog = true">嵌套</el-button><el-dialog v-model="nestedDialog" append-to-body title="嵌套">嵌套内容</el-dialog></el-dialog></div>
-        <div v-else-if="section.name === 'Drawer'" class="demo-row"><el-button v-for="direction in ['ltr', 'rtl', 'ttb', 'btt']" :key="direction" @click="openDrawer(direction as 'ltr' | 'rtl' | 'ttb' | 'btt')">{{ direction }}</el-button><el-drawer v-model="drawer" :direction="drawerDirection" size="320px">内容</el-drawer></div>
-        <div v-else-if="section.name === 'Spinner'" class="demo-stack"><div v-loading="loadingArea" class="loading-area"><el-button @click="loadingArea = !loadingArea">切换 loading</el-button></div><div class="demo-row"><el-button @click="showLoading">service loading</el-button></div><div class="demo-row spinner-row"><span v-for="size in [16, 24, 32]" :key="size"><el-icon class="is-loading" :size="size"><Loading /></el-icon> 加载中</span></div></div>
-        <div v-else-if="section.name === 'Result'" class="demo-row"><el-result v-for="result in ['success', 'warning', 'error', 'info']" :key="result" :icon="result" :title="result" /></div>
-        <div v-else-if="section.name === 'Popconfirm'" class="demo-row"><el-popconfirm title="确认删除？"><template #reference><el-button type="danger">基础</el-button></template></el-popconfirm><el-popconfirm title="自定义确认" confirm-button-text="确认" cancel-button-text="取消" confirm-button-type="success"><template #reference><el-button>自定义文案</el-button></template></el-popconfirm><el-popconfirm title="带图标" :icon="QuestionFilled" icon-color="var(--el-color-primary)"><template #reference><el-button type="primary">自定义图标</el-button></template></el-popconfirm><el-popconfirm title="禁用" disabled><template #reference><el-button disabled>禁用</el-button></template></el-popconfirm></div>
-        <div v-else-if="section.name === 'Menu'" class="menu-demo"><el-menu mode="horizontal" :ellipsis="false"><el-menu-item index="1">首页</el-menu-item><el-sub-menu index="products"><template #title>产品</template><el-menu-item index="products-a">产品 A</el-menu-item><el-menu-item index="products-b">产品 B</el-menu-item></el-sub-menu><el-menu-item v-for="item in nav.slice(0, 4)" :key="item.key" :index="item.key">{{ item.label }}</el-menu-item></el-menu><el-menu default-active="nav-dashboard" :collapse="menuCollapse"><el-menu-item-group title="导航"><el-menu-item v-for="item in nav.slice(0, 3)" :key="`vertical-${item.key}`" :index="`nav-${item.key}`">{{ item.label }}</el-menu-item></el-menu-item-group><el-sub-menu index="more"><template #title>更多</template><el-menu-item v-for="item in nav.slice(3, 6)" :key="`more-${item.key}`" :index="`more-${item.key}`">{{ item.label }}</el-menu-item></el-sub-menu></el-menu><el-button @click="menuCollapse = !menuCollapse">collapse</el-button><el-menu mode="horizontal" ellipsis><el-menu-item v-for="item in nav" :key="`ellipsis-${item.key}`" :index="`ellipsis-${item.key}`">{{ item.label }}</el-menu-item></el-menu></div>
-        <div v-else-if="section.name === 'Dropdown'" class="demo-row"><el-dropdown><el-button>操作<el-icon><ArrowDown /></el-icon></el-button><template #dropdown><el-dropdown-menu><el-dropdown-item>编辑</el-dropdown-item><el-dropdown-item divided>删除</el-dropdown-item></el-dropdown-menu></template></el-dropdown><el-dropdown split-button type="primary">split-button</el-dropdown></div>
-        <div v-else-if="section.name === 'Breadcrumb'" class="demo-row"><el-breadcrumb separator="/"><el-breadcrumb-item>首页</el-breadcrumb-item><el-breadcrumb-item>组件</el-breadcrumb-item></el-breadcrumb><el-breadcrumb separator-icon="ArrowRight"><el-breadcrumb-item>首页</el-breadcrumb-item><el-breadcrumb-item>当前</el-breadcrumb-item></el-breadcrumb><el-breadcrumb><el-breadcrumb-item><a href="/">链接</a></el-breadcrumb-item></el-breadcrumb></div>
-        <div v-else-if="section.name === 'Tabs'"><el-tabs><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`default ${tab}`">{{ tab }}</el-tab-pane></el-tabs><el-tabs type="card"><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`card ${tab}`">{{ tab }}</el-tab-pane></el-tabs><el-tabs type="border-card"><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`border ${tab}`">{{ tab }}</el-tab-pane></el-tabs><el-tabs type="card" closable addable><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`closable ${tab}`">{{ tab }}</el-tab-pane></el-tabs><el-tabs tab-position="left"><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`left ${tab}`">{{ tab }}</el-tab-pane></el-tabs></div>
-        <div v-else-if="section.name === 'Pagination'" class="demo-stack"><el-pagination v-model:current-page="pagination" v-model:page-size="pageSize" layout="total, sizes, prev, pager, next" :total="200" /><el-pagination disabled layout="prev, pager, next" :total="10" /></div>
-        <div v-else-if="section.name === 'Steps'" class="demo-stack"><el-steps :active="1" :direction="mobile ? 'vertical' : 'horizontal'"><el-step title="步骤 1" /><el-step title="步骤 2" /><el-step title="步骤 3" /></el-steps><el-steps direction="vertical" :active="1"><el-step title="步骤" /></el-steps></div>
-        <div v-else-if="section.name === 'Anchor'" class="demo-row"><el-anchor><el-anchor-link href="#anchor-a" title="垂直 A" /><el-anchor-link href="#anchor-b" title="垂直 B" /><el-anchor-link href="#anchor-c" title="垂直 C" /></el-anchor><el-anchor direction="horizontal"><el-anchor-link href="#anchor-a" title="横向 A" /><el-anchor-link href="#anchor-b" title="横向 B" /><el-anchor-link href="#anchor-c" title="横向 C" /></el-anchor><el-anchor type="underline"><el-anchor-link href="#anchor-a" title="underline A" /><el-anchor-link href="#anchor-b" title="underline B" /><el-anchor-link href="#anchor-c" title="underline C" /></el-anchor></div>
-        <div v-else-if="section.name === 'BackTop'" class="backtop-target"><p v-for="n in 12" :key="n">滚动内容 {{ n }}</p><el-backtop target=".backtop-target" /></div>
-        <div v-else-if="section.name === 'Affix'" class="affix-target"><el-affix :offset="20" target=".affix-target"><el-button type="primary">top 20</el-button></el-affix><p>target container</p></div>
-        <div v-else-if="section.name === 'Navbar'" class="navbar-demo"><el-menu mode="horizontal" ellipsis><el-menu-item index="brand">Acme Console</el-menu-item><el-menu-item v-for="item in nav" :key="item.key" :index="item.key">{{ item.label }}</el-menu-item><span class="navbar-spacer" /><el-avatar :size="28">{{ team[0].name.slice(0, 1) }}</el-avatar><el-badge :value="3"><el-button circle><Bell /></el-button></el-badge></el-menu></div>
-        <div v-else-if="section.name === 'Sidebar'" class="sidebar-demo"><el-aside width="220px"><el-menu><el-menu-item-group v-for="item in nav.slice(0, 3)" :key="item.key" :title="item.label"><el-menu-item :index="item.key">{{ item.label }}</el-menu-item></el-menu-item-group><el-sub-menu index="more"><template #title>更多</template><el-menu-item index="settings">设置</el-menu-item></el-sub-menu></el-menu><el-button>collapse</el-button></el-aside></div>
-        <div v-else-if="section.name === 'CommandPalette'" class="demo-row"><el-button @click="command = true">打开 Command Palette</el-button><el-dialog v-model="command" title="Command Palette"><el-autocomplete :fetch-suggestions="filteredSuggestions" /><ul><li v-for="item in nav.slice(0, 4)" :key="item.key">{{ item.label }}</li></ul></el-dialog></div>
-        <div v-else-if="section.name === 'Grid'" class="demo-stack"><el-row :gutter="16"><el-col :span="24"><div class="grid-cell">24</div></el-col></el-row><el-row :gutter="16"><el-col :span="12"><div class="grid-cell">12</div></el-col><el-col :span="12"><div class="grid-cell">12</div></el-col></el-row><el-row :gutter="16"><el-col v-for="item in 3" :key="item" :span="8"><div class="grid-cell">8</div></el-col></el-row><el-row :gutter="16"><el-col :span="6" :offset="6"><div class="grid-cell">6 offset 6</div></el-col><el-col :span="6"><div class="grid-cell">6</div></el-col></el-row><el-row :gutter="16"><el-col v-for="item in 4" :key="item" :xs="24" :sm="12" :md="6"><div class="grid-cell">responsive</div></el-col></el-row></div>
-        <div v-else-if="section.name === 'Stack'" class="demo-stack"><el-space direction="horizontal" size="small"><el-button>small</el-button></el-space><el-space direction="horizontal"><el-button>default</el-button></el-space><el-space direction="horizontal" size="large"><el-button>large</el-button></el-space><el-space direction="horizontal" wrap><el-button v-for="item in 5" :key="item">wrap {{ item }}</el-button></el-space><el-space direction="vertical" fill><el-button>vertical</el-button><el-button>fill</el-button></el-space></div>
-        <div v-else-if="section.name === 'Layout'" class="container-demo"><el-container><el-header>Header</el-header><el-main>Main</el-main><el-footer>Footer</el-footer></el-container><el-container><el-aside width="90px">Aside</el-aside><el-main>Main</el-main></el-container><el-container><el-header>Header</el-header><el-container><el-aside width="90px">Aside</el-aside><el-main>Main</el-main></el-container></el-container></div>
-        <div v-else-if="section.name === 'Container'" class="container-demo"><div class="container-box" style="max-width: 480px">480</div><div class="container-box" style="max-width: 720px">720</div><div class="container-box" style="max-width: 960px">960</div></div>
+        <div v-else-if="section.name === 'Progress'" class="demo-grid cols-2">
+          <el-progress
+            v-for="type in progressStatuses"
+            :key="type || 'primary'"
+            :percentage="68"
+            :status="progressStatus(type)"
+          /><el-progress type="circle" :percentage="68" />
+        </div>
+        <div v-else-if="section.name === 'Skeleton'">
+          <el-switch v-model="skeletonLoading" /><el-skeleton :loading="skeletonLoading" animated :rows="4" />
+        </div>
+        <div v-else-if="section.name === 'Segmented'" class="demo-row">
+          <el-segmented v-model="segmented" :options="['daily', 'weekly', 'monthly']" /><el-segmented
+            v-model="segmented"
+            size="small"
+            block
+            disabled
+            :options="['日报', '周报', '月报']"
+          />
+        </div>
+        <div v-else-if="section.name === 'Alert'" class="demo-grid cols-2">
+          <el-alert
+            v-for="type in ['success', 'warning', 'info', 'error']"
+            :key="type"
+            :title="`${type} alert`"
+            :type="type"
+            description="带描述、图标和可关闭状态"
+            show-icon
+            closable
+            center
+          />
+        </div>
+        <div v-else-if="section.name === 'Toast'" class="demo-row">
+          <el-tag effect="plain">ElMessage</el-tag
+          ><el-button v-for="type in types.slice(0, 4)" :key="type" @click="showMessage(type)">{{ type }}</el-button
+          ><el-button plain @click="showMessage('success', true)">plain</el-button
+          ><el-button @click="showMessageWithAction">带操作</el-button>
+        </div>
+        <div v-else-if="section.name === 'Notification'" class="demo-stack">
+          <el-radio-group v-model="notificationPosition"
+            ><el-radio v-for="position in ['top-left', 'top-right', 'bottom-left', 'bottom-right']" :key="position" :value="position">{{
+              position
+            }}</el-radio></el-radio-group
+          >
+          <div class="demo-row">
+            <el-button v-for="type in types.slice(0, 4)" :key="type" @click="showNotification(type)">{{ type }}</el-button>
+          </div>
+        </div>
+        <div v-else-if="section.name === 'Dialog'" class="demo-row">
+          <el-button
+            v-for="mode in ['普通', 'align-center', 'fullscreen', '滚动内容', 'draggable', '嵌套']"
+            :key="mode"
+            @click="openDialog(mode)"
+            >{{ mode }}</el-button
+          ><el-dialog
+            v-model="dialog"
+            :align-center="dialogMode === 'align-center'"
+            :fullscreen="dialogMode === 'fullscreen'"
+            :draggable="dialogMode === 'draggable'"
+            title="Dialog"
+            ><p v-for="n in dialogMode === '滚动内容' ? 12 : 1" :key="n">内容 {{ n }}</p>
+            <el-button v-if="dialogMode === '嵌套'" @click="nestedDialog = true">嵌套</el-button
+            ><el-dialog v-model="nestedDialog" append-to-body title="嵌套">嵌套内容</el-dialog></el-dialog
+          >
+        </div>
+        <div v-else-if="section.name === 'Drawer'" class="demo-row">
+          <el-button
+            v-for="direction in ['ltr', 'rtl', 'ttb', 'btt']"
+            :key="direction"
+            @click="openDrawer(direction as 'ltr' | 'rtl' | 'ttb' | 'btt')"
+            >{{ direction }}</el-button
+          ><el-drawer v-model="drawer" :direction="drawerDirection" size="320px">内容</el-drawer>
+        </div>
+        <div v-else-if="section.name === 'Spinner'" class="demo-stack">
+          <div v-loading="loadingArea" class="loading-area"><el-button @click="loadingArea = !loadingArea">切换 loading</el-button></div>
+          <div class="demo-row"><el-button @click="showLoading">service loading</el-button></div>
+          <div class="demo-row spinner-row">
+            <span v-for="size in [16, 24, 32]" :key="size"
+              ><el-icon class="is-loading" :size="size"><Loading /></el-icon> 加载中</span
+            >
+          </div>
+        </div>
+        <div v-else-if="section.name === 'Result'" class="demo-row">
+          <el-result v-for="result in ['success', 'warning', 'error', 'info']" :key="result" :icon="result" :title="result" />
+        </div>
+        <div v-else-if="section.name === 'Popconfirm'" class="demo-row">
+          <el-popconfirm title="确认删除？"
+            ><template #reference><el-button type="danger">基础</el-button></template></el-popconfirm
+          ><el-popconfirm title="自定义确认" confirm-button-text="确认" cancel-button-text="取消" confirm-button-type="success"
+            ><template #reference><el-button>自定义文案</el-button></template></el-popconfirm
+          ><el-popconfirm title="带图标" :icon="QuestionFilled" icon-color="var(--el-color-primary)"
+            ><template #reference><el-button type="primary">自定义图标</el-button></template></el-popconfirm
+          ><el-popconfirm title="禁用" disabled
+            ><template #reference><el-button disabled>禁用</el-button></template></el-popconfirm
+          >
+        </div>
+        <div v-else-if="section.name === 'Menu'" class="menu-demo">
+          <el-menu mode="horizontal" :ellipsis="false"
+            ><el-menu-item index="1">首页</el-menu-item
+            ><el-sub-menu index="products"
+              ><template #title>产品</template><el-menu-item index="products-a">产品 A</el-menu-item
+              ><el-menu-item index="products-b">产品 B</el-menu-item></el-sub-menu
+            ><el-menu-item v-for="item in nav.slice(0, 4)" :key="item.key" :index="item.key">{{ item.label }}</el-menu-item></el-menu
+          ><el-menu default-active="nav-dashboard" :collapse="menuCollapse"
+            ><el-menu-item-group title="导航"
+              ><el-menu-item v-for="item in nav.slice(0, 3)" :key="`vertical-${item.key}`" :index="`nav-${item.key}`">{{
+                item.label
+              }}</el-menu-item></el-menu-item-group
+            ><el-sub-menu index="more"
+              ><template #title>更多</template
+              ><el-menu-item v-for="item in nav.slice(3, 6)" :key="`more-${item.key}`" :index="`more-${item.key}`">{{
+                item.label
+              }}</el-menu-item></el-sub-menu
+            ></el-menu
+          ><el-button @click="menuCollapse = !menuCollapse">collapse</el-button
+          ><el-menu mode="horizontal" ellipsis
+            ><el-menu-item v-for="item in nav" :key="`ellipsis-${item.key}`" :index="`ellipsis-${item.key}`">{{
+              item.label
+            }}</el-menu-item></el-menu
+          >
+        </div>
+        <div v-else-if="section.name === 'Dropdown'" class="demo-row">
+          <el-dropdown
+            ><el-button
+              >操作<el-icon><ArrowDown /></el-icon></el-button
+            ><template #dropdown
+              ><el-dropdown-menu
+                ><el-dropdown-item>编辑</el-dropdown-item><el-dropdown-item divided>删除</el-dropdown-item></el-dropdown-menu
+              ></template
+            ></el-dropdown
+          ><el-dropdown split-button type="primary">split-button</el-dropdown>
+        </div>
+        <div v-else-if="section.name === 'Breadcrumb'" class="demo-row">
+          <el-breadcrumb separator="/"
+            ><el-breadcrumb-item>首页</el-breadcrumb-item><el-breadcrumb-item>组件</el-breadcrumb-item></el-breadcrumb
+          ><el-breadcrumb separator-icon="ArrowRight"
+            ><el-breadcrumb-item>首页</el-breadcrumb-item><el-breadcrumb-item>当前</el-breadcrumb-item></el-breadcrumb
+          ><el-breadcrumb
+            ><el-breadcrumb-item><a href="/">链接</a></el-breadcrumb-item></el-breadcrumb
+          >
+        </div>
+        <div v-else-if="section.name === 'Tabs'">
+          <el-tabs
+            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`default ${tab}`">{{ tab }}</el-tab-pane></el-tabs
+          ><el-tabs type="card"
+            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`card ${tab}`">{{ tab }}</el-tab-pane></el-tabs
+          ><el-tabs type="border-card"
+            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`border ${tab}`">{{ tab }}</el-tab-pane></el-tabs
+          ><el-tabs type="card" closable addable
+            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`closable ${tab}`">{{ tab }}</el-tab-pane></el-tabs
+          ><el-tabs tab-position="left"
+            ><el-tab-pane v-for="tab in ['one', 'two', 'three']" :key="tab" :label="`left ${tab}`">{{ tab }}</el-tab-pane></el-tabs
+          >
+        </div>
+        <div v-else-if="section.name === 'Pagination'" class="demo-stack">
+          <el-pagination
+            v-model:current-page="pagination"
+            v-model:page-size="pageSize"
+            layout="total, sizes, prev, pager, next"
+            :total="200"
+          /><el-pagination disabled layout="prev, pager, next" :total="10" />
+        </div>
+        <div v-else-if="section.name === 'Steps'" class="demo-stack">
+          <el-steps :active="1" :direction="mobile ? 'vertical' : 'horizontal'"
+            ><el-step title="步骤 1" /><el-step title="步骤 2" /><el-step title="步骤 3" /></el-steps
+          ><el-steps direction="vertical" :active="1"><el-step title="步骤" /></el-steps>
+        </div>
+        <div v-else-if="section.name === 'Anchor'" class="demo-row">
+          <el-anchor
+            ><el-anchor-link href="#anchor-a" title="垂直 A" /><el-anchor-link href="#anchor-b" title="垂直 B" /><el-anchor-link
+              href="#anchor-c"
+              title="垂直 C" /></el-anchor
+          ><el-anchor direction="horizontal"
+            ><el-anchor-link href="#anchor-a" title="横向 A" /><el-anchor-link href="#anchor-b" title="横向 B" /><el-anchor-link
+              href="#anchor-c"
+              title="横向 C" /></el-anchor
+          ><el-anchor type="underline"
+            ><el-anchor-link href="#anchor-a" title="underline A" /><el-anchor-link href="#anchor-b" title="underline B" /><el-anchor-link
+              href="#anchor-c"
+              title="underline C"
+          /></el-anchor>
+        </div>
+        <div v-else-if="section.name === 'BackTop'" class="backtop-target">
+          <p v-for="n in 12" :key="n">滚动内容 {{ n }}</p>
+          <el-backtop target=".backtop-target" />
+        </div>
+        <div v-else-if="section.name === 'Affix'" class="affix-target">
+          <el-affix :offset="20" target=".affix-target"><el-button type="primary">top 20</el-button></el-affix>
+          <p>target container</p>
+        </div>
+        <div v-else-if="section.name === 'Navbar'" class="navbar-demo">
+          <el-menu mode="horizontal" ellipsis
+            ><el-menu-item index="brand">Acme Console</el-menu-item
+            ><el-menu-item v-for="item in nav" :key="item.key" :index="item.key">{{ item.label }}</el-menu-item
+            ><span class="navbar-spacer" /><el-avatar :size="28">{{ team[0].name.slice(0, 1) }}</el-avatar
+            ><el-badge :value="3"
+              ><el-button circle><Bell /></el-button></el-badge
+          ></el-menu>
+        </div>
+        <div v-else-if="section.name === 'Sidebar'" class="sidebar-demo">
+          <el-aside width="220px"
+            ><el-menu
+              ><el-menu-item-group v-for="item in nav.slice(0, 3)" :key="item.key" :title="item.label"
+                ><el-menu-item :index="item.key">{{ item.label }}</el-menu-item></el-menu-item-group
+              ><el-sub-menu index="more"
+                ><template #title>更多</template><el-menu-item index="settings">设置</el-menu-item></el-sub-menu
+              ></el-menu
+            ><el-button>collapse</el-button></el-aside
+          >
+        </div>
+        <div v-else-if="section.name === 'CommandPalette'" class="demo-row">
+          <el-button @click="command = true">打开 Command Palette</el-button
+          ><el-dialog v-model="command" title="Command Palette"
+            ><el-autocomplete :fetch-suggestions="filteredSuggestions" />
+            <ul>
+              <li v-for="item in nav.slice(0, 4)" :key="item.key">{{ item.label }}</li>
+            </ul></el-dialog
+          >
+        </div>
+        <div v-else-if="section.name === 'Grid'" class="demo-stack">
+          <el-row :gutter="16"
+            ><el-col :span="24"><div class="grid-cell">24</div></el-col></el-row
+          ><el-row :gutter="16"
+            ><el-col :span="12"><div class="grid-cell">12</div></el-col><el-col :span="12"><div class="grid-cell">12</div></el-col></el-row
+          ><el-row :gutter="16"
+            ><el-col v-for="item in 3" :key="item" :span="8"><div class="grid-cell">8</div></el-col></el-row
+          ><el-row :gutter="16"
+            ><el-col :span="6" :offset="6"><div class="grid-cell">6 offset 6</div></el-col
+            ><el-col :span="6"><div class="grid-cell">6</div></el-col></el-row
+          ><el-row :gutter="16"
+            ><el-col v-for="item in 4" :key="item" :xs="24" :sm="12" :md="6"><div class="grid-cell">responsive</div></el-col></el-row
+          >
+        </div>
+        <div v-else-if="section.name === 'Stack'" class="demo-stack">
+          <el-space direction="horizontal" size="small"><el-button>small</el-button></el-space
+          ><el-space direction="horizontal"><el-button>default</el-button></el-space
+          ><el-space direction="horizontal" size="large"><el-button>large</el-button></el-space
+          ><el-space direction="horizontal" wrap
+            ><el-button v-for="item in 5" :key="item">wrap {{ item }}</el-button></el-space
+          ><el-space direction="vertical" fill><el-button>vertical</el-button><el-button>fill</el-button></el-space>
+        </div>
+        <div v-else-if="section.name === 'Layout'" class="container-demo">
+          <el-container><el-header>Header</el-header><el-main>Main</el-main><el-footer>Footer</el-footer></el-container
+          ><el-container><el-aside width="90px">Aside</el-aside><el-main>Main</el-main></el-container
+          ><el-container
+            ><el-header>Header</el-header
+            ><el-container><el-aside width="90px">Aside</el-aside><el-main>Main</el-main></el-container></el-container
+          >
+        </div>
+        <div v-else-if="section.name === 'Container'" class="container-demo">
+          <div class="container-box" style="max-width: 480px">480</div>
+          <div class="container-box" style="max-width: 720px">720</div>
+          <div class="container-box" style="max-width: 960px">960</div>
+        </div>
         <div v-else-if="section.name === 'AspectRatio'" class="aspect-demo"><strong>AspectRatio 16:9</strong></div>
-        <div v-else-if="section.name === 'Resizable'" class="splitter-demo"><el-splitter><el-splitter-panel size="30%" min="20%">Panel A</el-splitter-panel><el-splitter-panel size="30%" min="20%">Panel B</el-splitter-panel><el-splitter-panel size="30%" min="20%">Panel C</el-splitter-panel></el-splitter><el-splitter layout="vertical"><el-splitter-panel size="50%" min="60px">Top</el-splitter-panel><el-splitter-panel min="60px">Bottom</el-splitter-panel></el-splitter></div>
-        <div v-else-if="section.name === 'ScrollArea'" class="demo-stack"><el-scrollbar height="150px"><p v-for="n in 12" :key="n">vertical scroll {{ n }}</p></el-scrollbar><el-scrollbar height="80px" always><div style="width: 1200px">horizontal scroll</div></el-scrollbar></div>
-        <div v-else-if="section.name === 'Accordion'"><el-collapse accordion><el-collapse-item title="基础面板" name="one">基础内容</el-collapse-item><el-collapse-item title="第二面板" name="two">第二内容</el-collapse-item></el-collapse></div>
-        <div v-else-if="section.name === 'ThemeProvider'" class="demo-row"><el-config-provider size="large"><el-input model-value="large" /><el-button>large</el-button><el-tag>large</el-tag></el-config-provider><el-config-provider :button="{ autoInsertSpace: true }"><el-input model-value="autoInsertSpace" /><el-button>autoInsertSpace</el-button><el-tag>autoInsertSpace</el-tag></el-config-provider><el-config-provider :z-index="3000"><el-input model-value="z-index" /><el-button>z-index</el-button><el-tag>z-index</el-tag></el-config-provider></div>
-        <div v-else-if="section.name === 'Watermark'"><el-watermark content="Acme Console" :font="{ color: dark ? 'rgba(255,255,255,.18)' : 'rgba(0,0,0,.15)' }"><div class="watermark-box">内容</div></el-watermark></div>
-        <div v-else-if="section.name === 'Tour'" class="demo-row"><el-button @click="tour = true">开始 Tour</el-button><el-tour v-model="tour"><el-tour-step target=".page-title" title="标题" description="页面标题" /></el-tour></div>
-        <div v-else-if="section.name === 'FloatButton'" class="float-demo"><el-button circle type="primary"><Plus /></el-button><el-button circle><Setting /></el-button></div>
-        <div v-else-if="section.name === 'Kbd'" class="demo-row"><kbd>⌘ K</kbd><kbd>Ctrl + C</kbd><kbd>Shift</kbd><kbd>Esc</kbd><kbd>↑ ↓</kbd><el-tag><kbd>small</kbd></el-tag><el-tag size="large"><kbd>large</kbd></el-tag></div>
-        <div v-else-if="section.name === 'Code'" class="demo-stack"><code>pnpm add element-plus</code><pre><code>pnpm add element-plus</code></pre><el-button @click="ElMessage.success('代码已复制')">复制</el-button></div>
-        <div v-else-if="section.name === 'Divider'" class="demo-stack"><el-divider v-for="position in dividerPositions" :key="position" :content-position="position">{{ position }}</el-divider><el-divider border-style="dashed">dashed</el-divider><el-divider border-style="dotted">dotted</el-divider><div class="divider-row">左<el-divider direction="vertical" />右</div></div>
-        <div v-else-if="section.name === 'Link'" class="demo-row"><el-link v-for="type in ['primary', 'success', 'warning', 'danger', 'info']" :key="type" :type="type">{{ type }}</el-link><el-link disabled>disabled</el-link></div>
+        <div v-else-if="section.name === 'Resizable'" class="splitter-demo">
+          <el-splitter
+            ><el-splitter-panel size="30%" min="20%">Panel A</el-splitter-panel
+            ><el-splitter-panel size="30%" min="20%">Panel B</el-splitter-panel
+            ><el-splitter-panel size="30%" min="20%">Panel C</el-splitter-panel></el-splitter
+          ><el-splitter layout="vertical"
+            ><el-splitter-panel size="50%" min="60px">Top</el-splitter-panel
+            ><el-splitter-panel min="60px">Bottom</el-splitter-panel></el-splitter
+          >
+        </div>
+        <div v-else-if="section.name === 'ScrollArea'" class="demo-stack">
+          <el-scrollbar height="150px"
+            ><p v-for="n in 12" :key="n">vertical scroll {{ n }}</p></el-scrollbar
+          ><el-scrollbar height="80px" always><div style="width: 1200px">horizontal scroll</div></el-scrollbar>
+        </div>
+        <div v-else-if="section.name === 'Accordion'">
+          <el-collapse accordion
+            ><el-collapse-item title="基础面板" name="one">基础内容</el-collapse-item
+            ><el-collapse-item title="第二面板" name="two">第二内容</el-collapse-item></el-collapse
+          >
+        </div>
+        <div v-else-if="section.name === 'ThemeProvider'" class="demo-row">
+          <el-config-provider size="large"
+            ><el-input model-value="large" /><el-button>large</el-button><el-tag>large</el-tag></el-config-provider
+          ><el-config-provider :button="{ autoInsertSpace: true }"
+            ><el-input model-value="autoInsertSpace" /><el-button>autoInsertSpace</el-button
+            ><el-tag>autoInsertSpace</el-tag></el-config-provider
+          ><el-config-provider :z-index="3000"
+            ><el-input model-value="z-index" /><el-button>z-index</el-button><el-tag>z-index</el-tag></el-config-provider
+          >
+        </div>
+        <div v-else-if="section.name === 'Watermark'">
+          <el-watermark content="Acme Console" :font="{ color: dark ? 'rgba(255,255,255,.18)' : 'rgba(0,0,0,.15)' }"
+            ><div class="watermark-box">内容</div></el-watermark
+          >
+        </div>
+        <div v-else-if="section.name === 'Tour'" class="demo-row">
+          <el-button @click="tour = true">开始 Tour</el-button
+          ><el-tour v-model="tour"><el-tour-step target=".page-title" title="标题" description="页面标题" /></el-tour>
+        </div>
+        <div v-else-if="section.name === 'FloatButton'" class="float-demo">
+          <el-button circle type="primary"><Plus /></el-button><el-button circle><Setting /></el-button>
+        </div>
+        <div v-else-if="section.name === 'Kbd'" class="demo-row">
+          <kbd>⌘ K</kbd><kbd>Ctrl + C</kbd><kbd>Shift</kbd><kbd>Esc</kbd><kbd>↑ ↓</kbd><el-tag><kbd>small</kbd></el-tag
+          ><el-tag size="large"><kbd>large</kbd></el-tag>
+        </div>
+        <div v-else-if="section.name === 'Code'" class="demo-stack">
+          <code>pnpm add element-plus</code>
+          <pre><code>pnpm add element-plus</code></pre>
+          <el-button @click="ElMessage.success('代码已复制')">复制</el-button>
+        </div>
+        <div v-else-if="section.name === 'Divider'" class="demo-stack">
+          <el-divider v-for="position in dividerPositions" :key="position" :content-position="position">{{ position }}</el-divider
+          ><el-divider border-style="dashed">dashed</el-divider><el-divider border-style="dotted">dotted</el-divider>
+          <div class="divider-row">左<el-divider direction="vertical" />右</div>
+        </div>
+        <div v-else-if="section.name === 'Link'" class="demo-row">
+          <el-link v-for="type in ['primary', 'success', 'warning', 'danger', 'info']" :key="type" :type="type">{{ type }}</el-link
+          ><el-link disabled>disabled</el-link>
+        </div>
         <div v-else><el-alert type="error" :title="`缺少 ${section.name} 示例`" /></div>
       </el-card>
     </section>
@@ -205,9 +946,433 @@ const handlePin = (index: number, value: string) => { pin.value[index] = value; 
 </template>
 
 <style scoped>
-.index-card { position: sticky; top: 0; z-index: 3; margin-bottom: 24px; }.desktop-anchor { overflow: hidden; }.desktop-anchor :deep(.el-anchor__list) { display: flex; flex-wrap: wrap; gap: 4px; }.desktop-anchor :deep(.el-anchor__marker) { display: none; }.mobile-anchor { display: none; width: 100%; }.coverage { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }.coverage :deep(.el-tag) { color: var(--el-text-color-regular); }.sink-section { scroll-margin-top: 96px; margin: 24px 0; }.component-card { overflow: hidden; }.component-card :deep(.el-card__body) { min-width: 0; }.component-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }.component-header div { display: grid; gap: 5px; }.component-header strong { font-size: 17px; }.component-header span { color: var(--el-text-color-secondary); font-size: 13px; font-weight: 400; }.demo-stack { display: grid; gap: 16px; }.demo-row { display: flex; align-items: center; width: 100%; max-width: 100%; min-width: 0; flex-wrap: wrap; gap: 10px; overflow: hidden; }.demo-row > * { min-width: 0; max-width: 100%; }.spinner-row span { display: inline-flex; align-items: center; gap: 5px; }.demo-grid { display: grid; gap: 16px; }.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }.heading-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }.heading-grid h1, .heading-grid h2, .heading-grid h3, .heading-grid h4, .heading-grid h5, .heading-grid h6 { margin: 4px 0; }.divider-row { display: flex; align-items: center; height: 32px; }.loading-area { display: flex; min-height: 100px; align-items: center; justify-content: center; gap: 12px; border: 1px dashed var(--el-border-color); }.transfer-demo :deep(.el-transfer) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }.pin-input { display: flex; gap: 8px; }.pin-input :deep(.el-input) { width: 42px; }.list-box { display: grid; max-width: 680px; }.list-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--el-border-color-lighter); }.list-item .el-avatar { flex: 0 0 40px; }.list-item .list-text { display: grid; flex: 1; gap: 3px; }.list-item small { color: var(--el-text-color-secondary); }.tooltip-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }.affix-target, .backtop-target { position: relative; height: 170px; overflow: auto; padding: 16px; border: 1px solid var(--el-border-color); }.affix-target p { height: 220px; }.backtop-target p { margin: 10px 0; }.menu-demo { display: grid; gap: 14px; }.menu-demo :deep(.el-menu) { min-width: 0; }.navbar-demo { min-width: 0; overflow: hidden; }.navbar-demo :deep(.el-menu) { display: flex; align-items: center; min-width: 0; }.navbar-spacer { flex: 1; }.sidebar-demo .el-aside { padding: 12px; border: 1px solid var(--el-border-color); }.grid-cell { padding: 12px; color: var(--el-color-primary); background: var(--el-color-primary-light-9); text-align: center; }.container-demo { display: grid; gap: 12px; }.container-demo .el-container { min-height: 80px; }.container-demo .el-header, .container-demo .el-footer { display: grid; place-items: center; height: 32px; color: var(--el-text-color-primary); background: var(--el-fill-color-dark); }.container-demo .el-aside { display: grid; place-items: center; color: var(--el-text-color-primary); background: var(--el-fill-color-darker); }.container-demo .el-main { display: grid; min-height: 48px; place-items: center; color: var(--el-color-primary); background: var(--el-color-primary-light-9); }.container-box { width: 100%; padding: 14px; border: 1px dashed var(--el-color-primary); text-align: center; }.splitter-demo { height: 180px; border: 1px solid var(--el-border-color); }.splitter-demo :deep(.el-splitter-panel) { display: grid; min-width: 60px; place-items: center; }.full-width { width: 100%; }.watermark-box { display: grid; min-height: 130px; place-items: center; border: 1px solid var(--el-border-color); }.aspect-demo { display: grid; width: min(420px, 100%); aspect-ratio: 16 / 9; place-content: center; border: 1px dashed var(--el-color-primary); }.float-demo { display: flex; justify-content: flex-end; gap: 10px; }.qr-demo { width: 152px; }.qr-demo :deep(.qr-placeholder) { display: block; width: 152px; height: 152px; }.slide { display: grid; height: 100%; place-items: center; background: var(--el-color-primary-light-9); }.muted { color: var(--el-text-color-secondary); }@media (max-width: 767px) { .demo-row > .el-date-editor, .demo-row > .el-time-picker, .demo-row > .el-color-picker, .demo-row > .el-input-number, .demo-row > .el-select { flex: 1 1 180px; width: min(100%, 220px); } }
-.desktop-anchor :deep(.el-anchor__link) { min-height: 40px; display: inline-flex; align-items: center; }
-@media (max-width: 767px) { .desktop-anchor { display: none; }.index-card { position: static; }.mobile-anchor { display: block; }.cols-2, .cols-3 { grid-template-columns: 1fr; }.heading-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.tooltip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.component-header span { display: block; max-width: 220px; }.transfer-demo :deep(.el-transfer) { flex-direction: column; align-items: stretch; }.transfer-demo :deep(.el-transfer-panel) { width: 100%; }.transfer-demo :deep(.el-transfer__buttons) { display: flex; flex-direction: row; justify-content: center; padding: 8px 0; }.navbar-demo :deep(.el-menu) { width: 100%; overflow: hidden; }.navbar-demo :deep(.el-menu-item) { flex-shrink: 1; } }
-@media (max-width: 767px) { .demo-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }.demo-row > * { min-width: 0; max-width: 100%; }.demo-stack > * { min-width: 0; max-width: 100%; }.demo-stack :deep(.el-steps--horizontal) { display: flex; width: 100%; }.demo-stack :deep(.el-steps--horizontal .el-step) { width: 0; min-width: 0; flex: 1; }.demo-stack :deep(.el-steps--vertical .el-step) { width: auto; flex: 1 0 auto; }.demo-stack :deep(.el-pagination) { display: flex; width: 100%; max-width: 100%; flex-wrap: wrap; }.demo-stack :deep(.el-pagination .el-pager) { display: flex; max-width: 100%; flex-wrap: wrap; min-width: 0; }.demo-stack :deep(.el-pagination > *) { min-width: 0; }.menu-demo :deep(.el-menu) { width: 100%; max-width: 100%; min-width: 0; overflow: hidden; }.menu-demo :deep(.el-menu--horizontal) { height: auto; flex-wrap: wrap; }.menu-demo :deep(.el-menu-item), .menu-demo :deep(.el-sub-menu) { min-width: 0; max-width: 100%; flex: 1 1 auto; overflow: hidden; }.menu-demo :deep(.el-menu-item), .menu-demo :deep(.el-sub-menu__title) { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; } }
-.badge-row { gap: 20px 24px; padding-top: 8px; }.image-demo { display: grid; gap: 6px; justify-items: start; }.carousel-demo { display: grid; gap: 28px; }.demo-stack :deep(.el-steps) { min-width: 0; max-width: 100%; overflow: hidden; }
+.index-card {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin-bottom: 24px;
+}
+.desktop-anchor {
+  overflow: hidden;
+}
+.desktop-anchor :deep(.el-anchor__list) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.desktop-anchor :deep(.el-anchor__marker) {
+  display: none;
+}
+.mobile-anchor {
+  display: none;
+  width: 100%;
+}
+.coverage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 18px;
+}
+.coverage :deep(.el-tag) {
+  color: var(--el-text-color-regular);
+}
+.sink-section {
+  scroll-margin-top: 96px;
+  margin: 24px 0;
+}
+.component-card {
+  overflow: hidden;
+}
+.component-card :deep(.el-card__body) {
+  min-width: 0;
+}
+.component-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.component-header div {
+  display: grid;
+  gap: 5px;
+}
+.component-header strong {
+  font-size: 17px;
+}
+.component-header span {
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+  font-weight: 400;
+}
+.demo-stack {
+  display: grid;
+  gap: 16px;
+}
+.demo-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 10px;
+  overflow: hidden;
+}
+.demo-row > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.spinner-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.demo-grid {
+  display: grid;
+  gap: 16px;
+}
+.cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.heading-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.heading-grid h1,
+.heading-grid h2,
+.heading-grid h3,
+.heading-grid h4,
+.heading-grid h5,
+.heading-grid h6 {
+  margin: 4px 0;
+}
+.divider-row {
+  display: flex;
+  align-items: center;
+  height: 32px;
+}
+.loading-area {
+  display: flex;
+  min-height: 100px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px dashed var(--el-border-color);
+}
+.transfer-demo :deep(.el-transfer) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.pin-input {
+  display: flex;
+  gap: 8px;
+}
+.pin-input :deep(.el-input) {
+  width: 42px;
+}
+.list-box {
+  display: grid;
+  max-width: 680px;
+}
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+.list-item .el-avatar {
+  flex: 0 0 40px;
+}
+.list-item .list-text {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+}
+.list-item small {
+  color: var(--el-text-color-secondary);
+}
+.tooltip-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.affix-target,
+.backtop-target {
+  position: relative;
+  height: 170px;
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid var(--el-border-color);
+}
+.affix-target p {
+  height: 220px;
+}
+.backtop-target p {
+  margin: 10px 0;
+}
+.menu-demo {
+  display: grid;
+  gap: 14px;
+}
+.menu-demo :deep(.el-menu) {
+  min-width: 0;
+}
+.navbar-demo {
+  min-width: 0;
+  overflow: hidden;
+}
+.navbar-demo :deep(.el-menu) {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.navbar-spacer {
+  flex: 1;
+}
+.sidebar-demo .el-aside {
+  padding: 12px;
+  border: 1px solid var(--el-border-color);
+}
+.grid-cell {
+  padding: 12px;
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  text-align: center;
+}
+.container-demo {
+  display: grid;
+  gap: 12px;
+}
+.container-demo .el-container {
+  min-height: 80px;
+}
+.container-demo .el-header,
+.container-demo .el-footer {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  color: var(--el-text-color-primary);
+  background: var(--el-fill-color-dark);
+}
+.container-demo .el-aside {
+  display: grid;
+  place-items: center;
+  color: var(--el-text-color-primary);
+  background: var(--el-fill-color-darker);
+}
+.container-demo .el-main {
+  display: grid;
+  min-height: 48px;
+  place-items: center;
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+}
+.container-box {
+  width: 100%;
+  padding: 14px;
+  border: 1px dashed var(--el-color-primary);
+  text-align: center;
+}
+.splitter-demo {
+  height: 180px;
+  border: 1px solid var(--el-border-color);
+}
+.splitter-demo :deep(.el-splitter-panel) {
+  display: grid;
+  min-width: 60px;
+  place-items: center;
+}
+.full-width {
+  width: 100%;
+}
+.watermark-box {
+  display: grid;
+  min-height: 130px;
+  place-items: center;
+  border: 1px solid var(--el-border-color);
+}
+.aspect-demo {
+  display: grid;
+  width: min(420px, 100%);
+  aspect-ratio: 16 / 9;
+  place-content: center;
+  border: 1px dashed var(--el-color-primary);
+}
+.float-demo {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.qr-demo {
+  width: 152px;
+}
+.qr-demo :deep(.qr-placeholder) {
+  display: block;
+  width: 152px;
+  height: 152px;
+}
+.slide {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  background: var(--el-color-primary-light-9);
+}
+.muted {
+  color: var(--el-text-color-secondary);
+}
+@media (max-width: 767px) {
+  .demo-row > .el-date-editor,
+  .demo-row > .el-time-picker,
+  .demo-row > .el-color-picker,
+  .demo-row > .el-input-number,
+  .demo-row > .el-select {
+    flex: 1 1 180px;
+    width: min(100%, 220px);
+  }
+}
+.desktop-anchor :deep(.el-anchor__link) {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+@media (max-width: 767px) {
+  .desktop-anchor {
+    display: none;
+  }
+  .index-card {
+    position: static;
+  }
+  .mobile-anchor {
+    display: block;
+  }
+  .cols-2,
+  .cols-3 {
+    grid-template-columns: 1fr;
+  }
+  .heading-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tooltip-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .component-header span {
+    display: block;
+    max-width: 220px;
+  }
+  .transfer-demo :deep(.el-transfer) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .transfer-demo :deep(.el-transfer-panel) {
+    width: 100%;
+  }
+  .transfer-demo :deep(.el-transfer__buttons) {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 8px 0;
+  }
+  .navbar-demo :deep(.el-menu) {
+    width: 100%;
+    overflow: hidden;
+  }
+  .navbar-demo :deep(.el-menu-item) {
+    flex-shrink: 1;
+  }
+}
+@media (max-width: 767px) {
+  .demo-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  }
+  .demo-row > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .demo-stack > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .demo-stack :deep(.el-steps--horizontal) {
+    display: flex;
+    width: 100%;
+  }
+  .demo-stack :deep(.el-step) {
+    width: 0;
+    min-width: 0;
+    flex: 1;
+  }
+  .demo-stack :deep(.el-pagination) {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+  .demo-stack :deep(.el-pagination .el-pager) {
+    display: flex;
+    max-width: 100%;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .demo-stack :deep(.el-pagination > *) {
+    min-width: 0;
+  }
+  .menu-demo :deep(.el-menu) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .menu-demo :deep(.el-menu--horizontal) {
+    height: auto;
+    flex-wrap: wrap;
+  }
+  .menu-demo :deep(.el-menu-item),
+  .menu-demo :deep(.el-sub-menu) {
+    min-width: 0;
+    max-width: 100%;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+  .menu-demo :deep(.el-menu-item),
+  .menu-demo :deep(.el-sub-menu__title) {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+.badge-row {
+  gap: 20px 24px;
+  padding-top: 8px;
+}
+.image-demo {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+.carousel-demo {
+  display: grid;
+  gap: 28px;
+}
+.demo-stack :deep(.el-steps) {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.demo-stack :deep(.el-steps--horizontal .el-step) {
+  width: 0;
+  min-width: 0;
+  flex: 1;
+}
+.demo-stack :deep(.el-steps--vertical .el-step) {
+  width: auto;
+  flex: 1 0 auto;
+}
 </style>

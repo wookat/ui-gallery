@@ -13,11 +13,13 @@ const loaders: Record<string, () => Promise<Record<string, unknown>>> = {
   heroicons: () => import("@heroicons/vue/24/outline") as Promise<Record<string, unknown>>,
 }
 const familyPromise = new Map<string, Promise<Record<string, unknown>>>()
-const loadFamily = (name: string) => familyPromise.get(name) ?? (() => {
-  const promise = loaders[name]?.() ?? Promise.resolve({})
-  familyPromise.set(name, promise)
-  return promise
-})()
+const loadFamily = (name: string) =>
+  familyPromise.get(name) ??
+  (() => {
+    const promise = loaders[name]?.() ?? Promise.resolve({})
+    familyPromise.set(name, promise)
+    return promise
+  })()
 onMounted(async () => {
   if (family === "native") return
   const source = await loadFamily(family)

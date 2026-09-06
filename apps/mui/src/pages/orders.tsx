@@ -37,6 +37,8 @@ import {
   TableRow,
   Tabs,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material"
 import orders from "@ui-gallery/spec/mock/orders.json"
@@ -45,6 +47,7 @@ import { FlexStack as Stack } from "@/components/flex-stack"
 import { PageHeader, STATUS_LABELS, StatusBadge } from "./shared"
 
 type Order = (typeof orders)[number]
+type DataState = "normal" | "loading" | "empty" | "error"
 
 const CHANNEL_LABELS: Record<string, string> = {
   web: "Web",
@@ -136,6 +139,13 @@ export function OrdersPage() {
       ),
     },
   ]
+  const dataState: DataState = error
+    ? "error"
+    : loading
+      ? "loading"
+      : empty
+        ? "empty"
+        : "normal"
   const mobileRows = filtered.slice(mobilePage * 10, mobilePage * 10 + 10)
   const allMobileSelected =
     mobileRows.length > 0 &&
@@ -280,34 +290,25 @@ export function OrdersPage() {
             >
               列
             </Button>
-            <Stack direction="row" spacing={0.5}>
-              <Chip
-                label="正常"
-                color={!loading && !empty && !error ? "primary" : "default"}
-                onClick={() => {
-                  setLoading(false)
-                  setEmpty(false)
-                  setError(false)
-                }}
-              />
-              <Chip label="加载" onClick={() => setLoading(true)} />
-              <Chip
-                label="空"
-                onClick={() => {
-                  setLoading(false)
-                  setEmpty(true)
-                  setError(false)
-                }}
-              />
-              <Chip
-                label="错误"
-                onClick={() => {
-                  setLoading(false)
-                  setError(true)
-                  setEmpty(false)
-                }}
-              />
-            </Stack>
+            <ToggleButtonGroup
+              exclusive
+              size="medium"
+              color="primary"
+              aria-label="数据状态"
+              value={dataState}
+              onChange={(_, value: DataState | null) => {
+                if (!value) return
+                setLoading(value === "loading")
+                setEmpty(value === "empty")
+                setError(value === "error")
+              }}
+              sx={{ "& .MuiToggleButton-root": { minWidth: 48, minHeight: 40 } }}
+            >
+              <ToggleButton value="normal">正常</ToggleButton>
+              <ToggleButton value="loading">加载</ToggleButton>
+              <ToggleButton value="empty">空</ToggleButton>
+              <ToggleButton value="error">错误</ToggleButton>
+            </ToggleButtonGroup>
           </Stack>
         </CardContent>
       </Card>

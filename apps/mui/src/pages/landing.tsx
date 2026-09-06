@@ -40,6 +40,18 @@ const NAV_LINKS = [
   ["FAQ", "#faq"],
 ] as const
 
+const FOOTER_LINK_SX = {
+  justifyContent: "flex-start",
+  textAlign: "left",
+  minHeight: 40,
+  minWidth: 40,
+  px: 1,
+  ml: -1,
+  fontWeight: 400,
+  textTransform: "none",
+  color: "text.secondary",
+} as const
+
 export function LandingPage() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [yearly, setYearly] = useState(false)
@@ -128,9 +140,15 @@ export function LandingPage() {
         <Stack spacing={2} sx={{ width: 280, p: 3 }}>
           <Typography variant="h6">导航</Typography>
           {NAV_LINKS.map(([label, href]) => (
-            <Link key={href} href={href} onClick={() => setMobileOpen(false)}>
+            <Button
+              key={href}
+              href={href}
+              variant="text"
+              onClick={() => setMobileOpen(false)}
+              sx={{ justifyContent: "flex-start", minHeight: 40 }}
+            >
               {label}
-            </Link>
+            </Button>
           ))}
           <Button
             component={RouterLink}
@@ -508,28 +526,32 @@ export function LandingPage() {
           <Grid container spacing={4}>
             {footerColumns.map(([heading, items]) => (
               <Grid size={{ xs: 6, md: 3 }} key={heading}>
-                <Stack spacing={1}>
-                  <Typography sx={{ fontWeight: 600 }}>{heading}</Typography>
+                <Stack spacing={0.5} alignItems="flex-start">
+                  <Typography sx={{ fontWeight: 600, mb: 0.5 }}>
+                    {heading}
+                  </Typography>
                   {items.map((item) =>
                     item.path.startsWith("/") ? (
-                      <Link
+                      <Button
                         key={item.label}
                         component={RouterLink}
                         to={item.path}
-                        color="text.secondary"
-                        underline="hover"
+                        variant="text"
+                        color="inherit"
+                        sx={FOOTER_LINK_SX}
                       >
                         {item.label}
-                      </Link>
+                      </Button>
                     ) : (
-                      <Link
+                      <Button
                         key={item.label}
                         href={item.path}
-                        color="text.secondary"
-                        underline="hover"
+                        variant="text"
+                        color="inherit"
+                        sx={FOOTER_LINK_SX}
                       >
                         {item.label}
-                      </Link>
+                      </Button>
                     )
                   )}
                 </Stack>
@@ -547,13 +569,13 @@ export function LandingPage() {
               © {new Date().getFullYear()} Acme Console
             </Typography>
             <Stack direction="row" spacing={1}>
-              <IconButton aria-label="GitHub">
+              <IconButton aria-label="GitHub" sx={{ width: 40, height: 40 }}>
                 <Icon name="github" />
               </IconButton>
-              <IconButton aria-label="网站">
+              <IconButton aria-label="网站" sx={{ width: 40, height: 40 }}>
                 <Icon name="globe" />
               </IconButton>
-              <IconButton aria-label="微信">
+              <IconButton aria-label="微信" sx={{ width: 40, height: 40 }}>
                 <Icon name="message-circle" />
               </IconButton>
               <Select size="small" defaultValue="zh" aria-label="语言">

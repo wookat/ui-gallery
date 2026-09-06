@@ -11,7 +11,6 @@ import {
   Divider,
   FormControlLabel,
   IconButton,
-  Link,
   InputAdornment,
   TextField,
   Typography,
@@ -126,9 +125,14 @@ export function LoginPage() {
                   alignItems="center"
                 >
                   <FormControlLabel control={<Checkbox />} label="记住我" />
-                  <Link component={RouterLink} to="#forgot">
+                  <Button
+                    component={RouterLink}
+                    to="#forgot"
+                    variant="text"
+                    sx={{ minHeight: 40 }}
+                  >
                     忘记密码？
-                  </Link>
+                  </Button>
                 </Stack>
                 <Button
                   fullWidth
@@ -173,13 +177,27 @@ export function LoginPage() {
             </Stack>
           </Stack>
         </CardContent>
-        <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 0.5,
+            px: 2,
+            pb: 2,
+          }}
+        >
           <Typography variant="body2" color="text.secondary">
-            还没有账户？{" "}
-            <Link component={RouterLink} to="#register">
-              立即注册
-            </Link>
+            还没有账户？
           </Typography>
+          <Button
+            component={RouterLink}
+            to="#register"
+            variant="text"
+            sx={{ minHeight: 40 }}
+          >
+            立即注册
+          </Button>
         </Box>
       </Card>
     </Box>

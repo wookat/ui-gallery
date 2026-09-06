@@ -59,6 +59,19 @@ html[data-font="lxgw-wenkai"] .radix-themes {
   min-height: var(--base-button-height);
 }
 
+/* 40px 触控热区：视觉盒仍由 ::before 按 size 绘制，仅扩大可点击范围 */
+.rt-BaseCheckboxRoot,
+.rt-BaseRadioRoot,
+.rt-SwitchRoot {
+  min-width: 40px;
+  min-height: 40px;
+  justify-content: center;
+}
+
+.rt-SwitchThumb {
+  left: calc((100% - var(--switch-width)) / 2 + var(--switch-thumb-inset));
+}
+
 .rt-star-filled svg {
   fill: currentColor;
 }

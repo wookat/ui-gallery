@@ -320,6 +320,7 @@ const copy = (text: string) => {
   gap: 10px;
   min-height: 40px;
   padding: 14px;
+  height: auto;
   text-align: left;
 }
 .composer {

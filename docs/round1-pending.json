@@ -1,0 +1,230 @@
+{
+ "pending": [
+  {
+   "slug": "angular-material",
+   "branch": "lib/angular-material",
+   "issues": [
+    "/、/orders、/form、/settings、/components desktop light+dark：侧栏底部用户卡（林晓/管理员）用 position:absolute;bottom 挂在随页面内容拉长的 mat-sidenav 上（仪表盘 sidenav 高 1861px，用户卡 top=1787px），首屏截图中完全不可见，需滚到页底才出现；侧栏未固定在视口内（应 fixedInViewport/sticky）",
+    "/ mobile light+dark：打开汉堡抽屉后，抽屉只有导航项，底部用户卡不可见（同一原因，抽屉内容超出 812px）",
+    "/components desktop+mobile light+dark：Steps 演示的横向 stepper 已完成步骤图标渲染为文字「cr」（Material Icons 字体 ligature「create」未加载，mat-step-icon-state-edit 回退成字形文本，被 40px 圆形裁切）；/form 完成步骤后也会走同一路径"
+   ]
+  },
+  {
+   "slug": "ant-design-vue",
+   "branch": "lib/ant-design-vue",
+   "issues": [
+    "/orders desktop+mobile light+dark：page-spec 要求的「列显隐」控件缺失——工具栏只有搜索/状态/日期/渠道/导出，源码 orders.vue 里 columns ref 存在但没有任何 dropdown/checkbox 控制列显示，截图与 DOM 均无此控件。",
+    "/components desktop+mobile light+dark：CommandPalette 标为 composed，但实际渲染的是 Input 示例的复制（小/中/大尺寸输入框、密码、搜索、禁用、错误态），component-demo.vue 第 28 行 ['Input','CommandPalette'] 共用同一模板，页面上不存在任何命令面板（弹层/搜索列表/快捷键）——coverage 与实际展示不一致。",
+    "/components desktop+mobile light+dark：Rating 标为 implemented，三个 a-rate（default-value 3 / 2.5 allow-half / 4 disabled）全部渲染为 0 颗实心星（DOM 检测 .ant-rate-star-full=0、.ant-rate-star-half=0，星色 rgba(0,0,0,0.06)），已选值/半星/禁用三态均无法从页面看出。"
+   ]
+  },
+  {
+   "slug": "arco-design",
+   "branch": "lib/arco-design",
+   "issues": [
+    "/chat mobile light + dark：assistant 消息中的 Markdown SQL 代码块宽 520px、右边界到 549px，超出 375px 视口且无任何可滚动祖先容器，代码内容被截断/溢出",
+    "/ (dashboard) desktop+mobile light+dark：统计卡同比 Badge 不可见——源码用 Badge count=\"+12.4%\" 等字符串，运行时 4 个 .arco-badge 渲染宽度为 0，页面只见数字，缺 page-spec 要求的「数字+同比 badge」",
+    "/form desktop+mobile light+dark：Steps 显示 3 步但只实现 step1/step2 两个分支，无第 3 步只读汇总 + 同意条款勾选 + 提交成功 Result；亦缺邮箱、手机(国家码 Select)、多选/Combobox、标签输入、Tooltip 字段说明等 page-spec 字段",
+    "/login、/form、/landing mobile light+dark：主 CTA 与输入框（登录/Google/GitHub/微信、上一步/下一步、免费开始/开始使用、Input/Select）实测高 36px，低于 ≥40px 热区硬指标；/orders 与 /form mobile 的 checkbox 实际热区 14×22 / 55×21"
+   ]
+  },
+  {
+   "slug": "arco-design-vue",
+   "branch": "lib/arco-design-vue",
+   "issues": [
+    "/orders mobile light（dark 同组件，未单独截图）：点击订单卡片打开的详情 Drawer 宽 420px > 375px 视口，抽屉左侧被裁切，标题「订单 ORD-2400」与「客户/邮箱/产品/金额」标签列首字被切掉（slices/orders_m_drawer.png 实测）",
+    "/components desktop+mobile light+dark：Popconfirm 区块的 `default-popup-visible` 「始终显示」气泡没有定位到 Popconfirm 触发按钮旁，而是悬浮在页面顶部 Typography/Button 区块上（首屏 y≈800 处），在 4 张 components 普通截图中均可见并遮挡 Button 演示；同理 Popover 区块的「Always」气泡未出现在其触发器旁（DOM 中 popup 宽高为 0）",
+    "/components mobile light+dark：DataGrid 区块（a-table fixed/resizable/summary/expand）表格内容宽 921px，放在 341px 的 a-card 内且 .arco-card overflow:hidden、.arco-table-content overflow-x:visible，右侧列被直接裁掉且无法横向滚动（DOM 链实测：arco-table right=954 / card clientWidth=341）",
+    "全部 8 路由 desktop+mobile light+dark：点击热区普遍 <40px——Arco 默认 medium 控件 32px（登录/表单所有 Input、Select、主按钮、OAuth 按钮，/orders 工具栏按钮，/landing 导航按钮），/orders 表格行选择 checkbox 14×14，/form radio/checkbox 标签行高 16px，/components 中 mini/small 按钮 24/28px，/chat 模型 Select 28px；未满足硬指标「点击热区 ≥40px」（注：这是 Arco 官方默认尺寸，size=large 也仅 36px，需要实现方决定用 CSS 变量/包裹热区达标）"
+   ]
+  },
+  {
+   "slug": "cloudscape",
+   "branch": "lib/cloudscape",
+   "issues": [
+    "/orders desktop light（dark 同）：表格「操作」列的行内 ButtonDropdown（···，ariaLabel「ORD-xxxx 操作」）点击后不弹出 编辑/删除 菜单，而是触发 onRowClick 打开右侧详情 Drawer（Playwright 三种点击方式复现：aria-expanded 保持 false、无 role=menuitem 出现、Drawer 打开）。page-spec 要求的「行内操作 Dropdown（编辑/删除）」实际不可用；该按钮热区仅 24×20px，也不满足 ≥40px。"
+   ]
+  },
+  {
+   "slug": "element-plus",
+   "branch": "lib/element-plus",
+   "issues": [
+    "/form desktop+mobile light+dark：「能力标签」3 个 el-checkbox 只传 value 无 label/slot，渲染为无文字的空方框（apps/element-plus/src/pages/Form.vue:17）",
+    "全路由 desktop+mobile light+dark：偷换配色 —— style.css 覆写 --el-color-*/按钮文字色，primary/success/warning/danger 实心按钮文字为深色 #0f172a 而非 Element Plus 官方白字（/components Button 区、/ 「发送通知」、/landing CTA 可见），违反官方默认主题硬规则",
+    "/orders（状态切换 el-radio-button size=small）、/components（small 尺寸 input/select/checkbox、carousel 指示点）desktop+mobile light+dark：点击热区 <40px，qa.mjs 仅报 warning，不满足 ≥40px 硬指标"
+   ]
+  },
+  {
+   "slug": "heroui",
+   "branch": "lib/heroui",
+   "issues": [
+    "/components mobile light + dark：375px 横向溢出。Playwright 实测 3 个元素右边界超出视口：Carousel 卡片 `.surface.w-40.shrink-0.snap-start` 右边界 536px 与 708px（snap 容器未裁切/未限制宽度），InputGroup 后缀 `.input-group__suffix` 右边界 390px；其余 7 路由移动端 scrollWidth 均为 375。",
+    "/landing desktop light、desktop dark、mobile light、mobile dark：Hero 下方模拟浏览器窗口中「收入趋势」图表卡片为空白，7 个月的柱子完全不可见（landing.tsx 用 `bg-accent/80` 画 CSS 柱状图，该 accent 工具类在 HeroUI v3 主题下未生效，实测 DOM 内无 recharts 节点、柱子透明），营销首屏出现空卡片。",
+    "/landing mobile light（及 desktop light 同色）：统计卡 delta 文本对比度不足——绿色 `+12.4% / +3.2% / +0.4%` 约 2.19:1，红色 `-1.8%` 约 3.57:1，低于 4.5:1 硬指标；同类 text-success/text-danger 小字在 /dashboard、/orders 状态徽标亦复用。",
+    "全部路由 light 主题（/login、/、/orders、/form、/settings、/components、/landing、/chat，desktop+mobile）：primary 蓝色按钮白字对比度约 3.59:1（如登录「登录」、Dashboard「新建项目」、Landing「免费开始」、Chat 用户气泡），muted 说明文字约 4.21–4.43:1，均低于 4.5:1。（HeroUI 官方默认 accent 色本身即如此，属库默认主题与硬指标冲突，需在实现侧决定用 foreground 级文字或换 variant）",
+    "点击热区 < 40px（多路由/双视口/双主题）：应用壳 Header 通知/主题/头像 icon 按钮 36×36（/、/orders、/form、/settings、/components、/chat）；/components 顶部「组件索引」锚点胶囊高约 26px（84 个）；/login OAuth Google/GitHub/微信 按钮高约 36px；/orders 表格行内「操作」ghost sm 图标按钮、/chat 建议问题 chip 也低于 40px。"
+   ]
+  },
+  {
+   "slug": "kobalte",
+   "branch": "lib/kobalte",
+   "issues": [
+    "/components desktop+mobile light+dark：Select 在 gallery.json.coverage 标为 implemented，但页面上的「Select」卡片实际渲染的是 Input demo（搜索框/密码/只读/错误/尺寸），没有任何 Kobalte Select 组件本体（forms.tsx 无 `name === \"Select\"` 分支，落到默认 Input 渲染）。标 implemented 却没出现 = 阻塞。",
+    "/components desktop+mobile light+dark：Image 组件 demo 直接加载 https://images.unsplash.com/photo-1497366754035-f200968a6e72 远程真实照片，违反 page-spec「不请求网络」及「不复制真实图片」规则（参考实现 shadcn-ui 无此外链）。",
+    "/orders、/form、/settings、/chat mobile light+dark：Kobalte Select 触发按钮统一 h-9（实测 36px 高）低于 40px 热区硬指标（渠道/状态/+86 国家码/语言/模型选择器）；/settings mobile 顶部 Tabs 触发按钮 36px；/ (dashboard) mobile 图表「日/周/月」切换按钮 38×32px。",
+    "/orders desktop+mobile light+dark：工具栏缺少 page-spec 要求的「多选筛选（下拉多选/标签）」——渠道 Select 为单选（listbox 非 aria-multiselectable，代码无 multiple），且日期范围用两个原生 <input type=date>（mm/dd/yyyy 英文占位）而非库组件/日期范围选择器。"
+   ]
+  },
+  {
+   "slug": "mantine",
+   "branch": "lib/mantine",
+   "issues": [
+    "/chat desktop+mobile light：用户消息气泡正文（白字 rgb(255,255,255) on primary filled rgb(34,139,230)）实测对比度 3.56:1，低于硬指标 4.5:1（正文文字，非装饰）",
+    "/components desktop+mobile dark：表单错误提示文字「必填项 / 错误态 / 过长 / 超出范围」（rgb(224,49,49) on rgb(46,46,46)）实测 3.01:1，低于 4.5:1；/form 暗色校验失败后的错误文案使用同一色值（form-validate-m-dark 截图可见），同样不达标",
+    "/components desktop+mobile light：顶部组件索引中 implemented 状态的绿色 Anchor 链接（green-6 on 白底）实测 2.36:1，73 个索引链接文字全部低于 4.5:1",
+    "/form、/settings、/chat、/orders desktop+mobile light：大量辅助/说明正文使用 c=\"dimmed\"（gray-6 rgb(134,142,150) on 白底）实测 3.32:1（如 Stepper 步骤描述、设置项说明「用于登录与接收通知」、聊天时间「刚刚」、订单页日期范围占位）；/settings light 危险区红色说明文字 3.28:1。均为正文级文字，低于 4.5:1 硬指标"
+   ]
+  },
+  {
+   "slug": "mui",
+   "branch": "lib/mui",
+   "issues": [
+    "/orders mobile light+dark：数据状态切换（正常/加载/空/错误）用 Chip 实现，实测热区 50×32 / 37×32px，低于 40px 硬指标；建议换成 ToggleButtonGroup 或 size=medium Button",
+    "/login mobile light+dark：「忘记密码？」热区 80×24px、「立即注册」56×16px 为裸 Link 文本，低于 40px 硬指标（建议用 Button variant=text 或加 padding）",
+    "/landing mobile light+dark：页脚导航 Link（仪表盘/订单/…/Starter 等）热区 156×24px，低于 40px 硬指标"
+   ]
+  },
+  {
+   "slug": "ng-zorro",
+   "branch": "lib/ng-zorro",
+   "issues": [
+    "/orders mobile dark：订单卡片内 .mobile-meta（如「2026-09-05 · web」）仍用 rgba(0,0,0,.45)，在 #141414 卡片上实测对比度 1.07:1，日期/渠道文字几乎不可见（light 下为 3.36:1）。",
+    "/landing desktop dark 与 mobile dark：hero 及 3 个 split-image 的 nz-skeleton-element（nzType=image）在暗色下未填满 16:9 容器，.ant-skeleton-image 实测只有 96×96 并贴在容器左上角（light 下为 536×301 填满），页面 4 处出现空黑框+小图标的破损占位。"
+   ]
+  },
+  {
+   "slug": "pico-css",
+   "branch": "lib/pico-css",
+   "issues": [
+    "/components mobile dark（light 同）：Calendar 组件表格固定 700px 宽，被 .components-page 的 overflow:clip 截断，仅显示 一～四 列，五/六/日 三列及月份标题被裁掉且无法滚动查看（343px 容器内内容不可达）",
+    "/ desktop light 与 dark（应用壳所有路由同）：点击顶栏通知铃铛 Popover 或头像下拉菜单后，.app-layout scrollWidth 由 1440 变为 1700，页面可横向滚动 260px（出现横向滚动条）；未打开菜单时无溢出"
+   ]
+  },
+  {
+   "slug": "primereact",
+   "branch": "lib/primereact",
+   "issues": [
+    "/settings mobile light+dark：「更换头像」FileUpload basic 按钮被压成 ~40px 宽，label 逐字竖排（更/换/头/像），同时头像 Avatar 被挤成椭圆（m_settings_top 复现）",
+    "/components mobile light+dark：NumberInput 水平按钮布局（buttonLayout=horizontal）在 375px 下右侧 + 按钮溢出到 406px，被卡片裁掉一半（元素 right=406 > 375）",
+    "/chat mobile light+dark：助手气泡内 SQL 代码块撑破气泡（code.language-sql right=513），气泡右边框被裁切，消息面板出现横向滚动（scrollWidth 350 > clientWidth 341）；代码块需 overflow-x:auto 且 bubble 需 min-width:0/max-width",
+    "/ /orders /form /settings /components /chat desktop+mobile light：侧边栏 8 项导航全部用链接蓝（#3B82F6）文字渲染在 #F9FAFB 上，对比度 3.52:1 < 4.5:1，且选中项与未选中项无颜色区分（仅背景微差）；Lara 默认 Menu 项应为 text-color，属偷换组件默认样式",
+    "/ 仪表盘 desktop+mobile：应用壳侧边栏缺少 page-spec 要求的「折叠按钮」（app-shell.tsx 无 collapse 实现，aside 内 0 个按钮）"
+   ]
+  },
+  {
+   "slug": "primevue",
+   "branch": "lib/primevue",
+   "issues": [
+    "/components desktop+mobile light/dark：gallery.json.coverage 标 DataGrid=implemented（primeNames 映射 DataView），但页面无任何 DataView 导入/渲染（grep src 仅 ComponentsPage 的映射字符串与卡片标题），section 只放了 DataTable——标 implemented 却没出现",
+    "/components desktop+mobile light/dark：coverage 标 Popconfirm=implemented（映射 ConfirmPopup），但 App.vue 只挂载 <ConfirmDialog/>，点击「ConfirmPopup」按钮实际弹出 .p-confirmdialog 模态框（DOM 验证 popup:false dialog:true），ConfirmPopup 组件从未出现",
+    "/components mobile light/dark：Carousel item 宽 519px、Galleria item 宽 740px（视口 375），内容被裁切只见局部；desktop Carousel item 1513px（视口 1440），Galleria 在桌面渲染成窄条，轮播/画廊示例视觉损坏",
+    "/chat mobile light/dark：底部 4 条建议 Chip 单行不换行，右边界达 586px（视口 375），第 3/4 个 Chip 被裁切在视口外"
+   ]
+  },
+  {
+   "slug": "radix-themes",
+   "branch": "lib/radix-themes",
+   "issues": [
+    "应用壳（/、/orders、/form、/settings、/components、/chat）desktop light+dark：侧边栏 <aside> position=static、高度随文档拉伸（/ 页面 aside 高 1503px，/components 页 aside 高 11268px），底部用户卡与折叠按钮被推到文档最底部，1440×900 首屏不可见（对比 /orders 短页面时可见）。应改为 sticky/固定 100vh 侧栏。",
+    "/ desktop+mobile light+dark：「最近订单」表格只有 订单/客户/状态/金额 4 列，缺少 page-spec §2 要求的行内「操作菜单」（DropdownMenu）。",
+    "/login desktop+mobile light+dark：密码可见性切换按钮渲染为 circle-help「?」图标而非 eye/eye-off——@ui-gallery/icons-react 共享适配层没有 eye/eye-off 键，lucide/tabler/phosphor/heroicons 四套均回退到 circle-help（仅 ?icons=native 的 @radix-ui/react-icons 映射正确）；同时该 IconButton 热区仅 27×27 且无 aria-label。",
+    "点击热区 <40px（明显小于阈值的图标类控件）：/login 全视口「记住我」Checkbox 16×16、密码切换 27×27；/chat desktop+mobile 代码块复制按钮 26×26；/landing desktop+mobile Footer 社交图标按钮 30×30；/orders desktop+mobile 分页页码按钮 25×28。其余 Radix size-2 默认按钮为 32px 高（见 minor）。"
+   ]
+  },
+  {
+   "slug": "react-bootstrap",
+   "branch": "lib/react-bootstrap",
+   "issues": [
+    "/login、/、/orders、/form、/settings、/landing、/chat mobile+desktop dark：正文级次要文字（.text-secondary / --bs-secondary-color，rgb(108,117,125) 于 rgb(33,37,41) 背景）实测对比度仅 3.29:1，低于硬指标 4.5:1；涉及页面副标题、卡片标签（本月收入等）、订单日期、表单帮助文字（用于接收通知。）、登录页描述、落地页副文案。注：这是 Bootstrap 5.3 暗色默认 token，但按本轮硬指标判定不达标（可用 text-body-secondary 以外的更高对比 token 或将非装饰性正文改为 text-body）。"
+   ]
+  },
+  {
+   "slug": "rsuite",
+   "branch": "lib/rsuite",
+   "issues": [
+    "/ (dashboard) desktop+mobile light+dark：截图矩阵中 4 张 KPI 卡 sparkline 只渲染出一根竖条、「业务趋势」折线只画到第 2 个点、「渠道分布」饼图为空——Recharts 入场动画未在 shoot.mjs 的 networkidle+400ms 内完成（本地等待 3s 后可完整渲染，属实测确认）；交付截图即为最终验收物，需对图表设置 isAnimationActive={false} 或等效手段",
+    "/orders desktop+mobile light+dark：状态列的 Badge 圆点叠压在状态文字上（paid/pending/refunded 的最后一个字母被红/绿/橙点遮住），文字与徽标未分离",
+    "全局（所有路由，light+dark）：未使用 React Suite 官方默认配色。apps/rsuite/src/index.css 第 47-121 行将 --rs-btn-primary-bg / --rs-text-link / --rs-navs-selected / --rs-tag-bg / --rs-steps-item-icon-process / --rs-calendar-today-bg 等全部改为 primary-800（dark 改 primary-700/500/300），并覆写 html.dark .rs-message-{error,success,warning,info} 背景为 *-900 实色。规则要求「用官方默认主题，不写自定义配色」，这属于偷换主色/告警色",
+    "/components desktop+mobile light+dark：Sidebar 示例中侧栏与内容区重叠（Content 文字压在图标上），布局错误",
+    "/components desktop light+dark：Input 示例 xs/sm/md/lg 四个尺寸高度完全相同（index.css 第 92-94 行 min-height:40px 覆盖抹掉了尺寸差异），Segmented 示例在 dark 下几乎不可见（无分段背景，仅浅灰文字）"
+   ]
+  },
+  {
+   "slug": "semi-design",
+   "branch": "lib/semi-design",
+   "issues": [
+    "/components desktop+mobile light：Typography 状态文本对比度不足 4.5:1（实测 success≈2.72、warning≈2.42、danger≈3.73、secondary≈3.21，Semi 默认 token 直接用作正文色）",
+    "/components desktop+mobile dark：Button 的 primary/secondary/warning/danger/loading 文字对比度不足 4.5:1（实测 ≈2.47 / 2.32 / 1.84 / 2.73 / 2.47）",
+    "/orders desktop+mobile light/dark：表格行 checkbox（16×20）与行操作图标按钮（24×24）点击热区 <40px",
+    "/chat desktop+mobile light/dark：消息下方 复制/重新生成/赞 按钮 24×24，点击热区 <40px",
+    "/orders mobile light/dark：底部分页「显示第 1 条-第 8 条，共 48 条」被压成逐字竖排，分页页码被裁切（布局破损）",
+    "/settings desktop+mobile light/dark：计费 Tab 只展示当前计划 + 付款方式 + 账单历史，缺少 page-spec 要求的 Starter/Pro/Enterprise 三张计划对比卡（plans.json 仅取了 recommended 一项）",
+    "/landing desktop+mobile light/dark：Footer 只有版权+少量链接，缺少 page-spec 要求的 4 列链接、社交图标与语言 Select"
+   ]
+  },
+  {
+   "slug": "shadcn-vue",
+   "branch": "lib/shadcn-vue",
+   "issues": [
+    "/chat desktop+mobile light/dark：底部输入区不可用——Textarea 仅 v-model=\"draft\"，发送按钮无 @click、无 keydown 处理（ChatPage.vue 中不存在任何发送函数）；实测填入「测试消息」后按 Enter 与点击发送均无反应，消息不入流，而提示文案却写着「Enter 发送 · Shift + Enter 换行」，与 page-spec 底部输入区要求不符",
+    "/orders mobile light/dark：分页数字按钮 32×32、Previous/Next 34×40，低于 ≥40px 热区硬指标",
+    "/ mobile light/dark：图表「日/周/月」Tabs 触发器仅 28×25",
+    "/login mobile+desktop light/dark：密码显隐按钮 16×16，「忘记密码？」「立即注册」链接高 20px",
+    "/form mobile light/dark：通知渠道等 5 个 Checkbox 实际 button 16×16、Switch 32×18、+86 区号 Select 96×32（<40px）"
+   ]
+  },
+  {
+   "slug": "skeleton",
+   "branch": "lib/skeleton",
+   "issues": [
+    "/landing mobile light 与 desktop light：Hero 下方数据卡的涨跌幅文字（+12.4% / +3.2% / +0.4%，class text-success-500，12px）在白底上实测对比度约 1.56:1，远低于 4.5:1（-1.8% error-500 为 3.63:1 也不足）。dark 主题下未检出该问题。",
+    "/login mobile light+dark：三个 OAuth 按钮（Google/GitHub/微信）实测高度 32px、「登录」主按钮高度 30px，低于 40px 热区要求（仅密码可见性按钮达到 min-h-10）。",
+    "/orders mobile light+dark：筛选栏「重置」按钮 38×30px、「列」按钮 40×32px、导出 78×30px，热区高度不足 40px；desktop 同样为 30–32px。",
+    "/form mobile light+dark：三步 Steps 步骤指示按钮为 32×32px、「下一步」94×30px，热区不足 40px。",
+    "/settings mobile light+dark：五个 Tab 触发器高度 30px（个人资料 110×30、账号安全 110×30、通知/团队/计费 78×30），热区不足 40px；同时 Tab 条横向溢出到约 502px（页面本身 scrollWidth=375 未溢出，为容器内滚动），但视觉上「计费」被截断且无滚动指示（见 settings__mobile__light/dark.png）。",
+    "/ (dashboard) 与全部应用壳页面 desktop light+dark：侧栏导航链接 227×30px、头部「导出」80×32px，热区高度 30–32px 低于 40px。"
+   ]
+  },
+  {
+   "slug": "vant",
+   "branch": "lib/vant",
+   "issues": [
+    "/chat desktop+mobile light+dark：输入框上方的建议词 chips（.suggestion-row .van-tag，@click 可点）实测高度 16px（宽 80–128px），远低于 ≥40px 点击热区要求；同时消息气泡下的来源标签 van-tag 也为 16px 高（若视为可点则同样不达标）",
+    "/（dashboard）/orders /form /settings /components /chat desktop light：左侧导航未选中项文字使用 --van-text-color-2 rgb(150,151,153) 叠在 #fff 侧栏上，实测对比度 2.92:1（16px 正文级导航文字，<4.5:1）；dark 主题下为 rgb(112,112,112) on rgb(28,28,30) = 3.44:1，同样不达标（app 自定义 .side-nav a 的颜色，非 Vant 组件默认）",
+    "全部应用页 + /landing desktop+mobile light：页面副标题/说明文字（page-title p、.muted，如「业务概况」「Acme Console 让订单…」）rgb(150,151,153) on rgb(247,248,250) = 2.75:1，16px 正文低于 4.5:1；dark 下同类 12–16px 辅助文字 3.44:1"
+   ]
+  },
+  {
+   "slug": "vuetify",
+   "branch": "lib/vuetify",
+   "issues": [
+    "全部路由 desktop+mobile light+dark：默认图标集为 native(MDI)，而 docs/page-spec.md 第 8 条与 contract 约定「默认 lucide，库自带图标体系时额外提供 ?icons=native」；未带 ?icons= 参数时截图全部渲染 MDI（.v-application 内 25 个 i.mdi、0 个 lucide svg），与参考实现 apps/shadcn-ui 及跨库对比口径不一致（icons.ts currentIconSet() 回落为 \"native\"）。?icons=lucide|tabler|phosphor|heroicons 及 ?icon= 别名切换本身已验证生效。",
+    "/ , /form, /settings, /chat desktop light：应用栏面包屑当前页文字（如「订单」「设置」）使用 v-breadcrumbs disabled 样式，实测对比度约 2.30:1（<4.5:1），属于每页常驻可见文字；dark 下同一元素约 4.4 左右也偏低。"
+   ]
+  },
+  {
+   "slug": "fluent-ui",
+   "branch": "lib/fluent-ui",
+   "issues": [
+    "上一轮独立审查未能执行（并发限制）；请先按 docs/page-spec.md 全量自查 8 路由 × 桌面/移动 × 亮/暗，再推送"
+   ]
+  },
+  {
+   "slug": "quasar",
+   "branch": "lib/quasar",
+   "issues": [
+    "上一轮建库质量门（lint/typecheck/build/shoot/375 溢出/console error）未全部通过，请补齐并重跑全部质量门"
+   ]
+  }
+ ]
+}

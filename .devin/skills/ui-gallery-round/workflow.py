@@ -159,15 +159,30 @@ async def merge(lib, built):
         return await run_agent(merge_prompt(lib, built), phase="merge", schema=MERGE_SCHEMA, label=f"merge-{lib['slug']}", soft_time_limit_minutes=40)
 
 
+PENDING_FILE = os.environ.get("UI_GALLERY_PENDING_FILE", "")
+PENDING = {}
+if PENDING_FILE:
+    with open(PENDING_FILE, encoding="utf-8") as f:
+        PENDING = {p["slug"]: p for p in json.load(f)["pending"]}
+    LIBS = [l for l in LIBS if l["slug"] in PENDING]
+
+
 async def run_lib(lib):
     slug = lib["slug"]
     try:
-        built = await build(lib)
-        log(f"[{slug}] built {built['branch']}@{built['commit'][:8]} gates={built['gates_passed']}")
-        if not built["gates_passed"]:
-            return {"slug": slug, "state": "gates_failed", "notes": built["notes"]}
-        rev = await review(lib, built)
-        log(f"[{slug}] review={rev['verdict']} blocking={len(rev['blocking_issues'])}")
+        if slug in PENDING:
+            # 续跑模式：分支已存在，直接从上一轮审查问题进入修复
+            p = PENDING[slug]
+            built = {"branch": p["branch"], "commit": "resume", "gates_passed": True, "notes": ""}
+            rev = {"verdict": "fix", "blocking_issues": p["issues"], "minor_issues": []}
+            log(f"[{slug}] resume from {p['branch']} with {len(p['issues'])} issues")
+        else:
+            built = await build(lib)
+            log(f"[{slug}] built {built['branch']}@{built['commit'][:8]} gates={built['gates_passed']}")
+            if not built["gates_passed"]:
+                return {"slug": slug, "state": "gates_failed", "notes": built["notes"]}
+            rev = await review(lib, built)
+            log(f"[{slug}] review={rev['verdict']} blocking={len(rev['blocking_issues'])}")
         rounds = 0
         while rev["verdict"] != "pass" and rounds < 2:
             fixed = await fix(lib, built, rev)

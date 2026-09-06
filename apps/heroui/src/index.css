@@ -16,15 +16,43 @@
   }
   :root:not(.dark) {
     --muted: color-mix(in oklab, oklch(0.5517 0.0138 285.94) 85%, var(--foreground) 15%);
+    --danger: color-mix(in oklab, oklch(0.6532 0.2328 25.74) 80%, var(--foreground) 20%);
+    --accent-soft-foreground: color-mix(in oklab, var(--accent) 65%, var(--foreground) 35%);
+  }
+  :root.dark {
+    --danger: color-mix(in oklab, oklch(0.594 0.1967 24.63) 78%, var(--foreground) 22%);
+    --danger-foreground: var(--eclipse);
   }
 }
 
-.button {
+/* 40px minimum hit area for interactive controls (contract hard rule) */
+.button,
+.input,
+.input-group,
+.search-field,
+.select__trigger,
+.tabs__tab,
+.list-box-item,
+.toggle-button,
+.color-picker__trigger,
+.number-field__input,
+.number-field__increment-button,
+.number-field__decrement-button {
   min-height: 2.5rem;
 }
 
-.button--icon-only {
+.button,
+.toggle-button,
+.combo-box__trigger,
+.date-picker__trigger,
+.date-range-picker__trigger {
   min-width: 2.5rem;
+  min-height: 2.5rem;
+}
+
+.search-field__clear-button {
+  min-width: 2rem;
+  min-height: 2rem;
 }
 
 :root {

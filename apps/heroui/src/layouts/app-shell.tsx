@@ -8,7 +8,7 @@ import team from "@ui-gallery/spec/mock/team.json"
 
 export function Brand({ collapsed = false }: { collapsed?: boolean }) {
   return (
-    <RouterLink className="flex items-center gap-2 font-semibold text-foreground no-underline" to="/">
+    <RouterLink className="flex min-h-10 items-center gap-2 font-semibold text-foreground no-underline" to="/">
       <span className="grid size-8 place-items-center rounded-lg bg-accent text-accent-foreground">A</span>
       {collapsed ? null : <span>Acme Console</span>}
     </RouterLink>

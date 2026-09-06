@@ -20,7 +20,8 @@
 - `?font=default|inter|geist|noto-sans-sc|lxgw-wenkai`（仓库自托管 OFL 字体）
 - `?icon=` / `?icons=` `lucide|tabler|phosphor|heroicons`（HeroUI 无自带图标库，走 `@ui-gallery/icons-react`）
 - 所有数据来自 `@ui-gallery/spec/mock/*.json`
-- 对比度硬指标（4.5:1）：`--accent-foreground` 改用官方原色 `--eclipse`、light `--muted` 以官方 `--muted` 85% + `--foreground` 15% 派生，不引入新配色
+- 对比度硬指标（4.5:1）：`--accent-foreground` 改用官方原色 `--eclipse`、light `--muted` 以官方 `--muted` 85% + `--foreground` 15% 派生；`--danger` 同法与 `--foreground` 混合（light 80/20、dark 78/22，dark 下 `--danger-foreground` 改 `--eclipse`），light `--accent-soft-foreground` 65/35，不引入新配色
+- 热区硬指标（≥40px）：`.button/.input/.select__trigger/.tabs__tab/.toggle-button` 等原生控件统一 `min-height: 2.5rem`，图标触发器同时 `min-width: 2.5rem`
 
 ## 脚本
 

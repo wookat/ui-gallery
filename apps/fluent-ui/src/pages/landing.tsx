@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link as RouterLink } from "react-router-dom"
+import { Link as RouterLink, useNavigate } from "react-router-dom"
 import landing from "@ui-gallery/spec/mock/landing.json"
 import plans from "@ui-gallery/spec/mock/plans.json"
 import {
@@ -8,6 +8,9 @@ import {
   AccordionItem,
   AccordionPanel,
   Avatar,
+  AvatarGroup,
+  AvatarGroupItem,
+  AvatarGroupPopover,
   Badge,
   Body1,
   Button,
@@ -23,6 +26,7 @@ import {
   MenuList,
   MenuPopover,
   MenuTrigger,
+  Select,
   Subtitle1,
   Subtitle2,
   Switch,
@@ -33,6 +37,7 @@ import {
   mergeClasses,
   shorthands,
   tokens,
+  partitionAvatarGroupItems,
 } from "@fluentui/react-components"
 import { Icon } from "@/lib/icon"
 import { Brand } from "@/layouts/app-shell"
@@ -77,16 +82,19 @@ export function LandingPage() {
   const { mode, setMode } = useThemeMode()
   const [yearly, setYearly] = useState(false)
   const search = typeof window === "undefined" ? "" : window.location.search
+  const navigate = useNavigate()
+  const navLinks = ["产品", "价格", "文档", "博客", "关于"]
+  const { inlineItems, overflowItems } = partitionAvatarGroupItems({ items: landing.testimonials.map((t) => t.name) })
 
   return (
     <div className={s.root} data-touch="">
       <header className={s.nav}>
         <Brand />
         <nav className={s.navLinks} aria-label="主导航">
-          {["产品", "价格", "文档", "博客"].map((item) => <Link key={item} href="#" appearance="subtle">{item}</Link>)}
+          {navLinks.map((item) => <Link key={item} href="#" appearance="subtle">{item}</Link>)}
         </nav>
         <div className={l.row} style={{ flexWrap: "nowrap", flexShrink: 0 }}>
-          {isMobile ? <Menu positioning="below-end"><MenuTrigger disableButtonEnhancement><Hamburger size="large" aria-label="打开菜单" /></MenuTrigger><MenuPopover><MenuList>{["产品", "价格", "文档", "博客"].map((item) => <MenuItem key={item}>{item}</MenuItem>)}</MenuList></MenuPopover></Menu> : null}
+          {isMobile ? <Menu positioning="below-end"><MenuTrigger disableButtonEnhancement><Hamburger size="large" aria-label="打开菜单" /></MenuTrigger><MenuPopover><MenuList>{navLinks.map((item) => <MenuItem key={item}>{item}</MenuItem>)}<MenuItem icon={<Icon name="log-in" />} onClick={() => navigate(`/login${search}`)}>登录</MenuItem></MenuList></MenuPopover></Menu> : null}
           <Button appearance="subtle" size={ctl} icon={<Icon name={mode === "dark" ? "sun" : "moon"} />} aria-label="切换主题" onClick={() => setMode(mode === "dark" ? "light" : "dark")} />
           {!isMobile ? <RouterLink to={`/login${search}`} style={{ textDecoration: "none" }}><Button appearance="secondary" size={ctl}>登录</Button></RouterLink> : null}
           <RouterLink to={`/${search}`} style={{ textDecoration: "none" }}><Button appearance="primary" size={ctl}>{landing.hero.primary}</Button></RouterLink>
@@ -103,7 +111,13 @@ export function LandingPage() {
           <RouterLink to={`/${search}`} style={{ textDecoration: "none" }}><Button appearance="primary" size="large" iconPosition="after" icon={<Icon name="arrow-right" />}>{landing.hero.primary}</Button></RouterLink>
           <Button size="large" icon={<Icon name="play" />}>{landing.hero.secondary}</Button>
         </div>
-        <Caption1 className={l.muted}>{landing.hero.social}</Caption1>
+        <div className={l.row} style={{ justifyContent: "center" }}>
+          <AvatarGroup size={28} layout="stack">
+            {inlineItems.map((name) => <AvatarGroupItem key={name} name={name} color="colorful" />)}
+            {overflowItems && overflowItems.length > 0 ? <AvatarGroupPopover>{overflowItems.map((name) => <AvatarGroupItem key={name} name={name} color="colorful" />)}</AvatarGroupPopover> : null}
+          </AvatarGroup>
+          <Caption1 className={l.muted}>{landing.hero.social}</Caption1>
+        </div>
         <div className={s.shot}><Icon name="layout-dashboard" size={48} /></div>
         <div className={s.logos}>{companies.map((c) => <span key={c} className={s.logo}><Icon name="box" size={18} />{c}</span>)}</div>
       </section>
@@ -124,7 +138,7 @@ export function LandingPage() {
       </section>
 
       <section className={s.section}>
-        {landing.features.slice(0, 2).map((f, index) => (
+        {landing.features.slice(0, 3).map((f, index) => (
           <div className={s.split} key={f.title} style={{ direction: index % 2 ? "rtl" : "ltr" }}>
             <div className={s.shot} style={{ aspectRatio: "4 / 3", direction: "ltr" }}><Icon name={f.icon} size={40} /></div>
             <div className={l.stackM} style={{ direction: "ltr" }}>
@@ -207,7 +221,10 @@ export function LandingPage() {
         <Divider />
         <div className={s.section} style={{ paddingTop: tokens.spacingVerticalM, paddingBottom: tokens.spacingVerticalM, flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap", gap: tokens.spacingHorizontalM }}>
           <Caption1>© 2026 Acme Console · Fluent UI React v9 Gallery</Caption1>
-          <div className={l.row}><Icon name="github" size={18} /><Icon name="twitter" size={18} /><Icon name="mail" size={18} /></div>
+          <div className={l.row}>
+            <Select aria-label="语言" defaultValue="简体中文" size={isMobile ? "medium" : "small"}><option>简体中文</option><option>English</option></Select>
+            {["github", "twitter", "mail"].map((n) => <Button key={n} appearance="subtle" size={ctl} icon={<Icon name={n} size={18} />} aria-label={n} />)}
+          </div>
         </div>
       </footer>
     </div>

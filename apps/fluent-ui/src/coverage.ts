@@ -14,7 +14,7 @@ export const coverage: Record<string, CoverageStatus> = {
   Checkbox: "implemented",
   Radio: "implemented",
   Switch: "implemented",
-  Slider: "implemented",
+  Slider: "composed",
   Rating: "implemented",
   DatePicker: "implemented",
   TimePicker: "implemented",

@@ -61,6 +61,8 @@ type FormState = {
   name: string
   email: string
   phone: string
+  countryCode: string
+  channels: string[]
   age: number
   bio: string
   role: string
@@ -71,7 +73,8 @@ type FormState = {
   time: Date | null | undefined
   rangeStart: Date | null | undefined
   rangeEnd: Date | null | undefined
-  budget: number
+  budgetMin: number
+  budgetMax: number
   rating: number
   color: string
   notify: boolean
@@ -80,7 +83,9 @@ type FormState = {
   agree: boolean
 }
 
-const initial: FormState = { name: "", email: "", phone: "", age: 18, bio: "", role: "member", plan: "Pro", owners: [], tags: ["设计", "前端"], date: null, time: null, rangeStart: null, rangeEnd: null, budget: 40, rating: 4, color: "#0f6cbd", notify: true, marketing: false, file: "", agree: false }
+const initial: FormState = { name: "", email: "", phone: "", countryCode: "+86", channels: ["邮件"], age: 18, bio: "", role: "member", plan: "Pro", owners: [], tags: ["设计", "前端"], date: null, time: null, rangeStart: null, rangeEnd: null, budgetMin: 20, budgetMax: 60, rating: 4, color: "#0f6cbd", notify: true, marketing: false, file: "", agree: false }
+
+const channelOptions = ["邮件", "短信", "站内"]
 
 export function FormPage() {
   const s = useStyles()
@@ -152,8 +157,32 @@ export function FormPage() {
           <div className={s.grid}>
             <Field label="姓名" required validationMessage={err("name")} validationState={state("name")}><Input size={ctl} value={form.name} onChange={(_, d) => set("name", d.value)} placeholder="林晓" /></Field>
             <Field label="邮箱" required validationMessage={err("email")} validationState={state("email")}><Input size={ctl} type="email" value={form.email} onChange={(_, d) => set("email", d.value)} placeholder="you@example.com" contentBefore={<Icon name="mail" size={16} />} /></Field>
-            <Field label="手机号" validationMessage={err("phone")} validationState={state("phone")} hint="选填，用于接收短信通知"><Input size={ctl} type="tel" value={form.phone} onChange={(_, d) => set("phone", d.value)} placeholder="13800000000" /></Field>
-            <Field label="年龄"><SpinButton value={form.age} min={0} max={120} onChange={(_, d) => set("age", d.value ?? form.age)} /></Field>
+            <Field label="手机号" validationMessage={err("phone")} validationState={state("phone")} hint="选填，用于接收短信通知">
+              <div className={l.row} style={{ flexWrap: "nowrap" }}>
+                <Dropdown size={ctl} value={form.countryCode} selectedOptions={[form.countryCode]} onOptionSelect={(_, d) => set("countryCode", d.optionValue ?? form.countryCode)} style={{ width: 96, minWidth: 96 }}>
+                  {["+86", "+1", "+65", "+49"].map((cc) => <Option key={cc} value={cc}>{cc}</Option>)}
+                </Dropdown>
+                <Input size={ctl} type="tel" value={form.phone} onChange={(_, d) => set("phone", d.value)} placeholder="13800000000" style={{ flex: 1, minWidth: 0 }} />
+              </div>
+            </Field>
+            <Field label="年龄">
+              {isMobile ? (
+                <div className={l.row} style={{ flexWrap: "nowrap" }}>
+                  <Button size="large" icon={<Icon name="minus" />} aria-label="减少" onClick={() => set("age", Math.max(0, form.age - 1))} />
+                  <Input size="large" type="number" value={String(form.age)} readOnly style={{ width: 96, textAlign: "center" }} aria-label="年龄" />
+                  <Button size="large" icon={<Icon name="plus" />} aria-label="增加" onClick={() => set("age", Math.min(120, form.age + 1))} />
+                </div>
+              ) : (
+                <SpinButton value={form.age} min={0} max={120} onChange={(_, d) => set("age", d.value ?? form.age)} />
+              )}
+            </Field>
+            <Field label="通知渠道">
+              <div className={l.row}>
+                {channelOptions.map((c) => (
+                  <Checkbox key={c} size={isMobile ? "large" : "medium"} label={c} checked={form.channels.includes(c)} onChange={(_, d) => set("channels", d.checked ? [...form.channels, c] : form.channels.filter((x) => x !== c))} />
+                ))}
+              </div>
+            </Field>
             <Field label="角色" required>
               <RadioGroup layout="horizontal" className={s.radioWrap} value={form.role} onChange={(_, d) => set("role", d.value)}>
                 <Radio value="owner" label="Owner" /><Radio value="admin" label="Admin" /><Radio value="member" label="Member" /><Radio value="viewer" label="Viewer" />
@@ -191,7 +220,12 @@ export function FormPage() {
                 <DatePicker size={ctl} value={form.rangeEnd} onSelectDate={(d) => set("rangeEnd", d)} placeholder="结束" minDate={form.rangeStart ?? undefined} />
               </div>
             </Field>
-            <Field label={`预算 ¥${form.budget}k`}><Slider min={0} max={100} step={5} value={form.budget} onChange={(_, d) => set("budget", d.value)} /></Field>
+            <Field label={`预算区间 ¥${form.budgetMin}k – ¥${form.budgetMax}k`} className={s.full}>
+              <div className={l.stackS}>
+                <Slider min={0} max={100} step={5} value={form.budgetMin} onChange={(_, d) => setForm((prev) => ({ ...prev, budgetMin: Math.min(d.value, prev.budgetMax) }))} aria-label="预算下限" />
+                <Slider min={0} max={100} step={5} value={form.budgetMax} onChange={(_, d) => setForm((prev) => ({ ...prev, budgetMax: Math.max(d.value, prev.budgetMin) }))} aria-label="预算上限" />
+              </div>
+            </Field>
             <Field label="满意度"><Rating value={form.rating} onChange={(_, d) => set("rating", d.value)} /></Field>
             <Field label="品牌色">
               <div className={l.row}>
@@ -225,12 +259,13 @@ export function FormPage() {
             <div className={s.summary}>
               <Caption1 className={l.muted}>姓名</Caption1><Body1>{form.name}</Body1>
               <Caption1 className={l.muted}>邮箱</Caption1><Body1>{form.email}</Body1>
-              <Caption1 className={l.muted}>手机号</Caption1><Body1>{form.phone || "—"}</Body1>
+              <Caption1 className={l.muted}>手机号</Caption1><Body1>{form.phone ? `${form.countryCode} ${form.phone}` : "—"}</Body1>
               <Caption1 className={l.muted}>角色</Caption1><Body1>{form.role}</Body1>
               <Caption1 className={l.muted}>计划</Caption1><Body1>{form.plan}</Body1>
               <Caption1 className={l.muted}>负责人</Caption1><Body1>{form.owners.join("、") || "—"}</Body1>
               <Caption1 className={l.muted}>标签</Caption1><Body1>{form.tags.join("、") || "—"}</Body1>
-              <Caption1 className={l.muted}>预算</Caption1><Body1>¥{form.budget}k</Body1>
+              <Caption1 className={l.muted}>通知渠道</Caption1><Body1>{form.channels.join("、") || "—"}</Body1>
+              <Caption1 className={l.muted}>预算区间</Caption1><Body1>¥{form.budgetMin}k – ¥{form.budgetMax}k</Body1>
               <Caption1 className={l.muted}>满意度</Caption1><Body1>{form.rating} / 5</Body1>
               <Caption1 className={l.muted}>通知</Caption1><Body1>{form.notify ? "开" : "关"} · 产品更新 {form.marketing ? "开" : "关"}</Body1>
             </div>

@@ -66,7 +66,6 @@ type Order = (typeof ordersData)[number]
 const statuses = ["paid", "pending", "shipped", "refunded", "failed"] as const
 const statusLabel: Record<string, string> = { paid: "已支付", pending: "待处理", shipped: "已发货", refunded: "已退款", failed: "失败" }
 const channels = ["web", "ios", "android", "api"] as const
-const PAGE_SIZE = 10
 
 const useStyles = makeStyles({
   toolbar: { display: "flex", gap: tokens.spacingHorizontalS, flexWrap: "wrap", alignItems: "center" },
@@ -85,6 +84,8 @@ export function OrdersPage() {
   const ctl = useControlSize()
   const { dispatchToast } = useToastController("acme-toaster")
   const [state, setState] = useState<"loading" | "ready" | "error">("loading")
+  const [orders, setOrders] = useState<Order[]>(ordersData)
+  const [pageSize, setPageSize] = useState(10)
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState<string[]>([])
   const [channel, setChannel] = useState<string[]>([])
@@ -103,7 +104,7 @@ export function OrdersPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return ordersData
+    return orders
       .filter((o) => (!q || o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || o.email.toLowerCase().includes(q)) && (status.length === 0 || status.includes(o.status)) && (channel.length === 0 || channel.includes(o.channel)) && (!date || o.date === date.toISOString().slice(0, 10)))
       .sort((a, b) => {
         const key = sort.column as keyof Order
@@ -112,11 +113,13 @@ export function OrdersPage() {
         const cmp = typeof av === "number" && typeof bv === "number" ? av - bv : String(av).localeCompare(String(bv))
         return sort.direction === "ascending" ? cmp : -cmp
       })
-  }, [query, status, channel, date, sort])
+  }, [orders, query, status, channel, date, sort])
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const rows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-  useEffect(() => setPage(1), [query, status, channel, date])
+  const removeOrder = (id: string) => { setOrders((prev) => prev.filter((o) => o.id !== id)); setSelected((prev) => { const next = new Set(prev); next.delete(id); return next }) }
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const rows = filtered.slice((page - 1) * pageSize, page * pageSize)
+  useEffect(() => setPage(1), [query, status, channel, date, pageSize])
 
   const notify = (title: string, body?: string) => dispatchToast(<Toast><ToastTitle>{title}</ToastTitle>{body ? <ToastBody>{body}</ToastBody> : null}</Toast>, { intent: "success" })
 
@@ -133,7 +136,7 @@ export function OrdersPage() {
       renderHeaderCell: () => "",
       renderCell: (o) => (
         <Menu>
-          <MenuTrigger disableButtonEnhancement><Button appearance="subtle" size="small" icon={<Icon name="more-horizontal" />} aria-label={`${o.id} 操作`} /></MenuTrigger>
+          <MenuTrigger disableButtonEnhancement><Button appearance="subtle" size={ctl} icon={<Icon name="more-horizontal" />} aria-label={`${o.id} 操作`} /></MenuTrigger>
           <MenuPopover>
             <MenuList>
               <MenuItem icon={<Icon name="eye" />} onClick={() => setActive(o)}>查看详情</MenuItem>
@@ -171,14 +174,14 @@ export function OrdersPage() {
 
   return (
     <div className={l.stack}>
-      <PageHeader title="订单" description={`共 ${ordersData.length} 条订单，${filtered.length} 条匹配筛选。`} action={<Button appearance="primary" size={ctl} icon={<Icon name="plus" />}>新建订单</Button>} />
+      <PageHeader title="订单" description={`共 ${orders.length} 条订单，${filtered.length} 条匹配筛选。`} action={<Button appearance="primary" size={ctl} icon={<Icon name="plus" />}>新建订单</Button>} />
       {toolbar}
       {selected.size > 0 ? (
         <MessageBar intent="info">
           <MessageBarBody>已选择 {selected.size} 条订单</MessageBarBody>
           <MessageBarActions containerAction={<Button appearance="transparent" size={isMobile ? "large" : "small"} icon={<Icon name="x" />} aria-label="取消选择" onClick={() => setSelected(new Set())} />}>
             <Button size={isMobile ? "large" : "small"} onClick={() => notify("批量导出", `${selected.size} 条`)}>导出所选</Button>
-            <Button size={isMobile ? "large" : "small"} onClick={() => { setSelected(new Set()); notify("已删除所选订单") }}>删除所选</Button>
+            <Button size={isMobile ? "large" : "small"} onClick={() => { setOrders((prev) => prev.filter((o) => !selected.has(o.id))); setSelected(new Set()); notify("已删除所选订单") }}>删除所选</Button>
           </MessageBarActions>
         </MessageBar>
       ) : null}
@@ -229,7 +232,7 @@ export function OrdersPage() {
             <DataGridBody<Order>>
               {({ item, rowId }) => (
                 <DataGridRow<Order> key={rowId} selectionCell={{ checkboxIndicator: { "aria-label": `选择 ${item.id}` } }}>
-                  {({ renderCell, columnId }) => <DataGridCell onClick={columnId === "actions" ? undefined : () => setActive(item)}>{renderCell(item)}</DataGridCell>}
+                  {({ renderCell, columnId }) => <DataGridCell onClick={columnId === "actions" ? undefined : (e) => { e.stopPropagation(); setActive(item) }}>{renderCell(item)}</DataGridCell>}
                 </DataGridRow>
               )}
             </DataGridBody>
@@ -237,7 +240,13 @@ export function OrdersPage() {
         </div>
       )}
       <div className={s.footer}>
-        <Caption1 className={l.muted}>第 {page} / {pageCount} 页 · 每页 {PAGE_SIZE} 条</Caption1>
+        <div className={l.row} style={{ flexWrap: "nowrap" }}>
+          <Caption1 className={l.muted}>第 {page} / {pageCount} 页 · 每页</Caption1>
+          <Dropdown size={isMobile ? "large" : "small"} value={`${pageSize}`} selectedOptions={[`${pageSize}`]} onOptionSelect={(_, d) => setPageSize(Number(d.optionValue ?? 10))} style={{ minWidth: 72 }} aria-label="每页条数">
+            {[10, 20, 50].map((n) => <Option key={n} value={`${n}`} text={`${n}`}>{n}</Option>)}
+          </Dropdown>
+          <Caption1 className={l.muted}>条</Caption1>
+        </div>
         <div className={l.row}>
           <Button size={isMobile ? "large" : "small"} icon={<Icon name="chevron-left" />} disabled={page <= 1} onClick={() => setPage(page - 1)}>上一页</Button>
           {Array.from({ length: Math.min(pageCount, 5) }).map((_, i) => <Button key={i} size={isMobile ? "large" : "small"} appearance={page === i + 1 ? "primary" : "subtle"} onClick={() => setPage(i + 1)}>{i + 1}</Button>)}
@@ -282,7 +291,7 @@ export function OrdersPage() {
             <DialogContent>此操作不可撤销，订单记录将从系统中永久移除。</DialogContent>
             <DialogActions>
               <DialogTrigger disableButtonEnhancement><Button appearance="secondary">取消</Button></DialogTrigger>
-              <Button appearance="primary" onClick={() => { notify("订单已删除", pendingDelete?.id); setPendingDelete(null); setActive(null) }}>确认删除</Button>
+              <Button appearance="primary" onClick={() => { if (pendingDelete) removeOrder(pendingDelete.id); notify("订单已删除", pendingDelete?.id); setPendingDelete(null); setActive(null) }}>确认删除</Button>
             </DialogActions>
           </DialogBody>
         </DialogSurface>

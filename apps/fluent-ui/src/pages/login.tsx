@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react"
-import { Link as RouterLink, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import {
   Body1,
   Button,
@@ -107,7 +107,7 @@ export function LoginPage() {
           <Button size={ctl} icon={<Icon name="message-circle" size={16} />}>微信</Button>
         </div>
         <Caption1 className={s.center}>
-          还没有账户？ <RouterLink to="#register">立即注册</RouterLink>
+          还没有账户？ <Link href="#register">立即注册</Link>
         </Caption1>
       </Card>
     </div>

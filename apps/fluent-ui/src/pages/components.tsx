@@ -579,8 +579,8 @@ export function ComponentsPage() {
           </Demo>
 
           <Demo name="Carousel">
-            <Carousel groupSize={1} circular announcement={(index, total) => `第 ${index + 1} / ${total} 张`}>
-              <CarouselSlider>{landing.features.slice(0, 4).map((f, i) => <CarouselCard key={f.title} aria-label={`${i + 1} / 4`}><div className={s.carouselCard}><div className={s.col} style={{ alignItems: "center" }}><Icon name={f.icon} size={28} /><Text weight="semibold">{f.title}</Text></div></div></CarouselCard>)}</CarouselSlider>
+            <Carousel groupSize="auto" circular announcement={(index, total) => `第 ${index + 1} / ${total} 张`}>
+              <CarouselSlider>{landing.features.map((f, i) => <CarouselCard key={f.title} aria-label={`${i + 1} / ${landing.features.length}`} style={{ flex: "0 0 auto", width: 220 }}><div className={s.carouselCard}><div className={s.col} style={{ alignItems: "center" }}><Icon name={f.icon} size={28} /><Text weight="semibold">{f.title}</Text></div></div></CarouselCard>)}</CarouselSlider>
               <CarouselNavContainer layout="inline" next={{ "aria-label": "下一张" }} prev={{ "aria-label": "上一张" }}><CarouselNav>{(index) => <CarouselNavButton aria-label={`第 ${index + 1} 张`} />}</CarouselNav></CarouselNavContainer>
             </Carousel>
           </Demo>
@@ -697,9 +697,28 @@ export function ComponentsPage() {
             <div className={s.row}>{["Button", "Input", "Table", "Dialog"].map((n) => <Link key={n} href={`#${n}`}>#{n}</Link>)}</div>
           </Demo>
 
-          <Demo name="BackTop" note="固定定位 Button 组合"><Caption1>向下滚动页面后右下角出现「回到顶部」按钮。</Caption1></Demo>
+          <Demo name="BackTop" note="固定定位 Button 组合">
+            <Caption1>向下滚动页面后右下角出现「回到顶部」按钮；下方为局部示例。</Caption1>
+            <div className={s.scroll} style={{ position: "relative", maxHeight: "160px", padding: 0 }} id="backtop-demo">
+              <div style={{ padding: tokens.spacingHorizontalS }}>
+                {orders.slice(0, 12).map((o) => <Body1 key={o.id} block>{o.id} · {o.customer}</Body1>)}
+              </div>
+              <Button appearance="primary" shape="circular" size="large" icon={<Icon name="arrow-up" />} aria-label="回到顶部" style={{ position: "sticky", bottom: tokens.spacingVerticalS, float: "right", marginRight: tokens.spacingHorizontalS }} onClick={() => document.getElementById("backtop-demo")?.scrollTo({ top: 0, behavior: "smooth" })} />
+            </div>
+          </Demo>
 
-          <Demo name="Affix" note="position: sticky 组合"><Caption1>右侧目录与页头使用 sticky 固定。</Caption1></Demo>
+          <Demo name="Affix" note="position: sticky 组合">
+            <Caption1>滚动下方容器，工具栏固定在容器顶部。</Caption1>
+            <div className={s.scroll} style={{ maxHeight: "160px", padding: 0 }}>
+              <Toolbar aria-label="固定工具栏" style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: tokens.colorNeutralBackground1, borderBottom: `1px solid ${tokens.colorNeutralStroke2}` }}>
+                <Text weight="semibold" style={{ paddingInline: tokens.spacingHorizontalS }}>固定栏</Text>
+                <ToolbarButton icon={<Icon name="refresh" size={16} />}>刷新</ToolbarButton>
+              </Toolbar>
+              <div style={{ padding: tokens.spacingHorizontalS }}>
+                {orders.slice(0, 12).map((o) => <Body1 key={o.id} block>{o.id} · {o.customer}</Body1>)}
+              </div>
+            </div>
+          </Demo>
 
           <Demo name="Navbar" note="Toolbar 组合">
             <Toolbar aria-label="导航栏" style={{ border: `1px solid ${tokens.colorNeutralStroke2}`, borderRadius: tokens.borderRadiusMedium, justifyContent: "space-between", flexWrap: "wrap", minWidth: 0 }}><div className={s.row}><Text weight="semibold">Acme</Text>{nav.slice(0, 3).map((n) => <ToolbarButton key={n.key}>{n.label}</ToolbarButton>)}</div><div className={s.row}><SearchBox size="small" placeholder="搜索" style={{ minWidth: 0, width: 140 }} /><Avatar name={team[0].name} size={28} color="colorful" /></div></Toolbar>

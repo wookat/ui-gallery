@@ -37,7 +37,7 @@
     "Checkbox": "implemented",
     "Radio": "implemented",
     "Switch": "implemented",
-    "Slider": "implemented",
+    "Slider": "composed",
     "Rating": "implemented",
     "DatePicker": "implemented",
     "TimePicker": "implemented",
@@ -115,5 +115,5 @@
     "calendar": "@fluentui/react-calendar-compat",
     "markdown": "react-markdown"
   },
-  "notes": "FluentProvider + webLightTheme/webDarkTheme 官方默认主题；图标默认 @fluentui/react-icons，?icons= 可切换 lucide/tabler/phosphor/heroicons。"
+  "notes": "FluentProvider + webLightTheme/webDarkTheme 官方默认主题；图标默认 @fluentui/react-icons，?icons= 可切换 lucide/tabler/phosphor/heroicons。 Slider 区间为双 Slider 组合（Fluent 无 RangeSlider）。"
 }

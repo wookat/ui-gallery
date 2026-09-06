@@ -46,3 +46,6 @@ body { min-width: 0; }
   .card-body { min-width: 0; }
   .hero-placeholder { min-height: 190px; }
 }
+.btn-outline-secondary { --bs-btn-color: var(--bs-secondary-color); --bs-btn-border-color: var(--bs-border-color); }
+html[data-bs-theme="dark"] .btn-outline-primary { --bs-btn-color: var(--bs-primary-text-emphasis); --bs-btn-border-color: var(--bs-primary-border-subtle); }
+html[data-bs-theme="dark"] .btn-outline-danger { --bs-btn-color: var(--bs-danger-text-emphasis); --bs-btn-border-color: var(--bs-danger-border-subtle); }

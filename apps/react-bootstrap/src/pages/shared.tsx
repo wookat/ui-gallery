@@ -17,7 +17,7 @@ export function Section({ title, children, className = "" }: { title: string; ch
 }
 
 export function Avatar({ name, size = 32 }: { name: string; size?: number }) {
-  return <span className="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center flex-shrink-0" style={{ width: size, height: size, fontSize: size * 0.38 }}>{name.slice(0, 1)}</span>
+  return <span className="rounded-circle bg-primary-subtle text-primary-emphasis d-inline-flex align-items-center justify-content-center flex-shrink-0" style={{ width: size, height: size, fontSize: size * 0.38 }}>{name.slice(0, 1)}</span>
 }
 
 export function AvatarGroup({ names }: { names: string[] }) {
@@ -27,7 +27,7 @@ export function AvatarGroup({ names }: { names: string[] }) {
 export function StatusBadge({ status }: { status: string }) {
   const variant = status === "paid" || status === "shipped" ? "success" : status === "pending" ? "warning" : status === "failed" ? "danger" : "secondary"
   const labels: Record<string, string> = { paid: "已支付", pending: "处理中", refunded: "已退款", failed: "失败", shipped: "已发货", due: "待支付" }
-  return <Badge bg={variant}>{labels[status] ?? status}</Badge>
+  return <Badge bg={variant} text={variant === "warning" ? "dark" : undefined}>{labels[status] ?? status}</Badge>
 }
 
 export function placeholderImage(width: number, height: number) {
@@ -64,7 +64,7 @@ export function DeleteModal({ show, onHide, onDelete }: { show: boolean; onHide:
 }
 
 export function FieldLabel({ children, required = false, info }: { children: ReactNode; required?: boolean; info?: string }) {
-  return <Form.Label>{children}{required && <span className="text-danger ms-1">*</span>}{info && <span className="ms-1" title={info}>ⓘ</span>}</Form.Label>
+  return <Form.Label>{children}{required && <span className="text-danger-emphasis ms-1">*</span>}{info && <span className="ms-1" title={info}>ⓘ</span>}</Form.Label>
 }
 
 export function LoadingButton({ loading, children, type = "button", className }: { loading: boolean; children: ReactNode; type?: "button" | "submit"; className?: string }) {

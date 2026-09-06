@@ -56,12 +56,12 @@
 </header>
 
 <Tabs value={tab} onValueChange={(d) => (tab = d.value)} class="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6 items-start">
-  <Tabs.List class="flex-nowrap overflow-x-auto whitespace-nowrap lg:overflow-visible lg:flex-col lg:items-stretch lg:border-0">
-    <Tabs.Trigger value="profile" class="shrink-0 lg:justify-start gap-2"><Icon name="user" />个人资料</Tabs.Trigger>
-    <Tabs.Trigger value="security" class="shrink-0 lg:justify-start gap-2"><Icon name="shield" />账号安全</Tabs.Trigger>
-    <Tabs.Trigger value="notifications" class="shrink-0 lg:justify-start gap-2"><Icon name="bell" />通知</Tabs.Trigger>
-    <Tabs.Trigger value="team" class="shrink-0 lg:justify-start gap-2"><Icon name="users" />团队</Tabs.Trigger>
-    <Tabs.Trigger value="billing" class="shrink-0 lg:justify-start gap-2"><Icon name="credit-card" />计费</Tabs.Trigger>
+  <Tabs.List class="flex-nowrap whitespace-nowrap lg:flex-col lg:items-stretch lg:border-0">
+    <Tabs.Trigger value="profile" class="flex-1 px-2 lg:flex-none lg:px-4 lg:justify-start gap-2"><Icon name="user" class="hidden lg:inline size-4" />个人资料</Tabs.Trigger>
+    <Tabs.Trigger value="security" class="flex-1 px-2 lg:flex-none lg:px-4 lg:justify-start gap-2"><Icon name="shield" class="hidden lg:inline size-4" />账号安全</Tabs.Trigger>
+    <Tabs.Trigger value="notifications" class="flex-1 px-2 lg:flex-none lg:px-4 lg:justify-start gap-2"><Icon name="bell" class="hidden lg:inline size-4" />通知</Tabs.Trigger>
+    <Tabs.Trigger value="team" class="flex-1 px-2 lg:flex-none lg:px-4 lg:justify-start gap-2"><Icon name="users" class="hidden lg:inline size-4" />团队</Tabs.Trigger>
+    <Tabs.Trigger value="billing" class="flex-1 px-2 lg:flex-none lg:px-4 lg:justify-start gap-2"><Icon name="credit-card" class="hidden lg:inline size-4" />计费</Tabs.Trigger>
     <Tabs.Indicator class="lg:hidden" />
   </Tabs.List>
 

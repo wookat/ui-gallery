@@ -77,7 +77,7 @@
             <div class="card bg-surface-50-950 p-3 space-y-1">
               <p class="text-xs opacity-60">{s.label}</p>
               <p class="text-lg font-bold tabular-nums">{s.unit === "CNY" ? money(s.value) : s.unit === "%" ? `${s.value}%` : number(s.value)}</p>
-              <p class="text-xs {s.delta >= 0 ? 'text-success-500' : 'text-error-500'}">{s.delta >= 0 ? "+" : ""}{s.delta}%</p>
+              <p class="text-xs font-medium {s.delta >= 0 ? 'text-success-900-100' : 'text-error-900-100'}">{s.delta >= 0 ? "+" : ""}{s.delta}%</p>
             </div>
           {/each}
         </div>

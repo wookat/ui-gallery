@@ -99,7 +99,7 @@
           {#each stepsMeta as s, i (s.title)}
             <Steps.Item index={i} class="flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left">
               <Steps.Trigger class="flex items-center gap-2">
-                <Steps.Indicator class="size-8 shrink-0 rounded-full grid place-items-center text-sm font-bold {i < step ? 'preset-filled-success-500' : i === step ? 'preset-filled-primary-500' : 'preset-tonal'}">
+                <Steps.Indicator class="size-10 shrink-0 rounded-full grid place-items-center text-sm font-bold {i < step ? 'preset-filled-success-500' : i === step ? 'preset-filled-primary-500' : 'preset-tonal'}">
                   {#if i < step}<Icon name="check" />{:else}{i + 1}{/if}
                 </Steps.Indicator>
                 <span class="hidden sm:block">

@@ -17,6 +17,17 @@ body {
   overflow-x: hidden;
 }
 
+@layer components {
+  .btn,
+  .btn-icon,
+  [data-scope="tabs"][data-part="trigger"],
+  [data-scope="steps"][data-part="trigger"],
+  [data-scope="navigation"][data-part="trigger-anchor"],
+  [data-scope="navigation"][data-part="trigger"] {
+    min-height: --spacing(10);
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

@@ -27,7 +27,7 @@ const useStyles = makeStyles({
   card: { width: "100%", maxWidth: "420px", padding: tokens.spacingHorizontalXL, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalL },
   form: { display: "flex", flexDirection: "column", gap: tokens.spacingVerticalM },
   between: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: tokens.spacingHorizontalM, flexWrap: "wrap" },
-  oauth: { display: "grid", gap: tokens.spacingHorizontalS, gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))" },
+  oauth: { display: "grid", gap: tokens.spacingHorizontalS, gridTemplateColumns: "repeat(3, minmax(0, 1fr))", "@media (max-width: 767px)": { gridTemplateColumns: "1fr" } },
   center: { textAlign: "center", color: tokens.colorNeutralForeground3 },
 })
 

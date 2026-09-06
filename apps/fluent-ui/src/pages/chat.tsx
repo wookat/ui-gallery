@@ -152,11 +152,11 @@ export function ChatPage() {
                     </Card>
                   ) : null}
                   {m.role === "assistant" && !m.streaming ? (
-                    <div className={l.row}>
-                      <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="copy" size={14} />} onClick={() => copy(m.content)}>复制</Button>
+                    <div className={l.row} style={{ flexWrap: "nowrap" }}>
+                      <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="copy" size={14} />} aria-label="复制" onClick={() => copy(m.content)}>{isMobile ? null : "复制"}</Button>
                       <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="thumbs-up" size={14} />} aria-label="有帮助" />
                       <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="thumbs-down" size={14} />} aria-label="没帮助" />
-                      <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="refresh" size={14} />}>重新生成</Button>
+                      <Button appearance="subtle" size={isMobile ? "large" : "small"} icon={<Icon name="refresh" size={14} />} aria-label="重新生成">{isMobile ? null : "重新生成"}</Button>
                     </div>
                   ) : null}
                 </div>

@@ -61,7 +61,7 @@ const useStyles = makeStyles({
   },
   spacer: { flex: 1 },
   content: { padding: tokens.spacingHorizontalL, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalL, minWidth: 0, "@media (max-width: 767px)": { padding: tokens.spacingHorizontalM } },
-  brand: { display: "flex", alignItems: "center", gap: tokens.spacingHorizontalS, textDecoration: "none", color: tokens.colorNeutralForeground1 },
+  brand: { display: "flex", alignItems: "center", gap: tokens.spacingHorizontalS, textDecoration: "none", color: tokens.colorNeutralForeground1, whiteSpace: "nowrap", flexShrink: 0 },
   brandMark: {
     width: "32px",
     height: "32px",

@@ -109,7 +109,7 @@ export function DashboardPage() {
         </SectionCard>
         <SectionCard title="渠道占比" description="按下单渠道">
           <div className={s.chartBox} style={{ paddingTop: tokens.spacingVerticalS }}>
-            {loading ? <Skeleton><SkeletonItem size={128} /></Skeleton> : <ResponsiveContainer height={260}><DonutChart data={donutData} innerRadius={55} valueInsideDonut={`${series.byChannel[0].name} ${series.byChannel[0].value}%`} hideLabels /></ResponsiveContainer>}
+            {loading ? <Skeleton><SkeletonItem size={128} /></Skeleton> : <ResponsiveContainer height={260}><DonutChart data={donutData} innerRadius={70} valueInsideDonut={`${series.byChannel[0].value}%`} hideLabels /></ResponsiveContainer>}
           </div>
         </SectionCard>
       </div>

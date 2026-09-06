@@ -41,7 +41,7 @@ import { useControlSize, useIsMobile, useLayoutStyles } from "./shared"
 
 const useStyles = makeStyles({
   root: { minHeight: "100vh", backgroundColor: tokens.colorNeutralBackground1, color: tokens.colorNeutralForeground1 },
-  nav: { position: "sticky", top: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: tokens.spacingHorizontalM, padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalL}`, borderBottom: `1px solid ${tokens.colorNeutralStroke2}`, backgroundColor: tokens.colorNeutralBackground1 },
+  nav: { position: "sticky", top: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: tokens.spacingHorizontalM, padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalL}`, "@media (max-width: 767px)": { paddingInline: tokens.spacingHorizontalM, gap: tokens.spacingHorizontalS }, borderBottom: `1px solid ${tokens.colorNeutralStroke2}`, backgroundColor: tokens.colorNeutralBackground1 },
   navLinks: { display: "flex", gap: tokens.spacingHorizontalL, "@media (max-width: 767px)": { display: "none" } },
   section: { maxWidth: "1120px", margin: "0 auto", padding: `${tokens.spacingVerticalXXXL} ${tokens.spacingHorizontalL}`, display: "flex", flexDirection: "column", gap: tokens.spacingVerticalXL },
   hero: { textAlign: "center", alignItems: "center", gap: tokens.spacingVerticalL },
@@ -85,7 +85,7 @@ export function LandingPage() {
         <nav className={s.navLinks} aria-label="主导航">
           {["产品", "价格", "文档", "博客"].map((item) => <Link key={item} href="#" appearance="subtle">{item}</Link>)}
         </nav>
-        <div className={l.row}>
+        <div className={l.row} style={{ flexWrap: "nowrap", flexShrink: 0 }}>
           {isMobile ? <Menu positioning="below-end"><MenuTrigger disableButtonEnhancement><Hamburger size="large" aria-label="打开菜单" /></MenuTrigger><MenuPopover><MenuList>{["产品", "价格", "文档", "博客"].map((item) => <MenuItem key={item}>{item}</MenuItem>)}</MenuList></MenuPopover></Menu> : null}
           <Button appearance="subtle" size={ctl} icon={<Icon name={mode === "dark" ? "sun" : "moon"} />} aria-label="切换主题" onClick={() => setMode(mode === "dark" ? "light" : "dark")} />
           {!isMobile ? <RouterLink to={`/login${search}`} style={{ textDecoration: "none" }}><Button appearance="secondary" size={ctl}>登录</Button></RouterLink> : null}

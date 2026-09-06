@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="zh-CN" data-state="default">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>高保真 · login（/login）· Acme Console</title>
+<!--
+  阶段 3 高保真稿（frontend-0to1-ai 步骤 3）。后续 apps/reference/ 实现的唯一视觉标准。
+  输入：docs/frontend/00-brief.md §4.1、docs/frontend/01-ia.md §2.1 / §6-A / §6-H、design/wireframes/login.html、design/tokens.css（6173f67）。
+  规则：
+  - 样式只引用 ../../tokens.css 变量：本文件 0 个硬编码色值 / 字号 / 间距（grep '#[0-9a-f]{3,8}' 与 '[0-9]px' 应为 0）。
+  - 文案全部取 content/login.md 的 key（以 data-key 标注）；演示账号取 mock/user.json.demoCredentials。
+  - 图标：界面图标 Lucide（ISC，inline SVG，stroke=currentColor）；第三方登录图标 simple-icons（CC0-1.0，单色 fill=currentColor），不用官方彩色 Logo。
+  - 字体：tokens.css 声明的 Inter Variable / Noto Sans SC Variable（均 OFL-1.1）。为让稿子在任何机器上按令牌字体渲染，
+    这里通过 fontsource 的 CDN 样式加载；实现阶段改用 @fontsource-variable/inter 与 @fontsource-variable/noto-sans-sc 包（brief §5）。
+  URL 参数（供审查与截图）：
+  - ?state=default|invalid|loading|error|success   默认 default。
+      invalid：两字段内联错误（error.email.format / error.password.short）+ aria-invalid。
+      loading：主按钮 disabled + spinner + submit.loading；全表单只读；第三方按钮 disabled。
+      error：表单卡顶部 Alert（alert.invalid），可关闭；&alert=locked → alert.locked；&alert=network → alert.network（warning，带「重试」）。
+      success：实现中 = 立即跳 /?toast=login，由 dashboard 渲染 toast.success；本稿以「表单只读 + 右上角 Toast『欢迎回来，若琳』」
+              呈现，作为 Toast（success）组件的定稿与 login→dashboard 过渡的视觉参考；375 下 Toast 顶部居中。
+  - ?theme=light|dark   显式主题（<html data-theme>）；不传则跟随系统（tokens.css 已处理）。
+  断点：≥768 左右分栏（品牌区 5/12 + 表单卡 ≤ size.form-max）；<768 单列（品牌名 → 全宽表单 → 页脚，tagline 隐藏）。
+-->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.2.8/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/noto-sans-sc@5.2.6/index.css" />
+<link rel="stylesheet" href="../../tokens.css" />
+<style>
+  /* ===== 基础 ===== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font: var(--typography-body);
+    letter-spacing: var(--typography-body-letter-spacing);
+    color: var(--color-role-fg);
+    background: var(--color-role-bg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  button, input { font: inherit; color: inherit; letter-spacing: inherit; }
+  a { color: var(--color-role-link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  svg { display: block; flex: none; }
+  .icon { width: var(--size-icon-md); height: var(--size-icon-md); }
+  .icon-sm { width: var(--size-icon-sm); height: var(--size-icon-sm); }
+  [hidden] { display: none !important; }
+  /* 统一焦点环（tokens: border.width.focus / border.focus-offset / color.role.focus-ring） */
+  :where(a, button, input, [tabindex]):focus-visible {
+    outline: var(--border-width-focus) solid var(--color-role-focus-ring);
+    outline-offset: var(--border-focus-offset);
+  }
+
+  /* ===== 页面骨架：1440 左右分栏 ===== */
+  .page { display: grid; grid-template-columns: 5fr 7fr; min-height: 100vh; min-height: 100dvh; }
+
+  .brand-col {
+    display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-12);
+    padding: var(--space-10) var(--space-12);
+    background: var(--color-role-surface);
+    border-right: var(--border-width-hairline) solid var(--color-role-border);
+  }
+  .brand { display: inline-flex; align-self: flex-start; align-items: center; gap: var(--space-3); min-height: var(--size-hit); color: var(--color-role-fg); }
+  .brand .mark { width: var(--size-control-sm); height: var(--size-control-sm); }
+  .brand .mark .mark-bg { fill: var(--color-role-primary); }
+  .brand .mark .mark-fg { stroke: var(--color-role-on-primary); }
+  .brand .name { font: var(--typography-title); letter-spacing: var(--typography-title-letter-spacing); }
+
+  .brand-body { display: flex; flex-direction: column; gap: var(--space-8); }
+  .tagline {
+    margin: 0; max-width: 16em; text-wrap: balance;
+    font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing);
+    color: var(--color-role-fg);
+  }
+  /* 装饰：抽象「概览卡」几何图（只用令牌色，无文字；柱高取 mock/stats.json byPeriod.month.gmv.trend 7 点等比） */
+  .deco {
+    display: grid; gap: var(--space-4); max-width: var(--size-form-max);
+    padding: var(--space-5); border-radius: var(--radius-lg);
+    background: var(--color-role-bg); border: var(--border-width-hairline) solid var(--color-role-border);
+  }
+  .deco-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+  .deco-card {
+    display: grid; gap: var(--space-2); align-content: start;
+    padding: var(--space-3); border-radius: var(--radius-md);
+    background: var(--color-role-surface); border: var(--border-width-hairline) solid var(--color-role-border);
+  }
+  .deco-line { display: block; height: var(--space-2); border-radius: var(--radius-full); background: var(--color-role-neutral-soft); width: 60%; }
+  .deco-line.strong { height: var(--space-3); width: 85%; background: var(--color-role-border-strong); opacity: var(--opacity-skeleton-shine); }
+  .deco-line.accent { width: 40%; background: var(--color-role-primary-soft); }
+  .deco-chart {
+    display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; gap: var(--space-2);
+    height: var(--size-chart-trend-mobile); padding: var(--space-4);
+    border-radius: var(--radius-md); background: var(--color-role-surface); border: var(--border-width-hairline) solid var(--color-role-border);
+  }
+  .deco-chart i { display: block; border-radius: var(--radius-xs) var(--radius-xs) 0 0; background: var(--color-role-primary-soft); }
+  .deco-chart i:last-child { background: var(--color-role-primary); }
+
+  .footer { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-4); font: var(--typography-caption); color: var(--color-role-fg-muted); }
+  .footer a { display: inline-flex; align-items: center; min-height: var(--size-hit); color: var(--color-role-fg-muted); }
+  .footer a:hover { color: var(--color-role-fg); }
+  .footer span { display: inline-flex; align-items: center; min-height: var(--size-hit); }
+
+  .form-col { display: flex; align-items: center; justify-content: center; padding: var(--space-10) var(--space-6); }
+  .card {
+    width: 100%; max-width: var(--size-form-max);
+    padding: var(--space-8);
+    background: var(--color-role-surface);
+    border: var(--border-width-hairline) solid var(--color-role-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+  .brand-mobile { display: none; }
+
+  h1 { margin: 0; font: var(--typography-heading); letter-spacing: var(--typography-heading-letter-spacing); color: var(--color-role-fg); }
+  .subtitle { margin: var(--space-1) 0 0; color: var(--color-role-fg-muted); }
+
+  /* ===== Alert（error 态；variant: danger / warning） ===== */
+  .alert {
+    display: none; grid-template-columns: var(--size-icon-md) 1fr var(--size-hit); column-gap: var(--space-3); align-items: start;
+    margin-top: var(--space-6);
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    border: var(--border-width-hairline) solid var(--color-role-danger);
+    background: var(--color-role-danger-soft);
+    color: var(--color-role-fg);
+  }
+  .alert[data-variant="warning"] { border-color: var(--color-role-warning); background: var(--color-role-warning-soft); }
+  .alert .alert-icon { color: var(--color-role-danger); margin-top: calc((var(--font-size-sm) * var(--font-line-height-body) - var(--size-icon-md)) / 2); }
+  .alert[data-variant="warning"] .alert-icon { color: var(--color-role-warning); }
+  .alert .alert-body { display: grid; gap: var(--space-2); align-self: center; }
+  .alert .alert-body p { margin: 0; }
+  .alert .alert-action {
+    justify-self: start; display: inline-flex; align-items: center; gap: var(--space-1);
+    min-height: var(--size-hit); padding: 0 var(--space-3); margin: calc(var(--space-1) * -1) 0 calc(var(--space-1) * -1) calc(var(--space-3) * -1);
+    border: 0; border-radius: var(--radius-sm); background: transparent;
+    font: var(--typography-label); color: var(--color-role-fg); cursor: pointer;
+    transition: background var(--motion-fast) var(--motion-ease);
+  }
+  .alert .alert-action:hover { background: var(--color-role-surface); }
+  .alert .alert-action .icon-sm { color: var(--color-role-warning); }
+  .alert .close {
+    width: var(--size-hit); height: var(--size-hit); margin: calc(var(--space-2) * -1) calc(var(--space-2) * -1) calc(var(--space-2) * -1) 0;
+    display: grid; place-items: center; border: 0; border-radius: var(--radius-sm); background: transparent;
+    color: var(--color-role-fg-muted); cursor: pointer;
+    transition: background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+  }
+  .alert .close:hover { background: var(--color-role-surface); color: var(--color-role-fg); }
+  [data-state="error"] .alert { display: grid; }
+
+  /* ===== 表单 ===== */
+  form { margin-top: var(--space-6); }
+  .field + .field { margin-top: var(--space-4); }
+  .field label.label { display: block; margin-bottom: var(--space-2); font: var(--typography-label); letter-spacing: var(--typography-label-letter-spacing); color: var(--color-role-fg); }
+  .control { position: relative; }
+  .input {
+    width: 100%; height: var(--size-control-md); padding: 0 var(--space-3);
+    border: var(--border-width-hairline) solid var(--color-role-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-role-surface); color: var(--color-role-fg);
+    transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+  }
+  .input::placeholder { color: var(--color-role-fg-muted); }
+  .input:hover:not(:disabled):not([readonly]) { border-color: var(--color-role-fg-muted); }
+  .input:focus-visible { border-color: var(--color-role-primary); outline-offset: var(--border-focus-offset); }
+  .input[aria-invalid="true"] { border-color: var(--color-role-danger); border-width: var(--border-width-accent); padding-left: calc(var(--space-3) - (var(--border-width-accent) - var(--border-width-hairline))); }
+  .input[aria-invalid="true"]:focus-visible { outline-color: var(--color-role-danger); }
+  .input[readonly], .input:disabled { background: var(--color-role-surface-muted); color: var(--color-role-fg-muted); cursor: default; }
+  .control.has-eye .input { padding-right: var(--size-hit); }
+  .control .eye {
+    position: absolute; right: 0; top: 0;
+    width: var(--size-hit); height: var(--size-hit);
+    display: grid; place-items: center; border: 0; background: transparent; border-radius: var(--radius-md);
+    color: var(--color-role-fg-muted); cursor: pointer;
+    transition: color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+  }
+  .control .eye:hover { color: var(--color-role-fg); }
+  .control .eye:disabled { color: var(--color-role-fg-disabled); cursor: not-allowed; }
+  .control .eye .icon-off { display: none; }
+  .control .eye[aria-pressed="true"] .icon-on { display: none; }
+  .control .eye[aria-pressed="true"] .icon-off { display: block; }
+  .err {
+    display: none; align-items: flex-start; gap: var(--space-1);
+    margin: var(--space-2) 0 0;
+    font: var(--typography-caption); letter-spacing: var(--typography-caption-letter-spacing);
+    color: var(--color-role-danger);
+  }
+  .err .icon-sm { margin-top: calc((var(--font-size-xs) * var(--font-line-height-snug) - var(--size-icon-sm)) / 2); }
+  [data-state="invalid"] .err { display: flex; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-2); }
+  .check { position: relative; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--size-hit); cursor: pointer; user-select: none; }
+  .check input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .check .box {
+    display: grid; place-items: center; width: var(--size-icon-md); height: var(--size-icon-md);
+    border: var(--border-width-hairline) solid var(--color-role-border-strong); border-radius: var(--radius-xs);
+    background: var(--color-role-surface); color: var(--color-role-on-primary);
+    transition: background var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
+  }
+  .check .box svg { width: var(--size-icon-sm); height: var(--size-icon-sm); opacity: 0; }
+  .check:hover .box { border-color: var(--color-role-fg-muted); }
+  .check input:checked + .box { background: var(--color-role-primary); border-color: var(--color-role-primary); }
+  .check input:checked + .box svg { opacity: 1; }
+  .check input:focus-visible + .box { outline: var(--border-width-focus) solid var(--color-role-focus-ring); outline-offset: var(--border-focus-offset); }
+  .check input:disabled ~ * { color: var(--color-role-fg-disabled); }
+  .check input:disabled + .box { background: var(--color-role-surface-muted); border-color: var(--color-role-border); }
+  .check input:disabled:checked + .box { background: var(--color-role-fg-disabled); border-color: var(--color-role-fg-disabled); }
+  .check input:disabled { cursor: not-allowed; }
+  .row .link { display: inline-flex; align-items: center; min-height: var(--size-hit); padding: 0 var(--space-1); margin-right: calc(var(--space-1) * -1); font: var(--typography-label); border-radius: var(--radius-sm); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    width: 100%; height: var(--size-control-md); padding: 0 var(--space-4);
+    border: var(--border-width-hairline) solid transparent; border-radius: var(--radius-md);
+    font: var(--typography-label); letter-spacing: var(--typography-label-letter-spacing);
+    cursor: pointer; white-space: nowrap;
+    transition: background var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+  }
+  .btn-primary { margin-top: var(--space-4); background: var(--color-role-primary); border-color: var(--color-role-primary); color: var(--color-role-on-primary); }
+  .btn-primary:hover:not(:disabled) { background: var(--color-role-primary-hover); border-color: var(--color-role-primary-hover); }
+  .btn-primary:active:not(:disabled) { background: var(--color-role-primary-active); border-color: var(--color-role-primary-active); }
+  .btn-secondary { background: var(--color-role-surface); border-color: var(--color-role-border); color: var(--color-role-fg); }
+  .btn-secondary:hover:not(:disabled) { background: var(--color-role-surface-muted); border-color: var(--color-role-border-strong); }
+  .btn-secondary:active:not(:disabled) { background: var(--color-role-neutral-soft); }
+  .btn-secondary .icon-sm { color: var(--color-role-fg-muted); }
+  .btn:disabled, .btn[aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; }
+  .btn .label-loading, .btn .spinner { display: none; }
+  [data-state="loading"] .btn-primary .label-idle { display: none; }
+  [data-state="loading"] .btn-primary .label-loading { display: inline; }
+  [data-state="loading"] .btn-primary .spinner { display: block; animation: spin calc(var(--motion-slow) * 3) linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .divider { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-6) 0 var(--space-4); font: var(--typography-caption); color: var(--color-role-fg-muted); }
+  .divider::before, .divider::after { content: ""; flex: 1; height: var(--border-width-hairline); background: var(--color-role-border); }
+  .oauth { display: grid; grid-template-columns: 1fr; gap: var(--space-2); }
+
+  .signup { display: flex; align-items: center; justify-content: center; gap: var(--space-1); margin: var(--space-4) 0 0; color: var(--color-role-fg-muted); }
+  .signup a { display: inline-flex; align-items: center; min-height: var(--size-hit); padding: 0 var(--space-1); font: var(--typography-label); border-radius: var(--radius-sm); }
+
+  .footer-mobile { display: none; }
+
+  /* ===== Toast（success 态：欢迎回来，若琳；实现中由 dashboard 渲染） ===== */
+  .toast {
+    position: fixed; top: var(--space-6); right: var(--space-6); z-index: 1;
+    display: none; grid-template-columns: var(--size-icon-md) 1fr var(--size-hit); column-gap: var(--space-3); align-items: center;
+    width: max-content; max-width: calc(100% - var(--space-6) * 2);
+    padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-role-surface-raised); border: var(--border-width-hairline) solid var(--color-role-border);
+    box-shadow: var(--shadow-lg); color: var(--color-role-fg);
+    font: var(--typography-label);
+  }
+  .toast .toast-icon { color: var(--color-role-success); }
+  .toast .close {
+    width: var(--size-hit); height: var(--size-hit); margin: calc(var(--space-2) * -1) 0;
+    display: grid; place-items: center; border: 0; border-radius: var(--radius-sm); background: transparent;
+    color: var(--color-role-fg-muted); cursor: pointer;
+  }
+  .toast .close:hover { background: var(--color-role-surface-muted); color: var(--color-role-fg); }
+  [data-state="success"] .toast { display: grid; animation: toast-in var(--motion-base) var(--motion-ease) both; }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(calc(var(--space-2) * -1)); } to { opacity: 1; transform: none; } }
+
+  /* ===== 375：单列（< breakpoint.md；媒体查询不能引用 var()，此处为本文件唯一的字面尺寸，值 = tokens.json breakpoint.md） ===== */
+  @media (width < 768px) {
+    .page { display: block; min-height: 0; }
+    .brand-col { display: none; }
+    .form-col { display: block; min-height: 100vh; min-height: 100dvh; padding: var(--space-6) var(--space-4) var(--space-8); }
+    .card { max-width: none; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+    .brand-mobile { display: inline-flex; margin-bottom: var(--space-8); }
+    .input, .btn-secondary { background: var(--color-role-surface); }
+    .footer-mobile { display: flex; justify-content: center; margin-top: var(--space-6); }
+    .toast { top: var(--space-4); right: var(--space-4); left: var(--space-4); width: auto; max-width: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <aside class="brand-col" aria-label="品牌区">
+      <a class="brand" href="/login" aria-label="Acme Console">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <rect class="mark-bg" width="32" height="32" rx="8" />
+          <path class="mark-fg" d="M9 11h14M9 16h9M9 21h14" fill="none" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+        <span class="name" data-key="brand.name">Acme Console</span>
+      </a>
+      <div class="brand-body">
+        <p class="tagline" data-key="brand.tagline">订单、库存与团队，一处管好</p>
+        <div class="deco" aria-hidden="true">
+          <div class="deco-cards">
+            <div class="deco-card"><i class="deco-line"></i><i class="deco-line strong"></i><i class="deco-line accent"></i></div>
+            <div class="deco-card"><i class="deco-line"></i><i class="deco-line strong"></i><i class="deco-line accent"></i></div>
+            <div class="deco-card"><i class="deco-line"></i><i class="deco-line strong"></i><i class="deco-line accent"></i></div>
+            <div class="deco-card"><i class="deco-line"></i><i class="deco-line strong"></i><i class="deco-line accent"></i></div>
+          </div>
+          <div class="deco-chart">
+            <i style="height:71%"></i><i style="height:76%"></i><i style="height:82%"></i><i style="height:95%"></i><i style="height:86%"></i><i style="height:91%"></i><i style="height:100%"></i>
+          </div>
+        </div>
+      </div>
+      <div class="footer">
+        <a href="/terms" aria-disabled="true" data-key="footer.terms">服务条款</a>
+        <a href="/privacy" aria-disabled="true" data-key="footer.privacy">隐私政策</a>
+        <span data-key="footer.copyright">© 2026 Acme</span>
+      </div>
+    </aside>
+
+    <main class="form-col">
+      <section class="card" aria-labelledby="login-title">
+        <a class="brand brand-mobile" href="/login" aria-label="Acme Console">
+          <svg class="mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <rect class="mark-bg" width="32" height="32" rx="8" />
+            <path class="mark-fg" d="M9 11h14M9 16h9M9 21h14" fill="none" stroke-width="2.5" stroke-linecap="round" />
+          </svg>
+          <span class="name" data-key="brand.name">Acme Console</span>
+        </a>
+
+        <h1 id="login-title" data-key="title">登录</h1>
+        <p class="subtitle" data-key="subtitle">使用工作邮箱登录你的团队空间</p>
+
+        <div class="alert" id="alert" role="alert" tabindex="-1" data-variant="danger">
+          <svg class="icon alert-icon icon-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></svg>
+          <svg class="icon alert-icon icon-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+          <div class="alert-body">
+            <p id="alert-text" data-key="alert.invalid">邮箱或密码不正确。连续 5 次失败后账号将锁定 15 分钟。</p>
+            <button type="button" class="alert-action" id="alert-retry" hidden>
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+              重试
+            </button>
+          </div>
+          <button type="button" class="close" aria-label="关闭">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+          </button>
+        </div>
+
+        <form novalidate onsubmit="return false">
+          <div class="field">
+            <label class="label" for="email" data-key="email.label">邮箱</label>
+            <div class="control">
+              <input class="input" id="email" name="email" type="email" autocomplete="username" inputmode="email" spellcheck="false" placeholder="name@example.com" data-key="email.placeholder" aria-describedby="email-err" />
+            </div>
+            <p class="err" id="email-err">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></svg>
+              <span data-key="error.email.format">邮箱格式不正确，例如 name@example.com</span>
+            </p>
+          </div>
+
+          <div class="field">
+            <label class="label" for="password" data-key="password.label">密码</label>
+            <div class="control has-eye">
+              <input class="input" id="password" name="password" type="password" autocomplete="current-password" placeholder="至少 8 位" data-key="password.placeholder" aria-describedby="password-err" />
+              <button type="button" class="eye" id="eye" aria-label="显示密码" aria-pressed="false" data-key-on="password.show" data-key-off="password.hide">
+                <svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
+                <svg class="icon icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /><path d="m2 2 20 20" /></svg>
+              </button>
+            </div>
+            <p class="err" id="password-err">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></svg>
+              <span data-key="error.password.short">密码至少 8 位</span>
+            </p>
+          </div>
+
+          <div class="row">
+            <label class="check">
+              <input type="checkbox" id="remember" name="remember" />
+              <span class="box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg></span>
+              <span data-key="remember.label">30 天内记住我</span>
+            </label>
+            <a class="link" href="/forgot-password" aria-disabled="true" data-key="forgot.link">忘记密码？</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="submit">
+            <svg class="icon-sm spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+            <span class="label-idle" data-key="submit">登录</span>
+            <span class="label-loading" data-key="submit.loading">登录中…</span>
+          </button>
+        </form>
+
+        <div class="divider" role="separator" data-key="divider">或使用以下方式</div>
+        <div class="oauth">
+          <button type="button" class="btn btn-secondary" data-key="oauth.google">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" /></svg>
+            使用 Google 继续
+          </button>
+          <button type="button" class="btn btn-secondary" data-key="oauth.github">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" /></svg>
+            使用 GitHub 继续
+          </button>
+          <button type="button" class="btn btn-secondary" data-key="oauth.wechat">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z" /></svg>
+            使用微信继续
+          </button>
+        </div>
+
+        <p class="signup"><span data-key="signup.prompt">还没有团队空间？</span><a href="/signup" aria-disabled="true" data-key="signup.link">免费注册</a></p>
+
+        <div class="footer footer-mobile">
+          <a href="/terms" aria-disabled="true" data-key="footer.terms">服务条款</a>
+          <a href="/privacy" aria-disabled="true" data-key="footer.privacy">隐私政策</a>
+          <span data-key="footer.copyright">© 2026 Acme</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" role="status" aria-live="polite">
+    <svg class="icon toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></svg>
+    <span data-key="toast.success">欢迎回来，若琳</span>
+    <button type="button" class="close" aria-label="关闭">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+    </button>
+  </div>
+
+<script>
+  // 仅用于设计稿的状态 / 主题切换与演示交互（?state= / ?theme= / &alert=），无业务逻辑，不接后端。
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var theme = q.get('theme');
+    if (theme === 'dark' || theme === 'light') document.documentElement.setAttribute('data-theme', theme);
+
+    var s = q.get('state') || 'default';
+    if (!/^(default|invalid|loading|error|success)$/.test(s)) s = 'default';
+    document.documentElement.setAttribute('data-state', s);
+
+    var email = document.getElementById('email'), pwd = document.getElementById('password');
+    var submit = document.getElementById('submit'), eye = document.getElementById('eye'), remember = document.getElementById('remember');
+    var oauth = document.querySelectorAll('.oauth .btn');
+    var alertBox = document.getElementById('alert'), alertText = document.getElementById('alert-text'), retry = document.getElementById('alert-retry');
+
+    // 演示账号：mock/user.json.demoCredentials（邮箱 ruolin.shen@qimu-home.cn，密码任意 ≥ 8 位）
+    var demoEmail = 'ruolin.shen@qimu-home.cn';
+    if (s === 'invalid') {
+      email.value = 'ruolin.shen@qimu-home'; pwd.value = '123456';
+      email.setAttribute('aria-invalid', 'true'); pwd.setAttribute('aria-invalid', 'true');
+    }
+    if (s === 'loading' || s === 'error' || s === 'success') { email.value = demoEmail; pwd.value = 'qimu-2026-09'; remember.checked = true; }
+    if (s === 'loading' || s === 'success') {
+      email.readOnly = true; pwd.readOnly = true; eye.disabled = true; remember.disabled = true;
+      submit.disabled = true; submit.setAttribute('aria-busy', s === 'loading' ? 'true' : 'false');
+      oauth.forEach(function (b) { b.disabled = true; });
+    }
+    if (s === 'error') {
+      var variant = q.get('alert');
+      if (variant === 'locked') {
+        alertText.setAttribute('data-key', 'alert.locked');
+        alertText.textContent = '账号已锁定，请 15 分钟后再试，或通过「忘记密码」重置。';
+        email.value = 'locked@qimu-home.cn';
+      } else if (variant === 'network') {
+        alertBox.setAttribute('data-variant', 'warning');
+        alertBox.querySelector('.icon-danger').hidden = true;
+        alertBox.querySelector('.icon-warning').hidden = false;
+        alertText.setAttribute('data-key', 'alert.network');
+        alertText.textContent = '网络异常，请检查连接后重试。';
+        retry.hidden = false;
+      }
+      alertBox.focus();
+    } else if (s === 'default') {
+      email.focus({ preventScroll: true });
+    }
+
+    eye.addEventListener('click', function () {
+      var on = eye.getAttribute('aria-pressed') !== 'true';
+      eye.setAttribute('aria-pressed', String(on));
+      eye.setAttribute('aria-label', on ? '隐藏密码' : '显示密码');
+      pwd.type = on ? 'text' : 'password';
+    });
+    document.querySelectorAll('.alert .close, .toast .close').forEach(function (b) {
+      b.addEventListener('click', function () { b.closest('.alert, .toast').hidden = true; });
+    });
+    document.querySelectorAll('[aria-disabled="true"]').forEach(function (a) {
+      a.addEventListener('click', function (e) { e.preventDefault(); });
+    });
+  })();
+</script>
+</body>
+</html>

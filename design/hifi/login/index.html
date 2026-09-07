@@ -6,16 +6,18 @@
 <title>高保真 · login（/login）· Acme Console</title>
 <!--
   阶段 3 高保真稿（frontend-0to1-ai 步骤 3）。后续 apps/reference/ 实现的唯一视觉标准。
-  输入：docs/frontend/00-brief.md §4.1、docs/frontend/01-ia.md §2.1 / §6-A / §6-H、design/wireframes/login.html、design/tokens.css（6173f67）。
+  输入：docs/frontend/00-brief.md §4.1、docs/frontend/01-ia.md §2.1 / §6-A / §6-H、design/wireframes/login.html、design/tokens.css（ef05fe8）。
   规则：
-  - 样式只引用 ../../tokens.css 变量：本文件 0 个硬编码色值 / 字号 / 间距（grep '#[0-9a-f]{3,8}' 与 '[0-9]px' 应为 0）。
+  - 样式只引用 ../../tokens.css 变量：本文件 0 个硬编码色值 / 字号 / 间距、标记内 0 个 inline style（check.mjs 静态检查）。
   - 文案全部取 content/login.md 的 key（以 data-key 标注）；演示账号取 mock/user.json.demoCredentials。
   - 图标：界面图标 Lucide（ISC，inline SVG，stroke=currentColor）；第三方登录图标 simple-icons（CC0-1.0，单色 fill=currentColor），不用官方彩色 Logo。
   - 字体：tokens.css 声明的 Inter Variable / Noto Sans SC Variable（均 OFL-1.1）。为让稿子在任何机器上按令牌字体渲染，
     这里通过 fontsource 的 CDN 样式加载；实现阶段改用 @fontsource-variable/inter 与 @fontsource-variable/noto-sans-sc 包（brief §5）。
-    离线打开会回退系统字体、与 ref/ 基准图失配：shoot.mjs 会断言两款字体已加载（document.fonts.check），截图需联网。
+    离线打开会回退系统字体、与 ref/ 基准图失配：check.mjs 会断言两款字体已加载（FontFaceSet 中 status=loaded），截图需联网。
   - 禁用态不整体降透明度（opacity.disabled 会把文字压到 ≈2–3:1）：文字保留 fg-muted / on-neutral-soft，底色改 surface-muted / neutral-soft；
     loading 中的主按钮保持 primary 全色 + spinner（文字 on-primary ≥4.5:1）。
+  - fg-disabled 用法契约（tokens ef05fe8）：只用于不可聚焦的 disabled 控件（眼睛按钮图标）与 aria-hidden 装饰（禁用且勾选的复选框底色）；
+    可聚焦的 aria-disabled 链接（忘记密码 / 免费注册 / 服务条款 / 隐私政策）保持 link / fg-muted（≥4.5:1）并 cursor:not-allowed，本轮不可达（IA §2.1）。
   URL 参数（供审查与截图）：
   - ?state=default|invalid|loading|error|success   默认 default。
       invalid：两字段内联错误（error.email.format / error.password.short）+ aria-invalid。
@@ -46,6 +48,7 @@
   button, input { font: inherit; color: inherit; letter-spacing: inherit; }
   a { color: var(--color-role-link); text-decoration: none; }
   a:hover { text-decoration: underline; }
+  a[aria-disabled="true"] { cursor: not-allowed; }
   svg { display: block; flex: none; }
   .icon { width: var(--size-icon-md); height: var(--size-icon-md); }
   .icon-sm { width: var(--size-icon-sm); height: var(--size-icon-sm); }
@@ -99,6 +102,14 @@
   }
   .deco-chart i { display: block; border-radius: var(--radius-xs) var(--radius-xs) 0 0; background: var(--color-role-primary-soft); }
   .deco-chart i:last-child { background: var(--color-role-primary); }
+  /* 柱高 = 各点 / 最大值（1,186,420）：842300 905600 968200 1132400 1014700 1084500 1186420 */
+  .deco-chart i:nth-child(1) { height: 71%; }
+  .deco-chart i:nth-child(2) { height: 76%; }
+  .deco-chart i:nth-child(3) { height: 82%; }
+  .deco-chart i:nth-child(4) { height: 95%; }
+  .deco-chart i:nth-child(5) { height: 86%; }
+  .deco-chart i:nth-child(6) { height: 91%; }
+  .deco-chart i:nth-child(7) { height: 100%; }
 
   .footer { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-4); font: var(--typography-caption); color: var(--color-role-fg-muted); }
   .footer a { display: inline-flex; align-items: center; min-height: var(--size-hit); color: var(--color-role-fg-muted); }
@@ -302,7 +313,7 @@
             <div class="deco-card"><i class="deco-line"></i><i class="deco-line strong"></i><i class="deco-line accent"></i></div>
           </div>
           <div class="deco-chart">
-            <i style="height:71%"></i><i style="height:76%"></i><i style="height:82%"></i><i style="height:95%"></i><i style="height:86%"></i><i style="height:91%"></i><i style="height:100%"></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
           </div>
         </div>
       </div>

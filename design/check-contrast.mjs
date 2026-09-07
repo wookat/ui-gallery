@@ -28,7 +28,7 @@ const GRAPHIC_PAIRS = [
   ...["border-strong", "focus-ring", "primary", "success", "warning", "danger", "info"].flatMap((fg) => ["bg", "surface", "surface-muted"].map((bg) => [fg, bg])),
   ...["chart.1", "chart.2", "chart.3", "chart.4", "chart.5", "chart.line", "chart.bar"].flatMap((fg) => ["bg", "surface"].map((bg) => [fg, bg])),
 ];
-const EXEMPT_PAIRS = [["fg-disabled", "surface"], ["fg-disabled", "bg"]];
+const EXEMPT_PAIRS = [["fg-disabled", "surface"], ["fg-disabled", "bg"], ["fg-disabled", "surface-muted"]];
 
 const path = (name) => (name.startsWith("chart.") ? `color.${name}` : `color.role.${name}`);
 

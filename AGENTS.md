@@ -15,7 +15,8 @@
 - 新增屏幕 = 新增 `apps/reference/src/pages/<id>/index.tsx`（默认导出组件）+ 同目录 `shots.json`（截图状态表）；`src/app.tsx` 用 `import.meta.glob` 自动注册路由，不要改公共注册表。屏幕状态统一用 `useScreenState()` 读 URL 查询串。
 - 组件先查 `04-components.md`：有就用；没有先从 shadcn 注册表拷入 `src/components/ui/`，删掉默认类、只用主题类、加进 `/kitchen-sink` 状态矩阵，再在映射表补一行。业务组合件放 `src/components/composed/`。
 - 所有状态必做：loading / empty / error / success / disabled / hover / focus-visible；视口 375 / 768 / 1024 / 1440；亮 / 暗。任何可点击件实际热区 ≥ `size.hit`（40）；视觉高 32 的控件加 `hit-area`。
-- 图标只用 `lucide-react`；字体只用仓库自托管 OFL（`@fontsource-variable/noto-sans-sc`、`@fontsource-variable/inter`）；不引入位图、商标、竞品文案。新增依赖前查 `package.json` 与根 `pnpm-workspace.yaml`：不放宽 `minimumReleaseAge`，遇 `ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION` 降版本。Playwright 固定 1.62.1，复用根 `tools/shoot`，不在 `apps/reference` 另装。
+- `fg-disabled`（`text-fg-disabled` / `bg-fg-disabled`）只用于不可聚焦的 `disabled` 控件与 `aria-hidden` 装饰；可聚焦的 `aria-disabled` 项（未实现导航、本轮不可达链接）保持 `fg-muted` / `link` + `cursor-not-allowed`（tokens ef05fe8 契约）。
+- 图标只用 `lucide-react`；字体只用仓库自托管 OFL（`@fontsource-variable/noto-sans-sc`、`@fontsource-variable/inter`，等宽 `@fontsource-variable/jetbrains-mono`，均在 theme.css 导入）；不引入位图、商标、竞品文案。新增依赖前查 `package.json` 与根 `pnpm-workspace.yaml`：不放宽 `minimumReleaseAge`，遇 `ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION` 降版本。Playwright 固定 1.62.1，复用根 `tools/shoot`，不在 `apps/reference` 另装。
 - 禁止 lorem ipsum / 随机数字 / 占位人名头像；数据只从 `mock/*.json` 读，文案只从 `content/*.md` 读。
 - 不启用 GitHub Actions；验收 = 本地门禁全绿。
 

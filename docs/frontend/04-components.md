@@ -3,12 +3,13 @@
 > 阶段 4 产物。左列取自 `design/hifi/login/index.html`、`design/hifi/dashboard/index.html` 的 class / 形态；右列是 `apps/reference/src/components/` 里的实现。每一行都在 `/kitchen-sink` 有 default / hover / focus / disabled / loading / error 六态（不适用的状态在页面上显示 `—`），亮/暗由 `?theme=light|dark` 切换。
 > 来源标记：**shadcn** = 从 shadcn/ui 拷入并按令牌重写外观（保留 Radix 行为）；**composed** = 自组（库无对应件）；**todo** = 本轮 hifi 未出现、后续屏幕需要时再补。
 > 尺寸全部是令牌名（`design/tokens.json`），不写像素。
+> 输入：`design/hifi/*`、`design/tokens.json`（fe01/integration@917be73）。`fg-disabled` 使用契约（tokens ef05fe8）：只用于不可聚焦的 disabled 控件（`PasswordInput` 眼睛、禁用且勾选的 `Checkbox` 底色）与 `aria-hidden` 装饰（`BreadcrumbSeparator`、kitchen-sink 的占位破折号）；可聚焦的 `aria-disabled` 项（`NavItem` 未实现导航、`Button variant="link"` 本轮不可达链接）一律保持 `fg-muted` / `link`（≥4.5:1）+ `cursor:not-allowed`。
 
 ## 1. 基础控件（`src/components/ui/`）
 
 | 设计稿控件 | 代码组件 | 变体 | 尺寸 | 状态 | 来源 |
 | --- | --- | --- | --- | --- | --- |
-| `.btn-primary` / `.btn-secondary` / `.btn-ghost` / 危险按钮（订单菜单「取消订单」）/ 文本链接（忘记密码、查看全部） | `Button` | `variant`: primary · secondary · ghost · danger · link；`block` | `size`: sm（`control.sm` 视觉高 + `hit-area` 撑到 `size.hit`）· md（`control.md`）· lg（`control.lg`） | hover / active 用 `*-hover` `*-active` 令牌；`loading` 渲染 `Spinner` + `aria-busy`；disabled 转 `neutral-soft` / `disabled-look`；`asChild` 仅透传单个 child | shadcn |
+| `.btn-primary` / `.btn-secondary` / `.btn-ghost` / 危险按钮（订单菜单「取消订单」）/ 文本链接（忘记密码、免费注册、查看全部） | `Button` | `variant`: primary · secondary · ghost · danger · link；`block` | `size`: sm（`control.sm` 视觉高 + `hit-area` 撑到 `size.hit`）· md（`control.md`）· lg（`control.lg`） | hover / active 用 `*-hover` `*-active` 令牌；`loading` 渲染 `Spinner` + `aria-busy`（primary 保持全色）；primary / secondary disabled 不降透明度，转 `neutral-soft` / `surface-muted`（login hifi）；ghost / danger disabled 用 `disabled-look`（dashboard hifi 菜单项）；link `aria-disabled` 保持 link 色 + `cursor:not-allowed`；`asChild` 仅透传单个 child | shadcn |
 | `.iconbtn`（铃铛、主题切换、汉堡、行内更多、头像按钮） | `IconButton` | `shape`: square · round；`count`（右上 `CountBadge alert`）；`aria-expanded` 转 `surface-muted` | 固定 `size.hit` 正方形；图标 `icon.md` | hover / focus-visible / disabled；必填 `label`（aria-label） | shadcn（由 Button 派生） |
 | `.input`（邮箱 / 搜索 / 只读） | `Input` | 原生 `type`；`aria-invalid` 转 danger 加粗描边 | 高 `control.md`，内距 `space.3`，圆角 `radius.md` | hover→`fg-muted` 描边，focus→primary，disabled→`surface-muted`，readonly | shadcn |
 | `.control.has-eye` + `.eye`（密码可见性） | `PasswordInput` | — | 同 Input；眼睛按钮 `size.hit` | 同 Input；切换按钮有 aria-label / aria-pressed | composed |
@@ -26,7 +27,7 @@
 | 移动端侧栏抽屉（`?open=drawer`） | `Sheet` `SheetTrigger` `SheetClose` `SheetContent` | `side`: left（默认）· right | 宽 `size.sidebar.drawer`，遮罩 `overlay` 令牌 | Esc / 遮罩关闭；焦点圈定（Radix Dialog） | shadcn |
 | `.toast`（登录成功） | `Toaster` + `toast()`（sonner） | success · info · error 图标取语义色 | `surface-raised` + hairline + `radius.lg` + `shadow.lg` | `?toast=1&hold` 保持显示供截图 | shadcn（sonner） |
 | `.crumbs`（栖木家居 / 仪表盘） | `Breadcrumb*` | — | `label` 字体；根 `fg-muted`、分隔符 `fg-disabled`、当前页 `fg` | — | shadcn |
-| `table`（最近订单） | `TableWrap` `Table` `TableHeader` `TableBody` `TableRow` `TableHead` `TableCell` | — | th `caption`/`fg-muted`，td `space.3`，hairline 行线 | 行 hover 底色；`TableWrap` 在 375 横向滚动（页面 scrollWidth 不溢出） | shadcn |
+| `table`（最近订单） | `TableWrap` `Table` `TableHeader` `TableBody` `TableRow` `TableHead` `TableCell` | — | th `caption`/`fg-muted`，td `space.3`，hairline 行线；订单号列 `font-mono`（`font.family.mono` = JetBrains Mono Variable，随包），金额 / 时间 `tabular-nums` | 行 hover 底色；`TableWrap` 在 375 横向滚动（页面 scrollWidth 不溢出） | shadcn |
 | `.sk-*`（骨架） | `Skeleton` | 尺寸由调用方类名给：`h-3`=sk-text · `h-4`=sk-label · `h-8`=sk-value · `h-6 rounded-full`=sk-pill | — | 微光动画 `skeleton-shine` | shadcn |
 | `.spinner` | `Spinner` | — | `icon.md`；转速 `motion.slow×3` | `role="status"` | composed |
 | `.bar` / `.track`（任务进度条） | `Progress` | `tone`: primary · warning · success | 高 `space.2`，槽 `surface-muted` | — | shadcn |

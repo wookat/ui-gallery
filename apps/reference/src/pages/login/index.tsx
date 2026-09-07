@@ -108,7 +108,7 @@ function Brand({ className }: { className?: string }) {
 }
 
 function Footer({ className }: { className?: string }) {
-  const link = "inline-flex min-h-hit items-center text-fg-muted transition-colors duration-(--motion-fast) ease-std hover:text-fg"
+  const link = "inline-flex min-h-hit items-center text-fg-muted transition-colors duration-(--motion-fast) ease-std hover:text-fg aria-disabled:cursor-not-allowed"
   return (
     <div data-slot="footer" className={cn("flex flex-wrap items-center gap-x-4 text-role-caption text-fg-muted", className)}>
       <a href="/terms" aria-disabled="true" onClick={blockNav} className={link}>
@@ -303,7 +303,7 @@ export default function Login() {
                 disabled={locked}
                 onCheckedChange={(c) => update("remember", c === true)}
               />
-              <Button variant="link" asChild className="-mr-1 aria-disabled:text-link aria-disabled:hover:underline">
+              <Button variant="link" asChild className="-mr-1">
                 <a href="/forgot-password" aria-disabled="true" onClick={blockNav}>
                   {t("login.forgot.link")}
                 </a>
@@ -327,7 +327,7 @@ export default function Login() {
 
           <p className="mt-4 flex items-center justify-center gap-1 text-fg-muted">
             <span>{t("login.signup.prompt")}</span>
-            <Button variant="link" asChild className="whitespace-nowrap aria-disabled:text-link aria-disabled:hover:underline">
+            <Button variant="link" asChild className="whitespace-nowrap">
               <a href="/signup" aria-disabled="true" onClick={blockNav}>
                 {t("login.signup.link")}
               </a>

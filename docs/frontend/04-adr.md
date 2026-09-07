@@ -1,12 +1,12 @@
 # 04 ADR：参考应用基座选择（阶段 4 工程地基）
 
-> 阶段 4 产物（frontend-0to1-ai 步骤 4，角色 orchestrators/tech-lead）。输入：`docs/frontend/00-brief.md` §7 技术栈、`design/tokens.json` / `design/tokens.css`、`design/hifi/{login,dashboard}/index.html`（fe01/integration@19b9ec8）。
+> 阶段 4 产物（frontend-0to1-ai 步骤 4，角色 orchestrators/tech-lead）。输入：`docs/frontend/00-brief.md` §7 技术栈、`design/tokens.json` / `design/tokens.css`、`design/hifi/{login,dashboard}/index.html`（首版输入 fe01/integration@19b9ec8；2026-09-07 复核输入 917be73：tokens 值不变、`role.fg-disabled` 使用契约收紧（ef05fe8），dashboard 等宽字体改为随包 JetBrains Mono Variable（5d302ba），login 定稿 `a[aria-disabled]` 保持 link 色 + `cursor:not-allowed`（0c8a3ae）——三项均已落入 `apps/reference`，见 §5）。
 > 工程目录 `apps/reference/`；本文只记「为什么选这个基座、怎样注入令牌」，组件级映射见 `04-components.md`。
 
 ## 1. 决定
 
 - **基座：shadcn/ui（radix-nova 风格，`radix-ui` 统一包）+ Tailwind v4**。shadcn 不是 npm 依赖而是拷进仓库的源码，因此我们**只保留其 Radix 行为层**（焦点管理、ARIA、键盘、Portal、受控/非受控），**外观全部按 hifi 重写**，令牌通过 `src/styles/theme.css` 一处注入 shadcn CSS 变量与 Tailwind `@theme`。
-- 图表 Recharts（brief 指定），图标 lucide-react（ISC），字体仅 OFL：`@fontsource-variable/noto-sans-sc` + `@fontsource-variable/inter`（自托管，不走外部 CDN）。
+- 图表 Recharts（brief 指定），图标 lucide-react（ISC），字体仅 OFL：`@fontsource-variable/noto-sans-sc` + `@fontsource-variable/inter` + `@fontsource-variable/jetbrains-mono`（等宽：订单号 / 错误码；三者与 `apps/shadcn-ui` 同版本，自托管，不走外部 CDN）。
 - 路由 react-router v7，文件式：`src/pages/<id>/index.tsx` 由 `import.meta.glob` 自动注册。
 - Playwright 固定 1.62.1（复用仓库 `tools/shoot` 已安装的包与 Chromium，`apps/reference` 不再装第二份）。
 
@@ -50,3 +50,21 @@ design/tokens.json ──build-tokens.mjs──▶ design/tokens.css ──theme
 - Recharts 颜色通过 `chart.1–5` 令牌变量传入，Tooltip 自绘（`ChartTip`）以对齐 hifi `.chart-tip`。
 - 供应链：不放宽 `pnpm minimumReleaseAge`；`pixelmatch` / `pngjs` / `axe-core` 版本写死，Playwright 复用根 `tools/shoot`。
 - 画廊首页暂不接入参考应用（brief §7 允许）；`apps/reference/gallery.json` 只提供 `slug: "reference"` 等必需字段供 `tools/assemble.mjs` 组装到 `dist/apps/reference/`。
+
+## 5. 917be73 复核记录（2026-09-07）
+
+对照阶段 3 复核版输入逐项检查 `apps/reference`，改动与门禁结果：
+
+| 输入变化 | 参考应用改动 |
+| --- | --- |
+| `role.fg-disabled` 契约收紧（tokens ef05fe8）：只用于不可聚焦 disabled 控件与 `aria-hidden` 装饰 | 全仓 `fg-disabled` 出现处审计：`Checkbox`（disabled+checked 底色）、`PasswordInput` 眼睛、`BreadcrumbSeparator`、kitchen-sink 占位破折号——均符合；`NavItem` 已用 `fg-muted`；无需改 |
+| login 定稿 `a[aria-disabled]` 保持 link 色 + `cursor:not-allowed`（0c8a3ae） | `Button variant="link"` 删除 `aria-disabled:text-fg-muted aria-disabled:no-underline`，只保留基类 `aria-disabled:cursor-not-allowed`；kitchen-sink link 禁用格随之变为 link 色 |
+| dashboard 等宽字体改为随包 JetBrains Mono Variable（5d302ba），`tokens.css --font-family-mono` 已先行 | 新增 `@fontsource-variable/jetbrains-mono@5.3.0`（与 `apps/shadcn-ui` 同版）并在 `theme.css` 导入；`font-mono` 现真正落到 JetBrains Mono，产物含 `jetbrains-mono-*.woff2` |
+| — | `AGENTS.md` / `04-components.md` / `gallery.json` 同步字体清单与 `fg-disabled` 使用规则 |
+
+门禁（`apps/reference/`，本机实跑）：
+- `pnpm lint && pnpm typecheck && pnpm build`：eslint 0 错、`no-hardcode` 42 文件通过、tsc 0 错、vite build 成功（仅 chunk > 500 kB 与 `__dirname` 两条既有警告）。
+- `node tools/shoot.mjs kitchen-sink`：24 张（1440×900 / 375×812 × 亮 / 暗 × default/popover/menu/sheet/tooltip/toast）→ `shots/reference/kitchen-sink/`；肉眼对照 `design/hifi/login/ref/desktop-light-default.png`：primary 按钮 = `primary` 填充 + `radius.md`，输入框 = hairline 描边 + focus 双层 `ring`，卡片 = `surface` + hairline + `radius.lg` + `shadow.sm`，均来自令牌而非 shadcn 默认（无 zinc 灰、无 `rounded-lg` 默认圆角）。
+- `node tools/a11y.mjs kitchen-sink`：ALL PASS（24 态 axe serious/critical = 0、热区不足 0、焦点环缺失 0、375 scrollWidth ≤ 375、console error = 0）。
+- `node tools/compare.mjs kitchen-sink`：按设计跳过（`design/hifi/kitchen-sink/ref` 不存在，kitchen-sink 无设计稿），退出码 0。
+- 仓库根 `pnpm lint`（23/23）、`pnpm typecheck`（25/25）、`pnpm build --concurrency=2`（24/24；默认并发在 8 GB / 2 核机器上 OOM，需限并发）通过；`node tools/assemble.mjs` 组装 23 个应用，`dist/apps/reference/index.html` 存在。

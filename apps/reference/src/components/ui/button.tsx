@@ -22,7 +22,7 @@ const buttonVariants = cva(
           "px-3 text-link hover:not-disabled:bg-primary-soft hover:not-disabled:text-on-primary-soft aria-expanded:bg-primary-soft aria-expanded:text-on-primary-soft disabled:disabled-look",
         danger:
           "bg-danger border-danger text-on-danger hover:not-disabled:opacity-90 disabled:disabled-look",
-        link: "h-auto min-h-hit px-1 text-link underline-offset-4 hover:not-disabled:underline aria-disabled:text-fg-muted aria-disabled:no-underline",
+        link: "h-auto min-h-hit px-1 text-link underline-offset-4 hover:not-disabled:underline",
       },
       size: {
         sm: "hit-area h-control-sm px-3",

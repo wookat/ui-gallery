@@ -9,15 +9,17 @@
   · 视觉值全部来自 ../../tokens.css（本文件内 0 个硬编码色值 / 字号 / 间距；仅 @media 查询条件使用 tokens.json 中的 breakpoint 数值）
   · 文案来自 content/dashboard.md；数据来自 mock/*.json（内联于下方 <script type="application/json" id="data">，check.mjs 校验与 mock/ 逐字节一致）
   · 状态：?state=success|loading|empty|error；周期：?period=day|week|month；主题：?theme=light|dark；?toast=login（&hold 不自动消失）；?open=notifications|account|drawer|order-menu 供截图
-  · 字体：OFL 的 Inter Variable / Noto Sans SC Variable（来自 apps/shadcn-ui 依赖 @fontsource-variable/*，需先 pnpm install --filter shadcn-ui；未安装时回退到系统字体栈，check.mjs 截基准图前会断言字体已加载）
+  · 字体：OFL 的 Inter Variable / Noto Sans SC Variable / JetBrains Mono Variable（来自 apps/shadcn-ui 依赖 @fontsource-variable/*，需先 pnpm install --filter shadcn-ui；未安装时回退到系统字体栈，check.mjs 截基准图前会断言三者已加载——等宽字体若落到系统回退，订单号 / 错误码 / 单号的字形随机器而异，基准图不可复现）
   · 断点（tokens.breakpoint）：≥1025 侧边栏默认展开；769–1024 默认 icon rail、图表单列；≤768 抽屉 + 单列；<768 最近订单卡片化（768 仍为表格横向滚动）
   · 图标：Lucide（ISC），内联 <symbol> 精灵
   · 门禁：node design/hifi/dashboard/check.mjs（--static 只跑静态检查）；覆盖 1440/1024/768/375 × 亮/暗 共 56 张基准图（叠层变体截视口、其余整页，动画冻结）+ 运行时断言（字体、断点、溢出、热区、键盘/抽屉 Tab 序列、对比度、文案极值、菜单状态、图表文字替代）
-  · 交回 tokens 阶段的说明：--color-role-fg-disabled（亮 #9aa5a5 / 暗 #5c6868）对 surface 仅 2.5–3.0:1，只能用于 opacity-disabled 的不可聚焦控件；可聚焦的"未实现"导航项改用 --color-role-fg-muted（≥4.5:1）
+  · 交回 tokens 阶段的说明：--color-role-fg-disabled（亮 #9aa5a5 / 暗 #5c6868）对 surface 仅 2.5–3.0:1，只能用于 opacity-disabled 的不可聚焦控件；可聚焦的"未实现"导航项改用 --color-role-fg-muted（≥4.5:1）——已被 tokens.json@ef05fe8 的 role.fg-disabled 使用契约采纳
+  · 输入（2026-09-07 复核）：00-brief.md / wireframes/dashboard.html / tokens.css / content/dashboard.md / mock/*.json 均为 fe01/integration@ef05fe8，与首版所依据的 6173f67 逐字节一致（tokens.css 未变，仅 tokens.json 说明文字收紧）
 -->
 <link rel="stylesheet" href="../../tokens.css">
 <link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/inter/index.css">
 <link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/noto-sans-sc/index.css">
+<link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/jetbrains-mono/index.css">
 <style>
 /* ---------- 页面级派生量（仅由令牌运算得到，供组件复用） ---------- */
 :root {

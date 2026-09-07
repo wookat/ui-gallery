@@ -1,0 +1,9 @@
+[
+  { "name": "default", "query": "" },
+  { "name": "invalid", "query": "state=invalid" },
+  { "name": "loading", "query": "state=loading" },
+  { "name": "error", "query": "state=error" },
+  { "name": "error-locked", "query": "state=error&alert=locked" },
+  { "name": "error-network", "query": "state=error&alert=network" },
+  { "name": "success", "query": "state=success" }
+]

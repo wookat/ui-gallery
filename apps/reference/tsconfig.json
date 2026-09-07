@@ -7,6 +7,7 @@
   "compilerOptions": {
     "resolveJsonModule": true,
     "paths": {
+      "cn": ["./src/lib/utils.ts"],
       "@/*": ["./src/*"],
       "@tokens/*": ["../../design/*"],
       "@mock/*": ["../../mock/*"]

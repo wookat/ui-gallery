@@ -8,12 +8,14 @@ export default defineConfig({
   base: "/apps/reference/",
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    alias: [
+      // 裸 `cn` → src/lib/utils.ts（带 text-role-* 分组的 createCn）；`cn/config` 等子路径不受影响
+      { find: /^cn$/, replacement: path.resolve(__dirname, "./src/lib/utils.ts") },
+      { find: "@", replacement: path.resolve(__dirname, "./src") },
       // 仓库根的令牌与 mock：只允许通过这两个别名引用，避免复制副本
-      "@tokens": path.resolve(__dirname, "../../design"),
-      "@mock": path.resolve(__dirname, "../../mock"),
-    },
+      { find: "@tokens", replacement: path.resolve(__dirname, "../../design") },
+      { find: "@mock", replacement: path.resolve(__dirname, "../../mock") },
+    ],
   },
   server: {
     fs: { allow: [path.resolve(__dirname, "../..")] },

@@ -26,9 +26,7 @@ export function useElementWidth<T extends HTMLElement>() {
   return [ref, width] as const
 }
 
-/** 与 hifi 同语义的「≤ 断点」媒体查询：useMaxWidth("--breakpoint-md") ⇔ @media (max-width: 768px) */
-export function useMaxWidth(breakpointToken: string) {
-  const query = React.useMemo(() => `(max-width: ${tokenValue(breakpointToken)})`, [breakpointToken])
+function useMediaQuery(query: string) {
   const subscribe = React.useCallback(
     (cb: () => void) => {
       const mql = window.matchMedia(query)
@@ -38,4 +36,14 @@ export function useMaxWidth(breakpointToken: string) {
     [query],
   )
   return React.useSyncExternalStore(subscribe, () => window.matchMedia(query).matches)
+}
+
+/** 与 hifi 同语义的「≤ 断点」媒体查询：useMaxWidth("--breakpoint-md") ⇔ @media (max-width: 768px)（theme.css `mobile:` 变体） */
+export function useMaxWidth(breakpointToken: string) {
+  return useMediaQuery(React.useMemo(() => `(max-width: ${tokenValue(breakpointToken)})`, [breakpointToken]))
+}
+
+/** 与 Tailwind `max-md:` 同语义的「< 断点」媒体查询：useBelowWidth("--breakpoint-md") ⇔ @media (width < 768px)，恰在断点值上不命中 */
+export function useBelowWidth(breakpointToken: string) {
+  return !useMediaQuery(React.useMemo(() => `(min-width: ${tokenValue(breakpointToken)})`, [breakpointToken]))
 }

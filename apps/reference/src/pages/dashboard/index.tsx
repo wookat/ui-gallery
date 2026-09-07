@@ -22,7 +22,7 @@ import { orderStatus, t } from "@/data/content"
 import { channelLabel, mock, periods, seriesFor, statFor, type Order, type Period } from "@/data/mock"
 import { useScreenState } from "@/data/screen-state"
 import { formatCompact, formatCurrency, formatCurrencyWhole, formatDateTime, formatInteger, formatMonthDay, formatPercent, formatTime, formatToday } from "@/lib/format"
-import { tokenMs, useMaxWidth } from "@/lib/media"
+import { tokenMs, useBelowWidth } from "@/lib/media"
 
 import { AppShell } from "./shell"
 
@@ -498,7 +498,8 @@ export default function Dashboard() {
   const [params] = useSearchParams()
   const sidebar = params.get("sidebar")
   const empty = state === "empty"
-  const mobile = useMaxWidth("--breakpoint-md")
+  /* 订单表格 ↔ 卡片切换用 max-md（< 768，hifi：768 仍为表格横向滚动），菜单目标须与 DOM 同一断点语义 */
+  const cards = useBelowWidth("--breakpoint-md")
   const [menu, setMenu] = React.useState<string | null>(null)
   const retried = React.useRef(false)
   const tabsRef = React.useRef<HTMLDivElement>(null)
@@ -512,13 +513,12 @@ export default function Dashboard() {
   /* ?open=order-menu：与 hifi 一致，先把首单的「更多」滚到视口中央再开菜单（表格隐藏时用卡片的） */
   React.useEffect(() => {
     if (!orderMenuQuery) return
-    const key = `${mock.orders[0].id}${mobile ? "-card" : ""}`
-    const anchor = document.querySelector<HTMLElement>(`[data-order-menu="${mock.orders[0].id}"]:not([data-hidden])`)
-    const visible = Array.from(document.querySelectorAll<HTMLElement>(`[data-order-menu="${mock.orders[0].id}"]`)).find((el) => el.offsetParent) ?? anchor
+    const key = `${mock.orders[0].id}${cards ? "-card" : ""}`
+    const visible = Array.from(document.querySelectorAll<HTMLElement>(`[data-order-menu="${mock.orders[0].id}"]`)).find((el) => el.offsetParent)
     visible?.scrollIntoView({ block: "center" })
     const id = requestAnimationFrame(() => setMenu(key))
     return () => cancelAnimationFrame(id)
-  }, [orderMenuQuery, mobile])
+  }, [orderMenuQuery, cards])
 
   React.useEffect(() => {
     if (toastQ !== "login" || state !== "success") return

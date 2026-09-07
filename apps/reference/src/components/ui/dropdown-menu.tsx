@@ -2,7 +2,7 @@ import * as React from "react"
 import { cn } from "@/lib/cn"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 
-import { tokenPx, useMaxWidth } from "@/lib/media"
+import { tokenPx, useBelowWidth, useMaxWidth } from "@/lib/media"
 
 /** 顶栏账号菜单默认非模态：不给页面其余部分加 aria-hidden、不锁滚动 */
 function DropdownMenu({ modal = false, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
@@ -20,22 +20,25 @@ type DropdownMenuContentProps = React.ComponentProps<typeof DropdownMenuPrimitiv
 
 /**
  * 菜单容器同 Popover（hifi .popover）：surface-raised、radius.lg、shadow.lg、space.2 内距。
- * ≤768 时与 hifi 移动端 .popover 一致：顶栏下 space.2、左右 space.4 贴边通栏；compact 菜单左侧保留 space.1。
+ * ≤768 时与 hifi 移动端 .popover 一致：顶栏下 space.2、左右 space.4 贴边通栏。
+ * compact 行内菜单跟随订单卡片化断点（max-md，< 768）才改通栏，左侧保留 space.1；768 仍为表格，菜单保持紧凑宽度贴触发器。
  */
 function DropdownMenuContent({ className, align = "end", sideOffset, compact = false, ...props }: DropdownMenuContentProps) {
   const mobile = useMaxWidth("--breakpoint-md")
+  const cards = useBelowWidth("--breakpoint-md")
+  const full = compact ? cards : mobile
   const gap = compact ? tokenPx("--space-1") : tokenPx("--space-2")
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
         align={align}
-        sideOffset={sideOffset ?? (mobile && !compact ? tokenPx("--space-4") : gap)}
-        collisionPadding={mobile ? { left: compact ? tokenPx("--space-1") : tokenPx("--space-4"), right: tokenPx("--space-4") } : undefined}
+        sideOffset={sideOffset ?? (full && !compact ? tokenPx("--space-4") : gap)}
+        collisionPadding={full ? { left: compact ? tokenPx("--space-1") : tokenPx("--space-4"), right: tokenPx("--space-4") } : undefined}
         className={cn(
           "z-40 rounded-lg border bg-surface-raised p-2 text-fg shadow-lg outline-none",
           compact
-            ? "w-[calc(var(--size-content-max)/4*0.6)] mobile:w-[calc(100vw-var(--space-4)-var(--space-1))]"
+            ? "w-[calc(var(--size-content-max)/4*0.6)] max-md:w-[calc(100vw-var(--space-4)-var(--space-1))]"
             : "min-w-(--radix-dropdown-menu-trigger-width) w-popover max-w-[calc(100vw-var(--space-4)*2)] mobile:w-[calc(100vw-var(--space-4)*2)]",
           className,
         )}

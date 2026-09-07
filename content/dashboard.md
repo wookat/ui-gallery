@@ -32,6 +32,11 @@
 | shell.account.menu.switch | 切换团队空间 | 菜单 3 |
 | shell.account.menu.help | 帮助中心 | 菜单 4 |
 | shell.account.menu.logout | 退出登录 | 菜单 5，危险色，点击回 `/login` |
+| shell.nav.aria | 主导航 | 侧边栏 / 抽屉 aria-label（hifi `aside[aria-label]`） |
+| shell.breadcrumb.aria | 面包屑 | 面包屑 nav aria-label |
+| shell.skip | 跳到主内容 | 键盘首个焦点的跳转链接（hifi `.skip`） |
+| shell.notifications.ariaCount | 通知，{n} 条未读 | 铃铛 aria-label，`{n}` = 未读数；0 条时用 shell.notifications.title |
+| shell.notifications.unread | 未读 | 未读圆点的视觉隐藏文字 |
 
 ## 概览页
 | key | 文案 | 说明 |
@@ -77,6 +82,13 @@
 | dashboard.tasks.due | 截止 {date} | `09-12` |
 | dashboard.tasks.progress | {done}/{total} | 进度条右侧 |
 | dashboard.tasks.aria | {title}，完成 {percent}% | 进度条 aria-label |
+| dashboard.chart.aria | 销售趋势图 | 折线图 SVG aria-label |
+| dashboard.chart.summary | 销售趋势，{periodLabel}，共 {count} 个数据点：销售额合计 {gmv}，订单数合计 {orders}；销售额最高 {peakLabel}（{peakGmv}）。方向键可逐点查看，完整数值见随后的数据表。 | 折线图 aria-describedby 摘要（视觉隐藏） |
+| dashboard.chart.table | 销售趋势数据表（{periodLabel}） | 视觉隐藏数据表 caption |
+| dashboard.chart.col.time | 时间 | 数据表首列表头 |
+| dashboard.donut.aria | 渠道占比环形图 | 环形图 SVG aria-label |
+| dashboard.orders.moreItems | 等 {n} 件 | 商品列多件时的尾注，`{n}` = 商品条数 |
+| dashboard.orders.card.aria | 订单 {id} | 375 订单卡 aria-label |
 
 ## 订单状态（Tag 文案与语义色）
 | status | 文案 | 语义色 |
@@ -102,6 +114,7 @@
 | dashboard.error.body | 服务暂时不可用（错误码 503）。已为你保留上次的筛选条件，稍后重试即可。 | |
 | dashboard.error.retry | 重试 | 主按钮；点击进入 loading → success |
 | dashboard.error.help | 若持续失败，请联系管理员或查看服务状态。 | 辅助文字，「服务状态」链接不可达 |
+| dashboard.error.statusLink | 查看服务状态 | help 中的链接文字（不可达），实现按此子串切分 help |
 
 ## 状态切换（供截图/审查）
 - `?state=loading|empty|error|success`（默认 success）；`?period=day|week|month`（默认 month）。

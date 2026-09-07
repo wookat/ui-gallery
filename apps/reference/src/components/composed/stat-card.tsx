@@ -1,6 +1,6 @@
 import * as React from "react"
-import { cn } from "cn"
-import { ArrowDownRightIcon, ArrowUpRightIcon, MinusIcon } from "lucide-react"
+import { cn } from "@/lib/cn"
+import { MinusIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -9,7 +9,7 @@ type DeltaTone = "success" | "danger" | "neutral"
 
 /** 同比胶囊：hifi .delta */
 function Delta({ tone, direction, children, className }: { tone: DeltaTone; direction: "up" | "down" | "flat"; children: React.ReactNode; className?: string }) {
-  const Icon = direction === "up" ? ArrowUpRightIcon : direction === "down" ? ArrowDownRightIcon : MinusIcon
+  const Icon = direction === "up" ? TrendingUpIcon : direction === "down" ? TrendingDownIcon : MinusIcon
   return (
     <span
       data-slot="delta"
@@ -41,7 +41,7 @@ function Sparkline({ points, className }: { points: number[]; className?: string
   const area = `${line} L${xy[xy.length - 1][0].toFixed(1)} ${h} L${xy[0][0].toFixed(1)} ${h} Z`
   const [lx, ly] = xy[xy.length - 1]
   return (
-    <svg aria-hidden viewBox={`0 0 ${w} ${h}`} className={cn("h-sparkline w-sparkline-w shrink-0 overflow-visible", className)}>
+    <svg aria-hidden viewBox={`0 0 ${w} ${h}`} className={cn("-mt-1 h-sparkline w-sparkline-w shrink-0 overflow-visible mobile:w-[calc(var(--size-sparkline)*1.5)]", className)}>
       <path d={area} className="fill-chart-line-fill" />
       <path d={line} className="fill-none stroke-chart-line" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx={lx} cy={ly} r="2.5" className="fill-chart-line" />
@@ -62,16 +62,16 @@ type StatCardProps = React.ComponentProps<typeof Card> & {
 /** 统计卡：hifi .stat —— label / 大数字 + 单位 / 同比胶囊 / 迷你趋势 */
 function StatCard({ label, value, unit, delta, trend, long, className, ...props }: StatCardProps) {
   return (
-    <Card data-slot="stat-card" className={cn("flex flex-col gap-3 px-6 py-5", className)} {...props}>
+    <Card data-slot="stat-card" className={cn("flex flex-col gap-3 px-6 py-5 mobile:gap-2 mobile:p-4", className)} {...props}>
       <div className="flex items-start justify-between gap-3">
         <span className="min-w-0 pt-1 text-role-label text-fg-muted [overflow-wrap:anywhere]">{label}</span>
+        {trend ? <Sparkline points={trend} /> : null}
       </div>
-      <div className="flex min-h-sparkline items-start justify-between gap-3">
-        <div className="-mt-2 flex min-w-0 items-baseline gap-1">
-          <strong className={cn("min-w-0 tabular-nums", long ? "text-role-heading" : "text-role-display whitespace-nowrap")}>{value}</strong>
+      <div className="flex min-h-sparkline items-start justify-between gap-3 mobile:min-h-0">
+        <div className="-mt-2 flex min-w-0 items-baseline gap-1 mobile:mt-0">
+          <strong className={cn("min-w-0 tabular-nums", long ? "text-role-heading mobile:text-role-title" : "text-role-display whitespace-nowrap mobile:text-role-heading")}>{value}</strong>
           {unit ? <span className="text-role-caption text-fg-muted">{unit}</span> : null}
         </div>
-        {trend ? <Sparkline points={trend} className="-mt-1" /> : null}
       </div>
       {delta ? (
         <Delta tone={delta.tone} direction={delta.direction}>
@@ -85,13 +85,15 @@ function StatCard({ label, value, unit, delta, trend, long, className, ...props 
 /** 统计卡骨架（与成功态同布局） */
 function StatCardSkeleton({ className, ...props }: React.ComponentProps<typeof Card>) {
   return (
-    <Card aria-hidden className={cn("flex flex-col gap-3 px-6 py-5", className)} {...props}>
-      <Skeleton className="h-4 w-2/5" />
-      <div className="flex min-h-sparkline items-start justify-between gap-3">
-        <Skeleton className="h-8 w-3/5" />
-        <Skeleton className="h-sparkline w-sparkline-w" />
+    <Card aria-hidden className={cn("flex flex-col gap-3 px-6 py-5 mobile:gap-2 mobile:p-4", className)} {...props}>
+      <div className="flex items-start justify-between gap-3">
+        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="-mt-1 h-sparkline w-sparkline-w mobile:w-[calc(var(--size-sparkline)*1.5)]" />
       </div>
-      <Skeleton className="h-6 w-1/4 rounded-full" />
+      <div className="flex min-h-sparkline items-start justify-between gap-3 mobile:min-h-0">
+        <Skeleton className="h-8 w-3/5" />
+      </div>
+      <Skeleton className="h-6 w-2/5 rounded-full" />
     </Card>
   )
 }

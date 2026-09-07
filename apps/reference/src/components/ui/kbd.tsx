@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 
 /** 快捷键：hifi .search kbd */
 function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {

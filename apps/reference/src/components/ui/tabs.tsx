@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 import { Tabs as TabsPrimitive } from "radix-ui"
 
 /** 分段切换：hifi .tabs / .tab —— surface-muted 槽、选中项 surface + shadow.sm */

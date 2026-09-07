@@ -1,5 +1,6 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
+import { RefreshCwIcon } from "lucide-react"
 
 import { Avatar } from "@/components/composed/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -14,7 +15,7 @@ type TimelineItemProps = React.ComponentProps<"li"> & {
   detail?: string
 }
 
-/** 时间线项：hifi .timeline li —— avatar.sm + 文本 + 右侧时间，节点间 hairline 竖线 */
+/** 时间线项：hifi .timeline li —— avatar.sm（系统动作为 neutral-soft + refresh-cw 图标）+ 文本 + 右侧时间，节点间 hairline 竖线 */
 function TimelineItem({ actor, time, detail, className, children, ...props }: TimelineItemProps) {
   return (
     <li
@@ -25,7 +26,13 @@ function TimelineItem({ actor, time, detail, className, children, ...props }: Ti
       )}
       {...props}
     >
-      <Avatar size="sm" initial={actor.initial} hue={actor.hue} name={actor.name} system={actor.system} />
+      {actor.system ? (
+        <span aria-hidden className="inline-flex size-avatar-sm shrink-0 items-center justify-center rounded-full bg-neutral-soft text-on-neutral-soft">
+          <RefreshCwIcon className="size-icon-sm" />
+        </span>
+      ) : (
+        <Avatar size="sm" initial={actor.initial} hue={actor.hue} name={actor.name} />
+      )}
       <div className="min-w-0">
         <p className="text-fg [overflow-wrap:anywhere]">{children}</p>
         {detail ? <span className="mt-1 block text-role-caption text-fg-muted">{detail}</span> : null}

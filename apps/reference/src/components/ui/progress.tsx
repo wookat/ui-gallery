@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 import { Progress as ProgressPrimitive } from "radix-ui"
 
 /** 进度条：hifi .bar —— space.2 高、surface-muted 槽、primary 填充；at_risk=warning、done=success */

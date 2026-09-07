@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 import type { LucideIcon } from "lucide-react"
 
 import { CountBadge } from "@/components/ui/badge"
@@ -12,12 +12,16 @@ type NavItemProps = React.ComponentProps<"a"> & {
   /** 未实现路由：可聚焦、aria-disabled、hover 出 Tooltip（文案 shell.nav.disabled.tip） */
   disabledTip?: string
   count?: number
+  /** 角标语义色（nav.json badgeTone）：库存预警为 warning-soft / warning */
+  countTone?: "neutral" | "warning"
+  /** 角标可访问名（nav.json badgeMeaning + 数值），如「库存预警 SKU 12」 */
+  countLabel?: string
   /** 图标栏模式：只显示图标，label 进 Tooltip，角标退化为红点 */
   rail?: boolean
 }
 
 /** 侧栏导航项：hifi .nav-item —— size.hit 高、radius.md、当前项 primary-soft / on-primary-soft */
-function NavItem({ icon: Icon, label, active, disabledTip, count = 0, rail = false, className, onClick, ...props }: NavItemProps) {
+function NavItem({ icon: Icon, label, active, disabledTip, count = 0, countTone, countLabel, rail = false, className, onClick, ...props }: NavItemProps) {
   const disabled = Boolean(disabledTip)
   const link = (
     <a
@@ -45,7 +49,18 @@ function NavItem({ icon: Icon, label, active, disabledTip, count = 0, rail = fal
       ) : (
         <>
           <span className="flex-1 truncate">{label}</span>
-          {count > 0 ? <CountBadge className="ml-auto">{count}</CountBadge> : null}
+          {count > 0 ? (
+            <CountBadge tone={countTone} className="ml-auto">
+              {countLabel ? (
+                <>
+                  <span aria-hidden>{count}</span>
+                  <span className="sr-only">{countLabel}</span>
+                </>
+              ) : (
+                count
+              )}
+            </CountBadge>
+          ) : null}
         </>
       )}
     </a>

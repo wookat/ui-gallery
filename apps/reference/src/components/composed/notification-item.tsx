@@ -1,14 +1,16 @@
 import * as React from "react"
-import { cn } from "cn"
-import { BoxIcon, type LucideIcon, PackageIcon, RefreshCwIcon, RotateCcwIcon, ShieldAlertIcon, UserPlusIcon } from "lucide-react"
+import { cn } from "@/lib/cn"
+import { BellIcon, CheckIcon, type LucideIcon, PackageIcon, RefreshCwIcon, RotateCcwIcon, ShieldAlertIcon, UserPlusIcon, WarehouseIcon } from "lucide-react"
 
 import type { Tone } from "@/components/ui/badge"
 
 /** 通知类型 → 图标 + 语义色（mock/notifications.json type 字段） */
 const kinds: Record<string, { icon: LucideIcon; tone: Tone }> = {
   refund: { icon: RotateCcwIcon, tone: "danger" },
-  inventory: { icon: BoxIcon, tone: "warning" },
+  inventory: { icon: WarehouseIcon, tone: "warning" },
   sync: { icon: RefreshCwIcon, tone: "info" },
+  task: { icon: CheckIcon, tone: "success" },
+  announcement: { icon: BellIcon, tone: "neutral" },
   order: { icon: PackageIcon, tone: "success" },
   member: { icon: UserPlusIcon, tone: "neutral" },
   security: { icon: ShieldAlertIcon, tone: "danger" },

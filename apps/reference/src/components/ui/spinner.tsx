@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 import { LoaderCircleIcon } from "lucide-react"
 
 /** 加载指示：hifi .spinner —— 转速 = motion.slow × 3 */

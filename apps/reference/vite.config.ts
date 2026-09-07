@@ -20,4 +20,18 @@ export default defineConfig({
   server: {
     fs: { allow: [path.resolve(__dirname, "../..")] },
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        // 第三方按职责拆块（框架 / Radix 基座 / 图表），页面代码留在主包，避免单块超 500 kB 警告
+        codeSplitting: {
+          groups: [
+            { name: "charts", test: /node_modules[\\/](recharts|victory-vendor|d3-)/ },
+            { name: "radix", test: /node_modules[\\/]@?radix-ui/ },
+            { name: "react", test: /node_modules[\\/](react|react-dom|scheduler|react-router|react-router-dom)[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
 })

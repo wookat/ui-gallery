@@ -1,7 +1,7 @@
 // 阶段 3 门禁：design/hifi/dashboard
 //   node design/hifi/dashboard/check.mjs          → 静态检查 + Playwright 截基准图到 ref/ + 运行时检查
 //   node design/hifi/dashboard/check.mjs --static → 只跑静态检查
-// 依赖：pnpm install --filter @ui-gallery/shoot（playwright）；字体：pnpm install --filter shadcn-ui（提供 @fontsource-variable/inter、noto-sans-sc；未安装时截图会回退系统字体，门禁 FAIL）
+// 依赖：pnpm install --filter @ui-gallery/shoot（playwright）；字体：pnpm install --filter shadcn-ui（提供 @fontsource-variable/inter、noto-sans-sc、jetbrains-mono；未安装时截图会回退系统字体，门禁 FAIL）
 // 视口：1440×900 与 375×812 全矩阵截图；1024×900（默认 rail）与 768×1024（抽屉）只截 success/order-menu/侧栏变体，但同样跑溢出/热区/控制台检查
 import { readFileSync, readdirSync, statSync, mkdirSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
@@ -59,7 +59,7 @@ const outDir = join(here, 'ref');
 mkdirSync(outDir, { recursive: true });
 const fileUrl = pathToFileURL(join(here, 'index.html')).href;
 const viewports = { desktop: { width: 1440, height: 900 }, tablet: { width: 1024, height: 900 }, tabletSm: { width: 768, height: 1024 }, mobile: { width: 375, height: 812 } };
-const FONTS = [['Inter Variable', 'Acme 09-06'], ['Noto Sans SC Variable', '销售趋势']]; // [字体家族, 该字体负责渲染的样本文本]
+const FONTS = [['Inter Variable', 'Acme 09-06'], ['Noto Sans SC Variable', '销售趋势'], ['JetBrains Mono Variable', 'SO-20260906-0108']]; // [字体家族, 该字体负责渲染的样本文本]
 const states = ['success', 'loading', 'empty', 'error'];
 const extras = [
   ['success-toast', 'state=success&toast=login&hold'],

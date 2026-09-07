@@ -26,6 +26,14 @@
 @custom-variant focus-visible (&:where(:focus-visible, [data-demo~="focus"]));
 @custom-variant active (&:where(:active, [data-demo~="active"]));
 
+/*
+ * hifi 断点语义为「≤」（@media (max-width: 768px) / (max-width: 1024px)），与 Tailwind 的 max-md（< 768）差 1px；
+ * tablet / mobile 变体沿用 hifi 语义（1024 = rail + 双列统计卡，768 = 抽屉模式），断点值仍来自 @theme；
+ * mobile 后声明，二者同时命中时 mobile 覆盖 tablet。
+ */
+@custom-variant tablet (@media (width <= theme(--breakpoint-lg)));
+@custom-variant mobile (@media (width <= theme(--breakpoint-md)));
+
 @theme inline reference {
   /* ---------- 颜色：清空默认调色板，只保留角色令牌 ---------- */
   --color-*: initial;

@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 
 /** 品牌图形标：hifi .brand-mark —— primary 底 + on-primary 线条几何图（无位图、无第三方商标） */
 function BrandMark({ className }: { className?: string }) {

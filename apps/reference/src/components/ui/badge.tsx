@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 
 /** 语义色调（Tag / Delta / 通知图标共用） */
 export type Tone = "info" | "warning" | "danger" | "success" | "neutral" | "muted"

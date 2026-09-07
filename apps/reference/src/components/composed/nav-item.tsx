@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 import type { LucideIcon } from "lucide-react"
 
 import { CountBadge } from "@/components/ui/badge"

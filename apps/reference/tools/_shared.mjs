@@ -21,6 +21,11 @@ export const viewports = {
   desktop: { width: bp("xl"), height: 900 },
   mobile: { width: bp("sm"), height: 812 },
 };
+/** 附加视口（tablet 1024×900 / tabletSm 768×1024）：仅 shots.json 条目显式列出 `viewports: ["tablet"]` 时截图，与 hifi check.mjs 命名一致 */
+export const extraViewports = {
+  tablet: { width: bp("lg"), height: 900 },
+  tabletSm: { width: bp("md"), height: 1024 },
+};
 export const themes = ["light", "dark"];
 /** 热区下限：tokens.size.hit（40） */
 export const hitMin = tokens.size.hit.$value.value;

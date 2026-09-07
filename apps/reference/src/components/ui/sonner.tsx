@@ -14,8 +14,8 @@ function Toaster(props: ToasterProps) {
     <Sonner
       theme={resolved}
       position="top-right"
-      offset="var(--space-6)"
-      mobileOffset="var(--space-4)"
+      offset={{ top: "calc(var(--size-topbar) + var(--space-4))", right: "var(--space-6)" }}
+      mobileOffset={{ top: "calc(var(--size-topbar) + var(--space-4))", left: "var(--space-4)", right: "var(--space-4)" }}
       gap={8}
       closeButton
       icons={{

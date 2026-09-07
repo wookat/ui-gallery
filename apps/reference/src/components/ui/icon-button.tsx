@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 import { Slot } from "radix-ui"
 
 import { CountBadge } from "@/components/ui/badge"

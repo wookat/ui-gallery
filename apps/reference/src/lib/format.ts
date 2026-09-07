@@ -6,9 +6,18 @@ const currency = mock.meta.currency
 const money = new Intl.NumberFormat("zh-CN", { style: "currency", currency, minimumFractionDigits: 2 })
 const integer = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 })
 const compact = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 1 })
+const moneyWhole = new Intl.NumberFormat("zh-CN", { style: "currency", currency, maximumFractionDigits: 0 })
+const short = new Intl.NumberFormat("zh-CN", { notation: "compact", maximumFractionDigits: 1 })
+const relativeDay = new Intl.RelativeTimeFormat("zh-CN", { numeric: "auto" })
 
 /** ¥1,234.00 */
 export const formatCurrency = (n: number) => money.format(n)
+/** ¥1,186,420（统计卡大数字，不带分） */
+export const formatCurrencyWhole = (n: number) => moneyWhole.format(n)
+/** 6万 / 4.5万 / 160（图表轴标签） */
+export const formatCompact = (n: number) => short.format(n)
+/** 今天（数据更新时间前缀，由 Intl 给出） */
+export const formatToday = () => relativeDay.format(0, "day")
 /** 1,234 */
 export const formatInteger = (n: number) => integer.format(n)
 /** 6.8（百分比数值本体，正负号由调用方决定） */

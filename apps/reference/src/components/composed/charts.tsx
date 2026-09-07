@@ -1,6 +1,9 @@
 import * as React from "react"
-import { cn } from "cn"
-import { Area, Bar, CartesianGrid, Cell, ComposedChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { cn } from "@/lib/cn"
+import { Area, Bar, CartesianGrid, Cell, ComposedChart, Pie, PieChart, ResponsiveContainer, Sector, Tooltip, XAxis, YAxis } from "recharts"
+import type { PieSectorShapeProps } from "recharts/types/polar/Pie"
+
+import { tokenPx, useElementWidth } from "@/lib/media"
 
 /**
  * 图表基座：Recharts + 令牌。所有颜色以 `var(--color-…)` 字串传入 SVG 属性（tokens.css 定义，随 data-theme 切换），
@@ -22,7 +25,7 @@ const color = {
 /** 图表提示框：hifi .chart-tip —— 反色底、caption、shadow.md */
 function ChartTip({ title, rows }: { title?: React.ReactNode; rows: { label: React.ReactNode; value: React.ReactNode }[] }) {
   return (
-    <div data-slot="chart-tip" className="rounded-sm bg-bg-inverse px-3 py-2 text-role-caption whitespace-nowrap text-fg-inverse shadow-md">
+    <div data-slot="chart-tip" role="status" className="rounded-sm bg-bg-inverse px-3 py-2 text-role-caption whitespace-nowrap text-fg-inverse shadow-md">
       {title ? <strong className="mb-1 block font-semibold">{title}</strong> : null}
       {rows.map((r, i) => (
         <span key={i} className="block">
@@ -43,24 +46,89 @@ type TrendChartProps = {
   className?: string
   /** 可访问名（title） */
   title: string
+  /** 可视双 Y 轴（hifi 仪表盘：左销售额、右订单数）；不传则隐藏轴、柱子压低到下半区 */
+  axes?: { gmv: (n: number) => string; orders: (n: number) => string }
+  /** 视觉隐藏摘要的 id（aria-describedby） */
+  describedBy?: string
 }
 
-/** 销售趋势：柱（订单数，neutral-soft，激活转 chart.bar）+ 面积折线（销售额，chart.line） */
-function TrendChart({ data, labels, formatGmv, formatOrders, className, title }: TrendChartProps) {
+const axisTick = { fill: color.axis, className: "text-role-caption tabular-nums" }
+
+/** hifi niceStep：把 max/4 归到 1/1.5/2/2.5/3/4/5/6/8/10 × 10^k，四等分刻度 */
+const niceStep = (raw: number) => {
+  if (raw <= 0) return 1
+  const mag = 10 ** Math.floor(Math.log10(raw))
+  const f = raw / mag
+  const n = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find((k) => k >= f) ?? 10
+  return n * mag
+}
+const axisScale = (values: number[]) => {
+  const step = niceStep(Math.max(0, ...values) / 4)
+  return { top: step * 4, ticks: [0, 1, 2, 3, 4].map((t) => step * t) }
+}
+
+/** hifi 图表几何令牌（mL/mR/mT/mB、柱宽上限、标签间距），运行时读 :root */
+const useTrendGeometry = () =>
+  React.useMemo(
+    () => ({
+      mL: tokenPx("--space-12"),
+      mR: tokenPx("--space-10"),
+      mT: tokenPx("--space-3"),
+      mB: tokenPx("--space-6"),
+      barMax: tokenPx("--space-6"),
+      barRadius: tokenPx("--radius-xs") / 2,
+      labelSlot: tokenPx("--size-sparkline") * 2,
+      dotR: tokenPx("--space-1"),
+    }),
+    [],
+  )
+
+/**
+ * 销售趋势：柱（订单数，neutral-soft，激活转 chart.bar）+ 面积折线（销售额，chart.line）。
+ * 键盘：Recharts accessibilityLayer —— SVG 可聚焦，←/→ 逐点、Enter 切换；提示框 role=status 朗读。
+ */
+function TrendChart({ data, labels, formatGmv, formatOrders, className, title, axes, describedBy }: TrendChartProps) {
   const [active, setActive] = React.useState<number | null>(null)
+  const [wrapRef, width] = useElementWidth<HTMLDivElement>()
+  const geo = useTrendGeometry()
+  const n = data.length
+  const gmv = React.useMemo(() => axisScale(data.map((p) => p.gmv)), [data])
+  const orders = React.useMemo(() => axisScale(data.map((p) => p.orders)), [data])
+  /* hifi：按内宽每 2×sparkline 放一个标签，末点必留 */
+  const xTicks = React.useMemo(() => {
+    const iw = Math.max(0, width - (axes ? geo.mL + geo.mR : 0))
+    const maxLabels = Math.max(2, Math.floor(iw / geo.labelSlot))
+    const every = Math.ceil((n - 1) / (maxLabels - 1))
+    return data.filter((_, i) => i === n - 1 || (i % every === 0 && n - 1 - i >= every / 2)).map((p) => p.label)
+  }, [data, n, width, axes, geo])
   return (
-    <div data-slot="trend-chart" className={cn("relative h-chart-trend w-full min-w-0 md:h-chart-trend max-md:h-chart-trend-mobile", className)} role="img" aria-label={title}>
-      <ResponsiveContainer width="100%" height="100%">
+    <div ref={wrapRef} data-slot="trend-chart" className={cn("relative min-h-chart-trend w-full min-w-0 flex-1 mobile:min-h-chart-trend-mobile", className)}>
+      <ResponsiveContainer width="100%" height="100%" className="absolute inset-0">
         <ComposedChart
           data={data}
-          margin={{ top: 8, right: 0, bottom: 0, left: 0 }}
+          role="img"
+          title={title}
+          aria-describedby={describedBy}
+          aria-keyshortcuts="ArrowLeft ArrowRight"
+          className="[&_svg]:overflow-visible [&_svg]:rounded-sm"
+          margin={{ top: geo.mT, right: 0, bottom: 0, left: 0 }}
+          barCategoryGap="25%"
           onMouseMove={(s) => setActive(typeof s.activeTooltipIndex === "number" ? s.activeTooltipIndex : null)}
           onMouseLeave={() => setActive(null)}
         >
           <CartesianGrid vertical={false} stroke={color.grid} />
-          <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: color.axis, className: "text-role-caption tabular-nums" }} interval="preserveStartEnd" minTickGap={24} />
-          <YAxis yAxisId="gmv" hide domain={[0, "dataMax"]} />
-          <YAxis yAxisId="orders" hide domain={[0, (max: number) => max * 2.5]} />
+          <XAxis dataKey="label" tickLine={false} axisLine={false} tick={axisTick} ticks={xTicks} interval={0} height={geo.mB} />
+          {axes ? (
+            <>
+              <YAxis yAxisId="gmv" orientation="left" width={geo.mL} domain={[0, gmv.top]} ticks={gmv.ticks} tickLine={false} axisLine={false} tick={axisTick} tickFormatter={axes.gmv} />
+              <YAxis yAxisId="orders" orientation="right" width={geo.mR} domain={[0, orders.top]} ticks={orders.ticks} tickLine={false} axisLine={false} tick={axisTick} tickFormatter={axes.orders} />
+            </>
+          ) : (
+            <>
+              <YAxis yAxisId="gmv" hide domain={[0, "dataMax"]} />
+              <YAxis yAxisId="orders" hide domain={[0, (max: number) => max * 2.5]} />
+            </>
+          )}
           <Tooltip
             cursor={{ stroke: color.cursor, strokeDasharray: "3 3" }}
             content={({ active: isActive, payload }) => {
@@ -77,21 +145,23 @@ function TrendChart({ data, labels, formatGmv, formatOrders, className, title }:
               )
             }}
           />
-          <Bar yAxisId="orders" dataKey="orders" radius={[2, 2, 0, 0]} isAnimationActive={false} maxBarSize={24}>
+          <Bar yAxisId="orders" dataKey="orders" radius={[geo.barRadius, geo.barRadius, 0, 0]} isAnimationActive={false} maxBarSize={geo.barMax}>
             {data.map((_, i) => (
               <Cell key={i} fill={i === active ? color.bar : color.barIdle} />
             ))}
           </Bar>
           <Area
             yAxisId="gmv"
-            type="monotone"
+            type="linear"
             dataKey="gmv"
             stroke={color.line}
             strokeWidth={2}
             fill={color.lineFill}
             isAnimationActive={false}
-            activeDot={{ r: 4, fill: color.line, stroke: color.surface, strokeWidth: 2 }}
-            dot={false}
+            activeDot={{ r: geo.dotR, fill: color.line, stroke: color.surface, strokeWidth: 2 }}
+            dot={({ cx, cy, index }) =>
+              index === n - 1 && active === null ? <circle key="last" cx={cx} cy={cy} r={geo.dotR} fill={color.line} stroke={color.surface} strokeWidth={2} /> : <g key={index} />
+            }
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -119,20 +189,27 @@ function DonutChart({ items, total, totalLabel, formatValue, formatShare, classN
       <div className="relative size-donut shrink-0" role="img" aria-label={title}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
+            {/* hifi：r=40 / stroke 12 于 viewBox 100 → 内 68% 外 92%；从 12 点起顺时针；底轨 surface-muted；激活段 stroke 14 */}
+            <Pie data={[{ value: 1 }]} dataKey="value" innerRadius="68%" outerRadius="92%" startAngle={90} endAngle={-270} fill={color.track} stroke="none" isAnimationActive={false} />
             <Pie
               data={items}
               dataKey="value"
               nameKey="label"
-              innerRadius="76%"
-              outerRadius="100%"
-              paddingAngle={2}
+              innerRadius="68%"
+              outerRadius="92%"
+              startAngle={90}
+              endAngle={-270}
+              paddingAngle={0}
               stroke="none"
               isAnimationActive={false}
               onMouseEnter={(_, i) => setActive(i)}
               onMouseLeave={() => setActive(null)}
+              shape={(p: PieSectorShapeProps, i: number) =>
+                i === active ? <Sector {...p} innerRadius={p.innerRadius * (66 / 68)} outerRadius={p.outerRadius * (94 / 92)} /> : <Sector {...p} />
+              }
             >
               {items.map((it, i) => (
-                <Cell key={it.key} fill={color.series[i % color.series.length]} opacity={active === null || active === i ? 1 : 0.55} />
+                <Cell key={it.key} fill={color.series[i % color.series.length]} />
               ))}
             </Pie>
           </PieChart>

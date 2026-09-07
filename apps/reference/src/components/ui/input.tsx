@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 
 /** 输入框：hifi .input —— control.md 高、border-strong、hover 转 fg-muted、focus 转 primary、invalid 加粗 danger */
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {

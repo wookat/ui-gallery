@@ -1,12 +1,12 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 
 /** 卡片：hifi .card —— surface / 1px border / radius.lg / shadow.sm / space.6 内距 */
 function Card({ className, ...props }: React.ComponentProps<"section">) {
   return (
     <section
       data-slot="card"
-      className={cn("min-w-0 rounded-lg border bg-surface p-6 text-fg shadow-sm", className)}
+      className={cn("min-w-0 rounded-lg border bg-surface p-6 text-fg shadow-sm mobile:p-4", className)}
       {...props}
     />
   )

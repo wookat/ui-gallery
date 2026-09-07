@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 
 /** 表格：hifi table —— th caption/fg-muted、td space.3、hairline 行线、末行无线、首末列去内距、hover 行底 bg */
 function TableWrap({ className, ...props }: React.ComponentProps<"div">) {

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/cn"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 
 /** 顶栏账号菜单默认非模态：不给页面其余部分加 aria-hidden、不锁滚动 */

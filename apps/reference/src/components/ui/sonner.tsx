@@ -1,11 +1,12 @@
-import { CircleAlertIcon, CircleCheckIcon, InfoIcon, TriangleAlertIcon, XIcon } from "lucide-react"
+import { CheckIcon, CircleAlertIcon, InfoIcon, TriangleAlertIcon, XIcon } from "lucide-react"
 import { Toaster as Sonner, toast, type ToasterProps } from "sonner"
 
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "@/components/theme-provider"
 
 /**
- * Toast：hifi .toast —— surface-raised、hairline、radius.lg、shadow.lg、label 字体；成功图标 success 色。
+ * Toast：hifi .toast —— surface-raised、hairline、radius.lg、shadow.lg、label 字体；成功图标 success 色；
+ * 宽度随内容（图标 + 文字 + 关闭），右对齐于顶栏下，最宽不超出容器。
  * 采用 sonner unstyled，所有外观由 classNames 中的令牌工具类给出。
  */
 function Toaster(props: ToasterProps) {
@@ -19,7 +20,7 @@ function Toaster(props: ToasterProps) {
       gap={8}
       closeButton
       icons={{
-        success: <CircleCheckIcon className="size-icon-md text-success" />,
+        success: <CheckIcon className="size-icon-md text-success" />,
         info: <InfoIcon className="size-icon-md text-on-primary-soft" />,
         warning: <TriangleAlertIcon className="size-icon-md text-warning" />,
         error: <CircleAlertIcon className="size-icon-md text-danger" />,
@@ -30,7 +31,7 @@ function Toaster(props: ToasterProps) {
         unstyled: true,
         classNames: {
           toast:
-            "flex w-full items-center gap-3 rounded-lg border bg-surface-raised py-2 pr-2 pl-4 text-role-label text-fg shadow-lg",
+            "flex w-fit max-w-full items-center gap-3 rounded-lg border bg-surface-raised py-2 pr-2 pl-4 text-role-label text-fg shadow-lg",
           content: "flex-1 min-w-0",
           title: "text-role-label",
           description: "text-role-caption text-fg-muted",

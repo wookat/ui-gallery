@@ -46,3 +46,7 @@ export const channelLabel = (key: string) => meta.channels.find((c) => c.key ===
 
 /** 侧栏角标：nav.json 中仅部分项带 badge */
 export const navBadge = (item: NavItem) => ("badge" in item && typeof item.badge === "number" ? item.badge : 0)
+/** 角标语义色：nav.json badgeTone（缺省中性） */
+export const navBadgeTone = (item: NavItem): "warning" | "neutral" => ("badgeTone" in item && item.badgeTone === "warning" ? "warning" : "neutral")
+/** 角标可访问名（hifi aria-label="badgeMeaning badge"）：如「库存预警 SKU 12」 */
+export const navBadgeLabel = (item: NavItem) => ("badgeMeaning" in item && typeof item.badgeMeaning === "string" ? `${item.badgeMeaning} ${navBadge(item)}` : undefined)

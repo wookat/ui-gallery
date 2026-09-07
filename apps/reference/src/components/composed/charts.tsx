@@ -1,9 +1,9 @@
 import * as React from "react"
 import { cn } from "@/lib/cn"
-import { Area, Bar, CartesianGrid, Cell, ComposedChart, Pie, PieChart, ResponsiveContainer, Sector, Tooltip, XAxis, YAxis } from "recharts"
+import { Area, Bar, CartesianGrid, Cell, ComposedChart, Pie, PieChart, ResponsiveContainer, Sector, Text, Tooltip, XAxis, YAxis } from "recharts"
 import type { PieSectorShapeProps } from "recharts/types/polar/Pie"
 
-import { tokenPx, useElementWidth } from "@/lib/media"
+import { tokenPx, tokenValue, useElementWidth } from "@/lib/media"
 
 /**
  * 图表基座：Recharts + 令牌。所有颜色以 `var(--color-…)` 字串传入 SVG 属性（tokens.css 定义，随 data-theme 切换），
@@ -54,6 +54,16 @@ type TrendChartProps = {
 
 const axisTick = { fill: color.axis, className: "text-role-caption tabular-nums" }
 
+/** 用 canvas 按 typography.caption 量字宽（X 轴标签防重叠） */
+let captionCtx: CanvasRenderingContext2D | null | undefined
+const captionWidth = (text: string) => {
+  if (captionCtx === undefined) {
+    captionCtx = document.createElement("canvas").getContext("2d")
+    if (captionCtx) captionCtx.font = tokenValue("--typography-caption")
+  }
+  return captionCtx ? captionCtx.measureText(text).width : text.length * tokenPx("--space-2")
+}
+
 /** hifi niceStep：把 max/4 归到 1/1.5/2/2.5/3/4/5/6/8/10 × 10^k，四等分刻度 */
 const niceStep = (raw: number) => {
   if (raw <= 0) return 1
@@ -94,13 +104,38 @@ function TrendChart({ data, labels, formatGmv, formatOrders, className, title, a
   const n = data.length
   const gmv = React.useMemo(() => axisScale(data.map((p) => p.gmv)), [data])
   const orders = React.useMemo(() => axisScale(data.map((p) => p.orders)), [data])
-  /* hifi：按内宽每 2×sparkline 放一个标签，末点必留 */
-  const xTicks = React.useMemo(() => {
+  /* hifi：按内宽每 2×sparkline 放一个标签，末点必留（标签多于容量时末点右对齐）；再从右向左去掉与已留标签间距 < space.2 的 */
+  const { xTicks, endAnchorLast } = React.useMemo(() => {
+    const mL = axes ? geo.mL : 0
     const iw = Math.max(0, width - (axes ? geo.mL + geo.mR : 0))
     const maxLabels = Math.max(2, Math.floor(iw / geo.labelSlot))
     const every = Math.ceil((n - 1) / (maxLabels - 1))
-    return data.filter((_, i) => i === n - 1 || (i % every === 0 && n - 1 - i >= every / 2)).map((p) => p.label)
+    const endAnchorLast = n > maxLabels
+    const step = n ? iw / n : 0
+    const x = (i: number) => mL + step * (i + 0.5)
+    const gap = tokenPx("--space-2")
+    const kept: string[] = []
+    let keptLeft = Infinity
+    for (let i = n - 1; i >= 0; i--) {
+      const last = i === n - 1
+      if (!last && !(i % every === 0 && n - 1 - i >= every / 2)) continue
+      const w = captionWidth(data[i].label)
+      const left = last && endAnchorLast ? x(i) - w : x(i) - w / 2
+      if (left + w + gap > keptLeft) continue
+      keptLeft = left
+      kept.unshift(data[i].label)
+    }
+    return { xTicks: kept, endAnchorLast }
   }, [data, n, width, axes, geo])
+  const lastLabel = data[n - 1]?.label
+  const xTick = React.useCallback(
+    ({ payload, textAnchor, ...p }: React.ComponentProps<typeof Text> & { payload: { value: string } }) => (
+      <Text {...p} {...axisTick} textAnchor={endAnchorLast && payload.value === lastLabel ? "end" : textAnchor}>
+        {payload.value}
+      </Text>
+    ),
+    [endAnchorLast, lastLabel],
+  )
   return (
     <div ref={wrapRef} data-slot="trend-chart" className={cn("relative min-h-chart-trend w-full min-w-0 flex-1 mobile:min-h-chart-trend-mobile", className)}>
       <ResponsiveContainer width="100%" height="100%" className="absolute inset-0">
@@ -117,7 +152,7 @@ function TrendChart({ data, labels, formatGmv, formatOrders, className, title, a
           onMouseLeave={() => setActive(null)}
         >
           <CartesianGrid vertical={false} stroke={color.grid} />
-          <XAxis dataKey="label" tickLine={false} axisLine={false} tick={axisTick} ticks={xTicks} interval={0} height={geo.mB} />
+          <XAxis dataKey="label" tickLine={false} axisLine={false} tick={xTick} ticks={xTicks} interval={0} height={geo.mB} />
           {axes ? (
             <>
               <YAxis yAxisId="gmv" orientation="left" width={geo.mL} domain={[0, gmv.top]} ticks={gmv.ticks} tickLine={false} axisLine={false} tick={axisTick} tickFormatter={axes.gmv} />

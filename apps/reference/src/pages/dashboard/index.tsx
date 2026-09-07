@@ -100,7 +100,7 @@ function OrderMenu({ order, open, onOpenChange }: { order: Order; open?: boolean
           <EllipsisIcon />
         </IconButton>
       </DropdownMenuTrigger>
-      <DropdownMenuContent aria-label={t("dashboard.orders.action.menu")}>
+      <DropdownMenuContent compact aria-label={t("dashboard.orders.action.menu")}>
         <DropdownMenuItem>
           <EyeIcon /> {t("dashboard.orders.action.view")}
         </DropdownMenuItem>
@@ -430,13 +430,16 @@ function SkeletonCard({ head, children, className }: { head: string; children: R
   )
 }
 
+/** hifi .sk-row 文本宽度序列：80% / 60% / 80% / 40% / 60% */
+const skeletonRowWidths = ["w-4/5", "w-3/5", "w-4/5", "w-2/5", "w-3/5"]
+
 function SkeletonRows({ rows, tail = true }: { rows: number; tail?: boolean }) {
   return (
     <div className="flex flex-col gap-4">
       {Array.from({ length: rows }, (_, i) => (
         <div key={i} className="grid grid-cols-[var(--size-avatar-sm)_1fr_auto] items-center gap-3">
           <Skeleton className="size-avatar-sm rounded-full" />
-          <Skeleton className={cn("h-3", i % 2 ? "w-3/5" : "w-4/5")} />
+          <Skeleton className={cn("h-3", skeletonRowWidths[i % skeletonRowWidths.length])} />
           {tail ? <Skeleton className="h-3 w-12" /> : <span />}
         </div>
       ))}
@@ -464,6 +467,7 @@ function LoadingView() {
             <Skeleton className="h-3 w-4/5" />
             <Skeleton className="h-3 w-3/5" />
             <Skeleton className="h-3 w-3/5" />
+            <Skeleton className="h-3 w-2/5" />
           </div>
         </SkeletonCard>
       </div>

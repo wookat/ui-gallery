@@ -37,7 +37,7 @@ import { IconButton } from "@/components/ui/icon-button"
 import { Popover, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { t } from "@/data/content"
-import { mock, navBadge, type NavItem as NavItemDef } from "@/data/mock"
+import { mock, navBadge, navBadgeLabel, navBadgeTone, type NavItem as NavItemDef } from "@/data/mock"
 import { useMaxWidth } from "@/lib/media"
 
 /** hifi #searchKbd：Apple 平台显示 ⌘K，其余 Ctrl K */
@@ -70,9 +70,9 @@ type ShellProps = {
 
 function NavList({ rail, empty, current, onNavigate }: { rail: boolean; empty: boolean; current: string; onNavigate?: () => void }) {
   return (
-    <nav aria-label={t("shell.nav.aria")} className={cn("flex flex-1 flex-col gap-4 overflow-y-auto py-3", rail ? "items-center px-2" : "px-3")}>
+    <nav aria-label={t("shell.nav.aria")} className={cn("flex flex-1 flex-col gap-4 overflow-y-auto pt-2 pb-4", rail ? "items-center px-2" : "px-3")}>
       {mock.nav.map((g) => (
-        <div key={g.group} className="flex flex-col gap-1">
+        <div key={g.group} className="flex flex-col">
           <NavGroupLabel id={`ng-${g.group}`} className={cn(rail && "sr-only")}>
             {g.groupLabel}
           </NavGroupLabel>
@@ -89,6 +89,8 @@ function NavList({ rail, empty, current, onNavigate }: { rail: boolean; empty: b
                   data-path={it.implemented ? undefined : it.path}
                   disabledTip={it.implemented ? undefined : t("shell.nav.disabled.tip")}
                   count={empty ? 0 : navBadge(it)}
+                  countTone={navBadgeTone(it)}
+                  countLabel={navBadgeLabel(it)}
                   onClick={it.implemented ? onNavigate : undefined}
                 />
               </li>
@@ -102,7 +104,7 @@ function NavList({ rail, empty, current, onNavigate }: { rail: boolean; empty: b
 
 function Brand({ empty, rail, className }: { empty: boolean; rail?: boolean; className?: string }) {
   return (
-    <div className={cn("flex h-topbar shrink-0 items-center gap-3 border-b px-4", rail && "justify-center px-0", className)}>
+    <div className={cn("flex h-topbar shrink-0 items-center gap-3 px-4", rail && "justify-center px-0", className)}>
       <BrandMark />
       {rail ? null : (
         <div className="flex min-w-0 flex-col leading-none">
@@ -133,6 +135,10 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
       if (!o && open === key) setOpen(null)
     },
   })
+  /** ?open= 打开的浮层与 hifi 一致不抢焦点（用户点击打开时仍由 Radix 聚焦首项） */
+  const urlOpened = (key: string) => (e: Event) => {
+    if (open === key) e.preventDefault()
+  }
   const drawerOpen = open === "drawer" && mobile
   const collapseLabel = rail ? t("shell.nav.expand") : t("shell.nav.collapse")
 
@@ -169,14 +175,24 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
       </aside>
 
       <Sheet open={drawerOpen} onOpenChange={(o) => setOpen(o ? "drawer" : null)}>
-        <SheetContent title={t("shell.nav.aria")} closeLabel={t("shell.nav.collapse")}>
+        <SheetContent
+          title={t("shell.nav.aria")}
+          closeLabel={t("shell.nav.collapse")}
+          onOpenAutoFocus={(e) => {
+            const first = e.currentTarget instanceof HTMLElement ? e.currentTarget.querySelector<HTMLAnchorElement>("nav a[href]") : null
+            if (first) {
+              e.preventDefault()
+              first.focus()
+            }
+          }}
+        >
           <Brand empty={empty} className="pr-hit" />
           <NavList rail={false} empty={empty} current="dashboard" onNavigate={() => setOpen(null)} />
         </SheetContent>
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-topbar shrink-0 items-center gap-3 border-b bg-surface px-6 mobile:px-4">
+        <header className="sticky top-0 z-20 flex h-topbar shrink-0 items-center gap-3 border-b bg-surface px-6 mobile:gap-2 mobile:px-4">
           <IconButton label={t("shell.nav.open")} aria-expanded={drawerOpen} className="hidden mobile:inline-flex" onClick={() => setOpen("drawer")}>
             <MenuIcon />
           </IconButton>
@@ -189,12 +205,12 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-2 mobile:gap-0">
             <SearchInput
               aria-label={t("shell.search.aria")}
               placeholder={t("shell.search.placeholder")}
               shortcut={isApple ? "⌘K" : "Ctrl K"}
-              className="mr-2 w-sidebar-expanded tablet:w-sidebar-expanded mobile:hidden"
+              className="mr-2 w-popover tablet:w-sidebar-expanded mobile:hidden"
             />
             <IconButton label={t("shell.search.aria")} className="hidden mobile:inline-flex">
               <SearchIcon />
@@ -206,10 +222,10 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
                   <BellIcon />
                 </IconButton>
               </PopoverTrigger>
-              <PopoverContent aria-label={t("shell.notifications.title")}>
+              <PopoverContent aria-label={t("shell.notifications.title")} onOpenAutoFocus={urlOpened("notifications")}>
                 <PopoverHeader>
                   <h2 className="text-role-title">{t("shell.notifications.title")}</h2>
-                  <Button variant="ghost" size="sm" disabled={unread === 0} onClick={() => setRead(true)}>
+                  <Button variant="ghost" disabled={unread === 0} onClick={() => setRead(true)}>
                     {t("shell.notifications.markAll")}
                   </Button>
                 </PopoverHeader>
@@ -223,7 +239,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
                   <p className="px-3 py-6 text-center text-role-body text-fg-muted">{t("shell.notifications.empty")}</p>
                 )}
                 <PopoverFooter className="text-center">
-                  <Button variant="ghost" size="sm" className="w-full" asChild>
+                  <Button variant="ghost" block asChild>
                     <a href="#" role="link" aria-disabled onClick={(e) => e.preventDefault()}>
                       {t("shell.notifications.viewAll")}
                     </a>

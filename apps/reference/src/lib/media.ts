@@ -3,9 +3,14 @@ import * as React from "react"
 /** 读根元素上的令牌变量（design/tokens.css 输出到 :root），如 --breakpoint-md / --motion-skeleton */
 export const tokenValue = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 
-export const tokenMs = (name: string) => parseFloat(tokenValue(name)) || 0
+/** 时长令牌 → 毫秒；构建产物会把 `1600ms` 压成 `1.6s`，故按单位换算 */
+export const tokenMs = (name: string) => {
+  const raw = tokenValue(name)
+  const n = parseFloat(raw) || 0
+  return !raw.endsWith("ms") && raw.endsWith("s") ? n * 1000 : n
+}
 
-export const tokenPx = tokenMs
+export const tokenPx = (name: string) => parseFloat(tokenValue(name)) || 0
 
 /** 元素内容宽度（ResizeObserver），用于按 hifi 算法按宽度筛 x 轴标签 */
 export function useElementWidth<T extends HTMLElement>() {

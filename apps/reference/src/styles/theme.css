@@ -194,8 +194,7 @@
 
 /* reference 模式下 @theme 内的 @keyframes 不会输出，故放在顶层 */
 @keyframes skeleton-shine {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  to { transform: translateX(100%); }
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -320,17 +319,20 @@
   cursor: not-allowed;
 }
 
-/* 骨架屏微光：颜色与时长均来自令牌 */
+/* 骨架屏：hifi .sk —— 实心 skeleton 底色 + ::after 微光扫过；颜色、透明度与时长均来自令牌 */
 @utility skeleton-shine {
-  background: linear-gradient(
-    90deg,
-    var(--color-role-skeleton) 0%,
-    var(--color-role-surface) 50%,
-    var(--color-role-skeleton) 100%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shine var(--motion-skeleton) linear infinite;
-  opacity: var(--opacity-skeleton-shine);
+  position: relative;
+  overflow: hidden;
+  background: var(--color-role-skeleton);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    opacity: var(--opacity-skeleton-shine);
+    background: linear-gradient(90deg, transparent, var(--color-role-surface), transparent);
+    animation: skeleton-shine var(--motion-skeleton) var(--motion-ease) infinite;
+  }
 }
 
 /* 头像色：hue 由人名末字派生（Avatar 组件写入 --avatar-hue），饱和/明度来自令牌 */

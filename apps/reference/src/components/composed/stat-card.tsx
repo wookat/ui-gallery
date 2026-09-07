@@ -85,13 +85,15 @@ function StatCard({ label, value, unit, delta, trend, long, className, ...props 
 /** 统计卡骨架（与成功态同布局） */
 function StatCardSkeleton({ className, ...props }: React.ComponentProps<typeof Card>) {
   return (
-    <Card aria-hidden className={cn("flex flex-col gap-3 px-6 py-5", className)} {...props}>
-      <Skeleton className="h-4 w-2/5" />
-      <div className="flex min-h-sparkline items-start justify-between gap-3">
-        <Skeleton className="h-8 w-3/5" />
-        <Skeleton className="h-sparkline w-sparkline-w" />
+    <Card aria-hidden className={cn("flex flex-col gap-3 px-6 py-5 mobile:gap-2 mobile:p-4", className)} {...props}>
+      <div className="flex items-start justify-between gap-3">
+        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="-mt-1 h-sparkline w-sparkline-w mobile:w-[calc(var(--size-sparkline)*1.5)]" />
       </div>
-      <Skeleton className="h-6 w-1/4 rounded-full" />
+      <div className="flex min-h-sparkline items-start justify-between gap-3 mobile:min-h-0">
+        <Skeleton className="h-8 w-3/5" />
+      </div>
+      <Skeleton className="h-6 w-2/5 rounded-full" />
     </Card>
   )
 }

@@ -8,7 +8,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       type={type}
       data-slot="input"
       className={cn(
-        "h-control-md w-full min-w-0 rounded-md border border-border-strong bg-surface px-3 text-role-body text-fg transition-colors duration-(--motion-fast) ease-std placeholder:text-fg-muted hover:not-disabled:not-read-only:border-fg-muted focus-visible:border-primary aria-invalid:border-2 aria-invalid:border-danger aria-invalid:focus-visible:outline-danger read-only:bg-surface-muted read-only:text-fg-muted disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-fg-muted",
+        "h-control-md w-full min-w-0 rounded-md border border-border-strong bg-surface px-3 text-role-body text-fg transition-colors duration-(--motion-fast) ease-std placeholder:text-fg-muted hover:not-disabled:not-read-only:border-fg-muted focus-visible:border-primary aria-invalid:border-(length:--border-width-accent) aria-invalid:border-danger aria-invalid:pl-[calc(var(--space-3)-var(--border-width-accent)+var(--border-width-hairline))] aria-invalid:focus-visible:outline-danger read-only:bg-surface-muted read-only:text-fg-muted disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-fg-muted",
         className,
       )}
       {...props}

@@ -28,6 +28,8 @@
 | footer.terms | 服务条款 | 页脚链接（不可达） |
 | footer.privacy | 隐私政策 | 页脚链接（不可达） |
 | footer.copyright | © 2026 Acme | 页脚 |
+| alert.close | 关闭 | 顶部 Alert 关闭按钮 aria-label（hifi `.alert .close`） |
+| alert.retry | 重试 | `alert.network` 内的重试按钮（hifi `.alert-action`） |
 
 ## 校验与反馈
 | key | 触发条件 | 文案 | 呈现 |

@@ -19,7 +19,7 @@ function FieldError({ className, children, ...props }: React.ComponentProps<"p">
     <p
       role="alert"
       data-slot="field-error"
-      className={cn("flex items-start gap-1 text-role-caption text-danger [&_svg]:mt-px [&_svg]:size-icon-sm [&_svg]:shrink-0", className)}
+      className={cn("flex items-start gap-1 text-role-caption text-danger [&_svg]:mt-[calc((var(--font-size-xs)*var(--font-line-height-snug)-var(--size-icon-sm))/2)] [&_svg]:size-icon-sm [&_svg]:shrink-0", className)}
       {...props}
     >
       <CircleAlertIcon aria-hidden />

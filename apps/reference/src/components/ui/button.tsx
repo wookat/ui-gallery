@@ -22,7 +22,7 @@ const buttonVariants = cva(
           "px-3 text-link hover:not-disabled:bg-primary-soft hover:not-disabled:text-on-primary-soft aria-expanded:bg-primary-soft aria-expanded:text-on-primary-soft disabled:disabled-look",
         danger:
           "bg-danger border-danger text-on-danger hover:not-disabled:opacity-90 disabled:disabled-look",
-        link: "h-auto min-h-hit px-1 text-link underline-offset-4 hover:not-disabled:underline",
+        link: "text-link underline-offset-4 hover:not-disabled:underline",
       },
       size: {
         sm: "hit-area h-control-sm px-3",
@@ -33,6 +33,8 @@ const buttonVariants = cva(
         true: "w-full",
       },
     },
+    // link 不受 size 高度/内边距约束（hifi .row .link / .signup a：min-h hit、padding 0 space-1、radius-sm）；放 compoundVariants 才能在 cn 合并时压过 size 的 h-*/px-*
+    compoundVariants: [{ variant: "link", className: "h-auto min-h-hit min-w-0 rounded-sm px-1" }],
     defaultVariants: {
       variant: "primary",
       size: "md",

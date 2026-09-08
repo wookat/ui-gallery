@@ -2,9 +2,10 @@
 //   node design/hifi/landing/check.mjs          → 静态检查 + Playwright 截基准图到 ref/ + 运行时检查
 //   node design/hifi/landing/check.mjs --static → 只跑静态检查
 // 依赖：pnpm install --filter @ui-gallery/shoot（playwright）；字体：pnpm install --filter shadcn-ui（@fontsource-variable/inter、noto-sans-sc、jetbrains-mono；未安装时回退系统字体，门禁 FAIL）
-// 截图矩阵：1440×900 × {default, navbar-scrolled, pricing-yearly}；375×812 × {default, navbar-scrolled, pricing-yearly, mobile-menu-open}；亮 / 暗 → 14 张
+// 截图矩阵：1440×900 × {default, navbar-scrolled, pricing-yearly}；375×812 × {default, navbar-scrolled, pricing-yearly, mobile-menu-open}；
+//   1024×900 × {default}；768×1024 × {default, mobile-menu-open}；亮 / 暗 → 20 张
 //   default / pricing-yearly 整页；navbar-scrolled 滚到 #features 后截视口（fixed Navbar 实底态只在视口内有意义）；mobile-menu-open 截视口（fixed Sheet）
-// 1024×900 / 768×1024 只跑溢出 / 热区 / 控制台检查，不出图
+// 四个视口都跑溢出 / 热区 / 对比度 / 控制台检查 + Navbar 断言（≥1024 链接与品牌名单行；≤1023 汉堡折叠）+ Hero h1 折行断言（≥768 只在「，」后折）
 import { readFileSync, readdirSync, statSync, mkdirSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -91,7 +92,27 @@ const perViewport = {
   tablet: [['default', 'state=default'], ['mobile-menu-open', 'state=default&open=menu']],
   tabletSm: [['default', 'state=default'], ['mobile-menu-open', 'state=default&open=menu']],
 };
+const shotFor = { desktop: () => true, mobile: () => true, tablet: (name) => name === 'default', tabletSm: () => true };
 const isViewportShot = (name) => /^(navbar-scrolled|mobile-menu-open)$/.test(name);
+
+// Navbar / Hero 折行审计：按 Range 客户端矩形的不同 top 数计行
+const layoutAudit = async (page) => page.evaluate(() => {
+  const lines = (el) => { const rg = document.createRange(); rg.selectNodeContents(el); return new Set([...rg.getClientRects()].map((r) => Math.round(r.top))).size; };
+  const lineTexts = (el) => { const t = el.firstChild; const out = []; let cur = ''; let last = null; for (let i = 0; i < t.textContent.length; i++) { const rg = document.createRange(); rg.setStart(t, i); rg.setEnd(t, i + 1); const top = Math.round(rg.getBoundingClientRect().top); if (last !== null && top !== last) { out.push(cur); cur = ''; } cur += t.textContent[i]; last = top; } out.push(cur); return out; };
+  const shown = (el) => getComputedStyle(el).display !== 'none';
+  const links = [...document.querySelectorAll('.nav-links a')];
+  const brandText = document.querySelector('.nav .brand > span:last-child');
+  const plans = [...document.querySelectorAll('.plan')].map((p) => { const r = p.getBoundingClientRect(); return { l: Math.round(r.left), w: Math.round(r.width), t: Math.round(r.top) }; });
+  const cols = [...document.querySelectorAll('.foot-col')].map((c) => Math.round(c.getBoundingClientRect().top));
+  const nav = document.querySelector('.nav .wrap').getBoundingClientRect();
+  return {
+    linksShown: shown(document.querySelector('.nav-links')), burgerShown: shown(document.querySelector('.nav-burger')), loginShown: shown(document.querySelector('.nav-login')),
+    linkLines: links.map((a) => lines(a)), brandLines: lines(brandText),
+    navInside: [...document.querySelectorAll('.nav .wrap > *')].every((el) => !shown(el) || (el.getBoundingClientRect().right <= nav.right + 0.5 && el.getBoundingClientRect().bottom <= nav.bottom + 0.5)),
+    h1: lineTexts(document.querySelector('.hero h1')), cta: lineTexts(document.querySelector('.cta h2')),
+    plans, footColTops: new Set(cols).size, heroCols: getComputedStyle(document.querySelector('.hero .wrap')).gridTemplateColumns.split(' ').length, ctaCols: getComputedStyle(document.querySelector('.cta .wrap')).gridTemplateColumns.split(' ').length,
+  };
+});
 
 const runtimeAudit = async (page, w) => page.evaluate((w) => {
   const hiddenBy = (el) => el.closest('[aria-hidden="true"], [hidden], .sr-only') !== null;
@@ -153,7 +174,6 @@ for (const [vpName, vp] of Object.entries(viewports)) {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
   const list = perViewport[vpName];
-  const doShots = vpName === 'desktop' || vpName === 'mobile';
   for (const theme of ['light', 'dark']) {
     for (const [name, query] of list) {
       await page.goto(`${fileUrl}?${query}&theme=${theme}`);
@@ -166,7 +186,7 @@ for (const [vpName, vp] of Object.entries(viewports)) {
       if (name === 'navbar-scrolled') { await page.evaluate(() => document.getElementById('features').scrollIntoView()); await page.waitForTimeout(150); }
       const m = await runtimeAudit(page, 40);
       const label = `${vpName}-${theme}-${name}`;
-      if (doShots) {
+      if (shotFor[vpName](name)) {
         const file = join(outDir, `${label}.png`);
         await page.screenshot({ path: file, fullPage: !isViewportShot(name), animations: 'disabled' });
         shots++;
@@ -181,6 +201,22 @@ for (const [vpName, vp] of Object.entries(viewports)) {
       const expState = name === 'navbar-scrolled' ? 'scrolled' : 'default';
       const expCycle = name === 'pricing-yearly' ? 'yearly' : 'monthly';
       ok(m.theme === theme && m.state === expState && m.cycle === expCycle && (m.open === 'menu') === (name === 'mobile-menu-open'), `${label}: data-theme/state/cycle/open 正确（${m.theme}/${m.state}/${m.cycle}/${m.open}）`);
+      if (name === 'default') {
+        const la = await layoutAudit(page);
+        const wide = vp.width >= 1024;
+        ok(la.linksShown === wide && la.loginShown === wide && la.burgerShown === !wide, `${label}: Navbar ${wide ? '完整链接 + 登录，无汉堡' : '折叠为汉堡（链接 / 登录隐藏）'}`);
+        if (wide) ok(la.linkLines.every((n) => n === 1) && la.brandLines === 1 && la.navInside, `${label}: Navbar 5 链接与品牌名各占 1 行且不溢出导航条（${la.linkLines.join('')}/${la.brandLines}）`);
+        if (vp.width >= 768) {
+          ok(la.h1.length <= 2 && la.h1.every((s) => !/^，/.test(s)) && (la.h1.length === 1 || la.h1[0].endsWith('，')), `${label}: Hero h1 只在「，」后折行（${la.h1.join(' / ')}）`);
+          ok(la.cta.length === 1, `${label}: CTA h2 单行（${la.cta.join(' / ')}）`);
+        }
+        if (vp.width === 768) {
+          ok(la.heroCols === 1 && la.ctaCols === 1, `${label}: Hero / CTA 单栏（${la.heroCols}/${la.ctaCols}）`);
+          const [a, b, c] = la.plans;
+          ok(a.t === b.t && c.t > a.t && Math.abs(c.w - a.w) <= 1 && Math.abs((c.l + c.w / 2) - vp.width / 2) <= 1, `${label}: 定价第三卡整行居中等宽（w=${a.w}/${b.w}/${c.w}，中心 ${c.l + c.w / 2}）`);
+          ok(la.footColTops === 1, `${label}: Footer 4 个链接栏同一行（${la.footColTops} 行）`);
+        }
+      }
     }
   }
   ok(errors.length === 0, `${vpName}: console error = ${errors.length}${errors.length ? ' → ' + errors.slice(0, 3).join(' | ') : ''}`);
@@ -245,6 +281,14 @@ await browser.close();
   await mob.evaluate(() => document.fonts.ready);
   const navMob = await mob.evaluate(() => ({ links: getComputedStyle(document.querySelector('.nav-links')).display, burger: getComputedStyle(document.querySelector('.nav-burger')).display, login: getComputedStyle(document.querySelector('.nav-login')).display }));
   ok(navMob.links === 'none' && navMob.login === 'none' && navMob.burger !== 'none', '375 Navbar 只留 Logo + 试用 + 汉堡');
+  // 768：汉堡打开 Sheet 亦可用
+  const tab = await b2.newPage({ viewport: viewports.tabletSm, reducedMotion: 'reduce' });
+  await tab.goto(`${fileUrl}?theme=light`);
+  await tab.click('.nav-burger'); await tab.waitForTimeout(150);
+  const tabOpen = await tab.evaluate(() => ({ open: document.documentElement.getAttribute('data-open'), focusIn: document.getElementById('sheet').contains(document.activeElement), links: document.querySelectorAll('#sheet .sheet-nav a').length, sheetW: document.getElementById('sheet').getBoundingClientRect().width }));
+  await tab.keyboard.press('Escape'); await tab.waitForTimeout(100);
+  ok(tabOpen.open === 'menu' && tabOpen.focusIn && tabOpen.links === 5 && tabOpen.sheetW === 320 && !(await tab.evaluate(() => document.documentElement.hasAttribute('data-open'))), '768 汉堡 → Sheet 打开（焦点进入、5 链接、宽 320）→ Escape 关闭');
+  await tab.close();
   await mob.click('.nav-burger'); await mob.waitForTimeout(150);
   const opened = await mob.evaluate(() => ({ open: document.documentElement.getAttribute('data-open'), expanded: document.querySelector('.nav-burger').getAttribute('aria-expanded'), focusIn: document.getElementById('sheet').contains(document.activeElement), links: document.querySelectorAll('#sheet .sheet-nav a').length, url: location.search, bodyOverflow: getComputedStyle(document.body).overflow,
     sheetW: document.getElementById('sheet').getBoundingClientRect().width, dialog: document.getElementById('sheet').getAttribute('role') === 'dialog' && document.getElementById('sheet').getAttribute('aria-modal') === 'true' }));

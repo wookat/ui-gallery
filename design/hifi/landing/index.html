@@ -26,9 +26,11 @@
   URL 参数（供审查与截图；见 check.mjs）：
   · ?state=default|scrolled   default：Navbar 透明叠在 Hero 渐变上；scrolled：Navbar 实底 surface + hairline + shadow.sm（不传参时按 scrollY 自动切换）。
   · ?cycle=monthly|yearly     定价三卡价格 + 后缀（/ 月 ↔ / 年）+「折合 ¥n / 月」同步切换；Switch aria-checked 同步。
-  · ?open=menu                Sheet（<768：汉堡打开；≥768 亦可预览）成为第一层，背景 overlay，body 锁滚动。
+  · ?open=menu                Sheet（<1024：汉堡打开；≥1024 亦可预览）成为第一层，背景 overlay，body 锁滚动。
   · ?theme=light|dark         显式主题（<html data-theme>）；不传则跟随系统（tokens.css 已处理）。Navbar / Sheet 内主题按钮可即时切换。
-  断点：≥1024 三列 / 双栏；768–1023 两列；<768 单列（Navbar 只留 Logo + 试用 + 汉堡，Hero 图下移，分屏图上文下，Footer 链接两列）。
+  断点：≥1024 三列 / 双栏，完整 Navbar（链接与品牌名 nowrap；1024–1439 Hero h1 降一级为 display-lg，keep-all 保证只在、后折行）；
+        768–1023 两列（Navbar 只留 Logo + 试用 + 汉堡，Hero / CTA 单栏，定价第三卡整行居中等宽，Footer 链接 4 列）；
+        <768 单列（Hero 图下移，分屏图上文下，Footer 链接两列，h1 自然折行）。
 -->
 <link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/inter/index.css">
 <link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/noto-sans-sc/index.css">
@@ -132,11 +134,11 @@ svg.i.lg { width: var(--size-icon-lg); height: var(--size-icon-lg); }
   transition: background-color var(--motion-base) var(--motion-ease), border-color var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease); }
 html[data-state="scrolled"] .nav { background: var(--color-role-surface); border-bottom-color: var(--color-role-border); box-shadow: var(--shadow-sm); }
 .nav .wrap { height: 100%; display: flex; align-items: center; gap: var(--space-6); }
-.brand { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--size-hit); color: var(--color-role-fg); font: var(--typography-title); border-radius: var(--radius-sm); }
+.brand { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--size-hit); color: var(--color-role-fg); font: var(--typography-title); border-radius: var(--radius-sm); white-space: nowrap; }
 .brand-mark { display: inline-grid; place-items: center; width: var(--space-8); height: var(--space-8); border-radius: var(--radius-md); background: var(--color-role-primary); color: var(--color-role-on-primary); }
 .brand-mark svg { width: var(--size-icon-md); height: var(--size-icon-md); fill: currentColor; }
 .nav-links { display: flex; align-items: center; gap: var(--space-1); margin-inline: auto; }
-.nav-links a { display: inline-flex; align-items: center; min-height: var(--size-hit); padding: 0 var(--space-3); border-radius: var(--radius-md); font: var(--typography-label); color: var(--color-role-fg-muted); transition: color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease); }
+.nav-links a { display: inline-flex; align-items: center; min-height: var(--size-hit); padding: 0 var(--space-3); border-radius: var(--radius-md); font: var(--typography-label); color: var(--color-role-fg-muted); white-space: nowrap; transition: color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease); }
 .nav-links a:hover { color: var(--color-role-fg); background: var(--color-role-surface-muted); }
 .nav-links a[aria-current="true"] { color: var(--color-role-fg); }
 .nav-actions { display: flex; align-items: center; gap: var(--space-2); }
@@ -148,7 +150,7 @@ html:not([data-state="scrolled"]) .nav-sticky-hint { display: none; }
 .hero { position: relative; padding-top: calc(var(--size-navbar) + var(--space-16)); padding-bottom: var(--space-20); overflow: clip;
   background: linear-gradient(180deg, var(--color-role-surface-brand) 0%, var(--color-role-surface) 85%); }
 .hero .wrap { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: var(--space-16); align-items: center; }
-.hero h1 { margin-top: var(--space-4); font: var(--typography-hero); letter-spacing: var(--typography-hero-letter-spacing); text-wrap: balance; }
+.hero h1 { margin-top: var(--space-4); font: var(--typography-hero); letter-spacing: var(--typography-hero-letter-spacing); text-wrap: balance; word-break: keep-all; overflow-wrap: anywhere; }
 .hero-sub { margin-top: var(--space-6); font-size: var(--font-size-lg); line-height: var(--font-line-height-body); color: var(--color-role-fg-muted); max-width: var(--size-prose-max); }
 .hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-8); }
 .hero-note { margin-top: var(--space-3); font: var(--typography-caption); color: var(--color-role-fg-muted); }
@@ -297,7 +299,7 @@ html[data-cycle="monthly"] .only-yearly, html[data-cycle="yearly"] .only-monthly
 /* ===== ⑩ CTA ===== */
 .cta { background: var(--color-role-primary); color: var(--color-role-on-primary); }
 .cta .wrap { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; gap: var(--space-12); padding-block: var(--space-16); }
-.cta h2 { font: var(--typography-display-lg); letter-spacing: var(--typography-display-lg-letter-spacing); }
+.cta h2 { font: var(--typography-display-lg); letter-spacing: var(--typography-display-lg-letter-spacing); word-break: keep-all; overflow-wrap: anywhere; }
 .cta p { margin-top: var(--space-3); font: var(--typography-lead); color: var(--color-role-on-primary-muted); }
 .cta-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: flex-end; }
 
@@ -339,11 +341,22 @@ html[data-theme="dark"] .theme-icon-sun { display: block; }
 html:not([data-theme="dark"]) .theme-icon-moon { display: block; }
 
 /* ===== 响应式 ===== */
+@media (max-width: 1439px) {
+  .hero h1 { font: var(--typography-display-lg); letter-spacing: var(--typography-display-lg-letter-spacing); }
+}
 @media (max-width: 1023px) {
-  .hero .wrap { gap: var(--space-12); }
+  .nav .wrap { gap: var(--space-3); }
+  .nav-links, .nav-login, .nav-theme { display: none; }
+  .nav-actions { margin-left: auto; }
+  .nav-burger { display: inline-flex; }
+  .hero { padding-top: calc(var(--size-navbar) + var(--space-12)); padding-bottom: var(--space-16); }
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); gap: var(--space-12); }
   .features-grid, .quotes, .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plan:last-child:nth-child(odd) { grid-column: 1 / -1; width: calc(50% - var(--space-3)); justify-self: center; }
   .logos { grid-template-columns: repeat(3, 1fr); }
-  .foot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cta .wrap { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); padding-block: var(--space-12); }
+  .cta-actions { justify-content: flex-start; }
+  .foot-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-8) var(--space-6); }
   .foot-brand { grid-column: 1 / -1; }
   .sol { gap: var(--space-12); }
 }
@@ -352,13 +365,9 @@ html:not([data-theme="dark"]) .theme-icon-moon { display: block; }
   .sec { padding-block: var(--space-12); }
   .sec-head { margin-bottom: var(--space-8); }
   .sec-head h2 { font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing); }
-  .nav .wrap { gap: var(--space-3); }
-  .nav-links, .nav-login, .nav-theme { display: none; }
-  .nav-actions { margin-left: auto; }
-  .nav-burger { display: inline-flex; }
   .hero { padding-top: calc(var(--size-navbar) + var(--space-10)); padding-bottom: var(--space-12); }
   .hero .wrap { grid-template-columns: minmax(0, 1fr); gap: var(--space-10); }
-  .hero h1 { font: var(--typography-display-lg); letter-spacing: var(--typography-display-lg-letter-spacing); }
+  .hero h1 { word-break: normal; overflow-wrap: normal; }
   .hero-sub { font-size: var(--font-size-md); }
   .hero-actions .btn { flex: 1 1 100%; }
   .hero-art::before { inset: 10% 0 -6% 0; }
@@ -381,9 +390,9 @@ html:not([data-theme="dark"]) .theme-icon-moon { display: block; }
   .cycle { flex-wrap: wrap; margin-top: calc(-1 * var(--space-2)); margin-bottom: var(--space-8); }
   .plans { gap: var(--space-8); }
   .plan { padding: var(--space-6); }
+  .plan:last-child:nth-child(odd) { width: auto; justify-self: stretch; }
   .plan-rec { order: -1; }
-  .cta .wrap { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); padding-block: var(--space-12); }
-  .cta h2 { font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing); }
+  .cta h2 { font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing); word-break: normal; overflow-wrap: normal; }
   .cta-actions { justify-content: stretch; }
   .cta-actions .btn { flex: 1 1 100%; }
   .foot { padding-block: var(--space-12) var(--space-6); }

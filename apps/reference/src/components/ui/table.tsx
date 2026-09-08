@@ -6,8 +6,16 @@ function TableWrap({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="table-wrap" className={cn("relative -mx-6 overflow-x-auto px-6", className)} {...props} />
 }
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
-  return <table data-slot="table" className={cn("w-full border-collapse text-role-body", className)} {...props} />
+/** density=compact：hifi .table.compact —— 行高 table-row-compact（44），td 上下内距 space.1 */
+function Table({ className, density = "default", ...props }: React.ComponentProps<"table"> & { density?: "default" | "compact" }) {
+  return (
+    <table
+      data-slot="table"
+      data-density={density}
+      className={cn("w-full border-collapse text-role-body", density === "compact" && "[&_td]:h-table-row-compact [&_td]:py-1", className)}
+      {...props}
+    />
+  )
 }
 
 function TableHeader(props: React.ComponentProps<"thead">) {
@@ -19,7 +27,7 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
 }
 
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
-  return <tr data-slot="table-row" className={cn("transition-colors duration-(--motion-fast) ease-std hover:[&>td]:bg-bg", className)} {...props} />
+  return <tr data-slot="table-row" className={cn("transition-colors duration-(--motion-fast) ease-std hover:[&>td]:bg-bg aria-selected:[&>td]:bg-primary-soft", className)} {...props} />
 }
 
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {

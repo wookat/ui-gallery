@@ -12,6 +12,8 @@ const relativeDay = new Intl.RelativeTimeFormat("zh-CN", { numeric: "auto" })
 
 /** ¥1,234.00 */
 export const formatCurrency = (n: number) => money.format(n)
+export const currencySymbol = money.formatToParts(0).find((p) => p.type === "currency")?.value ?? currency
+export const formatAmount = (n: number) => money.formatToParts(n).filter((p) => p.type !== "currency").map((p) => p.value).join("")
 /** ¥1,186,420（统计卡大数字，不带分） */
 export const formatCurrencyWhole = (n: number) => moneyWhole.format(n)
 /** 6万 / 4.5万 / 160（图表轴标签） */
@@ -36,6 +38,21 @@ export function formatDateTime(iso: string) {
   }).formatToParts(d)
   const get = (t: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === t)?.value ?? ""
   return `${get("month")}-${get("day")} ${get("hour")}:${get("minute")}`
+}
+
+/** 2026-09-06 16:42（Table 全量时间列） */
+export function formatFullDateTime(iso: string) {
+  const parts = new Intl.DateTimeFormat("zh-CN", {
+    timeZone: zone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(iso))
+  const get = (t: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === t)?.value ?? ""
+  return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}`
 }
 
 /** 09-12 */

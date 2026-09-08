@@ -155,6 +155,101 @@
 | appShell.desktop | ≥1440 · sidebar expanded | AppShell 卡三档说明 |
 | appShell.tablet | 1024 · sidebar rail | |
 | appShell.mobile | ≤768 · 抽屉（Sheet） | |
+| appShell.aria.expanded | 应用壳示意：左侧展开侧栏，顶栏，内容三列 | mini-shell role=img aria-label |
+| appShell.aria.rail | 应用壳示意：左侧图标栏，顶栏，内容三列 | |
+| appShell.aria.drawer | 应用壳示意：抽屉覆盖内容区 | |
+| search.shortcut | / | 顶部搜索右侧 kbd；按「/」聚焦搜索框 |
+| matrix.type | 类型 | 表单控件矩阵行头 |
+| matrix.tone | tone | Tag 矩阵行头 |
+| matrix.usage | 用途 | Tag 矩阵末列 |
+| matrix.textOnly | 纯文字 | Tag 矩阵列 |
+| matrix.withDot | 带圆点 | |
+| matrix.density | 密度 | 行密度矩阵行头 |
+| matrix.example | 示例 | 单列矩阵列头 |
+| matrix.sample | 示例 | 行密度矩阵列 |
+| matrix.iconButton | IconButton | Button 矩阵行 |
+| matrix.shape | 形状 | IconButton 矩阵行头 |
+| matrix.withIcon | 带图标 | Button 尺寸矩阵列 |
+| matrix.block | block | |
+| matrix.expanded | 展开 | IconButton 矩阵列（`aria-expanded`） |
+| matrix.badge | 角标 | IconButton 矩阵列（CountBadge） |
+| caption.button.matrix | 变体 × 状态（size = md） | Button 矩阵 caption |
+| caption.button.size | 尺寸（sm 视觉高 32，hit-area 撑到 40） | |
+| caption.iconButton.matrix | 形状 × 状态（固定 size.hit 正方形，必填 aria-label） | |
+| sample.button.export | 导出 | 带图标按钮 |
+| sample.alert.title.info | 信息 | Alert 标题行 |
+| sample.alert.title.success | 成功 | |
+| sample.alert.title.warning | 警告 | |
+| sample.alert.title.danger | 错误 | |
+| sample.alert.title.neutral | 中性 | |
+| sample.alert.prefsSaved | 通知偏好已保存 | success Alert / Toast 正文 |
+| sample.alert.restock | 去补货 | warning Alert 行内动作 |
+| sample.spinner.syncing | 正在同步… | 按钮内 Spinner |
+| sample.spinner.loadingOrders | 正在加载订单… | 页面级 Spinner |
+| sample.alert.syncFailed | 渠道同步失败：{channel}授权已过期，请重新授权后再同步 | danger Alert 正文；`{channel}` 取 mock/orders-all 渠道名 |
+| sample.alert.reauth | 重新授权 | |
+| sample.alert.lowStock | 「{name}」库存低于安全线，剩余 {n} 件 | warning Alert 正文；取 mock/skus.json lowStock 项 |
+| sample.toast.undo | 撤销 | 静态 Toast（带操作）行内动作 |
+| sample.toast.retry | 重试 | 静态 Toast（danger）行内动作 |
+| caption.toast.static | 静态示例（Toast 变体） | Toast 列 caption |
+| sample.toast.shipped | 已发货 {n} 单 | 静态 Toast（带操作） |
+| sample.toast.shippedDesc | 面单已推送到打印队列 | |
+| sample.toast.syncFailed | 渠道同步失败 | 静态 Toast（danger 重试） |
+| sample.toast.syncFailedDesc | {channel} · 授权已过期 | |
+| sample.toast.exporting | 正在导出 {n} 条订单… | 静态 Toast（loading） |
+| sample.toast.hint | 右下角浮出，4 秒后自动消失；aria-live=polite | 「弹出 Toast」按钮旁说明 |
+| sample.table.caption | 最近订单示例（mock/orders-all.json） | Table 视觉隐藏 caption |
+| sample.table.sortAmount | 按金额排序，当前降序 | 金额列排序按钮 aria-label |
+| sample.table.density | 行密度 | 密度矩阵 caption |
+| sample.table.density.default | table.row 56 | |
+| sample.table.density.compact | table.row-compact 44 | |
+| sample.table.selected | 已选中 | 已选行的视觉隐藏说明 |
+| sample.nav.expanded | expanded（mock/nav.json） | NavItem 演示框 caption |
+| sample.nav.rail | rail（size.sidebar-rail 64，Tooltip 显示名称） | |
+| sample.nav.crumbs | Breadcrumb（长单号 + 折行） | |
+| sample.nav.railAria | 主导航图标栏示例 | |
+| sample.nav.aria | 主导航示例 | |
+| sample.welcome.title | 下午好，{name} | 助理空态问候（hifi） |
+| sample.welcome.body | 问我订单、库存或渠道销售的任何问题，我会基于今日 {time} 的数据快照回答。 | |
+| sample.welcome.suggestionsAria | 建议问题 | |
+| sample.quiet.caption | QuietHours（默认开启 {from}–{to} / 关闭 / 禁用） | |
+| sample.quiet.on | {from}–{to} 仅保留紧急告警 | |
+| sample.quiet.off | 已关闭，全天推送 | |
+| sample.quiet.locked | 由管理员统一设置 | |
+| sample.timePicker.caption | 时段选择（TimePicker × 2） | |
+| sample.timePicker.from | 开始 | |
+| sample.timePicker.to | 结束 | |
+| sample.crumb.settingsAria | 面包屑（设置） | |
+| sample.crumb.invite | 邀请成员加入{workspace}工作区 | 长文案折行示例 |
+| sample.pageHeader.title | 待发货订单 | PageHeader 演示 |
+| sample.pageHeader.meta | {n} 单 · 数据更新于 {time} | |
+| sample.pageHeader.print | 批量打印面单 | 主按钮 |
+| sample.toolbar.channel | 渠道 | 工具条 Select aria-label |
+| sample.toolbar.channelAll | 全部渠道 | |
+| sample.toolbar.filter | 筛选 | 带 CountBadge |
+| sample.toolbar.density | 密度 | Segmented aria-label |
+| sample.toolbar.density.default | 默认 | |
+| sample.toolbar.density.compact | 紧凑 | |
+| sample.toolbar.markShip | 标记发货 | 工具条右侧 ghost 按钮 |
+| sample.pageHeader.crumbs | 面包屑（页头） | PageHeader 演示面包屑 nav aria-label |
+| sample.separator.caption | Separator（水平 / 垂直） | |
+| sample.separator.labels | 张面单 | 「{n} 张面单」 |
+| sample.textDivider.today | 今天 | |
+| sample.kbd.search | 搜索 | Kbd 行说明 |
+| sample.kbd.send | 发送 | |
+| sample.kbd.newline | 换行 | |
+| sample.kbd.close | 关闭 | |
+| sample.kbd.plus | + | |
+| sample.orderCard.caption | OrderCard 375 列表卡（default / hover / selected / 加急） | |
+| sample.orderCard.aria | 订单 {id} | OrderCard role=button aria-label |
+| sample.purchase.caption | PurchaseItemRow（mock/purchase-form.json 草稿 {id}：数量 × 单价 = 小计，含校验错误） | |
+| sample.purchase.aria | 采购商品行 | 列表 aria-label |
+| sample.purchase.qtyMin | 数量至少为 1 | 数量 0 的校验错误 |
+| sample.purchase.remove | 删除 {name} | 行删除按钮 aria-label |
+| sample.purchase.total | 合计 | |
+| sample.spinner.caption | Spinner 尺寸 / 按钮内 / 页面级 | |
+| sample.skeleton.caption | Skeleton：统计卡 / 列表行 | |
+| sample.progress.caption | Progress（mock/tasks.json） | |
 | sectionDesc.typography | display / h1–h3 / body / label / caption / mono — 全部字阶来自 typography.* 复合令牌；字体 Inter Variable + Noto Sans SC Variable，等宽 JetBrains Mono Variable。 | 类别说明（cat-head） |
 | sectionDesc.button | Button 全部 variant × size × state；IconButton。primary / secondary 禁用不降透明度，转 neutral-soft / surface-muted；ghost / danger 禁用用 opacity.disabled；link aria-disabled 保持 link 色 + cursor:not-allowed。 |  |
 | sectionDesc.formControls | Input / PasswordInput / SearchInput / NumberInput / Textarea / Select / Combobox / Checkbox / Radio / Switch / Slider / DatePicker / DateRangePicker / TimePicker / TagInput / OTPInput / FileDropzone / Field。示例数据取 mock/purchase-form.json、suppliers.json、settings.json。 |  |

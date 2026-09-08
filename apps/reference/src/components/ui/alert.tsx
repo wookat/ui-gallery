@@ -1,7 +1,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/cn"
-import { CircleAlertIcon, CircleCheckIcon, InfoIcon, TriangleAlertIcon, XIcon } from "lucide-react"
+import { CircleAlertIcon, CircleCheckIcon, InfoIcon, MessageSquareIcon, TriangleAlertIcon, XIcon } from "lucide-react"
 
 /** 提示条：hifi .alert —— 三列（图标 / 正文 / 关闭），border 与图标取语义色，背景取 *-soft */
 const alertVariants = cva(
@@ -13,13 +13,14 @@ const alertVariants = cva(
         warning: "border-warning bg-warning-soft [&>svg]:text-warning focus-visible:outline-warning",
         success: "border-success bg-success-soft [&>svg]:text-success",
         info: "border-primary bg-primary-soft [&>svg]:text-on-primary-soft",
+        neutral: "border-border bg-surface-muted [&>svg]:text-fg-muted [&_[data-slot=alert-description]]:text-fg-muted",
       },
     },
     defaultVariants: { variant: "danger" },
   },
 )
 
-const icons = { danger: CircleAlertIcon, warning: TriangleAlertIcon, success: CircleCheckIcon, info: InfoIcon }
+const icons = { danger: CircleAlertIcon, warning: TriangleAlertIcon, success: CircleCheckIcon, info: InfoIcon, neutral: MessageSquareIcon }
 
 type AlertProps = React.ComponentProps<"div"> &
   VariantProps<typeof alertVariants> & {
@@ -32,7 +33,7 @@ function Alert({ className, variant, closeLabel, onClose, children, ...props }: 
   return (
     <div role="alert" data-slot="alert" data-variant={variant ?? "danger"} className={cn(alertVariants({ variant }), className)} {...props}>
       <Icon aria-hidden />
-      <div data-slot="alert-body" className="grid gap-2 self-center">
+      <div data-slot="alert-body" className="grid gap-2 self-center [&>[data-slot=alert-title]+[data-slot=alert-description]]:-mt-1">
         {children}
       </div>
       {onClose ? (
@@ -49,6 +50,10 @@ function Alert({ className, variant, closeLabel, onClose, children, ...props }: 
       )}
     </div>
   )
+}
+
+function AlertTitle({ className, ...props }: React.ComponentProps<"strong">) {
+  return <strong data-slot="alert-title" className={cn("text-role-label", className)} {...props} />
 }
 
 function AlertDescription({ className, ...props }: React.ComponentProps<"p">) {
@@ -70,4 +75,4 @@ function AlertAction({ className, ...props }: React.ComponentProps<"button">) {
   )
 }
 
-export { Alert, AlertDescription, AlertAction, alertVariants }
+export { Alert, AlertTitle, AlertDescription, AlertAction, alertVariants }

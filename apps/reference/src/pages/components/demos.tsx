@@ -1,17 +1,28 @@
 import * as React from "react"
-import { cn } from "@/lib/cn"
 import {
   BellIcon,
   BoxIcon,
+  ArrowDownIcon,
   ChevronDownIcon,
+  CircleAlertIcon,
+  CircleCheckIcon,
+  DownloadIcon,
+  InfoIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   MenuIcon,
   MoreHorizontalIcon,
   PackageIcon,
+  ReceiptTextIcon,
+  SettingsIcon,
   ShieldIcon,
+  Trash2Icon,
+  TruckIcon,
   UserIcon,
+  WarehouseIcon,
+  XIcon,
+  ZapIcon,
 } from "lucide-react"
 
 import { Avatar } from "@/components/composed/avatar"
@@ -24,7 +35,7 @@ import { StatCard, StatCardSkeleton, Delta } from "@/components/composed/stat-ca
 import { StateCard } from "@/components/composed/state-card"
 import { TaskItem, type TaskStatus } from "@/components/composed/task-item"
 import { Timeline, TimelineItem, TimelineSkeleton } from "@/components/composed/timeline"
-import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CountBadge, Tag, type Tone } from "@/components/ui/badge"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
@@ -34,21 +45,23 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuHeader, DropdownMenuItem
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field"
 import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
+import { NumberInput } from "@/components/ui/number-input"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Popover, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger } from "@/components/ui/popover"
 import { Progress } from "@/components/ui/progress"
 import { Separator, TextDivider } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
-import { toast } from "@/components/ui/sonner"
 import { Spinner } from "@/components/ui/spinner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { orderStatus, t } from "@/data/content"
-import { channelLabel, mock, navBadge, periods, seriesFor, statFor } from "@/data/mock"
-import { formatCurrency, formatInteger, formatMonthDay, formatPercent, formatTime } from "@/lib/format"
+import { channelLabel, mock, navBadge, navBadgeLabel, navBadgeTone, periods, seriesFor, statFor, type NavItem as NavItemDef } from "@/data/mock"
+import { cn } from "@/lib/cn"
+import { currencySymbol, formatAmount, formatCurrency, formatDateTime, formatFullDateTime, formatInteger, formatMonthDay, formatPercent, formatTime } from "@/lib/format"
 
+import { Dash, demo, DemoBox, GRID_2, GRID_3, K, Matrix, MATRIX_WRAP, Row, Stage, StageCol, STATES, TABLE_TOTAL, type OverlayProps, type State } from "./kit"
 import { ListExtras, TableExtras } from "./round2"
 
 /**
@@ -56,58 +69,12 @@ import { ListExtras, TableExtras } from "./round2"
  * 状态列固定为 default / hover / focus / disabled / loading / error（不适用的列标 —）。
  * hover / focus 通过 data-demo 属性驱动（见 theme.css @custom-variant），截图脚本无需真正移动鼠标。
  */
-const K = (key: string, vars?: Record<string, string | number>) => t(`components.${key}`, vars)
+export { Dash, type OverlayProps } from "./kit"
 
-const STATES = ["default", "hover", "focus", "disabled", "loading", "error"] as const
-type State = (typeof STATES)[number]
-
-export type OverlayProps = { open: string | null; set: (patch: Record<string, string | null>) => void }
-
-/** 一行 = 一个组件变体；列 = 状态 */
-function Matrix({ label, states = STATES, render }: { label: string; states?: readonly State[]; render: (state: State) => React.ReactNode }) {
-  return (
-    <div data-slot="matrix" className="flex flex-col gap-3">
-      <span className="text-role-label text-fg-muted">{label}</span>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(calc(var(--size-sidebar-expanded)*0.75),1fr))] gap-4">
-        {states.map((s) => (
-          <div key={s} data-state-col={s} className="flex min-w-0 flex-col gap-2">
-            <span className="text-role-caption text-fg-muted">{K(`state.${s}`)}</span>
-            <div className="flex min-h-hit items-center [&>*]:min-w-0">{render(s)}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+/** 单变体 × 状态列（旧演示体兼容）：一行矩阵 */
+function StateMatrix({ label, states = STATES, wide, render }: { label: string; states?: readonly State[]; wide?: boolean; render: (state: State) => React.ReactNode }) {
+  return <Matrix caption={label} cols={states} wide={wide} rows={[{ label, render }]} />
 }
-
-function Row({ label, children, cols, wide }: { label: string; children: React.ReactNode; cols?: string[]; wide?: boolean }) {
-  return (
-    <div data-slot="row" className="flex flex-col gap-3">
-      <span className="text-role-label text-fg-muted">{label}</span>
-      {cols ? (
-        <div
-          className={cn(
-            "grid gap-4",
-            wide
-              ? "grid-cols-[repeat(auto-fit,minmax(calc(var(--size-sidebar-expanded)*1.25),1fr))]"
-              : "grid-cols-[repeat(auto-fill,minmax(calc(var(--size-sidebar-expanded)*0.75),1fr))]",
-          )}
-        >
-          {React.Children.map(children, (child, i) => (
-            <div className="flex min-w-0 flex-col gap-2">
-              <span className="text-role-caption text-fg-muted">{cols[i]}</span>
-              <div className="flex min-h-hit items-center [&>*]:min-w-0">{child}</div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-wrap items-center gap-4">{children}</div>
-      )}
-    </div>
-  )
-}
-
-const demo = (s: State) => (s === "hover" || s === "focus" ? s : undefined)
 
 const period = "month"
 const user = mock.user
@@ -116,58 +83,83 @@ const gmv = statFor(period, "gmv")
 const total = series.channels.total
 const donut = series.channels.items.map((c) => ({ key: c.key, label: channelLabel(c.key), value: c.gmv, share: c.share }))
 
+const BTN_STATES = ["default", "hover", "focus", "disabled", "loading"] as const
+const BTN_VARIANTS = ["primary", "secondary", "ghost", "danger", "link"] as const
+const BTN_SIZES = ["sm", "md", "lg"] as const
+const SIZE_COLS = ["primary", "secondary", "withIcon", "block"] as const
+const ICON_COLS = ["default", "hover", "focus", "disabled", "expanded", "badge"] as const
+
 export function ButtonDemo() {
+  const sizeLabel = (size: (typeof BTN_SIZES)[number], col: (typeof SIZE_COLS)[number]) =>
+    size === "lg" ? (col === "primary" || col === "block" ? mock.landing.hero.primary : col === "secondary" ? mock.landing.hero.secondary : K("sample.button.export")) : col === "secondary" ? K("sample.button.secondary") : col === "withIcon" ? K("sample.button.export") : K("sample.button.primary")
   return (
     <>
-        {(["primary", "secondary", "ghost", "danger", "link"] as const).map((variant) => (
-          <Matrix
-            key={variant}
-            label={variant}
-            render={(s) =>
-              s === "error" ? (
-                <Dash />
-              ) : (
-                <Button variant={variant} data-demo={demo(s)} disabled={s === "disabled"} loading={s === "loading"}>
-                  {s === "loading" ? K("sample.button.loading") : K(`sample.button.${variant}`)}
-                </Button>
-              )
-            }
-          />
-        ))}
-        <Row label="size" cols={["sm", "md", "lg", "block"]}>
-          <Button size="sm">{K("sample.button.primary")}</Button>
-          <Button size="md">{K("sample.button.primary")}</Button>
-          <Button size="lg">{K("sample.button.primary")}</Button>
-          <Button block>{t("login.submit")}</Button>
-        </Row>
-        <Matrix
-          label="icon"
-          render={(s) =>
-            s === "error" ? (
+      <Matrix
+        caption={K("caption.button.matrix")}
+        cols={BTN_STATES}
+        rows={BTN_VARIANTS.map((variant) => ({
+          label: variant,
+          mono: `variant="${variant}"`,
+          render: (s: (typeof BTN_STATES)[number]) =>
+            s === "loading" && (variant === "ghost" || variant === "link") ? (
               <Dash />
-            ) : s === "loading" ? (
-              <IconButton label={K("sample.icon.more")} disabled>
-                <Spinner />
-              </IconButton>
             ) : (
-              <IconButton label={K("sample.icon.notifications")} count={mock.notifications.unreadCount} data-demo={demo(s)} disabled={s === "disabled"}>
-                <BellIcon />
+              <Button variant={variant} data-demo={demo(s)} disabled={s === "disabled"} loading={s === "loading"}>
+                {s === "loading" && variant !== "danger" ? K("sample.button.loading") : K(`sample.button.${variant}`)}
+              </Button>
+            ),
+        }))}
+      />
+      <Matrix
+        caption={K("caption.button.size")}
+        head={K("matrix.size")}
+        cols={SIZE_COLS}
+        colLabel={(c) => (c === "withIcon" || c === "block" ? K(`matrix.${c}`) : c)}
+        wide={(c) => c === "block"}
+        rows={BTN_SIZES.map((size) => ({
+          label: size,
+          mono: `size="${size}" · control.${size}`,
+          render: (c: (typeof SIZE_COLS)[number]) => (
+            <Button size={size} variant={c === "secondary" || c === "withIcon" ? "secondary" : "primary"} block={c === "block"}>
+              {c === "withIcon" ? <DownloadIcon /> : null}
+              {sizeLabel(size, c)}
+            </Button>
+          ),
+        }))}
+      />
+    </>
+  )
+}
+
+export function IconButtonDemo() {
+  return (
+    <>
+      <Matrix
+        caption={K("caption.iconButton.matrix")}
+        head={K("matrix.shape")}
+        cols={ICON_COLS}
+        colLabel={(c) => (c === "expanded" || c === "badge" ? K(`matrix.${c}`) : K(`state.${c}`))}
+        rows={(["square", "round"] as const).map((shape) => ({
+          label: shape,
+          mono: `shape="${shape}"`,
+          render: (c: (typeof ICON_COLS)[number]) =>
+            c === "badge" ? (
+              shape === "square" ? (
+                <IconButton label={K("sample.icon.notifications")} count={mock.notifications.unreadCount}>
+                  <BellIcon />
+                </IconButton>
+              ) : (
+                <IconButton label={t("shell.account.aria")} shape="round">
+                  <Avatar initial={user.initial} hue={user.avatarHue} name={user.name} />
+                </IconButton>
+              )
+            ) : (
+              <IconButton label={shape === "square" ? K("sample.icon.more") : K("sample.icon.notifications")} shape={shape} data-demo={demo(c === "expanded" ? "default" : c)} disabled={c === "disabled"} aria-expanded={c === "expanded" || undefined}>
+                {shape === "square" ? <MoreHorizontalIcon /> : <BellIcon />}
               </IconButton>
-            )
-          }
-        />
-        <Row label="icon · round / expanded / more">
-          <IconButton label={t("shell.account.aria")} shape="round">
-            <Avatar initial={user.initial} hue={user.avatarHue} name={user.name} />
-          </IconButton>
-          <IconButton label={t("shell.nav.open")} aria-expanded>
-            <MenuIcon />
-          </IconButton>
-          <IconButton label={t("dashboard.orders.action.menu")}>
-            <MoreHorizontalIcon />
-          </IconButton>
-        </Row>
-      
+            ),
+        }))}
+      />
     </>
   )
 }
@@ -177,8 +169,9 @@ export function InputDemo({ part }: { part: "input" | "field" | "divider" }) {
     <>
         {part === "input" && (
           <>
-        <Matrix
+        <StateMatrix
           label="Input"
+          wide
           render={(s) => (
             <Input
               aria-label={K("sample.input.label")}
@@ -191,13 +184,14 @@ export function InputDemo({ part }: { part: "input" | "field" | "divider" }) {
             />
           )}
         />
-        <Row label="Input · states" cols={[K("state.readonly"), "type=email", "type=search"]}>
+        <Row label="Input · states" wide cols={[K("state.readonly"), "type=email", "type=search"]}>
           <Input readOnly defaultValue={user.email} aria-label={t("login.email.label")} />
           <Input type="email" placeholder={t("login.email.placeholder")} aria-label={t("login.email.label")} />
           <SearchInput placeholder={t("shell.search.placeholder")} aria-label={t("shell.search.aria")} shortcut="⌘K" />
         </Row>
-        <Matrix
+        <StateMatrix
           label="PasswordInput"
+          wide
           states={["default", "hover", "focus", "disabled", "error"]}
           render={(s) => (
             <PasswordInput
@@ -249,7 +243,7 @@ export function InputDemo({ part }: { part: "input" | "field" | "divider" }) {
 export function CheckboxDemo() {
   return (
     <>
-        <Matrix
+        <StateMatrix
           label="Checkbox"
           states={["default", "hover", "focus", "disabled", "error"]}
           render={(s) => (
@@ -266,26 +260,73 @@ export function CheckboxDemo() {
   )
 }
 
-export function AlertDemo() {
+const LOW_STOCK_SKU = mock.skus.items.find((k) => k.lowStock) ?? mock.skus.items[0]
+const SYNC_CHANNEL = channelLabel("douyin")
+const SHIPPED_TOAST_N = mock.ordersAll.filter((o) => o.status === "shipped").length
+
+function StaticToast({ role = "status", icon, title, description, action, close }: { role?: "status" | "alert"; icon?: React.ReactNode; title: string; description?: string; action?: string; close?: boolean }) {
   return (
-    <>
-        <Row label="Alert" wide cols={[K("state.error"), K("state.warning"), K("state.success"), K("state.info")]}>
-          <Alert variant="danger" closeLabel={K("sample.toast.close")} onClose={() => {}}>
-            <AlertDescription>{t("login.alert.invalid")}</AlertDescription>
-          </Alert>
-          <Alert variant="warning">
-            <AlertDescription>{t("login.alert.network")}</AlertDescription>
-            <AlertAction>{t("dashboard.error.retry")}</AlertAction>
-          </Alert>
-          <Alert variant="success">
-            <AlertDescription>{t("login.toast.success", { name: user.shortName })}</AlertDescription>
-          </Alert>
-          <Alert variant="info">
-            <AlertDescription>{t("dashboard.error.help")}</AlertDescription>
-          </Alert>
-        </Row>
-      
-    </>
+    <div role={role} className="flex w-fit max-w-full items-center gap-3 rounded-lg border bg-surface-raised py-2 pr-2 pl-4 text-role-label text-fg shadow-lg">
+      {icon}
+      <span className="flex min-w-0 flex-col wrap-anywhere">
+        {title}
+        {description ? <span className="text-role-caption text-fg-muted">{description}</span> : null}
+      </span>
+      {action ? (
+        <Button variant="ghost" size="sm" className="ml-2">
+          {action}
+        </Button>
+      ) : null}
+      {close ? (
+        <IconButton label={K("sample.toast.close")}>
+          <XIcon />
+        </IconButton>
+      ) : null}
+    </div>
+  )
+}
+
+export function AlertDemo({ set }: Pick<OverlayProps, "set">) {
+  return (
+    <div className={GRID_2}>
+      <StageCol>
+        <Alert variant="info" closeLabel={K("sample.toast.close")} onClose={() => {}}>
+          <AlertTitle>{K("sample.alert.title.info")}</AlertTitle>
+          <AlertDescription>{mock.notifications.items.find((n) => n.type === "announcement")?.title}</AlertDescription>
+        </Alert>
+        <Alert variant="success" closeLabel={K("sample.toast.close")} onClose={() => {}}>
+          <AlertTitle>{K("sample.alert.title.success")}</AlertTitle>
+          <AlertDescription>{K("sample.alert.prefsSaved")}</AlertDescription>
+        </Alert>
+        <Alert variant="warning">
+          <AlertTitle>{K("sample.alert.title.warning")}</AlertTitle>
+          <AlertDescription>{K("sample.alert.lowStock", { name: LOW_STOCK_SKU.name, n: LOW_STOCK_SKU.stock })}</AlertDescription>
+          <AlertAction>{K("sample.alert.restock")}</AlertAction>
+        </Alert>
+        <Alert variant="danger">
+          <AlertTitle>{K("sample.alert.title.danger")}</AlertTitle>
+          <AlertDescription>{K("sample.alert.syncFailed", { channel: SYNC_CHANNEL })}</AlertDescription>
+          <AlertAction>{K("sample.alert.reauth")}</AlertAction>
+        </Alert>
+        <Alert variant="neutral">
+          <AlertTitle>{K("sample.alert.title.neutral")}</AlertTitle>
+          <AlertDescription>{mock.chat.assistant.disclaimer}</AlertDescription>
+        </Alert>
+      </StageCol>
+      <StageCol>
+        <StaticToast icon={<CircleCheckIcon className="size-icon-md shrink-0 text-success" />} title={K("sample.alert.prefsSaved")} close />
+        <StaticToast icon={<InfoIcon className="size-icon-md shrink-0 text-primary" />} title={K("code.copied")} />
+        <StaticToast icon={<CircleCheckIcon className="size-icon-md shrink-0 text-success" />} title={K("sample.toast.shipped", { n: SHIPPED_TOAST_N })} description={K("sample.toast.shippedDesc")} action={K("sample.toast.undo")} close />
+        <StaticToast role="alert" icon={<CircleAlertIcon className="size-icon-md shrink-0 text-danger" />} title={K("sample.toast.syncFailed")} description={K("sample.toast.syncFailedDesc", { channel: SYNC_CHANNEL })} action={K("sample.toast.retry")} close />
+        <StaticToast icon={<Spinner />} title={K("sample.toast.exporting", { n: formatInteger(TABLE_TOTAL) })} />
+        <Stage>
+          <Button variant="secondary" onClick={() => set({ toast: "1" })}>
+            {K("sample.toast.open")}
+          </Button>
+          <span className="text-role-caption text-fg-muted">{K("sample.toast.hint")}</span>
+        </Stage>
+      </StageCol>
+    </div>
   )
 }
 
@@ -444,7 +485,7 @@ export function CardDemo({ part }: { part: "card" | "stat" | "state" }) {
 export function TabsDemo() {
   return (
     <>
-        <Matrix
+        <StateMatrix
           label="Tabs"
           states={["default", "hover", "focus", "disabled"]}
           render={(s) => (
@@ -469,65 +510,104 @@ export function TabsDemo() {
   )
 }
 
-export function NavDemo() {
-  return (
-    <>
-        <Matrix
-          label="NavItem"
-          states={["default", "hover", "focus", "disabled"]}
-          render={(s) => (
-            <div className="w-full">
-              {s === "disabled" ? (
-                <NavItem href="#nav" icon={BoxIcon} label={mock.nav[2].items[0].label} disabledTip={t("shell.nav.disabled.tip")} />
-              ) : (
-                <NavItem href="#nav" icon={PackageIcon} label={mock.nav[1].items[0].label} count={navBadge(mock.nav[1].items[0])} data-demo={demo(s)} />
-              )}
-            </div>
-          )}
-        />
-        <Row label="NavItem · active / rail / group" cols={[K("state.active"), "rail", "rail · active", "group"]}>
-          <div className="w-full">
-            <NavItem href="#nav" icon={LayoutDashboardIcon} label={mock.nav[0].items[0].label} active />
-          </div>
-          <NavItem href="#nav" icon={PackageIcon} label={mock.nav[1].items[0].label} count={navBadge(mock.nav[1].items[0])} rail />
-          <NavItem href="#nav" icon={LayoutDashboardIcon} label={mock.nav[0].items[0].label} active rail />
-          <div className="w-full">
-            <NavGroupLabel>{mock.nav[0].groupLabel}</NavGroupLabel>
-            <NavItem href="#nav" icon={LayoutDashboardIcon} label={mock.nav[0].items[0].label} />
-          </div>
-        </Row>
-        <Row label="Brand">
-          <div className="flex items-center gap-3">
-            <BrandMark />
-            <div className="leading-none">
-              <strong className="block text-role-label">{t("shell.brand")}</strong>
-              <span className="text-role-caption text-fg-muted">{user.workspace.name}</span>
-            </div>
-          </div>
-        </Row>
-        <Row label="Breadcrumb">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="#nav">{t("shell.breadcrumb.root")}</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{t("shell.breadcrumb.current")}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </Row>
+const TABLE_IDS = ["SO-20260906-0043", "SO-20260906-0108", "SO-20260906-0104", "SO-20260906-0107"]
+const TABLE_ROWS = TABLE_IDS.flatMap((id) => mock.ordersAll.filter((o) => o.id === id))
 
-      
-    </>
+const navItem = (key: string) => mock.nav.flatMap((g): NavItemDef[] => g.items).find((i) => i.key === key)
+const NAV_ITEMS = [
+  { item: navItem("dashboard"), icon: LayoutDashboardIcon, active: true, state: "default" },
+  { item: navItem("orders"), icon: ReceiptTextIcon, active: false, state: "hover" },
+  { item: navItem("inventory"), icon: WarehouseIcon, active: false, state: "focus" },
+  { item: navItem("purchasing"), icon: TruckIcon, active: false, state: "disabled" },
+  { item: navItem("settings"), icon: SettingsIcon, active: false, state: "default" },
+].flatMap(({ item, ...rest }) => (item ? [{ item, ...rest }] : []))
+const navGroupOf = (key: string) => mock.nav.find((g) => g.items.some((i) => i.key === key))
+const NAV_GROUPS = [
+  { group: navGroupOf("dashboard"), items: NAV_ITEMS.slice(0, 4) },
+  { group: navGroupOf("settings"), items: NAV_ITEMS.slice(4) },
+].flatMap(({ group, items }) => (group ? [{ group, items }] : []))
+
+function DemoNavItem({ item, icon, active, state, rail }: (typeof NAV_ITEMS)[number] & { rail?: boolean }) {
+  return (
+    <NavItem
+      href="#navigation"
+      icon={icon}
+      label={item.label}
+      active={active}
+      rail={rail}
+      count={navBadge(item)}
+      countTone={navBadgeTone(item)}
+      countLabel={navBadgeLabel(item)}
+      disabledTip={state === "disabled" ? t("shell.nav.disabled.tip") : undefined}
+      data-demo={state === "hover" || state === "focus" ? demo(state) : undefined}
+    />
   )
 }
 
-const overlayLabel = { dialog: "Tooltip", menu: "Popover / DropdownMenu", sheet: "Sheet", toast: "Toast" } as const
-const overlayCols: Record<keyof typeof overlayLabel, string[]> = { dialog: ["Tooltip"], menu: ["Popover", "DropdownMenu"], sheet: ["Sheet"], toast: ["Toast"] }
+export function NavDemo() {
+  return (
+    <div className={GRID_3}>
+      <DemoBox caption={K("sample.nav.expanded")}>
+        <nav aria-label={K("sample.nav.aria")} className="flex w-full flex-col">
+          {NAV_GROUPS.map(({ group, items }) => (
+            <React.Fragment key={group.group}>
+              <NavGroupLabel>{group.groupLabel}</NavGroupLabel>
+              {items.map((n) => (
+                <DemoNavItem key={n.item.key} {...n} />
+              ))}
+            </React.Fragment>
+          ))}
+        </nav>
+      </DemoBox>
+      <DemoBox caption={K("sample.nav.rail")}>
+        <nav aria-label={K("sample.nav.railAria")} className="flex w-sidebar-rail flex-col items-center">
+          {NAV_ITEMS.map((n) => (
+            <DemoNavItem key={n.item.key} {...n} rail state={n.state === "focus" ? "default" : n.state} />
+          ))}
+        </nav>
+      </DemoBox>
+      <DemoBox caption={K("sample.nav.crumbs")}>
+        <Breadcrumb aria-label={K("sample.pageHeader.crumbs")}>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#navigation">{t("orders.title")}</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#navigation" data-demo="hover">
+                {orderStatus.pending_shipment?.label}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="font-mono">{TABLE_IDS[0]}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Breadcrumb aria-label={K("sample.crumb.settingsAria")}>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#navigation">{t("settings.title")}</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#navigation">{t("settings.team.title")}</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{K("sample.crumb.invite", { workspace: user.workspace.name })}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </DemoBox>
+    </div>
+  )
+}
 
-export function OverlayDemo({ open, set, part }: OverlayProps & { part: "dialog" | "menu" | "sheet" | "toast" }) {
+const overlayLabel = { dialog: "Tooltip", menu: "Popover / DropdownMenu", sheet: "Sheet" } as const
+const overlayCols: Record<keyof typeof overlayLabel, string[]> = { dialog: ["Tooltip"], menu: ["Popover", "DropdownMenu"], sheet: ["Sheet"] }
+
+export function OverlayDemo({ open, set, part }: OverlayProps & { part: "dialog" | "menu" | "sheet" }) {
   return (
     <>
         <Row label={overlayLabel[part]} cols={overlayCols[part]}>
@@ -637,12 +717,6 @@ export function OverlayDemo({ open, set, part }: OverlayProps & { part: "dialog"
             </SheetContent>
           </Sheet>
           )}
-
-          {part === "toast" && (
-          <Button variant="secondary" size="sm" onClick={() => toast.success(t("login.toast.success", { name: user.shortName }))}>
-            {K("sample.toast.open")}
-          </Button>
-          )}
         </Row>
 
       
@@ -650,105 +724,202 @@ export function OverlayDemo({ open, set, part }: OverlayProps & { part: "dialog"
   )
 }
 
+const DENSITY_ROW = mock.ordersAll.find((o) => o.id === "SO-20260906-0099") ?? mock.ordersAll[0]
+
+function DensityTable({ density }: { density: "default" | "compact" }) {
+  const st = orderStatus[DENSITY_ROW.status]
+  return (
+    <Table density={density} className="w-auto min-w-[calc(var(--size-content-max)/4)]">
+      <TableBody>
+        <TableRow>
+          <TableCell className="font-mono text-role-caption">{DENSITY_ROW.id}</TableCell>
+          <TableCell>{DENSITY_ROW.customer.name}</TableCell>
+          <TableCell className="text-right tabular-nums">{formatCurrency(DENSITY_ROW.amount)}</TableCell>
+          <TableCell>{st ? <Tag tone={st.tone}>{st.label}</Tag> : DENSITY_ROW.status}</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  )
+}
+
+const byId = (id: string) => mock.ordersAll.find((o) => o.id === id)
+/** hifi 三张卡：default / hover / selected + 加急（chat 屏「SO-20260903-0087 改加急」后的状态） */
+const ORDER_CARDS = [
+  { order: byId("SO-20260906-0108"), state: "default", urgent: false },
+  { order: byId("SO-20260906-0043"), state: "hover", urgent: false },
+  { order: byId("SO-20260903-0087"), state: "selected", urgent: true },
+].flatMap(({ order, ...rest }) => (order ? [{ order, ...rest }] : []))
+
+const PO = mock.purchaseForm.draft
+const [PO_QTY_MIN, PO_QTY_MAX] = mock.purchaseForm.validation.qtyRange
+/** 最后一行数量置 0 演示 qtyRange 校验错误 */
+const PURCHASE_ROWS = PO.items.map((item, i) => ({ item, qty: i === PO.items.length - 1 ? 0 : item.qty }))
+
 export function TableDemo({ part }: { part: "table" | "order" }) {
   return (
     <>
         {part === "table" && (
           <>
-        <Row label="Table">
-          <TableWrap className="w-full">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("dashboard.orders.col.id")}</TableHead>
-                  <TableHead>{t("dashboard.orders.col.customer")}</TableHead>
-                  <TableHead>{t("dashboard.orders.col.items")}</TableHead>
-                  <TableHead className="text-right">{t("dashboard.orders.col.amount")}</TableHead>
-                  <TableHead>{t("dashboard.orders.col.channel")}</TableHead>
-                  <TableHead>{t("dashboard.orders.col.status")}</TableHead>
-                  <TableHead>{t("dashboard.orders.col.time")}</TableHead>
-                  <TableHead>
-                    <span className="sr-only">{t("dashboard.orders.col.actions")}</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mock.orders.slice(0, 4).map((o, i) => {
-                  const st = orderStatus[o.status]
-                  return (
-                    <TableRow key={o.id} data-demo={i === 1 ? "hover" : undefined}>
-                      <TableCell className="font-mono text-role-caption">{o.id}</TableCell>
-                      <TableCell>
-                        <span className="flex items-center gap-2">
-                          <Avatar size="sm" initial={o.customer.initial} hue={o.customer.avatarHue} name={o.customer.name} />
-                          {o.customer.name}
-                        </span>
-                      </TableCell>
-                      <TableCell className="max-w-form-max truncate whitespace-normal">
-                        {o.items[0].name} ×{o.items[0].qty}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">{formatCurrency(o.amount)}</TableCell>
-                      <TableCell>{channelLabel(o.channel)}</TableCell>
-                      <TableCell>{st ? <Tag tone={st.tone}>{st.label}</Tag> : o.status}</TableCell>
-                      <TableCell className="tabular-nums text-fg-muted">
-                        {formatMonthDay(o.placedAt)} {formatTime(o.placedAt)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <IconButton label={t("dashboard.orders.action.menu")}>
-                          <MoreHorizontalIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </TableWrap>
-        </Row>
-        <Row label="Table · loading">
-          <div className="flex w-full flex-col gap-3">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="grid grid-cols-[1fr_2fr_1fr_1fr] gap-4">
-                <Skeleton className="h-4" />
-                <Skeleton className="h-4" />
-                <Skeleton className="h-4" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-            ))}
-          </div>
-        </Row>
+            <TableWrap className={cn(MATRIX_WRAP, "w-auto")}>
+              <Table>
+                <caption className="sr-only">{K("sample.table.caption")}</caption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-hit">
+                      <span className="sr-only">{t("orders.col.select")}</span>
+                    </TableHead>
+                    <TableHead>{t("dashboard.orders.col.id")}</TableHead>
+                    <TableHead>{t("dashboard.orders.col.customer")}</TableHead>
+                    <TableHead>{t("dashboard.orders.col.items")}</TableHead>
+                    <TableHead className="text-right">
+                      <button type="button" aria-pressed aria-label={K("sample.table.sortAmount")} className="inline-flex h-hit items-center gap-1 rounded-sm text-fg hover:text-primary">
+                        {t("dashboard.orders.col.amount")}
+                        <ArrowDownIcon aria-hidden className="size-icon-sm" />
+                      </button>
+                    </TableHead>
+                    <TableHead>{t("dashboard.orders.col.status")}</TableHead>
+                    <TableHead>{t("dashboard.orders.col.time")}</TableHead>
+                    <TableHead>
+                      <span className="sr-only">{t("dashboard.orders.col.actions")}</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {TABLE_ROWS.map((o, i) => {
+                    const st = orderStatus[o.status]
+                    return (
+                      <TableRow key={o.id} aria-selected={i === 0 || undefined} data-demo={i === 1 ? "hover" : undefined}>
+                        <TableCell>
+                          <Checkbox checked={i === 0} aria-label={t("orders.col.selectRow", { id: o.id })} />
+                        </TableCell>
+                        <TableCell className="font-mono text-role-caption">{o.id}</TableCell>
+                        <TableCell>
+                          <span className="flex items-center gap-2 whitespace-nowrap">
+                            <Avatar size="sm" initial={o.customer.initial} hue={o.customer.avatarHue} name={o.customer.name} />
+                            {o.customer.name}
+                          </span>
+                        </TableCell>
+                        <TableCell className="max-w-form-max truncate text-fg-muted">{o.items.map((it) => `${it.name} ×${it.qty}`).join("、")}</TableCell>
+                        <TableCell className="text-right tabular-nums">{formatCurrency(o.amount)}</TableCell>
+                        <TableCell>{st ? <Tag tone={st.tone}>{st.label}</Tag> : o.status}</TableCell>
+                        <TableCell className="tabular-nums whitespace-nowrap text-fg-muted">{formatFullDateTime(o.placedAt)}</TableCell>
+                        <TableCell className="text-right">
+                          <IconButton label={t("dashboard.orders.action.menu")}>
+                            <MoreHorizontalIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </TableWrap>
+            <p className="hidden text-role-caption text-fg-muted mobile:block">{K("sample.table.mobileHint")}</p>
+            <Matrix
+              caption={K("sample.table.density")}
+              head={K("matrix.density")}
+              cols={["example"] as const}
+              colLabel={() => K("matrix.example")}
+              wide
+              rows={(["default", "compact"] as const).map((d) => ({
+                label: d,
+                mono: K(`sample.table.density.${d}`),
+                render: () => <DensityTable density={d} />,
+              }))}
+            />
           </>
         )}
         {part === "order" && (
-          <>
-        <Row label="OrderCard (375)">
-          <div className="grid w-full gap-3 md:grid-cols-2">
-            {mock.orders.slice(0, 2).map((o) => {
-              const st = orderStatus[o.status]
-              return (
-                <Card key={o.id} className="grid grid-cols-[1fr_auto] gap-y-2 p-4">
-                  <span className="font-mono text-role-caption text-fg-muted">{o.id}</span>
-                  {st ? <Tag tone={st.tone}>{st.label}</Tag> : null}
-                  <span className="flex items-center gap-2 text-role-label">
-                    <Avatar size="sm" initial={o.customer.initial} hue={o.customer.avatarHue} name={o.customer.name} />
-                    {o.customer.name}
-                  </span>
-                  <strong className="text-role-label tabular-nums">{formatCurrency(o.amount)}</strong>
-                  <span className="col-span-full truncate text-fg-muted">
-                    {o.items[0].name} ×{o.items[0].qty}
-                  </span>
-                  <span className="col-span-full flex items-center justify-between text-role-caption text-fg-muted">
-                    {channelLabel(o.channel)} · {formatMonthDay(o.placedAt)} {formatTime(o.placedAt)}
-                    <IconButton label={t("dashboard.orders.action.menu")} className="-mr-2">
-                      <MoreHorizontalIcon />
-                    </IconButton>
-                  </span>
-                </Card>
-              )
-            })}
+          <div className={GRID_3}>
+            <DemoBox caption={K("sample.orderCard.caption")}>
+              {ORDER_CARDS.map(({ order: o, state, urgent }) => {
+                const st = orderStatus[o.status]
+                const isToday = o.placedAt.slice(0, 10) === mock.meta.asOf.slice(0, 10)
+                return (
+                  <div
+                    key={o.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={state === "selected"}
+                    aria-label={K("sample.orderCard.aria", { id: o.id })}
+                    data-demo={state === "hover" ? "hover" : undefined}
+                    className="flex w-full max-w-form-max flex-col gap-2 rounded-md border bg-surface py-3 pr-3 pl-4 text-left transition-[border-color,box-shadow] duration-(--motion-fast) ease-std hover:border-border-strong hover:shadow-sm aria-pressed:border-primary aria-pressed:shadow-[inset_0_0_0_var(--border-width-hairline)_var(--color-role-primary)]"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="min-w-0 flex-1 truncate font-mono">{o.id}</span>
+                      {urgent ? (
+                        <span className="inline-flex shrink-0 items-center gap-1 text-role-caption font-medium whitespace-nowrap text-danger">
+                          <ZapIcon aria-hidden className="size-icon-sm" />
+                          {t("orders.urgent")}
+                        </span>
+                      ) : null}
+                      {st ? (
+                        <Tag tone={st.tone} dot className="shrink-0">
+                          {st.label}
+                        </Tag>
+                      ) : null}
+                    </span>
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="max-w-3/5 shrink-0 truncate text-role-label">{o.customer.name}</span>
+                      <span className="min-w-0 truncate text-fg-muted">{o.items.map((it) => `${it.name} ×${it.qty}`).join("、")}</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <span className="shrink-0 text-role-title tabular-nums">{formatCurrency(o.amount)}</span>
+                      <span className="ml-auto min-w-0 truncate text-right text-role-caption text-fg-muted">
+                        {[channelLabel(o.channel), isToday ? formatTime(o.placedAt) : formatDateTime(o.placedAt), o.stockout ? t("orders.stockout") : null].filter(Boolean).join(" · ")}
+                      </span>
+                    </span>
+                  </div>
+                )
+              })}
+            </DemoBox>
+            <DemoBox caption={K("sample.purchase.caption", { id: PO.poNumber })} className="col-span-2 mobile:col-span-1">
+              <div role="list" aria-label={K("sample.purchase.aria")} className="flex w-full flex-col">
+                {PURCHASE_ROWS.map(({ item, qty }) => {
+                  const invalid = qty < PO_QTY_MIN
+                  const errId = invalid ? `pi-err-${item.sku}` : undefined
+                  return (
+                    <div key={item.sku} role="listitem" className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_var(--size-hit)] items-center gap-3 border-b border-border py-2 last:border-b-0 mobile:grid-cols-[minmax(0,1fr)_var(--size-hit)] mobile:[&>*]:col-span-full mobile:[&>:first-child]:col-span-1 mobile:[&>:first-child]:col-start-1 mobile:[&>:first-child]:row-start-1 mobile:[&>[data-slot=remove]]:col-span-1 mobile:[&>[data-slot=remove]]:col-start-2 mobile:[&>[data-slot=remove]]:row-start-1">
+                      <span className="flex min-w-0 flex-col">
+                        <strong className="truncate text-role-label">{item.name}</strong>
+                        <span className="font-mono text-role-caption text-fg-muted">{item.sku}</span>
+                      </span>
+                      <NumberInput
+                        value={qty}
+                        min={PO_QTY_MIN}
+                        max={PO_QTY_MAX}
+                        onChange={() => {}}
+                        aria-label={t("form.items.col.qty")}
+                        aria-invalid={invalid || undefined}
+                        aria-describedby={errId}
+                        decrementLabel={K("sample.number.dec")}
+                        incrementLabel={K("sample.number.inc")}
+                      />
+                      <span className="relative w-[calc(var(--size-hit)*2.5)] mobile:w-full">
+                        <span aria-hidden className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-fg-muted">
+                          {currencySymbol}
+                        </span>
+                        <Input value={formatAmount(item.unitPrice)} onChange={() => {}} inputMode="decimal" aria-label={t("form.items.col.unitPrice")} className="pl-8 tabular-nums" />
+                      </span>
+                      <span className="min-w-[calc(var(--size-hit)*2.5)] text-right text-role-label tabular-nums whitespace-nowrap mobile:text-left">{formatCurrency(qty * item.unitPrice)}</span>
+                      <IconButton data-slot="remove" label={K("sample.purchase.remove", { name: item.name })}>
+                        <Trash2Icon />
+                      </IconButton>
+                      {invalid ? (
+                        <FieldError id={errId} className="col-span-full">
+                          {K("sample.purchase.qtyMin")}
+                        </FieldError>
+                      ) : null}
+                    </div>
+                  )
+                })}
+              </div>
+              <Stage end>
+                <span className="text-role-caption text-fg-muted">{K("sample.purchase.total")}</span>
+                <span className="text-role-title tabular-nums">{formatCurrency(PURCHASE_ROWS.reduce((sum, r) => sum + r.qty * r.item.unitPrice, 0))}</span>
+              </Stage>
+            </DemoBox>
           </div>
-        </Row>
-          </>
         )}
         {part === "table" && <TableExtras />}
       
@@ -886,6 +1057,3 @@ export function FeedbackDemo() {
   )
 }
 
-export function Dash() {
-  return <span aria-hidden className="text-fg-disabled">—</span>
-}

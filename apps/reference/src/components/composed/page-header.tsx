@@ -10,16 +10,18 @@ type PageHeaderProps = React.ComponentProps<"header"> & {
   actions?: React.ReactNode
   /** 标题右侧的 Tag / 计数 */
   extra?: React.ReactNode
+  /** 标题标签级别（屏幕页头 h1；嵌入演示区块时降级保持 heading-order） */
+  headingLevel?: "h1" | "h2" | "h3" | "h4"
 }
 
 /** 页头：hifi .page-header —— 标题 heading 字阶 + caption 描述，右侧动作；375 纵向堆叠 */
-function PageHeader({ title, description, breadcrumb, actions, extra, className, ...props }: PageHeaderProps) {
+function PageHeader({ title, description, breadcrumb, actions, extra, headingLevel: Heading = "h1", className, ...props }: PageHeaderProps) {
   return (
     <header data-slot="page-header" className={cn("flex flex-wrap items-start justify-between gap-4", className)} {...props}>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {breadcrumb}
         <div className="flex min-h-hit flex-wrap items-center gap-3">
-          <h1 className="text-role-heading wrap-anywhere">{title}</h1>
+          <Heading className="text-role-heading wrap-anywhere">{title}</Heading>
           {extra}
         </div>
         {description ? <p className="text-role-body text-fg-muted">{description}</p> : null}

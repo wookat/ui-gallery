@@ -1,9 +1,9 @@
 import * as React from "react"
-import { DownloadIcon, LayoutGridIcon, ListIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react"
+import { LayoutGridIcon, ListIcon, MoreHorizontalIcon } from "lucide-react"
 
 import { ChatBubble, Composer, ConversationItem, SourceChip, SuggestionChip, ToolCall } from "@/components/composed/chat"
 import { CodeBlock } from "@/components/composed/code-block"
-import { PageHeader, Toolbar, ToolbarGroup, ToolbarSpacer } from "@/components/composed/page-header"
+import { PageHeader, Toolbar, ToolbarSpacer } from "@/components/composed/page-header"
 import { PricingCard } from "@/components/composed/pricing-card"
 import { Result } from "@/components/composed/result"
 import { SearchInput } from "@/components/composed/search-input"
@@ -20,7 +20,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Tag } from "@/components/ui/badge"
+import { CountBadge, Tag } from "@/components/ui/badge"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Calendar, DatePicker } from "@/components/ui/calendar"
 import { Combobox } from "@/components/ui/combobox"
@@ -36,67 +37,29 @@ import { Pagination } from "@/components/ui/pagination"
 import { RadioField, RadioGroup } from "@/components/ui/radio-group"
 import { Segmented, SegmentedItem } from "@/components/ui/segmented"
 import { Select } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { Slider, SliderValues } from "@/components/ui/slider"
 import { Switch, SwitchField } from "@/components/ui/switch"
 import { TagInput } from "@/components/ui/tag-input"
 import { CharCounter, Textarea } from "@/components/ui/textarea"
 import { orderStatus, t } from "@/data/content"
-import { mock } from "@/data/mock"
-import { formatCurrency, formatCurrencyWhole, formatInteger, formatMonthDay, formatTime } from "@/lib/format"
+import { channelLabel, mock } from "@/data/mock"
+import { formatCurrency, formatCurrencyWhole, formatDateTime, formatInteger, formatMonthDay, formatTime } from "@/lib/format"
+
+import { bind, demo, DemoBox, K, Matrix as KitMatrix, Row, TABLE_PAGE_COUNT, TABLE_PAGE_SIZE, TABLE_TOTAL, type OverlayProps, type State } from "./kit"
 
 /**
  * /kitchen-sink 第 2 轮追加区块（orders / form / settings / components / landing / chat 六屏所需控件）。
  * 文案：components.* / 各屏 content；数据：mock（purchaseForm / suppliers / settings / landing / chat / ordersSummary）。
  * 浮层由 ?open=dialog|alert|drawer|combobox|date 展开（shots.json）。
  */
-const K = (key: string, vars?: Record<string, string | number>) => t(`components.${key}`, vars)
-const C = (key: string, vars?: Record<string, string | number>) => t(`components.${key}`, vars)
+const C = K
 
 const STATES = ["default", "hover", "focus", "disabled", "error"] as const
-type State = (typeof STATES)[number]
-const demo = (s: State) => (s === "hover" || s === "focus" ? s : undefined)
 
-type OverlayProps = { open: string | null; set: (patch: Record<string, string | null>) => void }
-const bind = ({ open, set }: OverlayProps, id: string) => ({
-  open: open === id || undefined,
-  onOpenChange: (o: boolean) => set({ open: o ? id : null }),
-})
-
-/** 与 index.tsx 同构的行 / 矩阵（列 = 状态） */
-function Matrix({ label, states = STATES, render }: { label: string; states?: readonly State[]; render: (state: State) => React.ReactNode }) {
-  return (
-    <div data-slot="matrix" className="flex flex-col gap-3">
-      <span className="text-role-label text-fg-muted">{label}</span>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(calc(var(--size-sidebar-expanded)*0.75),1fr))] gap-4">
-        {states.map((s) => (
-          <div key={s} data-state-col={s} className="flex min-w-0 flex-col gap-2">
-            <span className="text-role-caption text-fg-muted">{K(`state.${s}`)}</span>
-            <div className="flex min-h-hit items-center [&>*]:min-w-0">{render(s)}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function Row({ label, children, cols, wide }: { label: string; children: React.ReactNode; cols?: string[]; wide?: boolean }) {
-  return (
-    <div data-slot="row" className="flex flex-col gap-3">
-      <span className="text-role-label text-fg-muted">{label}</span>
-      {cols ? (
-        <div className={wide ? "grid gap-4 grid-cols-[repeat(auto-fit,minmax(calc(var(--size-sidebar-expanded)*1.25),1fr))]" : "grid gap-4 grid-cols-[repeat(auto-fill,minmax(calc(var(--size-sidebar-expanded)*0.75),1fr))]"}>
-          {React.Children.map(children, (child, i) => (
-            <div className="flex min-w-0 flex-col gap-2">
-              <span className="text-role-caption text-fg-muted">{cols[i]}</span>
-              <div className="flex min-h-hit items-start [&>*]:min-w-0">{child}</div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-wrap items-center gap-4">{children}</div>
-      )}
-    </div>
-  )
+/** 单行状态矩阵（列 = 状态） */
+function Matrix({ label, states = STATES, wide, render }: { label: string; states?: readonly State[]; wide?: boolean; render: (state: State) => React.ReactNode }) {
+  return <KitMatrix caption={label} cols={states} wide={wide} rows={[{ label, render }]} />
 }
 
 const today = mock.meta.asOf.slice(0, 10)
@@ -126,6 +89,7 @@ export function FormControlsSection({ part, ...overlay }: OverlayProps & { part:
         <>
       <Matrix
         label="Textarea"
+        wide
         render={(s) => (
           <Textarea aria-label={t("form.note.label")} placeholder={t("form.note.placeholder")} defaultValue={s === "default" ? undefined : note} data-demo={demo(s)} disabled={s === "disabled"} aria-invalid={s === "error" || undefined} rows={2} />
         )}
@@ -153,6 +117,7 @@ export function FormControlsSection({ part, ...overlay }: OverlayProps & { part:
         <>
       <Matrix
         label="Select"
+        wide
         render={(s) => (
           <Select defaultValue={s === "default" ? undefined : form.deliverySlots[0].key} placeholder={C("sample.select.placeholder")} disabled={s === "disabled"} invalid={s === "error"} aria-label={t("form.slot.label")} data-demo={demo(s)}>
             {form.deliverySlots.map((o) => (
@@ -165,6 +130,7 @@ export function FormControlsSection({ part, ...overlay }: OverlayProps & { part:
       />
       <Matrix
         label="Combobox"
+        wide
         render={(s) => (
           <Combobox
             options={supplierOptions}
@@ -421,24 +387,17 @@ export function NavExtras({ part }: { part: "tabs" | "menu" }) {
 
 /* ---------------- 表格追加：Pagination ---------------- */
 export function TableExtras() {
-  const { total } = mock.ordersSummary
-  const size = mock.ordersSummary.pagination.defaultPageSize
-  const pageCount = Math.ceil(total / size)
-  const samplePages = Math.ceil(mock.ordersAll.length / size)
-  const [page, setPage] = React.useState(2)
+  const [page, setPage] = React.useState(1)
   const labels = { prev: t("orders.pagination.prev"), next: t("orders.pagination.next"), page: (n: number) => t(n === page ? "orders.pagination.current" : "orders.pagination.page", { n }) }
   return (
-    <Row label="Pagination">
-      <Pagination
-        aria-label={t("orders.pagination.aria")}
-        page={page}
-        pageCount={pageCount}
-        onPageChange={setPage}
-        labels={labels}
-        isPageDisabled={(n) => n > samplePages}
-        range={t("orders.pagination.range", { from: formatInteger((page - 1) * size + 1), to: formatInteger(Math.min(page * size, total)), total: formatInteger(total) })}
-      />
-    </Row>
+    <Pagination
+      aria-label={K("sample.pagination.aria")}
+      page={page}
+      pageCount={TABLE_PAGE_COUNT}
+      onPageChange={setPage}
+      labels={labels}
+      range={t("orders.pagination.range", { from: formatInteger((page - 1) * TABLE_PAGE_SIZE + 1), to: formatInteger(Math.min(page * TABLE_PAGE_SIZE, TABLE_TOTAL)), total: formatInteger(TABLE_TOTAL) })}
+    />
   )
 }
 
@@ -475,59 +434,60 @@ export function ListExtras() {
 
 /* ---------------- 布局：PageHeader / Toolbar ---------------- */
 export function LayoutSection() {
-  const [view, setView] = React.useState("list")
+  const [density, setDensity] = React.useState("default")
+  const pendingCount = mock.ordersSummary.byStatus.pending_shipment
+  const appliedFilters = [mock.ordersSummary.scope.label, orderStatus.pending_shipment?.label].filter(Boolean)
   return (
-    <>
-      <Row label="PageHeader">
-        <PageHeader
-          className="w-full"
-          title={t("orders.title")}
-          description={t("orders.subtitle", { time: formatTime(mock.meta.asOf) })}
-          extra={<Tag tone="neutral">{t("orders.pagination.range", { from: 1, to: mock.ordersSummary.pagination.defaultPageSize, total: formatInteger(mock.ordersSummary.total) })}</Tag>}
-          actions={
-            <>
-              <Button variant="secondary">
-                <DownloadIcon />
-                {t("orders.export")}
-              </Button>
-              <Button>
-                <PlusIcon />
-                {t("chat.sidebar.new")}
-              </Button>
-            </>
-          }
-        />
-      </Row>
-      <Row label="Toolbar">
-        <Toolbar aria-label={K("sample.toolbar.aria")}>
-          <ToolbarGroup>
-            <SearchInput placeholder={t("orders.search.placeholder")} aria-label={t("orders.search.placeholder")} className="w-form-max max-w-full" />
-            <Select defaultValue="all" aria-label={t("orders.filter.status")} wrapClassName="w-auto">
-              <option value="all">{t("orders.filter.status.all")}</option>
-              {Object.entries(orderStatus).map(([key, s]) => (
-                <option key={key} value={key}>
-                  {s.label}
-                </option>
-              ))}
-            </Select>
-          </ToolbarGroup>
-          <ToolbarSpacer />
-          <ToolbarGroup>
-            <Segmented type="single" value={view} onValueChange={(v) => v && setView(v)} aria-label={C("sample.segmented.aria")}>
-              <SegmentedItem value="list" data-icon aria-label={K("sample.segmented.list")}>
-                <ListIcon />
-              </SegmentedItem>
-              <SegmentedItem value="cards" data-icon aria-label={K("sample.segmented.cards")}>
-                <LayoutGridIcon />
-              </SegmentedItem>
-            </Segmented>
-            <IconButton label={K("sample.icon.more")}>
-              <MoreHorizontalIcon />
-            </IconButton>
-          </ToolbarGroup>
-        </Toolbar>
-      </Row>
-    </>
+    <DemoBox className="w-full">
+      <PageHeader
+        className="w-full"
+        headingLevel="h4"
+        breadcrumb={
+          <Breadcrumb aria-label={K("sample.pageHeader.crumbs")}>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#layout">{t("orders.title")}</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{orderStatus.pending_shipment?.label}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        }
+        title={K("sample.pageHeader.title")}
+        description={K("sample.pageHeader.meta", { n: formatInteger(pendingCount), time: formatDateTime(mock.meta.asOf) })}
+        actions={
+          <>
+            <Button variant="secondary">{t("orders.export")}</Button>
+            <Button>{K("sample.pageHeader.print")}</Button>
+          </>
+        }
+      />
+      <Toolbar aria-label={K("sample.toolbar.aria")} className="w-full">
+        <SearchInput placeholder={t("orders.search.placeholder")} aria-label={t("orders.search.placeholder")} className="w-form-max max-w-full" />
+        <Select defaultValue="all" aria-label={K("sample.toolbar.channel")} wrapClassName="w-auto">
+          <option value="all">{K("sample.toolbar.channelAll")}</option>
+          {Object.entries(mock.ordersSummary.byChannel).map(([key]) => (
+            <option key={key} value={key}>
+              {channelLabel(key)}
+            </option>
+          ))}
+        </Select>
+        <Button variant="secondary">
+          {K("sample.toolbar.filter")}
+          {appliedFilters.length > 0 ? <CountBadge>{appliedFilters.length}</CountBadge> : null}
+        </Button>
+        <Separator orientation="vertical" className="h-icon-md" />
+        <Segmented type="single" value={density} onValueChange={(v) => v && setDensity(v)} aria-label={K("sample.toolbar.density")}>
+          <SegmentedItem value="default">{K("sample.toolbar.density.default")}</SegmentedItem>
+          <SegmentedItem value="compact">{K("sample.toolbar.density.compact")}</SegmentedItem>
+        </Segmented>
+        <ToolbarSpacer />
+        <span className="text-role-caption text-fg-muted">{t("orders.selection.count", { n: 1 })}</span>
+        <Button variant="ghost">{K("sample.toolbar.markShip")}</Button>
+      </Toolbar>
+    </DemoBox>
   )
 }
 

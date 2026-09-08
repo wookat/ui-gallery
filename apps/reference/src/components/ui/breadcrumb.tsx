@@ -21,7 +21,7 @@ function BreadcrumbLink({ className, asChild, ...props }: React.ComponentProps<"
   return (
     <Comp
       data-slot="breadcrumb-link"
-      className={cn("inline-flex min-h-hit items-center rounded-sm text-fg-muted transition-colors duration-(--motion-fast) ease-std hover:text-fg hover:no-underline", className)}
+      className={cn("hit-area inline-flex min-h-hit items-center rounded-sm text-fg-muted transition-colors duration-(--motion-fast) ease-std hover:text-fg hover:no-underline", className)}
       {...props}
     />
   )

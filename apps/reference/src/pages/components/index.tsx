@@ -1,25 +1,28 @@
 import * as React from "react"
 import { useSearchParams } from "react-router-dom"
 import { cn } from "@/lib/cn"
-import { ArrowUpIcon, ChevronDownIcon, MonitorIcon, MoonIcon, SearchXIcon, SunIcon } from "lucide-react"
+import { ArrowUpIcon, ChartPieIcon, ChevronDownIcon, ClockAlertIcon, ClockIcon, MonitorIcon, MoonIcon, PackageSearchIcon, SearchXIcon, SparklesIcon, SunIcon, ZapIcon } from "lucide-react"
 
 import { BrandMark } from "@/components/composed/brand"
 import { CodeBlock } from "@/components/composed/code-block"
 import { SearchInput } from "@/components/composed/search-input"
-import { EmptyFigure } from "@/components/composed/state-card"
 import { SuggestionChip } from "@/components/composed/chat"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import { Segmented, SegmentedItem } from "@/components/ui/segmented"
 import { Select } from "@/components/ui/select"
+import { toast } from "@/components/ui/sonner"
 import { Switch } from "@/components/ui/switch"
 import { useTheme, type Theme } from "@/components/theme-provider"
 import { t } from "@/data/content"
 import { channelLabel, mock } from "@/data/mock"
-import { formatCurrency, formatCurrencyWhole, formatDateTime } from "@/lib/format"
-import { useBelowWidth } from "@/lib/media"
+import { formatCurrency, formatCurrencyWhole, formatDateTime, formatTime } from "@/lib/format"
+import { tokenMs, useBelowWidth } from "@/lib/media"
 
-import { AlertDemo, AvatarDemo, ButtonDemo, CardDemo, ChartDemo, CheckboxDemo, FeedbackDemo, InputDemo, ListDemo, NavDemo, OverlayDemo, TabsDemo, TableDemo, TagDemo } from "./demos"
+import { AlertDemo, AvatarDemo, ButtonDemo, CardDemo, ChartDemo, CheckboxDemo, FeedbackDemo, IconButtonDemo, InputDemo, ListDemo, NavDemo, OverlayDemo, TabsDemo, TableDemo, TagDemo } from "./demos"
+import { DemoBox, GRID_2, GRID_3, MATRIX_ROW, MATRIX_ROW_TH, MATRIX_TD, MATRIX_TH, MATRIX_WRAP, Stage, StageCol } from "./kit"
 import { ComposedSection, FormControlsSection, LayoutSection, NavExtras, OverlayExtras } from "./round2"
 import { snippets, type Snippet } from "./snippets"
 
@@ -80,12 +83,6 @@ const TYPE_SAMPLES: Record<(typeof TYPE_ROLES)[number][0], string> = {
   code: `${mock.orders[0].id} · ${mock.purchaseForm.poNumberNext}`,
 }
 
-const MATRIX_WRAP = "-mx-6 overflow-x-auto px-6 mobile:-mx-4 mobile:px-4"
-const MATRIX_TH = "h-table-header whitespace-nowrap px-3 text-left align-middle text-role-caption font-medium text-fg-muted first:pl-0 last:pr-0"
-const MATRIX_ROW = "border-b border-border last:border-b-0"
-const MATRIX_ROW_TH = "py-3 pr-3 text-left align-middle whitespace-nowrap text-role-label"
-const MATRIX_TD = "px-3 py-3 align-middle whitespace-nowrap last:pr-0"
-
 function TypographyDemo() {
   return (
     <>
@@ -106,15 +103,16 @@ function TypographyDemo() {
                   {role}
                   <span className="block font-mono text-role-caption font-regular text-fg-muted">typography.{role}</span>
                 </th>
-                <td className={cn(MATRIX_TD, "w-full", cls)}>{TYPE_SAMPLES[role]}</td>
+                <td className={cn(MATRIX_TD, "w-full min-w-[calc(var(--size-content-max)/5)]")}>
+                  <span className={cn("block max-w-[calc(var(--size-content-max)/2)] truncate mobile:max-w-[calc(var(--size-content-max)/6)]", cls)}>{TYPE_SAMPLES[role]}</span>
+                </td>
                 <td className={cn(MATRIX_TD, "text-role-caption text-fg-muted")}>{K(`type.usage.${role}`)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="flex flex-col gap-2 rounded-md border border-border bg-bg p-4">
-        <span className="text-role-caption text-fg-muted">{K("type.hierarchy")}</span>
+      <DemoBox caption={K("type.hierarchy")} className="gap-2 self-stretch">
         <p className="text-role-title">{HIERARCHY_ORDER.items[0].name}</p>
         <p className="text-role-body">
           {HIERARCHY_ORDER.items.map((it) => `${it.name} ×${it.qty}`).join("、")} — {formatCurrency(HIERARCHY_ORDER.amount)}
@@ -122,7 +120,7 @@ function TypographyDemo() {
         <p className="text-role-caption text-fg-muted">
           {formatDateTime(HIERARCHY_ORDER.placedAt)} · {channelLabel(HIERARCHY_ORDER.channel)} · {HIERARCHY_ORDER.warehouse}
         </p>
-      </div>
+      </DemoBox>
     </>
   )
 }
@@ -185,24 +183,23 @@ const swatchUsage = (name: string) => {
 }
 
 const SWATCH = "h-[calc(var(--size-hit)+var(--space-2))]"
-const SCROLL_MT = "scroll-mt-[calc(var(--size-topbar)+var(--size-hit)+var(--space-6))] mobile:scroll-mt-[calc(var(--size-hit)*2+var(--size-control-md)+var(--space-8)+var(--space-4))]"
+const SCROLL_MT = "scroll-mt-[calc(var(--size-topbar)+var(--size-hit)+var(--space-8))] mobile:scroll-mt-[calc(var(--size-hit)*2+var(--size-control-md)+var(--space-8)+var(--space-4))]"
 
 function ColorDemo() {
   return (
     <>
       {SWATCH_GROUPS.map((g) => (
-        <div key={g.key} className="flex flex-col gap-3 rounded-md border border-border bg-bg p-4">
-          <span className="text-role-caption text-fg-muted">{K(`swatch.group.${g.key}`)}</span>
-          <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(calc(var(--size-content-max)/10),1fr))] gap-3">
+        <DemoBox key={g.key} caption={K(`swatch.group.${g.key}`)}>
+          <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(calc(var(--size-content-max)/8),1fr))] gap-3 mobile:grid-cols-3">
             {g.items.map(([name, cls]) => (
-              <div key={name} className="flex min-w-0 flex-col gap-1">
+              <div key={name} className="flex min-w-0 flex-col gap-2">
                 <i aria-hidden className={cn("block rounded-md border border-border", SWATCH, cls)} />
                 <b className="truncate font-mono text-role-caption font-regular text-fg">{name}</b>
                 <span className="truncate text-role-caption text-fg-muted">{swatchUsage(name)}</span>
               </div>
             ))}
           </div>
-        </div>
+        </DemoBox>
       ))}
     </>
   )
@@ -276,30 +273,76 @@ function ScaleDemo() {
   )
 }
 
-function OnboardingDemo() {
-  const { emptyState, suggestions } = mock.chat
-  const quiet = mock.settings.notifications.quietHours
-  const [enabled, setEnabled] = React.useState(quiet.enabled)
+const SUGGESTION_ICONS: Record<string, typeof SunIcon> = {
+  "package-search": PackageSearchIcon,
+  "clock-alert": ClockAlertIcon,
+  zap: ZapIcon,
+  "chart-pie": ChartPieIcon,
+}
+const SUGGESTION_STATES = ["default", "hover", "focus", "disabled"] as const
+
+function QuietRow({ hint, checked, state }: { hint: string; checked: boolean; state: "default" | "hover" | "disabled" }) {
+  const title = t("settings.notifications.quiet.title")
   return (
-    <div className="grid w-full gap-6 lg:grid-cols-2">
-      <div className="flex flex-col items-center gap-4 rounded-md border border-dashed border-border-strong p-4 text-center">
-        <EmptyFigure />
-        <h4 className="text-role-heading">{emptyState.title}</h4>
-        <p className="max-w-prose-max text-fg-muted">{emptyState.description}</p>
-        <div className="flex flex-wrap justify-center gap-2">
-          {suggestions.map((s) => (
-            <SuggestionChip key={s.key}>{s.label}</SuggestionChip>
-          ))}
+    <div aria-disabled={state === "disabled" || undefined} className="grid w-full max-w-form-max grid-cols-[var(--size-avatar-md)_minmax(0,1fr)_auto] items-center gap-3 rounded-md bg-surface-muted px-4 py-3 mobile:grid-cols-[var(--size-avatar-md)_minmax(0,1fr)]">
+      <span aria-hidden className="inline-flex size-avatar-md shrink-0 items-center justify-center rounded-full bg-neutral-soft text-on-neutral-soft">
+        <MoonIcon className="size-icon-md" />
+      </span>
+      <span className="flex min-w-0 flex-col">
+        <strong className="text-role-label font-medium">{title}</strong>
+        <span className="text-role-caption text-fg-muted tabular-nums">{hint}</span>
+      </span>
+      <Switch defaultChecked={checked} aria-label={title} disabled={state === "disabled"} data-demo={state === "hover" ? "hover" : undefined} className="mobile:col-start-2 mobile:justify-self-start" />
+    </div>
+  )
+}
+
+function OnboardingDemo() {
+  const quiet = mock.settings.notifications.quietHours
+  const asOf = formatTime(mock.meta.asOf)
+  return (
+    <div className={GRID_2}>
+      <DemoBox>
+        <div className="flex w-full flex-col items-center gap-3 px-6 py-8 text-center">
+          <span aria-hidden className="inline-flex size-control-lg shrink-0 items-center justify-center rounded-full bg-neutral-soft text-on-neutral-soft">
+            <SparklesIcon className="size-icon-md" />
+          </span>
+          <h4 className="text-role-heading">{K("sample.welcome.title", { name: mock.user.name })}</h4>
+          <p className="max-w-form-max text-fg-muted">{K("sample.welcome.body", { time: asOf })}</p>
+          <div aria-label={K("sample.welcome.suggestionsAria")} className="mt-2 flex flex-wrap justify-center gap-2">
+            {mock.chat.suggestions.map((sg, i) => {
+              const Icon = SUGGESTION_ICONS[sg.icon]
+              const st = SUGGESTION_STATES[i] ?? "default"
+              return (
+                <SuggestionChip key={sg.key} disabled={st === "disabled"} data-demo={st === "hover" || st === "focus" ? st : undefined} className="[&_svg]:text-primary">
+                  {Icon ? <Icon aria-hidden /> : null}
+                  {sg.label}
+                </SuggestionChip>
+              )
+            })}
+          </div>
         </div>
-      </div>
-      <div className="flex items-start gap-3 rounded-md border p-4">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="text-role-label">{t("settings.notifications.quiet.title")}</span>
-          <span className="text-role-caption text-fg-muted">{t("settings.notifications.quiet.description")}</span>
-          <span className="font-mono text-role-caption text-fg-muted tabular-nums">{t("settings.notifications.quiet.range", { from: quiet.from, to: quiet.to })}</span>
-        </div>
-        <Switch checked={enabled} onCheckedChange={setEnabled} aria-label={t("settings.notifications.quiet.title")} />
-      </div>
+      </DemoBox>
+      <StageCol>
+        <DemoBox caption={K("sample.quiet.caption", { from: quiet.from, to: quiet.to })}>
+          <QuietRow hint={K("sample.quiet.on", { from: quiet.from, to: quiet.to })} checked state="default" />
+          <QuietRow hint={K("sample.quiet.off")} checked={false} state="hover" />
+          <QuietRow hint={K("sample.quiet.locked")} checked state="disabled" />
+        </DemoBox>
+        <DemoBox caption={K("sample.timePicker.caption")}>
+          <Stage>
+            {(["from", "to"] as const).map((k) => (
+              <Field key={k}>
+                <FieldLabel htmlFor={`quiet-${k}`}>{K(`sample.timePicker.${k}`)}</FieldLabel>
+                <span className="relative w-[calc(var(--size-content-max)/10)]">
+                  <Input id={`quiet-${k}`} defaultValue={quiet[k]} inputMode="numeric" className="pr-10 tabular-nums" />
+                  <ClockIcon aria-hidden className="pointer-events-none absolute top-1/2 right-3 size-icon-md -translate-y-1/2 text-fg-muted" />
+                </span>
+              </Field>
+            ))}
+          </Stage>
+        </DemoBox>
+      </StageCol>
     </div>
   )
 }
@@ -315,7 +358,7 @@ function Demo({ id, overlay }: { id: string; overlay: Overlay }) {
     case "button":
       return <ButtonDemo />
     case "iconbutton":
-      return <FeedbackDemo />
+      return <IconButtonDemo />
     case "input":
       return (
         <>
@@ -365,10 +408,7 @@ function Demo({ id, overlay }: { id: string; overlay: Overlay }) {
       return <ComposedSection part="md" />
     case "alert":
       return (
-        <>
-          <AlertDemo />
-          <OverlayDemo part="toast" {...overlay} />
-        </>
+<AlertDemo set={overlay.set} />
       )
     case "loading":
       return <FeedbackDemo />
@@ -435,27 +475,38 @@ function Demo({ id, overlay }: { id: string; overlay: Overlay }) {
 /** AppShell 三档缩略（hifi .mini-shell）：expanded / rail / drawer */
 function ShellDemo() {
   const modes = [
-    { key: "appShell.desktop", side: "w-[calc(var(--size-sidebar-expanded)*0.6)]", drawer: false },
-    { key: "appShell.tablet", side: "w-sidebar-rail", drawer: false },
-    { key: "appShell.mobile", side: "w-[calc(var(--size-sidebar-drawer)*0.6)]", drawer: true },
+    { key: "appShell.desktop", aria: "appShell.aria.expanded", side: "w-[calc(var(--size-sidebar-expanded)*0.6)] tablet:w-[calc(var(--size-sidebar-expanded)*0.45)]", drawer: false },
+    { key: "appShell.tablet", aria: "appShell.aria.rail", side: "w-sidebar-rail", drawer: false },
+    { key: "appShell.mobile", aria: "appShell.aria.drawer", side: "w-[calc(var(--size-sidebar-drawer)*0.6)]", drawer: true },
   ]
+  const item = "block size-6 rounded-sm bg-neutral-soft"
   return (
-    <div className="grid w-full gap-4 lg:grid-cols-3">
+    <div className={GRID_3}>
       {modes.map((m) => (
-        <figure key={m.key} className="flex min-w-0 flex-col gap-2">
-          <div className="relative flex h-empty-figure w-full overflow-hidden rounded-lg border bg-bg">
-            <div className={cn("flex shrink-0 flex-col gap-2 border-r bg-surface p-3", m.side, m.drawer && "absolute inset-y-0 left-0 z-10 shadow-lg")}>
-              <i aria-hidden className="mb-2 block size-6 rounded-sm bg-primary" />
-              <i aria-hidden className="block h-6 rounded-sm bg-primary-soft" />
-              <i aria-hidden className="block h-6 rounded-sm bg-neutral-soft" />
-              <i aria-hidden className="block h-6 rounded-sm bg-neutral-soft" />
+        <DemoBox key={m.key} caption={K(m.key)}>
+          <div role="img" aria-label={K(m.aria)} className="relative flex h-[calc(var(--size-chart-trend)*3/4)] w-full overflow-hidden rounded-lg border bg-bg">
+            <div
+              className={cn(
+                "flex shrink-0 flex-col gap-2 border-r bg-surface p-3",
+                m.side,
+                m.drawer ? "absolute inset-y-0 left-0 z-10 shadow-lg [&>i]:w-auto" : "items-center",
+                m.key === "appShell.desktop" && "items-stretch [&>i]:w-auto",
+              )}
+            >
+              <i aria-hidden className={cn(item, "mb-2 bg-primary")} />
+              <i aria-hidden className={cn(item, "bg-primary-soft")} />
+              <i aria-hidden className={item} />
+              <i aria-hidden className={item} />
+              <i aria-hidden className={item} />
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="flex h-control-lg items-center gap-2 border-b bg-surface px-3">
                 <i aria-hidden className="block h-3 w-16 rounded-full bg-neutral-soft" />
                 <i aria-hidden className="ml-auto block size-6 rounded-full bg-neutral-soft" />
               </div>
-              <div className="grid grid-cols-2 gap-2 p-3">
+              <div className={cn("grid content-start gap-2 p-3", m.drawer ? "grid-cols-2" : "grid-cols-4 tablet:grid-cols-2")}>
+                <i aria-hidden className="block h-12 rounded-md border bg-surface" />
+                <i aria-hidden className="block h-12 rounded-md border bg-surface" />
                 <i aria-hidden className="block h-12 rounded-md border bg-surface" />
                 <i aria-hidden className="block h-12 rounded-md border bg-surface" />
                 <i aria-hidden className="col-span-full block h-20 rounded-md border bg-surface" />
@@ -463,8 +514,7 @@ function ShellDemo() {
             </div>
             {m.drawer ? <span aria-hidden className="absolute inset-0 bg-overlay" /> : null}
           </div>
-          <figcaption className="text-role-caption text-fg-muted">{K(m.key)}</figcaption>
-        </figure>
+        </DemoBox>
       ))}
     </div>
   )
@@ -583,6 +633,42 @@ export default function ComponentsPage() {
   )
   const overlay: Overlay = { open: params.get("open"), set }
 
+  const toastQ = params.get("toast")
+  const hold = params.get("hold") === "1"
+  React.useEffect(() => {
+    if (toastQ !== "1") return
+    const clear = () =>
+      setParams(
+        (prev) => {
+          const next = new URLSearchParams(prev)
+          next.delete("toast")
+          next.delete("hold")
+          return next
+        },
+        { replace: true },
+      )
+    const id = toast.success(K("sample.alert.prefsSaved"), {
+      duration: hold ? Infinity : tokenMs("--timing-toast-stay"),
+      onDismiss: clear,
+      onAutoClose: clear,
+    })
+    return () => {
+      toast.dismiss(id)
+    }
+  }, [toastQ, hold, setParams])
+
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return
+      const el = e.target instanceof HTMLElement ? e.target : null
+      if (el && (el.closest("input, textarea, select, [contenteditable=true]") || el.isContentEditable)) return
+      e.preventDefault()
+      document.getElementById("searchInput")?.focus()
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [])
+
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({})
   const isExpanded = (id: string) => expanded[id] ?? openAll
   const toggle = (id: string) => setExpanded((e) => ({ ...e, [id]: !isExpanded(id) }))
@@ -628,14 +714,26 @@ export default function ComponentsPage() {
             <h1 className="text-role-title whitespace-nowrap">{K("title")}</h1>
           </div>
           <span className="inline-flex h-chip items-center gap-1 rounded-full bg-surface-muted px-3 text-role-caption whitespace-nowrap text-fg-muted mobile:hidden">
-            {K("version", { version: K("versionValue"), count: componentCount })}
+            {K("version")
+              .split(/(\{version\}|\{count\})/)
+              .map((part, i) =>
+                part === "{version}" || part === "{count}" ? (
+                  <span key={i} className="font-mono text-fg">
+                    {part === "{version}" ? K("versionValue") : componentCount}
+                  </span>
+                ) : (
+                  part
+                ),
+              )}
           </span>
           <SearchInput
+            id="searchInput"
             value={q}
             onChange={(e) => set({ q: e.target.value })}
             placeholder={K("search.placeholder")}
             aria-label={K("search.placeholder")}
-            className="tablet:w-[calc(var(--size-content-max)/6)] mobile:order-3 mobile:w-full mobile:basis-full"
+            shortcut={K("search.shortcut")}
+            className="w-[calc(var(--size-content-max)/4)] tablet:w-[calc(var(--size-content-max)/6)] mobile:order-3 mobile:w-full mobile:basis-full"
           />
           <div className="ml-auto flex items-center gap-2">
             <Segmented type="single" value={theme} onValueChange={(v) => v && setTheme(v as Theme)} aria-label={K("theme.aria")}>
@@ -672,7 +770,7 @@ export default function ComponentsPage() {
                 className="inline-flex h-hit items-center gap-2 rounded-md px-3 text-role-label whitespace-nowrap text-fg-muted transition-colors duration-(--motion-fast) ease-std hover:bg-surface-muted hover:text-fg aria-[current=true]:bg-primary-soft aria-[current=true]:text-on-primary-soft"
               >
                 {K(`section.${c.key}`)}
-                <span className="font-mono text-role-caption tabular-nums text-fg-muted">{String(i + 1).padStart(2, "0")}</span>
+                <span className="text-role-caption tabular-nums">{String(i + 1).padStart(2, "0")}</span>
               </a>
             ))
           )}

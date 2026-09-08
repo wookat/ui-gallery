@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="zh-CN" data-state="default" data-cycle="monthly">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>高保真 · landing（/landing）· Acme Console</title>
+<!--
+  阶段 3 高保真稿（frontend-0to1-ai 步骤 3）。后续 apps/reference/src/pages/landing 实现的唯一视觉标准。
+  输入：docs/frontend/00-brief.md §11（landing 条目）、docs/frontend/01-ia.md §9.5 / §10.5 / §11-F、design/wireframes/landing.html、design/tokens.css（f37ffb6）。
+  规则：
+  · 样式只引用 ../../tokens.css 变量：本文件样式块内 0 个色值 / px / 字面字号 / rgb()，标记内 0 个 inline style（check.mjs 静态检查；@media 条件只用 tokens.breakpoint）。
+  · 内容：标题 / 特性 / 分屏 / 数据 / 定价 / 评价 / FAQ / Footer 全部逐字来自 mock/landing.json（check.mjs 逐条断言）；
+    结构性标签与 aria 来自 content/landing.md（data-key 标注）；主题按钮 aria-label 复用 content/dashboard.md 的 shell.theme.*；
+    不可达项 Tooltip 复用 shell.nav.disabled.tip（后续轮次提供）/ landing.footer.links.disabled（演示站点，链接不可用）。
+    分屏③「助理」抽象图里的问答数字（胡桃木床头柜 QM-NS-WAL-2D · 缺货延迟 14 单 · 来源 SO-20260903-0087）与 mock/chat.json c_1 一致；
+    分屏①表格里的状态 Tag 文案复用 dashboard.status.*。
+  · 定价 = mock/settings.json billing.plans 同价（99 / 299 / 899 月付，990 / 2990 / 8990 年付；年付「折合 ¥n / 月」= yearly ÷ 12，保留两位）。
+  · 图标：Lucide（ISC，inline SVG symbol，stroke=currentColor）。字体：OFL 的 Inter Variable / Noto Sans SC Variable / JetBrains Mono Variable
+    （来自 apps/shadcn-ui 依赖 @fontsource-variable/*，需先 pnpm install --filter shadcn-ui；未安装时回退系统字体栈，check.mjs 截基准图前会断言三者已加载）。
+  · 插画：Hero 右侧 dashboard 与三段分屏配图均为纯 CSS/SVG 抽象图（令牌色，无位图、无截图），role="img" + aria-label，内部装饰 aria-hidden。
+  · 可达性：所有可点元素实际热区 ≥ size.hit（40）；focus-visible 统一 focus-ring 双环；Sheet 为 role=dialog（aria-modal，Esc / 遮罩关闭，焦点进出）；
+    FAQ 用 <details name="faq"> 原生单开 Accordion（§11-F，默认展开第 1 项）；月 / 年切换为 role=switch（aria-checked）+ 两侧 aria-pressed 文字按钮。
+  · 不可达（IA §10.5「本轮不可达」）：免费试用 / 开始试用 / 联系销售 / 预约演示 / 查看完整功能对比 / 没找到答案？联系我们 / 全部 Footer 链接与社交入口
+    → aria-disabled + Tooltip，按 tokens 契约保持 primary / fg / link 本色 + cursor:not-allowed（不用 fg-disabled，它只给不可聚焦的 disabled 控件）。
+    「登录」→ ../login/index.html（同目录 login 高保真稿）。
+  URL 参数（供审查与截图；见 check.mjs）：
+  · ?state=default|scrolled   default：Navbar 透明叠在 Hero 渐变上；scrolled：Navbar 实底 surface + hairline + shadow.sm（不传参时按 scrollY 自动切换）。
+  · ?cycle=monthly|yearly     定价三卡价格 + 后缀（/ 月 ↔ / 年）+「折合 ¥n / 月」同步切换；Switch aria-checked 同步。
+  · ?open=menu                Sheet（<768：汉堡打开；≥768 亦可预览）成为第一层，背景 overlay，body 锁滚动。
+  · ?theme=light|dark         显式主题（<html data-theme>）；不传则跟随系统（tokens.css 已处理）。Navbar / Sheet 内主题按钮可即时切换。
+  断点：≥1024 三列 / 双栏；768–1023 两列；<768 单列（Navbar 只留 Logo + 试用 + 汉堡，Hero 图下移，分屏图上文下，Footer 链接两列）。
+-->
+<link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/inter/index.css">
+<link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/noto-sans-sc/index.css">
+<link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/jetbrains-mono/index.css">
+<link rel="stylesheet" href="../../tokens.css" />
+<style>
+/* ===== 基础 ===== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--size-navbar) + var(--space-4)); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0s !important; } }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font: var(--typography-body); letter-spacing: var(--typography-body-letter-spacing);
+  color: var(--color-role-fg); background: var(--color-role-surface);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+html[data-open="menu"] body { overflow: hidden; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+a { color: var(--color-role-link); text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; }
+svg.i { width: var(--size-icon-md); height: var(--size-icon-md); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+svg.i.sm { width: var(--size-icon-sm); height: var(--size-icon-sm); }
+svg.i.lg { width: var(--size-icon-lg); height: var(--size-icon-lg); }
+.sr-only { position: absolute; width: var(--border-width-hairline); height: var(--border-width-hairline); padding: 0; margin: calc(-1 * var(--border-width-hairline)); overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:focus-visible { outline: var(--border-width-focus) solid var(--color-role-focus-ring); outline-offset: var(--border-focus-offset); border-radius: var(--radius-xs); }
+.num { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-family-mono); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+
+/* ===== 布局 ===== */
+.wrap { width: 100%; max-width: calc(var(--size-marketing-max) + var(--space-6) * 2); margin-inline: auto; padding-inline: var(--space-6); }
+.sec { padding-block: var(--space-20); }
+.sec-alt { background: var(--color-role-bg); }
+.sec-head { max-width: var(--size-prose-max); margin: 0 auto var(--space-12); text-align: center; }
+.eyebrow { font: var(--typography-eyebrow); letter-spacing: var(--typography-eyebrow-letter-spacing); color: var(--color-role-primary); text-transform: uppercase; }
+.sec-head h2 { margin-top: var(--space-3); font: var(--typography-display-lg); letter-spacing: var(--typography-display-lg-letter-spacing); }
+.sec-head p { margin-top: var(--space-4); font: var(--typography-lead); color: var(--color-role-fg-muted); }
+.skip { position: absolute; top: var(--space-2); left: var(--space-2); z-index: 100; transform: translateY(-200%); display: inline-flex; align-items: center; min-height: var(--size-hit); background: var(--color-role-surface); color: var(--color-role-link); font: var(--typography-label); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); box-shadow: var(--shadow-md); }
+.skip:focus-visible { transform: none; }
+
+/* ===== 控件 ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: var(--size-control-md); padding: 0 var(--space-4); border-radius: var(--radius-md);
+  font: var(--typography-label); border: var(--border-width-hairline) solid transparent; white-space: nowrap;
+  transition: background-color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+}
+.btn-lg { min-height: var(--size-control-lg); padding: 0 var(--space-6); font: var(--typography-title); }
+.btn-block { width: 100%; }
+.btn-primary { background: var(--color-role-primary); color: var(--color-role-on-primary); }
+.btn-primary:hover { background: var(--color-role-primary-hover); }
+.btn-primary:active { background: var(--color-role-primary-active); }
+.btn-secondary { background: var(--color-role-surface); color: var(--color-role-fg); border-color: var(--color-role-border); }
+.btn-secondary:hover { background: var(--color-role-surface-muted); border-color: var(--color-role-border-strong); }
+.btn-secondary:active { background: var(--color-role-neutral-soft); }
+.btn-ghost { color: var(--color-role-fg-muted); }
+.btn-ghost:hover { background: var(--color-role-surface-muted); color: var(--color-role-fg); }
+.btn-inverse { background: var(--color-role-on-primary); color: var(--color-role-primary); }
+.btn-inverse:hover { background: var(--color-role-primary-soft); color: var(--color-role-on-primary-soft); }
+.btn-outline-inverse { color: var(--color-role-on-primary); border-color: var(--color-role-on-primary-muted); }
+.btn-outline-inverse:hover { background: color-mix(in srgb, var(--color-role-on-primary) 12%, transparent); border-color: var(--color-role-on-primary); }
+.btn:disabled, .btn.is-disabled { background: var(--color-role-surface-muted); color: var(--color-role-fg-muted); border-color: transparent; cursor: not-allowed; box-shadow: none; }
+[aria-disabled="true"] { cursor: not-allowed; }
+.on-primary :focus-visible, .on-primary:focus-visible { outline-color: var(--color-role-focus-ring-on-primary); }
+.iconbtn { display: inline-flex; align-items: center; justify-content: center; width: var(--size-hit); height: var(--size-hit); border-radius: var(--radius-md); color: var(--color-role-fg-muted); transition: background-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease); }
+.iconbtn:hover { background: var(--color-role-surface-muted); color: var(--color-role-fg); }
+.link { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--size-hit); font: var(--typography-label); color: var(--color-role-link); border-radius: var(--radius-xs); }
+.link:hover { text-decoration: underline; text-underline-offset: var(--space-1); }
+.tag { display: inline-flex; align-items: center; gap: var(--space-1); height: var(--space-6); padding: 0 var(--space-2); border-radius: var(--radius-full); font: var(--typography-caption); font-weight: var(--font-weight-medium); white-space: nowrap; }
+.tag-primary { background: var(--color-role-primary-soft); color: var(--color-role-on-primary-soft); }
+.tag-success { background: var(--color-role-success-soft); color: var(--color-role-success); }
+.tag-warning { background: var(--color-role-warning-soft); color: var(--color-role-warning); }
+.tag-danger { background: var(--color-role-danger-soft); color: var(--color-role-danger); }
+.tag-neutral { background: var(--color-role-neutral-soft); color: var(--color-role-on-neutral-soft); }
+
+/* Tooltip（data-tip，hover / focus-visible 显示） */
+[data-tip] { position: relative; }
+[data-tip]::after {
+  content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + var(--space-2)); transform: translateX(-50%);
+  padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); font: var(--typography-caption); white-space: nowrap;
+  background: var(--color-role-bg-inverse); color: var(--color-role-fg-inverse); box-shadow: var(--shadow-md); pointer-events: none;
+  opacity: 0; transition: opacity var(--motion-fast) var(--motion-ease); z-index: 30;
+}
+[data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; }
+
+/* 首字母头像（色相来自 mock avatar.hue → data-hue，饱和 / 明度来自令牌 color.avatar.*） */
+.avatar { --hue: 210; display: inline-flex; align-items: center; justify-content: center; width: var(--size-avatar-md); height: var(--size-avatar-md); border-radius: var(--radius-full); font: var(--typography-label); flex: none;
+  background: hsl(var(--hue) calc(var(--color-avatar-bg-saturation) * 1%) calc(var(--color-avatar-bg-lightness) * 1%));
+  color: hsl(var(--hue) calc(var(--color-avatar-fg-saturation) * 1%) calc(var(--color-avatar-fg-lightness) * 1%)); }
+[data-hue="20"] { --hue: 20; } [data-hue="25"] { --hue: 25; } [data-hue="40"] { --hue: 40; } [data-hue="95"] { --hue: 95; } [data-hue="150"] { --hue: 150; }
+[data-hue="180"] { --hue: 180; } [data-hue="210"] { --hue: 210; } [data-hue="275"] { --hue: 275; } [data-hue="300"] { --hue: 300; } [data-hue="340"] { --hue: 340; }
+
+/* ===== ① Navbar ===== */
+.nav { position: fixed; inset: 0 0 auto 0; z-index: 40; height: var(--size-navbar);
+  background: transparent; border-bottom: var(--border-width-hairline) solid transparent;
+  transition: background-color var(--motion-base) var(--motion-ease), border-color var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease); }
+html[data-state="scrolled"] .nav { background: var(--color-role-surface); border-bottom-color: var(--color-role-border); box-shadow: var(--shadow-sm); }
+.nav .wrap { height: 100%; display: flex; align-items: center; gap: var(--space-6); }
+.brand { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--size-hit); color: var(--color-role-fg); font: var(--typography-title); border-radius: var(--radius-sm); }
+.brand-mark { display: inline-grid; place-items: center; width: var(--space-8); height: var(--space-8); border-radius: var(--radius-md); background: var(--color-role-primary); color: var(--color-role-on-primary); }
+.brand-mark svg { width: var(--size-icon-md); height: var(--size-icon-md); fill: currentColor; }
+.nav-links { display: flex; align-items: center; gap: var(--space-1); margin-inline: auto; }
+.nav-links a { display: inline-flex; align-items: center; min-height: var(--size-hit); padding: 0 var(--space-3); border-radius: var(--radius-md); font: var(--typography-label); color: var(--color-role-fg-muted); transition: color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease); }
+.nav-links a:hover { color: var(--color-role-fg); background: var(--color-role-surface-muted); }
+.nav-links a[aria-current="true"] { color: var(--color-role-fg); }
+.nav-actions { display: flex; align-items: center; gap: var(--space-2); }
+.nav-burger { display: none; }
+.nav-sticky-hint { position: absolute; width: var(--border-width-hairline); height: var(--border-width-hairline); overflow: hidden; clip: rect(0 0 0 0); }
+html:not([data-state="scrolled"]) .nav-sticky-hint { display: none; }
+
+/* ===== ② Hero ===== */
+.hero { position: relative; padding-top: calc(var(--size-navbar) + var(--space-16)); padding-bottom: var(--space-20); overflow: clip;
+  background: linear-gradient(180deg, var(--color-role-surface-brand) 0%, var(--color-role-surface) 85%); }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: var(--space-16); align-items: center; }
+.hero h1 { margin-top: var(--space-4); font: var(--typography-hero); letter-spacing: var(--typography-hero-letter-spacing); text-wrap: balance; }
+.hero-sub { margin-top: var(--space-6); font-size: var(--font-size-lg); line-height: var(--font-line-height-body); color: var(--color-role-fg-muted); max-width: var(--size-prose-max); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-8); }
+.hero-note { margin-top: var(--space-3); font: var(--typography-caption); color: var(--color-role-fg-muted); }
+.proof { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-8); }
+.proof-avatars { display: flex; }
+.proof-avatars .avatar { border: var(--border-width-focus) solid var(--color-role-surface); box-shadow: var(--shadow-sm); }
+.proof-avatars .avatar + .avatar { margin-left: calc(-1 * var(--space-2)); }
+.proof-label { font: var(--typography-label); color: var(--color-role-fg-muted); }
+
+/* Hero 抽象 dashboard */
+.hero-art { position: relative; }
+.hero-art::before { content: ""; position: absolute; inset: 10% -8% -10% 10%; border-radius: var(--radius-full);
+  background: radial-gradient(closest-side, var(--color-role-primary-soft), transparent); opacity: var(--opacity-skeleton-shine); }
+.mock { position: relative; display: grid; grid-template-rows: auto 1fr; aspect-ratio: 4 / 3; border-radius: var(--radius-xl); overflow: hidden;
+  background: var(--color-role-surface); border: var(--border-width-hairline) solid var(--color-role-border); box-shadow: var(--shadow-lg); }
+.mock-top { display: flex; align-items: center; gap: var(--space-2); height: var(--space-10); padding: 0 var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-role-border); background: var(--color-role-surface); }
+.dot { width: var(--size-dot); height: var(--size-dot); border-radius: var(--radius-full); background: var(--color-role-neutral-soft); }
+.mock-url { flex: 1; max-width: 40%; height: var(--space-4); margin-inline: auto; border-radius: var(--radius-full); background: var(--color-role-surface-muted); }
+.mock-body { display: grid; grid-template-columns: var(--space-12) 1fr; min-height: 0; }
+.mock-side { display: grid; grid-auto-rows: max-content; gap: var(--space-2); padding: var(--space-3) var(--space-2); border-right: var(--border-width-hairline) solid var(--color-role-border); background: var(--color-role-bg); }
+.mock-side i { display: block; height: var(--space-8); border-radius: var(--radius-sm); background: var(--color-role-surface-muted); }
+.mock-side i:first-child { background: var(--color-role-primary-soft); }
+.mock-main { display: grid; grid-template-rows: auto 1fr auto; gap: var(--space-3); padding: var(--space-3); background: var(--color-role-bg); min-height: 0; }
+.mock-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
+.mock-card { display: grid; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-role-surface); border: var(--border-width-hairline) solid var(--color-role-border); }
+.bar { display: block; height: var(--space-2); border-radius: var(--radius-full); background: var(--color-role-surface-muted); }
+.bar-strong { height: var(--space-3); background: var(--color-role-fg-muted); }
+.bar-accent { height: var(--space-3); background: var(--color-role-primary); }
+.w-40 { width: 40%; } .w-50 { width: 50%; } .w-60 { width: 60%; } .w-70 { width: 70%; } .w-80 { width: 80%; } .w-30 { width: 30%; }
+.mock-chart { position: relative; min-height: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-role-surface); border: var(--border-width-hairline) solid var(--color-role-border); display: grid; grid-template-rows: auto 1fr; gap: var(--space-2); }
+.mock-chart svg { width: 100%; height: 100%; min-height: 0; display: block; }
+.mock-chart .grid { stroke: var(--color-chart-grid); stroke-width: 1; }
+.mock-chart .area { fill: var(--color-chart-line-fill); }
+.mock-chart .line { fill: none; stroke: var(--color-chart-line); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.mock-table { display: grid; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-role-surface); border: var(--border-width-hairline) solid var(--color-role-border); }
+.mock-row { display: grid; grid-template-columns: 3fr 2fr 2fr auto; align-items: center; gap: var(--space-3); }
+.pill { display: block; width: var(--space-10); height: var(--space-4); border-radius: var(--radius-full); }
+
+/* ===== ③ 客户 ===== */
+.customers { padding-block: var(--space-12); border-block: var(--border-width-hairline) solid var(--color-role-border); }
+.customers h2 { text-align: center; font: var(--typography-label); color: var(--color-role-fg-muted); }
+.logos { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-6); margin-top: var(--space-8); }
+.logos li { display: flex; align-items: center; justify-content: center; min-height: var(--size-control-lg); font: var(--typography-heading); letter-spacing: var(--font-letter-spacing-wide); color: var(--color-role-fg-muted); text-align: center; white-space: nowrap; }
+
+/* ===== ④ 特性 ===== */
+.features-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-6); }
+.card { background: var(--color-role-surface); border: var(--border-width-hairline) solid var(--color-role-border); border-radius: var(--radius-lg); padding: var(--space-6); }
+.feature .ic { display: inline-grid; place-items: center; width: var(--size-control-md); height: var(--size-control-md); border-radius: var(--radius-md); background: var(--color-role-primary-soft); color: var(--color-role-on-primary-soft); }
+.feature h3 { margin-top: var(--space-5); font: var(--typography-heading); letter-spacing: var(--typography-heading-letter-spacing); }
+.feature p { margin-top: var(--space-2); color: var(--color-role-fg-muted); }
+
+/* ===== ⑤ 分屏 ===== */
+.sols { display: grid; gap: var(--space-20); }
+.sol { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-16); align-items: center; }
+.sol:nth-child(odd) .sol-text { order: -1; }
+.sol-text h3 { margin-top: var(--space-3); font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing); }
+.sol-text > p { margin-top: var(--space-4); font: var(--typography-lead); color: var(--color-role-fg-muted); }
+.bullets { display: grid; gap: var(--space-3); margin-top: var(--space-6); }
+.bullets li { display: flex; align-items: flex-start; gap: var(--space-3); font: var(--typography-lead); }
+.bullets .i { color: var(--color-role-primary); margin-top: var(--space-1); }
+.sol-text .link { margin-top: var(--space-6); }
+.panel { aspect-ratio: 5 / 4; display: grid; padding: var(--space-8); border-radius: var(--radius-xl); background: var(--color-role-bg); border: var(--border-width-hairline) solid var(--color-role-border); overflow: hidden; }
+.panel-card { display: grid; align-content: center; gap: var(--space-3); padding: var(--space-5); border-radius: var(--radius-lg); background: var(--color-role-surface); border: var(--border-width-hairline) solid var(--color-role-border); box-shadow: var(--shadow-md); min-height: 0; }
+/* ⑤-① 订单表 */
+.tbl { display: grid; gap: var(--space-2); }
+.tbl-row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) minmax(0, 2fr) auto; align-items: center; gap: var(--space-4); min-height: var(--size-table-row-compact); border-bottom: var(--border-width-hairline) solid var(--color-role-border); }
+.tbl-row:last-child { border-bottom: 0; }
+.tbl-head { min-height: var(--size-table-header); }
+.tbl-row .tag { justify-self: end; }
+/* ⑤-② 库存条形图 */
+.bars { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); align-items: end; gap: var(--space-3); height: 100%; min-height: 0; padding-top: var(--space-4); }
+.bars b { display: block; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: var(--color-chart-bar); }
+.bars b.low { background: var(--color-role-warning); }
+.h-88 { height: 88%; } .h-64 { height: 64%; } .h-40 { height: 40%; } .h-72 { height: 72%; } .h-28 { height: 28%; } .h-56 { height: 56%; }
+.safety { position: absolute; left: 0; right: 0; bottom: 45%; border-top: var(--border-width-hairline) dashed var(--color-role-warning); }
+.safety .tag { position: absolute; right: 0; bottom: var(--space-1); }
+.bars-x { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-3); }
+.bars-x i { display: block; height: var(--space-2); border-radius: var(--radius-full); background: var(--color-role-surface-muted); }
+.panel-card.inv { grid-template-rows: auto 1fr auto; }
+/* ⑤-③ 对话 */
+.chat { display: grid; gap: var(--space-3); align-content: center; }
+.bubble { max-width: 85%; padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); font: var(--typography-body); }
+.bubble.user { justify-self: end; background: var(--color-role-primary); color: var(--color-role-on-primary); border-bottom-right-radius: var(--radius-xs); }
+.bubble.bot { justify-self: start; background: var(--color-role-surface-muted); color: var(--color-role-fg); border-bottom-left-radius: var(--radius-xs); }
+.chat .chip { justify-self: start; }
+.chip { display: inline-flex; align-items: center; gap: var(--space-1); height: var(--size-chip); padding: 0 var(--space-3); border-radius: var(--radius-full); border: var(--border-width-hairline) solid var(--color-role-border); background: var(--color-role-surface); font: var(--typography-code); color: var(--color-role-fg-muted); }
+.chip .i { color: var(--color-role-primary); }
+
+/* ===== ⑥ 数据带 ===== */
+.stats { padding-block: var(--space-16); border-block: var(--border-width-hairline) solid var(--color-role-border); }
+.stats ul { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-8); }
+.stats li { text-align: center; }
+.stats strong { display: block; font: var(--typography-display-lg); letter-spacing: var(--typography-display-lg-letter-spacing); color: var(--color-role-fg); }
+.stats span { display: block; margin-top: var(--space-2); font: var(--typography-label); color: var(--color-role-fg-muted); }
+.stats-note { margin-top: var(--space-8); text-align: center; font: var(--typography-caption); color: var(--color-role-fg-muted); }
+
+/* ===== ⑦ 定价 ===== */
+.cycle { display: flex; align-items: center; justify-content: center; gap: var(--space-2); margin: calc(-1 * var(--space-4)) auto var(--space-12); }
+.cycle-label { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--size-hit); padding: 0 var(--space-3); border-radius: var(--radius-md); font: var(--typography-label); color: var(--color-role-fg-muted); transition: color var(--motion-fast) var(--motion-ease); }
+.cycle-label:hover { color: var(--color-role-fg); background: var(--color-role-surface-muted); }
+.cycle-label[aria-pressed="true"] { color: var(--color-role-fg); }
+.switch { position: relative; width: var(--size-control-lg); height: var(--size-hit); border-radius: var(--radius-full); }
+.switch::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: var(--space-6); transform: translateY(-50%); border-radius: var(--radius-full); background: var(--color-role-neutral-soft); transition: background-color var(--motion-fast) var(--motion-ease); }
+.switch::after { content: ""; position: absolute; top: 50%; left: calc((var(--space-6) - var(--space-5)) / 2); width: var(--space-5); height: var(--space-5); transform: translateY(-50%); border-radius: var(--radius-full); background: var(--color-role-surface); box-shadow: var(--shadow-sm); transition: transform var(--motion-fast) var(--motion-ease), left var(--motion-fast) var(--motion-ease); }
+.switch:hover::before { background: var(--color-role-border-strong); }
+.switch[aria-checked="true"]::before, .switch[aria-checked="true"]:hover::before { background: var(--color-role-primary); }
+.switch[aria-checked="true"]::after { left: calc(100% - var(--space-5) - (var(--space-6) - var(--space-5)) / 2); }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-6); align-items: stretch; padding-top: var(--space-3); }
+.plan { position: relative; display: grid; grid-template-rows: auto auto auto 1fr auto; gap: var(--space-6); padding: var(--space-8); }
+.plan-rec { border-color: var(--color-role-primary); box-shadow: var(--shadow-lg); }
+.plan-rec::before { content: ""; position: absolute; inset: calc(-1 * var(--border-width-hairline)); border-radius: inherit; border: var(--border-width-accent) solid var(--color-role-primary); pointer-events: none; }
+.plan-badge { position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); }
+.plan h3 { font: var(--typography-heading); letter-spacing: var(--typography-heading-letter-spacing); }
+.plan-desc { margin-top: var(--space-1); color: var(--color-role-fg-muted); }
+.price { display: flex; align-items: baseline; gap: var(--space-1); flex-wrap: wrap; }
+.price strong { font: var(--typography-display-lg); letter-spacing: var(--typography-display-lg-letter-spacing); }
+.price .per { font: var(--typography-body); color: var(--color-role-fg-muted); }
+.price-sub { display: block; min-height: calc(var(--font-size-xs) * var(--font-line-height-snug)); margin-top: var(--space-1); font: var(--typography-caption); color: var(--color-role-fg-muted); }
+html[data-cycle="monthly"] .only-yearly, html[data-cycle="yearly"] .only-monthly { display: none; }
+.plan-feats { display: grid; gap: var(--space-3); align-content: start; }
+.plan-feats li { display: flex; align-items: flex-start; gap: var(--space-2); }
+.plan-feats .i { color: var(--color-role-primary); margin-top: var(--space-1); }
+.pricing-foot { margin-top: var(--space-8); text-align: center; color: var(--color-role-fg-muted); }
+.pricing-foot .link { margin-left: var(--space-2); }
+
+/* ===== ⑧ 评价 ===== */
+.quotes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-6); }
+.quote { display: grid; grid-template-rows: auto 1fr auto; gap: var(--space-4); }
+.quote .qi { color: var(--color-role-primary); }
+.quote blockquote { margin: 0; font: var(--typography-lead); color: var(--color-role-fg); }
+.quote footer { display: flex; align-items: center; gap: var(--space-3); padding-top: var(--space-4); border-top: var(--border-width-hairline) solid var(--color-role-border); }
+.quote .who { display: block; font: var(--typography-label); }
+.quote .role { display: block; margin-top: var(--space-1); font: var(--typography-caption); color: var(--color-role-fg-muted); }
+
+/* ===== ⑨ FAQ ===== */
+.faq-list { max-width: calc(var(--size-prose-max) + var(--space-20) * 2); margin-inline: auto; border-top: var(--border-width-hairline) solid var(--color-role-border); }
+.faq-list details { border-bottom: var(--border-width-hairline) solid var(--color-role-border); }
+.faq-list summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: calc(var(--size-hit) + var(--space-4)); padding: var(--space-3) var(--space-2); cursor: pointer; list-style: none; font: var(--typography-title); border-radius: var(--radius-md); transition: color var(--motion-fast) var(--motion-ease); }
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list summary:hover { color: var(--color-role-primary); }
+.faq-list summary .i { color: var(--color-role-fg-muted); transition: transform var(--motion-base) var(--motion-ease); }
+.faq-list details[open] summary .i { transform: rotate(180deg); }
+.faq-list details p { padding: 0 var(--space-2) var(--space-5); font: var(--typography-lead); color: var(--color-role-fg-muted); max-width: var(--size-prose-max); }
+.faq-more { display: flex; justify-content: center; margin-top: var(--space-6); }
+
+/* ===== ⑩ CTA ===== */
+.cta { background: var(--color-role-primary); color: var(--color-role-on-primary); }
+.cta .wrap { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; gap: var(--space-12); padding-block: var(--space-16); }
+.cta h2 { font: var(--typography-display-lg); letter-spacing: var(--typography-display-lg-letter-spacing); }
+.cta p { margin-top: var(--space-3); font: var(--typography-lead); color: var(--color-role-on-primary-muted); }
+.cta-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: flex-end; }
+
+/* ===== ⑪ Footer ===== */
+.foot { padding-block: var(--space-16) var(--space-8); background: var(--color-role-bg); border-top: var(--border-width-hairline) solid var(--color-role-border); }
+.foot-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr)); gap: var(--space-8); }
+.foot-brand p { margin-top: var(--space-4); max-width: calc(var(--size-prose-max) / 2); color: var(--color-role-fg-muted); }
+.foot-brand .foot-tagline { margin-top: var(--space-2); font: var(--typography-label); color: var(--color-role-fg); }
+.foot-col h3 { font: var(--typography-label); color: var(--color-role-fg); min-height: var(--size-hit); display: flex; align-items: center; }
+.foot-col a { display: inline-flex; align-items: center; min-height: var(--size-hit); min-width: var(--size-hit); font: var(--typography-body); color: var(--color-role-fg-muted); border-radius: var(--radius-xs); }
+.foot-col a:hover { color: var(--color-role-fg); }
+.foot-bottom { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-12); padding-top: var(--space-6); border-top: var(--border-width-hairline) solid var(--color-role-border); }
+.social { display: flex; gap: var(--space-1); }
+.lang { position: relative; display: inline-flex; align-items: center; }
+.lang select { appearance: none; min-height: var(--size-control-md); padding: 0 var(--space-10) 0 var(--space-10); border-radius: var(--radius-md); border: var(--border-width-hairline) solid var(--color-role-border); background: var(--color-role-surface); color: var(--color-role-fg); font: var(--typography-label); cursor: pointer; }
+.lang select:hover { border-color: var(--color-role-border-strong); }
+.lang .i { position: absolute; color: var(--color-role-fg-muted); pointer-events: none; }
+.lang .i.lead { left: var(--space-3); }
+.lang .i.trail { right: var(--space-3); }
+.copy { font: var(--typography-caption); color: var(--color-role-fg-muted); }
+.foot-right { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+
+/* ===== Sheet（375 菜单） ===== */
+.sheet-root { display: none; position: fixed; inset: 0; z-index: 60; }
+html[data-open="menu"] .sheet-root { display: block; }
+.sheet-backdrop { position: absolute; inset: 0; background: var(--color-role-overlay); border-radius: 0; cursor: default; }
+.sheet { position: absolute; top: 0; right: 0; bottom: 0; width: min(var(--size-sheet), 100%); display: grid; grid-template-rows: auto 1fr auto; background: var(--color-role-surface); box-shadow: var(--shadow-lg); border-left: var(--border-width-hairline) solid var(--color-role-border); animation: sheet-in var(--motion-slow) var(--motion-ease); }
+@keyframes sheet-in { from { transform: translateX(var(--space-10)); opacity: 0; } to { transform: none; opacity: 1; } }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; height: var(--size-navbar); padding: 0 var(--space-3) 0 var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-role-border); }
+.sheet-nav { padding: var(--space-3) var(--space-2); overflow-y: auto; }
+.sheet-nav a { display: flex; align-items: center; min-height: var(--size-control-lg); padding: 0 var(--space-3); border-radius: var(--radius-md); font: var(--typography-title); color: var(--color-role-fg); }
+.sheet-nav a:hover { background: var(--color-role-surface-muted); }
+.sheet-nav a[aria-current="true"] { color: var(--color-role-primary); }
+.sheet-foot { display: grid; gap: var(--space-3); padding: var(--space-4); border-top: var(--border-width-hairline) solid var(--color-role-border); }
+.sheet-foot .theme-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: var(--size-hit); padding: 0 var(--space-3); border-radius: var(--radius-md); font: var(--typography-label); color: var(--color-role-fg-muted); }
+.sheet-foot .theme-row:hover { background: var(--color-role-surface-muted); color: var(--color-role-fg); }
+.theme-icon-sun, .theme-icon-moon { display: none; }
+html[data-theme="dark"] .theme-icon-sun { display: block; }
+html:not([data-theme="dark"]) .theme-icon-moon { display: block; }
+
+/* ===== 响应式 ===== */
+@media (max-width: 1023px) {
+  .hero .wrap { gap: var(--space-12); }
+  .features-grid, .quotes, .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .logos { grid-template-columns: repeat(3, 1fr); }
+  .foot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .foot-brand { grid-column: 1 / -1; }
+  .sol { gap: var(--space-12); }
+}
+@media (max-width: 767px) {
+  .wrap { padding-inline: var(--space-4); }
+  .sec { padding-block: var(--space-12); }
+  .sec-head { margin-bottom: var(--space-8); }
+  .sec-head h2 { font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing); }
+  .nav .wrap { gap: var(--space-3); }
+  .nav-links, .nav-login, .nav-theme { display: none; }
+  .nav-actions { margin-left: auto; }
+  .nav-burger { display: inline-flex; }
+  .hero { padding-top: calc(var(--size-navbar) + var(--space-10)); padding-bottom: var(--space-12); }
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); gap: var(--space-10); }
+  .hero h1 { font: var(--typography-display-lg); letter-spacing: var(--typography-display-lg-letter-spacing); }
+  .hero-sub { font-size: var(--font-size-md); }
+  .hero-actions .btn { flex: 1 1 100%; }
+  .hero-art::before { inset: 10% 0 -6% 0; }
+  .mock { aspect-ratio: auto; }
+  .mock-chart svg { min-height: var(--space-20); }
+  .mock-cards { grid-template-columns: repeat(2, 1fr); }
+  .customers { padding-block: var(--space-8); }
+  .logos { grid-template-columns: repeat(2, 1fr); gap: var(--space-2) var(--space-4); margin-top: var(--space-6); }
+  .logos li { font: var(--typography-title); min-height: var(--size-hit); }
+  .features-grid, .quotes, .plans { grid-template-columns: minmax(0, 1fr); }
+  .sols { gap: var(--space-12); }
+  .sol { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+  .sol:nth-child(odd) .sol-text { order: 0; }
+  .sol-text h3 { font: var(--typography-heading); letter-spacing: var(--typography-heading-letter-spacing); }
+  .sol-text > p, .bullets li { font: var(--typography-body); }
+  .panel { padding: var(--space-4); aspect-ratio: 4 / 3.6; }
+  .stats { padding-block: var(--space-12); }
+  .stats ul { grid-template-columns: repeat(2, 1fr); gap: var(--space-8) var(--space-4); }
+  .stats strong { font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing); }
+  .cycle { flex-wrap: wrap; margin-top: calc(-1 * var(--space-2)); margin-bottom: var(--space-8); }
+  .plans { gap: var(--space-8); }
+  .plan { padding: var(--space-6); }
+  .plan-rec { order: -1; }
+  .cta .wrap { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); padding-block: var(--space-12); }
+  .cta h2 { font: var(--typography-display); letter-spacing: var(--typography-display-letter-spacing); }
+  .cta-actions { justify-content: stretch; }
+  .cta-actions .btn { flex: 1 1 100%; }
+  .foot { padding-block: var(--space-12) var(--space-6); }
+  .foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-4); }
+  .foot-bottom { flex-direction: column; align-items: flex-start; margin-top: var(--space-8); }
+  .foot-right { width: 100%; justify-content: space-between; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" focusable="false" class="sr-only">
+  <symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+  <symbol id="i-receipt-text" viewBox="0 0 24 24"><path d="M13 16H8"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12"/><path d="M6 14h12"/><rect width="12" height="12" x="6" y="10"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></symbol>
+  <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 18h16"/><path d="M4 6h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></symbol>
+  <symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+</svg>
+
+<a class="skip" href="#main" data-key="landing.skip">跳到主内容</a>
+
+<!-- ① Navbar -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Acme Console 首页" data-key="landing.nav.home">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 3 19h6l3-5 3 5h6L12 3Zm0 6.5L14.2 13H9.8L12 9.5Z"/></svg></span>
+      <span>Acme Console</span>
+    </a>
+    <nav class="nav-links" aria-label="主导航" data-key="landing.nav.aria">
+      <a href="#features" data-nav="features">产品</a>
+      <a href="#solutions" data-nav="solutions">解决方案</a>
+      <a href="#pricing" data-nav="pricing">定价</a>
+      <a href="#customers" data-nav="customers">客户</a>
+      <a href="#faq" data-nav="docs">帮助中心</a>
+    </nav>
+    <div class="nav-actions">
+      <button type="button" class="iconbtn nav-theme js-theme" aria-label="切换为暗色" data-key="shell.theme.toDark">
+        <svg class="i theme-icon-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+        <svg class="i theme-icon-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      </button>
+      <a class="btn btn-ghost nav-login" href="../login/index.html" data-key="landing.nav.login">登录</a>
+      <a class="btn btn-primary" href="../login/index.html" aria-disabled="true" data-tip="后续轮次提供" data-key="landing.nav.trial">免费试用</a>
+      <button type="button" class="iconbtn nav-burger js-open-menu" aria-label="打开菜单" aria-haspopup="dialog" aria-controls="sheet" data-key="landing.nav.menu.open"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </div>
+    <span class="nav-sticky-hint" data-key="landing.nav.sticky">已吸顶</span>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ② Hero -->
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="eyebrow" data-key="landing.hero.eyebrow">全渠道订单与库存运营后台</p>
+        <h1 id="hero-title">把全渠道订单和库存，装进一个后台</h1>
+        <p class="hero-sub">Acme Console 帮中小品牌把主流电商平台、直播电商、小程序和门店的订单同步到一处，库存预警、采购补货、售后处理一站完成。</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="../login/index.html" aria-disabled="true" data-tip="后续轮次提供">免费试用 14 天</a>
+          <a class="btn btn-secondary btn-lg" href="#faq" aria-disabled="true" data-tip="后续轮次提供">预约演示</a>
+        </div>
+        <p class="hero-note" data-key="landing.hero.noCard">无需绑卡 · 5 分钟接入</p>
+        <div class="proof">
+          <ul class="proof-avatars" aria-label="使用 Acme 的团队成员头像" data-key="landing.hero.avatars.aria">
+            <li class="avatar" data-hue="210" aria-hidden="true">琳</li>
+            <li class="avatar" data-hue="25" aria-hidden="true">鸣</li>
+            <li class="avatar" data-hue="150" aria-hidden="true">豪</li>
+            <li class="avatar" data-hue="340" aria-hidden="true">薇</li>
+            <li class="avatar" data-hue="275" aria-hidden="true">博</li>
+          </ul>
+          <span class="proof-label num">1,200+ 团队在用</span>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="mock" role="img" aria-label="Acme Console 仪表盘示意图" data-key="landing.hero.illustration.aria">
+          <div class="mock-top" aria-hidden="true"><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="mock-url"></i></div>
+          <div class="mock-body" aria-hidden="true">
+            <div class="mock-side"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="mock-main">
+              <div class="mock-cards">
+                <div class="mock-card"><i class="bar w-50"></i><i class="bar bar-strong w-70"></i></div>
+                <div class="mock-card"><i class="bar w-40"></i><i class="bar bar-strong w-60"></i></div>
+                <div class="mock-card"><i class="bar w-50"></i><i class="bar bar-accent w-80"></i></div>
+                <div class="mock-card"><i class="bar w-40"></i><i class="bar bar-strong w-50"></i></div>
+              </div>
+              <div class="mock-chart">
+                <i class="bar w-30"></i>
+                <svg viewBox="0 0 400 120" preserveAspectRatio="none">
+                  <g class="grid"><line x1="0" y1="30" x2="400" y2="30"/><line x1="0" y1="60" x2="400" y2="60"/><line x1="0" y1="90" x2="400" y2="90"/></g>
+                  <path class="area" d="M0 92 C 40 88, 60 70, 100 74 S 160 96, 200 60 S 260 40, 300 48 S 360 30, 400 18 V 120 H 0 Z"/>
+                  <path class="line" d="M0 92 C 40 88, 60 70, 100 74 S 160 96, 200 60 S 260 40, 300 48 S 360 30, 400 18"/>
+                </svg>
+              </div>
+              <div class="mock-table">
+                <div class="mock-row"><i class="bar bar-strong w-80"></i><i class="bar w-60"></i><i class="bar w-70"></i><i class="pill tag-warning"></i></div>
+                <div class="mock-row"><i class="bar bar-strong w-60"></i><i class="bar w-70"></i><i class="bar w-50"></i><i class="pill tag-primary"></i></div>
+                <div class="mock-row"><i class="bar bar-strong w-70"></i><i class="bar w-50"></i><i class="bar w-60"></i><i class="pill tag-success"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 客户 -->
+  <section class="customers" id="customers" aria-labelledby="customers-title">
+    <div class="wrap">
+      <h2 id="customers-title" data-key="landing.customers.title">这些品牌正在用 Acme 管订单</h2>
+      <ul class="logos" aria-label="客户名单" data-key="landing.customers.aria">
+        <li><span aria-hidden="true">QIMU</span><span class="sr-only">栖木家居</span></li>
+        <li>山野茶事</li>
+        <li><span aria-hidden="true">MUGUANG</span><span class="sr-only">沐光文具</span></li>
+        <li><span aria-hidden="true">织云</span><span class="sr-only">织云家纺</span></li>
+        <li><span aria-hidden="true">NORTHSHORE</span><span class="sr-only">北岸咖啡</span></li>
+        <li><span aria-hidden="true">小满</span><span class="sr-only">小满母婴</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ④ 特性 -->
+  <section class="sec" id="features" aria-labelledby="features-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-key="landing.features.eyebrow">产品</p>
+        <h2 id="features-title" data-key="landing.features.title">从下单到发货，每一步都在一个后台</h2>
+        <p data-key="landing.features.subtitle">六个核心能力覆盖中小品牌全渠道运营的日常</p>
+      </div>
+      <ul class="features-grid">
+        <li class="card feature"><span class="ic" aria-hidden="true"><svg class="i"><use href="#i-refresh-cw"/></svg></span><h3>五大渠道自动同步</h3><p>主流电商平台、直播电商小店、小程序、线下门店订单 15 分钟内汇总，不再手抄表格。</p></li>
+        <li class="card feature"><span class="ic" aria-hidden="true"><svg class="i"><use href="#i-receipt-text"/></svg></span><h3>订单一屏处理</h3><p>筛选、批量发货、改地址、退款受理，待发货超 48 小时自动提醒。</p></li>
+        <li class="card feature"><span class="ic" aria-hidden="true"><svg class="i"><use href="#i-warehouse"/></svg></span><h3>库存预警与安全线</h3><p>按 SKU 设置安全库存，低于阈值即时通知，避免直播爆单后缺货。</p></li>
+        <li class="card feature"><span class="ic" aria-hidden="true"><svg class="i"><use href="#i-truck"/></svg></span><h3>采购补货闭环</h3><p>从预警直接生成采购单，跟踪供应商交期与到货验收。</p></li>
+        <li class="card feature"><span class="ic" aria-hidden="true"><svg class="i"><use href="#i-sparkles"/></svg></span><h3>智能助理</h3><p>用一句话查「上周缺货最多的 SKU」，答案直接引用订单与库存数据。</p></li>
+        <li class="card feature"><span class="ic" aria-hidden="true"><svg class="i"><use href="#i-shield-check"/></svg></span><h3>团队协作与权限</h3><p>管理员 / 成员 / 只读三级角色，操作留痕，两步验证保护账号。</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ⑤ 分屏 -->
+  <section class="sec sec-alt" id="solutions" aria-labelledby="solutions-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-key="landing.solutions.eyebrow">解决方案</p>
+        <h2 id="solutions-title" data-key="landing.solutions.title">三个场景，看它怎么用</h2>
+      </div>
+      <div class="sols">
+        <article class="sol">
+          <div class="sol-visual">
+            <div class="panel" role="img" aria-label="直播爆单也不乱 功能示意图">
+              <div class="panel-card" aria-hidden="true">
+                <div class="tbl">
+                  <div class="tbl-row tbl-head"><i class="bar w-40"></i><i class="bar w-50"></i><i class="bar w-40"></i><i class="bar w-40"></i></div>
+                  <div class="tbl-row"><i class="bar bar-strong w-80"></i><i class="bar w-60"></i><i class="bar w-70"></i><span class="tag tag-warning">待发货</span></div>
+                  <div class="tbl-row"><i class="bar bar-strong w-60"></i><i class="bar w-70"></i><i class="bar w-50"></i><span class="tag tag-primary">已发货</span></div>
+                  <div class="tbl-row"><i class="bar bar-strong w-70"></i><i class="bar w-50"></i><i class="bar w-60"></i><span class="tag tag-danger">退款中</span></div>
+                  <div class="tbl-row"><i class="bar bar-strong w-50"></i><i class="bar w-60"></i><i class="bar w-70"></i><span class="tag tag-success">已完成</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sol-text">
+            <p class="eyebrow">订单</p>
+            <h3>直播爆单也不乱</h3>
+            <p>抖音直播当晚 134 单同步进系统，状态、渠道、金额一目了然；仓库按待发货列表拣货，客服在同一条订单里处理催单与退款。</p>
+            <ul class="bullets">
+              <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span>状态筛选 + 渠道多选 + 日期范围</span></li>
+              <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span>行内改加急、改地址、取消</span></li>
+              <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span>移动端卡片视图，仓库用手机也能看</span></li>
+            </ul>
+            <a class="link" href="#faq" data-key="landing.solutions.learnMore">了解更多<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+          </div>
+        </article>
+        <article class="sol">
+          <div class="sol-visual">
+            <div class="panel" role="img" aria-label="缺货前 3 天就知道 功能示意图">
+              <div class="panel-card inv" aria-hidden="true">
+                <div class="tbl-row tbl-head"><i class="bar w-50"></i><i class="bar w-30"></i><i></i><span class="tag tag-warning">2 个 SKU 低于安全线</span></div>
+                <div class="bars">
+                  <span class="safety"></span>
+                  <b class="h-88"></b><b class="h-64"></b><b class="h-40 low"></b><b class="h-72"></b><b class="h-28 low"></b><b class="h-56"></b>
+                </div>
+                <div class="bars-x"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="sol-text">
+            <p class="eyebrow">库存</p>
+            <h3>缺货前 3 天就知道</h3>
+            <p>为每个 SKU 设安全线，库存跌破即推送到手机；一键生成采购单，交期到了自动提醒验收。</p>
+            <ul class="bullets">
+              <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span>安全库存与预警 SKU 列表</span></li>
+              <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span>采购单三步创建，附件与标签</span></li>
+              <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span>到货验收后库存自动回补</span></li>
+            </ul>
+            <a class="link" href="#faq" data-key="landing.solutions.learnMore">了解更多<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+          </div>
+        </article>
+        <article class="sol">
+          <div class="sol-visual">
+            <div class="panel" role="img" aria-label="问一句，就有答案 功能示意图">
+              <div class="panel-card chat" aria-hidden="true">
+                <div class="bubble user">上周华东仓缺货最多的 SKU 是哪个？</div>
+                <div class="bubble bot">胡桃木床头柜（双抽）<span class="mono">QM-NS-WAL-2D</span>，近 7 天因缺货延迟发货 14 单，当前库存 18 / 安全线 40。</div>
+                <span class="chip"><svg class="i sm"><use href="#i-link"/></svg>SO-20260903-0087</span>
+              </div>
+            </div>
+          </div>
+          <div class="sol-text">
+            <p class="eyebrow">助理</p>
+            <h3>问一句，就有答案</h3>
+            <p>「上周华东仓缺货最多的 SKU 是哪个？」——助理直接查询库存与订单，给出数字和来源，还能替你把订单改成加急。</p>
+            <ul class="bullets">
+              <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span>答案带来源 Chip，可追溯到订单号</span></li>
+              <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span>工具调用透明可见</span></li>
+              <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span>支持表格、代码块与复制</span></li>
+            </ul>
+            <a class="link" href="#faq" data-key="landing.solutions.learnMore">了解更多<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑥ 数据带 -->
+  <section class="stats" aria-label="平台数据" data-key="landing.stats.aria">
+    <div class="wrap">
+      <ul>
+        <li><strong class="num">1,200+</strong><span>团队在用</span></li>
+        <li><strong class="num">3,800 万</strong><span>累计处理订单</span></li>
+        <li><strong class="num">15 分钟</strong><span>渠道同步间隔</span></li>
+        <li><strong class="num">99.95%</strong><span>近 12 个月可用性</span></li>
+      </ul>
+      <p class="stats-note" data-key="landing.stats.footnote">数据截至 2026 年 8 月</p>
+    </div>
+  </section>
+
+  <!-- ⑦ 定价 -->
+  <section class="sec" id="pricing" aria-labelledby="pricing-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-key="landing.pricing.eyebrow">定价</p>
+        <h2 id="pricing-title" data-key="landing.pricing.title">简单透明，按团队规模选</h2>
+        <p data-key="landing.pricing.subtitle">所有计划都含 14 天免费试用，随时升降级</p>
+      </div>
+      <div class="cycle">
+        <button type="button" class="cycle-label js-cycle" data-cycle="monthly" aria-pressed="true">按月付</button>
+        <button type="button" class="switch js-switch" role="switch" aria-checked="false" aria-label="计费周期" data-key="landing.pricing.toggle.aria"></button>
+        <button type="button" class="cycle-label js-cycle" data-cycle="yearly" aria-pressed="false">按年付<span class="tag tag-success">省 2 个月</span></button>
+      </div>
+      <ul class="plans">
+        <li class="card plan" data-plan="starter">
+          <div><h3>入门版</h3><p class="plan-desc">刚起步的独立品牌</p></div>
+          <div>
+            <p class="price only-monthly"><strong class="num">¥99</strong><span class="per" data-key="landing.pricing.perMonth">/ 月</span></p>
+            <p class="price only-yearly"><strong class="num">¥990</strong><span class="per" data-key="landing.pricing.perYear">/ 年</span></p>
+            <span class="price-sub"><span class="only-yearly num" data-key="landing.pricing.yearlyPerMonth">折合 ¥82.50 / 月</span></span>
+          </div>
+          <ul class="plan-feats">
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>3 个成员席位</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>2 个销售渠道</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>订单 / 库存基础看板</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>邮件支持</span></li>
+          </ul>
+          <span></span>
+          <a class="btn btn-secondary btn-block" href="../login/index.html" aria-disabled="true" data-tip="后续轮次提供">开始试用</a>
+        </li>
+        <li class="card plan plan-rec" data-plan="pro">
+          <span class="tag tag-primary plan-badge" data-key="landing.pricing.recommended">最受欢迎</span>
+          <div><h3>专业版</h3><p class="plan-desc">多渠道运营的成长团队</p></div>
+          <div>
+            <p class="price only-monthly"><strong class="num">¥299</strong><span class="per">/ 月</span></p>
+            <p class="price only-yearly"><strong class="num">¥2,990</strong><span class="per">/ 年</span></p>
+            <span class="price-sub"><span class="only-yearly num">折合 ¥249.17 / 月</span></span>
+          </div>
+          <ul class="plan-feats">
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>10 个成员席位</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>不限销售渠道</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>智能助理</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>自定义报表</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>工作日在线客服</span></li>
+          </ul>
+          <span></span>
+          <a class="btn btn-primary btn-block" href="../login/index.html" aria-disabled="true" data-tip="后续轮次提供">开始试用</a>
+        </li>
+        <li class="card plan" data-plan="business">
+          <div><h3>企业版</h3><p class="plan-desc">多仓多店的成熟品牌</p></div>
+          <div>
+            <p class="price only-monthly"><strong class="num">¥899</strong><span class="per">/ 月</span></p>
+            <p class="price only-yearly"><strong class="num">¥8,990</strong><span class="per">/ 年</span></p>
+            <span class="price-sub"><span class="only-yearly num">折合 ¥749.17 / 月</span></span>
+          </div>
+          <ul class="plan-feats">
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>50 个成员席位</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>不限销售渠道</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>智能助理</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>自定义报表</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>专属客户经理</span></li>
+            <li><svg class="i sm" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">包含</span><span>SLA 99.9%</span></li>
+          </ul>
+          <span></span>
+          <a class="btn btn-secondary btn-block" href="#faq" aria-disabled="true" data-tip="后续轮次提供">联系销售</a>
+        </li>
+      </ul>
+      <p class="pricing-foot">价格含税，人民币计价；年付按 10 个月计费。<a class="link" href="#pricing" aria-disabled="true" data-tip="后续轮次提供" data-key="landing.pricing.compare">查看完整功能对比</a></p>
+    </div>
+  </section>
+
+  <!-- ⑧ 评价 -->
+  <section class="sec sec-alt" id="testimonials" aria-labelledby="testimonials-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-key="landing.testimonials.eyebrow">客户评价</p>
+        <h2 id="testimonials-title" data-key="landing.testimonials.title">运营的人怎么说</h2>
+      </div>
+      <ul class="quotes" aria-label="客户评价列表" data-key="landing.testimonials.aria">
+        <li class="card quote" aria-label="沈若琳，栖木家居运营主管"><svg class="i qi" aria-hidden="true"><use href="#i-quote"/></svg><blockquote>9 月 3 日直播一晚 134 单，第二天早上仓库直接按待发货列表拣货，没有再手抄一张表。</blockquote><footer><span class="avatar" data-hue="210" aria-hidden="true">琳</span><span><span class="who">沈若琳</span><span class="role">运营主管 · 栖木家居</span></span></footer></li>
+        <li class="card quote" aria-label="周砚，山野茶事创始人"><svg class="i qi" aria-hidden="true"><use href="#i-quote"/></svg><blockquote>库存预警比我们自己盘点早了整整一周，中秋礼盒没有再缺货。</blockquote><footer><span class="avatar" data-hue="95" aria-hidden="true">砚</span><span><span class="who">周砚</span><span class="role">创始人 · 山野茶事</span></span></footer></li>
+        <li class="card quote" aria-label="许昭阳，沐光文具电商负责人"><svg class="i qi" aria-hidden="true"><use href="#i-quote"/></svg><blockquote>三个渠道的退款终于在一个页面处理，客服每天少切换十几次后台。</blockquote><footer><span class="avatar" data-hue="40" aria-hidden="true">阳</span><span><span class="who">许昭阳</span><span class="role">电商负责人 · 沐光文具</span></span></footer></li>
+        <li class="card quote" aria-label="林知夏，织云家纺运营经理"><svg class="i qi" aria-hidden="true"><use href="#i-quote"/></svg><blockquote>采购单三步就建好，附件和交期都在一处，供应商也说对账省事多了。</blockquote><footer><span class="avatar" data-hue="300" aria-hidden="true">夏</span><span><span class="who">林知夏</span><span class="role">运营经理 · 织云家纺</span></span></footer></li>
+        <li class="card quote" aria-label="宋一帆，北岸咖啡门店店长"><svg class="i qi" aria-hidden="true"><use href="#i-quote"/></svg><blockquote>门店订单和线上库存共用一套数，手机上就能看今天卖了多少。</blockquote><footer><span class="avatar" data-hue="180" aria-hidden="true">帆</span><span><span class="who">宋一帆</span><span class="role">门店店长 · 北岸咖啡</span></span></footer></li>
+        <li class="card quote" aria-label="高书瑶，小满母婴供应链主管"><svg class="i qi" aria-hidden="true"><use href="#i-quote"/></svg><blockquote>问助理「上周缺货最多的 SKU」直接给出数字和订单号，开会不用再翻报表。</blockquote><footer><span class="avatar" data-hue="20" aria-hidden="true">瑶</span><span><span class="who">高书瑶</span><span class="role">供应链主管 · 小满母婴</span></span></footer></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ⑨ FAQ -->
+  <section class="sec" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-key="landing.faq.eyebrow">常见问题</p>
+        <h2 id="faq-title" data-key="landing.faq.title">还有疑问？</h2>
+      </div>
+      <div class="faq-list" role="group" aria-label="常见问题" data-key="landing.faq.aria">
+        <details name="faq" open><summary>支持哪些销售渠道？<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary><p>主流电商平台旗舰店、直播电商小店、小程序商城与线下门店 POS；专业版起不限渠道数量。</p></details>
+        <details name="faq"><summary>数据同步多久一次？<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary><p>各渠道每 15 分钟自动同步一次，也可在订单页手动触发。</p></details>
+        <details name="faq"><summary>免费试用需要绑卡吗？<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary><p>不需要。14 天试用期内可使用专业版全部功能，到期后自行选择是否付费。</p></details>
+        <details name="faq"><summary>可以随时更换或取消计划吗？<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary><p>可以。升级即时生效并按剩余天数折算；降级或取消在当前周期结束后生效。</p></details>
+        <details name="faq"><summary>库存预警怎么设置？<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary><p>在 SKU 详情里填写安全库存，低于该值时通过邮件 / 推送 / 站内通知提醒，可在通知设置里分渠道开关。</p></details>
+        <details name="faq"><summary>数据安全如何保障？<svg class="i" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary><p>全程 TLS 加密传输，支持两步验证与会话管理，成员按角色授权并保留操作日志。</p></details>
+      </div>
+      <div class="faq-more"><a class="link" href="#faq" aria-disabled="true" data-tip="后续轮次提供" data-key="landing.faq.more">没找到答案？联系我们<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+    </div>
+  </section>
+
+  <!-- ⑩ CTA -->
+  <section class="cta on-primary" aria-label="立即开始" data-key="landing.cta.aria">
+    <div class="wrap">
+      <div>
+        <h2>今天就把订单和库存理清楚</h2>
+        <p>14 天免费试用，无需绑卡，5 分钟完成渠道接入。</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-inverse btn-lg" href="../login/index.html" aria-disabled="true" data-tip="后续轮次提供">免费试用 14 天</a>
+        <a class="btn btn-outline-inverse btn-lg" href="#faq" aria-disabled="true" data-tip="后续轮次提供">预约演示</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ⑪ Footer -->
+<footer class="foot" aria-label="页脚" data-key="landing.footer.aria">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Acme Console 首页">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 3 19h6l3-5 3 5h6L12 3Zm0 6.5L14.2 13H9.8L12 9.5Z"/></svg></span>
+          <span>Acme Console</span>
+        </a>
+        <p class="foot-tagline">订单与库存，一处看清</p>
+        <p data-key="landing.footer.brand.description">Acme Console 是 UI Gallery 的参考应用，用于演示设计系统在真实业务界面中的还原效果。</p>
+      </div>
+      <nav class="foot-col" aria-labelledby="fc-1"><h3 id="fc-1">产品</h3><ul>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">订单管理</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">库存与采购</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">智能助理</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">报表</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">更新日志</a></li>
+      </ul></nav>
+      <nav class="foot-col" aria-labelledby="fc-2"><h3 id="fc-2">解决方案</h3><ul>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">家居品牌</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">食品饮料</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">文创文具</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">母婴用品</a></li>
+      </ul></nav>
+      <nav class="foot-col" aria-labelledby="fc-3"><h3 id="fc-3">资源</h3><ul>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">帮助中心</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">开发者文档</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">服务状态</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">博客</a></li>
+      </ul></nav>
+      <nav class="foot-col" aria-labelledby="fc-4"><h3 id="fc-4">公司</h3><ul>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">关于我们</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">联系销售</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">隐私政策</a></li>
+        <li><a href="#top" aria-disabled="true" data-tip="演示站点，链接不可用">服务条款</a></li>
+      </ul></nav>
+    </div>
+    <div class="foot-bottom">
+      <p class="copy" data-key="landing.footer.copyright">© 2026 Acme Console（UI Gallery 参考应用，虚构产品）</p>
+      <div class="foot-right">
+        <ul class="social" aria-label="社交媒体" data-key="landing.footer.social.aria">
+          <li><a class="iconbtn" href="#top" aria-label="公众号" aria-disabled="true" data-tip="演示站点，链接不可用"><svg class="i" aria-hidden="true"><use href="#i-message-circle"/></svg></a></li>
+          <li><a class="iconbtn" href="#top" aria-label="用户社区" aria-disabled="true" data-tip="演示站点，链接不可用"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg></a></li>
+          <li><a class="iconbtn" href="#top" aria-label="开源仓库" aria-disabled="true" data-tip="演示站点，链接不可用"><svg class="i" aria-hidden="true"><use href="#i-code"/></svg></a></li>
+          <li><a class="iconbtn" href="#top" aria-label="邮件" aria-disabled="true" data-tip="演示站点，链接不可用"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></a></li>
+        </ul>
+        <label class="lang">
+          <span class="sr-only" data-key="landing.footer.language.label">语言</span>
+          <svg class="i sm lead" aria-hidden="true"><use href="#i-globe"/></svg>
+          <select name="lang">
+            <option value="zh-CN" selected>简体中文</option>
+            <option value="zh-TW">繁體中文</option>
+            <option value="en-US">English</option>
+          </select>
+          <svg class="i sm trail" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+        </label>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Sheet（375 菜单；≥768 亦可用 ?open=menu 预览） -->
+<div class="sheet-root" id="sheet-root">
+  <button type="button" class="sheet-backdrop js-close-menu" aria-label="关闭菜单" tabindex="-1"></button>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="菜单" data-key="landing.nav.menu.title">
+    <div class="sheet-head">
+      <span class="brand" aria-hidden="true"><span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M12 3 3 19h6l3-5 3 5h6L12 3Zm0 6.5L14.2 13H9.8L12 9.5Z"/></svg></span><span>Acme Console</span></span>
+      <button type="button" class="iconbtn js-close-menu" aria-label="关闭菜单" data-key="landing.nav.menu.close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <nav class="sheet-nav" aria-label="主导航">
+      <a href="#features" data-nav="features">产品</a>
+      <a href="#solutions" data-nav="solutions">解决方案</a>
+      <a href="#pricing" data-nav="pricing">定价</a>
+      <a href="#customers" data-nav="customers">客户</a>
+      <a href="#faq" data-nav="docs">帮助中心</a>
+    </nav>
+    <div class="sheet-foot">
+      <a class="btn btn-primary btn-lg btn-block" href="../login/index.html" aria-disabled="true" data-tip="后续轮次提供">免费试用 14 天</a>
+      <a class="btn btn-secondary btn-lg btn-block" href="../login/index.html">登录</a>
+      <button type="button" class="theme-row js-theme" aria-label="切换为暗色">
+        <span class="theme-text">切换为暗色</span>
+        <svg class="i theme-icon-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+        <svg class="i theme-icon-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var q = new URLSearchParams(location.search);
+  var forcedState = /^(default|scrolled)$/.test(q.get('state') || '') ? q.get('state') : null;
+  var cycle = /^(monthly|yearly)$/.test(q.get('cycle') || '') ? q.get('cycle') : 'monthly';
+  var theme = /^(light|dark)$/.test(q.get('theme') || '') ? q.get('theme') : null;
+  if (theme) root.setAttribute('data-theme', theme);
+  root.setAttribute('data-state', forcedState || 'default');
+  setCycle(cycle, false);
+  if (q.get('open') === 'menu') openMenu(false);
+
+  function writeQuery(k, v) {
+    var p = new URLSearchParams(location.search);
+    if (v == null) p.delete(k); else p.set(k, v);
+    var s = p.toString();
+    history.replaceState(null, '', location.pathname + (s ? '?' + s : '') + location.hash);
+  }
+
+  /* Navbar：不传 ?state 时按滚动位置切换 */
+  function onScroll() { if (!forcedState) root.setAttribute('data-state', window.scrollY > 8 ? 'scrolled' : 'default'); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  /* 主题 */
+  function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+  function syncTheme() {
+    var label = isDark() ? '切换为亮色' : '切换为暗色';
+    document.querySelectorAll('.js-theme').forEach(function (b) { b.setAttribute('aria-label', label); var t = b.querySelector('.theme-text'); if (t) t.textContent = label; });
+  }
+  document.querySelectorAll('.js-theme').forEach(function (b) {
+    b.addEventListener('click', function () { var next = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', next); writeQuery('theme', next); syncTheme(); });
+  });
+  syncTheme();
+
+  /* 定价周期 */
+  function setCycle(c, persist) {
+    root.setAttribute('data-cycle', c);
+    var sw = document.querySelector('.js-switch'); if (sw) sw.setAttribute('aria-checked', c === 'yearly' ? 'true' : 'false');
+    document.querySelectorAll('.js-cycle').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-cycle') === c ? 'true' : 'false'); });
+    if (persist) writeQuery('cycle', c === 'monthly' ? null : c);
+  }
+  var sw = document.querySelector('.js-switch');
+  if (sw) sw.addEventListener('click', function () { setCycle(root.getAttribute('data-cycle') === 'yearly' ? 'monthly' : 'yearly', true); });
+  document.querySelectorAll('.js-cycle').forEach(function (b) { b.addEventListener('click', function () { setCycle(b.getAttribute('data-cycle'), true); }); });
+
+  /* Sheet */
+  var lastFocus = null;
+  function openMenu(persist) {
+    lastFocus = document.activeElement;
+    root.setAttribute('data-open', 'menu');
+    document.querySelectorAll('.js-open-menu').forEach(function (b) { b.setAttribute('aria-expanded', 'true'); });
+    var first = document.querySelector('#sheet .js-close-menu'); if (first) first.focus();
+    if (persist) writeQuery('open', 'menu');
+  }
+  function closeMenu() {
+    if (!root.hasAttribute('data-open')) return;
+    root.removeAttribute('data-open');
+    document.querySelectorAll('.js-open-menu').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
+    writeQuery('open', null);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  document.querySelectorAll('.js-open-menu').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); b.addEventListener('click', function () { openMenu(true); }); });
+  document.querySelectorAll('.js-close-menu').forEach(function (b) { b.addEventListener('click', closeMenu); });
+  document.querySelectorAll('.sheet-nav a').forEach(function (a) { a.addEventListener('click', closeMenu); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeMenu();
+    if (e.key === 'Tab' && root.hasAttribute('data-open')) {
+      var f = Array.prototype.slice.call(document.querySelectorAll('#sheet a, #sheet button')).filter(function (el) { return el.tabIndex >= 0; });
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  /* 不可达项：阻止跳转（保留 href 便于审查） */
+  document.querySelectorAll('a[aria-disabled="true"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+
+  /* 导航当前项：跟随 hash */
+  function syncCurrent() {
+    var h = location.hash || '';
+    document.querySelectorAll('[data-nav]').forEach(function (a) {
+      var on = a.getAttribute('href') === h;
+      if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('hashchange', syncCurrent); syncCurrent();
+})();
+</script>
+</body>
+</html>

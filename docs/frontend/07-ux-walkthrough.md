@@ -1,4 +1,105 @@
-# 07 · 体验官走查报告（orders + form 合入后全量走查）
+# 07 · 体验官走查报告
+
+> 本文件按轮次自上而下叠加：**第 2 轮复查（当前结论）** 在前，第 1 轮全量走查保留在后作为历史与 P2/P3 原始描述。
+
+---
+
+## 第 2 轮 · 复查（P1 修复复验 + 主流程回归）
+
+> 角色：roles/legal-research/user-experience-officer（体验官）。
+> 对象：`fe01/integration` @ `01ab5852ddb23d5df21f2e9fa77c2f7e5ccad179`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。该提交 = 上一版报告（@6f4fe2a）之后的修复提交「fix(reference): 修复走查/QA P1——侧栏与「查看全部」走 react-router Link、订单菜单动作不再被菜单关闭覆盖、form 第 3 步不预报条款错误」。
+> 范围（时间盒 30 分钟，按任务只做两件事）：① 逐条复验上轮 P1-1 / P1-2 / P1-3；② 回归 login / dashboard / orders / form 主流程。`components` / `landing` / `chat` 本轮明确未合入，不在范围、不计缺失。**不再全量探索**，上轮 P2/P3 只顺带记录是否仍复现，不新增深挖。
+> 方法：`pnpm install --frozen-lockfile`（根）→ `apps/reference`：`pnpm lint && pnpm typecheck && pnpm build` → `pnpm preview --port 4173`（base `/apps/reference/`）。Playwright 1.62.1（复用根 `tools/shoot` 依赖，Chromium headless-shell 1234）以真实用户方式操作：**1440×900 鼠标**（真实坐标 click / hover）与 **375×812 触屏**（`isMobile + hasTouch`，DPR 2，`tap`）× **亮 / 暗**（`prefers-color-scheme`，不带 `?theme=`）= 4 组合，每组合跑同一脚本 `~/ux2/walk.mjs`（仓库外），日志 `~/ux2/run-<viewport>-<theme>.out`；截图 `shots/ux2/<name>-<viewport>-<theme>.png`（**不入库**，共 108 张）。下文「截图」均指该目录。
+> 事实分级：✅ 实测通过 · ❌ 实测缺陷 · ⚠️ 未定论 · 「推断」= 读源码得出、未实测。**不改产品代码。**
+
+### 0. 结论
+
+**verdict = pass**（P0 = 0，P1 = 0）。上轮 3 条 P1 在 4 组合下**全部实测已修复**；主流程（登录 → 仪表盘 → 侧栏/「查看全部」进订单 → 筛选/排序/批量/详情/取消/删除/撤销/分页/状态 → 三步建采购单并提交/失败/离开确认）4 组合 **53（1440）/ 50（375）项断言 0 ❌**，console error 4 组合均为 0，375 全程 `scrollWidth = 375`，暗色无白块。
+
+| 级别 | 数量 | 摘要 |
+| --- | --- | --- |
+| P0 | 0 | — |
+| P1 | 0 | 上轮 P1-1 / P1-2 / P1-3 均已修复（§1） |
+| P2 | 8 | 上轮 P2-1 ~ P2-7 本轮顺带复测**均仍复现**（未在修复范围，见 §3）+ 新增 P2-8 侧栏可用项与禁用项视觉无差别 |
+| P3 | 6 | 上轮 P3-1 ~ P3-5 仍复现 + 新增 P3-6 步骤切换后焦点落 body |
+
+### 1. 上轮 P1 逐条复验（4 组合：1440 亮 / 1440 暗 / 375 亮 / 375 暗）
+
+| 上轮编号 | 现象 | 本轮结果 | 证据 |
+| --- | --- | --- | --- |
+| P1-1 /orders、/form 应用内无入口，入口说「后续轮次提供」 | ✅ **已修复（orders 部分）**。侧栏「订单 63」`<a href="/apps/reference/orders">`、无 `aria-disabled`，1440 hover **无** Tooltip；点击 / 375 导航抽屉 tap → `/orders`，h1「订单」；/orders 页侧栏「订单」`aria-current=page` 且无 `aria-disabled`。仪表盘「最近订单 → 查看全部」`href=/apps/reference/orders` 可点进订单页；另一处「查看全部」（`/activity`）保持 `aria-disabled` 且 1440 hover 出 Tooltip「后续轮次提供」（上轮是无任何反馈）。从 /orders 点侧栏「仪表盘」留在 `/`、h1「仪表盘」（QA-17 同修）。 | 4 组合日志 `P1-1 *` 6/6 ✅；截图 `dashboard-nav-orders-*`、`orders-default-*` |
+| P1-1 中的「/form 无入口」 | ⚠️ **未修，按 brief 视为设计决定**：侧栏「采购」仍 `aria-disabled` + Tooltip「后续轮次提供」；/form 仍只能输 URL 到达。修复提交说明引用 brief §11.10-E「本轮不做 /purchasing」。体验官意见：对用户仍是「找不到新建采购单」，但既是需求侧决定，本轮**降为 P3-7 记录**，不阻塞。 | 截图 `dashboard-nav-orders-*`（采购项灰） |
+| P1-2 订单行菜单「查看详情 / 取消订单 / 删除订单」静默无效 | ✅ **已修复**。SO-20260906-0107 菜单 →「查看详情」→ 右侧抽屉（375 底部 Sheet）打开，URL `?open=drawer&order=SO-20260906-0107`；Esc 关闭后 URL 干净，1440 焦点回该行。同单菜单 →「取消订单」→ AlertDialog `?open=dialog-cancel&order=…`；未选原因点「确认取消」→ 下拉 `aria-invalid`；选「买家取消」→ Toast「订单 SO-20260906-0107 已取消」、行状态「已取消」。SO-20260906-0077 菜单 →「删除订单」→ AlertDialog `?open=dialog-delete`，默认焦点「返回」；删除 → 行消失 + Toast「已删除 / 撤销」；「撤销」→ 行回来。菜单 Esc → URL 无 `open=`；「复制订单号」仍出 Toast「已复制」。 | 4 组合日志 `P1-2 *` 3/3 ✅ + 后续 8 项 ✅；截图 `orders-rowmenu-open-*`、`orders-menu-view-drawer-*`、`orders-menu-cancel-dialog-*`、`orders-after-cancel-*`、`orders-menu-delete-dialog-*`、`orders-toast-deleted-*` |
+| P1-3 采购单第 3 步一进入就报「还有 1 项需要修正」并滚到底 | ✅ **已修复**。第 1 步「下一步」→ 第 2 步 → 「下一步」进入第 3 步：`role=alert` 0 个、「请先阅读并同意」0 处、`scrollY = 0`，「请核对采购单」核对卡在首屏可见（375 亦是）。未勾条款直接点「提交采购单」→ 2 个 alert（顶部汇总 + 字段）、焦点到 `#terms`——即错误只在用户动作后出现，符合「内联校验」预期。 | 4 组合日志 `P1-3 *` ✅；截图 `form-step3-entry-*`、`form-step3-terms-error-*` |
+
+### 2. 主流程回归（4 组合一致，除注明）
+
+登录 /login：
+- ✅ h1「登录」；空提交 → 「请输入邮箱」「请输入密码」，焦点回邮箱；错误账号 → 「登录中…」→ Alert「邮箱或密码不正确。连续 5 次失败后账号将锁定 15 分钟。」；修改邮箱后 Alert 清除；正确账号 → `/?toast=login`，h1「仪表盘」，Toast「欢迎回来，若琳」（**本轮 4 组合成功路径均实测**，补上上轮亮色未测的缺口）。截图 `login-error-*`、`login-success-*`。
+- ❌ P3-4 后退回 /login：邮箱空、「记住我」未勾（仍复现）。
+
+仪表盘 /：
+- ✅ 无横向溢出；侧栏「订单」可点（§1）；主题按钮切换后 `data-theme` 与 body 背景同步变化，**刷新后保持**（截图 `dashboard-theme-toggled-*`）；「日」→ `?period=day`；通知铃铛 → 弹层含「全部标为已读」。
+- ❌ P2-5 仍复现：最近订单行菜单「查看详情」→ Toast「查看详情 / 后续轮次提供」，而 /orders 已可达（1440 两主题实测）。
+- ❌ P3-1 仍复现：顶栏全局搜索输入「SO-2026」回车 → URL 不变、无 Toast（1440）。
+- ❌ **P2-8（新增）**：侧栏里可用的「订单」与不可用的「售后 / 商品 / 库存 / 采购 / 报表 / 设置」**视觉完全一样**（同为 `fg-muted` 灰字、同图标灰度；徽标也同样式），只有 hover 才知道哪些点得动、375 触屏则完全无法预知（截图 `dashboard-nav-orders-mobile-*` 抽屉 8 项中 2 可用 6 不可用，肉眼不可分）。AGENTS「fg-disabled 只用于不可聚焦 disabled」契约导致 `aria-disabled` 项保持 `fg-muted`，这是令牌层决定——**建议交设计侧**：为 `aria-disabled` 导航项加可感知差异（如更低 opacity 令牌、右侧「即将推出」小标、或直接不渲染未实现项）。不改令牌，故本轮只记 P2。
+
+订单 /orders：
+- ✅（1440）搜索「周雅婷」→ 15 单；无结果 → 空态「没有符合条件的订单」+「清除筛选」→ 731；状态「待发货」→ 63；金额排序三态；选行 → 「已选 N 单」批量条；第 2 页 → `?page=2`。截图 `orders-search-empty-*`、`orders-filter-status-*`、`orders-bulk-bar-*`、`orders-pagination-*`。
+- ✅（375）卡片 tap → 抽屉 Sheet `?open=drawer&order=SO-20260906-0108`；「筛选」→ Sheet「筛选订单」→ 选「待发货」→ 底部按钮实时「查看 63 单」→ 应用后「筛选出 63 单」+ 按钮「筛选 · 1」→「清除筛选」→ 731；「下一页」→ `?page=2`。截图 `orders-drawer-mobile-*`、`orders-filter-sheet-*`、`orders-filtered-mobile-*`。
+- ✅ `?state=loading / empty-filter / empty-new / error` 四态文案正确（截图 `orders-state-*`）。
+- ❌ P2-2 仍复现：第 4 页 `aria-disabled=true`，hover 无 `[role=tooltip]`（1440 两主题）。
+- ❌ P2-6 仍复现：375 取消订单确认后焦点落 `body`（1440 回行 ✅）。
+- ⚠️ P2-1（日期范围文案）/ P2-3（每页 50 下一页）本轮未重跑（不在复查范围，上轮结论沿用）。
+
+新建采购单 /form：
+- ✅ 摘要卡 ¥40,760.00 / ¥41,560.00；第 1 步清空联系人 → 「请填写联系人」+ 焦点回字段、停留第 1 步；第 2 步 → 第 3 步无误报（§1）；条款链接「《采购条款》」→ Dialog「采购条款」→「我知道了」关闭；勾选后错误清除；提交 → 「提交中…」→ Result「采购单已提交」，焦点在「查看采购单」；`?step=3&fail=1` 提交 → Alert「提交失败…」，焦点到「重新提交」；「保存草稿」→ Toast「草稿已保存」；改动后点侧栏「仪表盘」→ AlertDialog「离开页面？」→「放弃并离开」→ 仪表盘；375 显示「第 3 步，共 3 步」。截图 `form-step1-*`、`form-step1-invalid-*`、`form-step2-*`、`form-success-*`、`form-error-*`、`form-leave-dialog-*`。
+- ❌ P2-6 仍复现：条款 Dialog「我知道了」关闭后焦点落 `body`（4 组合）。
+- ❌ P2-7 仍复现：「再建一张」后联系人仍是「吴丽华」。
+- ❌ **P3-6（新增）**：「下一步」进入第 3 步后 `document.activeElement = body`（4 组合实测 `focus=body`；进入第 2 步的焦点未单独记录，推断同源），键盘用户需从页首重新 Tab；建议把焦点放到当前步标题或第一个字段（不阻塞鼠标/触屏用户，记 P3）。
+- ⚠️ P2-4（附件类型/大小校验）本轮未重跑。
+
+### 3. P2 / P3 汇总（本轮口径）
+
+P2（8）：
+- P2-1 日期范围「开始日期 – 结束日期」点击 Toast「自定义日期范围将在实现阶段提供」内部术语泄漏（上轮，未重测，沿用）。
+- P2-2 样本外页码无可见 Tooltip（本轮 1440 复现）。
+- P2-3 每页 50 时「下一页」可点无效（上轮，未重测）。
+- P2-4 附件类型 / 大小 / 数量无校验反馈（上轮，未重测）。
+- P2-5 仪表盘最近订单菜单「查看详情」仍 Toast「后续轮次提供」，与已可达的 /orders 矛盾（本轮复现）。
+- P2-6 条款 Dialog 关闭 / 375 取消订单确认后焦点落 body（本轮复现）。
+- P2-7 「再建一张」仍是同一张草稿（本轮复现）。
+- **P2-8（新）** 侧栏可用项与 `aria-disabled` 项视觉无差别，375 触屏无法预知哪些可点。
+
+P3（7）：
+- P3-1 顶栏全局搜索回车无反馈；/orders 与 /form 375 顶栏搜索图标显示不一致（/orders 隐藏、/form 显示）。
+- P3-2 form 成功页主按钮「查看采购单」仅 Toast「后续轮次提供」。
+- P3-3 form 标签数量无上限提示（上轮，未重测）。
+- P3-4 登录成功后后退回 /login，邮箱与「记住我」不保留（本轮复现）。
+- P3-5 仪表盘与订单页行菜单项目不一致（上轮，未重测）。
+- **P3-6（新）** form 步骤切换后焦点落 body。
+- **P3-7（新，由上轮 P1-1 降级）** /form 在应用内仍无入口（侧栏「采购」按 brief §11.10-E 保持禁用），仅可直输 URL；建议下一轮在「采购」实现或至少给仪表盘 / 订单页一个「新建采购单」入口时一并解决。
+
+### 4. 未覆盖（untested，如实标注）
+- 上轮 P2-1 / P2-3 / P2-4 / P3-3 / P3-5 本轮未重跑（复查时间盒只覆盖 P1 与主流程）。
+- 键盘全程 Tab 顺序 / 焦点环未单独走查，依赖 `a11y.mjs`（§5）。
+- 768 / 1024 视口；真实 iOS / Android 浏览器（本轮为 Chromium 触屏模拟）。
+- 订单「标记加急 / 打印面单 / 修改地址」、抽屉备注添加、form 附件拖放、日期 Picker 手指操作等次要动作。
+
+### 5. 门禁实跑结果（`apps/reference/`，`~/gates.log`、`~/ux2/a11y-*.log`）
+- `pnpm lint` ✅（eslint + no-hardcode：75 个文件通过）
+- `pnpm typecheck` ✅
+- `pnpm build` ✅（vite 构建成功，仅 chunk > 500 kB warning）
+- `node tools/a11y.mjs dashboard` ✅ ALL PASS；`node tools/a11y.mjs form` ✅ ALL PASS（185 PASS / 0 FAIL）；`node tools/a11y.mjs orders` **首跑 2 FAIL**（`mobile/light|dark/success-drawer-logistics 键盘可达 0 个元素`），**复跑 ALL PASS**。独立探针（375 触屏直开 `?open=drawer&order=SO-20260906-0095&tab=logistics`，连按 Tab）实测 Sheet 内依次聚焦「关闭详情 → 物流 → 复制运单号」3 个元素且焦点环均可见，items / remarks 同样可达；结合 a11y.mjs 在 Tab 前先 `mouse.click(1,1)`（375 下会点到 Sheet 遮罩、触发关闭动画）判断首跑 FAIL 为工具时序抖动，**不是产品缺陷**，但写明以便复核（`~/ux2/a11y-orders.log` L214/L307，`~/ux2/a11y-orders-rerun.log`）。
+- 说明：本轮未重跑 shoot / compare（像素门禁与本次 P1 行为修复无关，修复提交自述 dashboard 56/56、orders 86/86、form 84/84 ≥ 95%，**此为转述、本轮未复核**）。
+
+本报告只新增/覆写本文件，未改任何产品代码、令牌、hifi、content、mock。
+
+---
+
+
+## 第 1 轮 · 全量走查（@6f4fe2a，历史存档）
+
 
 > 角色：roles/legal-research/user-experience-officer（体验官）。
 > 对象：`fe01/integration` @ `6f4fe2a50296086d5fae9b6d828a651b7ccdf53c`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date，即集成分支已含 main）。

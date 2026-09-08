@@ -1,10 +1,14 @@
 import * as React from "react"
+import { Slot } from "radix-ui"
 import { cn } from "@/lib/cn"
 
-/** 卡片：hifi .card —— surface / 1px border / radius.lg / shadow.sm / space.6 内距 */
-function Card({ className, ...props }: React.ComponentProps<"section">) {
+type CardProps = React.ComponentProps<"section"> & { asChild?: boolean }
+
+/** 卡片：hifi .card —— surface / 1px border / radius.lg / shadow.sm / space.6 内距；asChild 时把卡片外观套到子元素（如可点击的 button） */
+function Card({ className, asChild, ...props }: CardProps) {
+  const Comp = asChild ? Slot.Root : "section"
   return (
-    <section
+    <Comp
       data-slot="card"
       className={cn("min-w-0 rounded-lg border bg-surface p-6 text-fg shadow-sm mobile:p-4", className)}
       {...props}

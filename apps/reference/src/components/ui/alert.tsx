@@ -25,14 +25,16 @@ type AlertProps = React.ComponentProps<"div"> &
   VariantProps<typeof alertVariants> & {
     closeLabel?: string
     onClose?: () => void
+    /** 覆盖变体默认图标（lucide） */
+    icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>
     /** 右侧动作区（hifi .alert-actions）：与关闭按钮同行 */
     actions?: React.ReactNode
     /** ≤768 时动作区换行、右对齐（hifi .alert-stack） */
     wrapActions?: boolean
   }
 
-function Alert({ className, variant, closeLabel, onClose, actions, wrapActions, children, ...props }: AlertProps) {
-  const Icon = icons[variant ?? "danger"]
+function Alert({ className, variant, closeLabel, onClose, icon, actions, wrapActions, children, ...props }: AlertProps) {
+  const Icon = icon ?? icons[variant ?? "danger"]
   return (
     <div
       role="alert"

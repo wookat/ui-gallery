@@ -92,7 +92,13 @@ function itemsText(o: Order) {
   )
 }
 
-function OrderMenu({ order, open, onOpenChange }: { order: Order; open?: boolean; onOpenChange: (o: boolean) => void }) {
+/** 菜单项本轮不接业务：选中即关菜单并以 Toast 给「后续轮次提供」反馈（与导航禁用项 Tooltip 同一文案） */
+const orderAction = (key: string) => () => {
+  toast.info(t(`dashboard.orders.action.${key}`), { description: t("shell.nav.disabled.tip"), duration: tokenMs("--timing-toast-stay") })
+}
+
+/** 始终受控：open 只能是 boolean，受控 / 非受控切换会让 Radix 内部状态残留 open */
+function OrderMenu({ order, open, onOpenChange }: { order: Order; open: boolean; onOpenChange: (o: boolean) => void }) {
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
@@ -101,17 +107,17 @@ function OrderMenu({ order, open, onOpenChange }: { order: Order; open?: boolean
         </IconButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent compact aria-label={t("dashboard.orders.action.menu")}>
-        <DropdownMenuItem>
+        <DropdownMenuItem onSelect={orderAction("view")}>
           <EyeIcon /> {t("dashboard.orders.action.view")}
         </DropdownMenuItem>
-        <DropdownMenuItem disabled={!canShip(order)}>
+        <DropdownMenuItem disabled={!canShip(order)} onSelect={orderAction("ship")}>
           <PackageCheckIcon /> {t("dashboard.orders.action.ship")}
         </DropdownMenuItem>
-        <DropdownMenuItem disabled={!canShip(order)}>
+        <DropdownMenuItem disabled={!canShip(order)} onSelect={orderAction("print")}>
           <PrinterIcon /> {t("dashboard.orders.action.print")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="danger" disabled={!canCancel(order)}>
+        <DropdownMenuItem variant="danger" disabled={!canCancel(order)} onSelect={orderAction("cancel")}>
           <BanIcon /> {t("dashboard.orders.action.cancel")}
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -158,7 +164,7 @@ function SuccessView({ period, menu, setMenu }: { period: Period; menu: string |
   const donut = series.channels.items.map((c) => ({ key: c.key, label: channelLabel(c.key), value: c.gmv, share: c.share }))
   const summaryId = "trend-summary"
   const orderMenu = (o: Order, suffix: string) => (
-    <OrderMenu order={o} open={menu === `${o.id}${suffix}` || undefined} onOpenChange={(open) => setMenu(open ? `${o.id}${suffix}` : null)} />
+    <OrderMenu order={o} open={menu === `${o.id}${suffix}`} onOpenChange={(open) => setMenu(open ? `${o.id}${suffix}` : null)} />
   )
 
   return (

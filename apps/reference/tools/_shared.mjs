@@ -1,5 +1,5 @@
 // shoot / compare / a11y 共用：静态服务、视口、状态清单、Playwright（复用 tools/shoot 固定的 1.62.1）
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { dirname, extname, join, resolve } from "node:path";
@@ -69,7 +69,12 @@ const mime = {
   ".md": "text/markdown",
 };
 
-/** 静态服务 apps/reference/dist（缺失或 --build 时先 pnpm build） */
+/**
+ * 静态服务 apps/reference/dist（缺失或 --build 时先 pnpm build）。
+ * 行为对齐生产托管 wrangler.jsonc（`html_handling: "auto-trailing-slash"` + `not_found_handling: "none"`）：
+ * 目录缺尾斜杠 → 307 补斜杠（保留查询串）；有 index.html 的目录 → 200；其余不存在的路径 → 404，不回退 SPA 入口，
+ * 这样本地门禁能暴露「客户端路由没落盘」这类只在生产出现的问题。
+ */
 export async function serveDist() {
   const dist = join(appDir, "dist");
   if (!existsSync(join(dist, "index.html")) || process.argv.includes("--build")) {
@@ -77,10 +82,15 @@ export async function serveDist() {
     execFileSync("pnpm", ["build"], { cwd: appDir, stdio: "inherit" });
   }
   const server = createServer((req, res) => {
-    const path = decodeURIComponent(req.url.split("?")[0]);
-    if (!path.startsWith(BASE)) return res.writeHead(404).end();
+    const [rawPath, query] = req.url.split("?");
+    const path = decodeURIComponent(rawPath);
+    if (path !== BASE && !path.startsWith(`${BASE}/`)) return res.writeHead(404).end();
     let file = join(dist, path.slice(BASE.length) || "/");
-    if (!existsSync(file) || !extname(file)) file = join(dist, "index.html");
+    if (existsSync(file) && statSync(file).isDirectory()) {
+      if (!path.endsWith("/")) return res.writeHead(307, { location: `${path}/${query ? `?${query}` : ""}` }).end();
+      file = join(file, "index.html");
+    }
+    if (!existsSync(file)) return res.writeHead(404).end();
     res.writeHead(200, { "content-type": mime[extname(file)] || "application/octet-stream" });
     res.end(readFileSync(file));
   });

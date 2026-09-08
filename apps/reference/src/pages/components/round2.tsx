@@ -1,12 +1,16 @@
 import * as React from "react"
-import { LayoutGridIcon, ListIcon, MoreHorizontalIcon } from "lucide-react"
+import { BellIcon, LayoutGridIcon, ListIcon, MailIcon, MonitorIcon, MoreHorizontalIcon, ReceiptTextIcon, ShieldIcon, SmartphoneIcon, Trash2Icon, UserIcon, XIcon } from "lucide-react"
 
+import { AnchorNav } from "@/components/composed/anchor-nav"
+import { Avatar } from "@/components/composed/avatar"
 import { ChatBubble, Composer, ConversationItem, SourceChip, SuggestionChip, ToolCall } from "@/components/composed/chat"
 import { CodeBlock } from "@/components/composed/code-block"
+import { MemberRow } from "@/components/composed/member-row"
 import { PageHeader, Toolbar, ToolbarSpacer } from "@/components/composed/page-header"
 import { PricingCard } from "@/components/composed/pricing-card"
 import { Result } from "@/components/composed/result"
 import { SearchInput } from "@/components/composed/search-input"
+import { SessionRow } from "@/components/composed/session-row"
 import { Stepper } from "@/components/composed/stepper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import {
@@ -39,12 +43,13 @@ import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Slider, SliderValues } from "@/components/ui/slider"
 import { Switch, SwitchField } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TagInput } from "@/components/ui/tag-input"
 import { orderStatus, t } from "@/data/content"
 import { channelLabel, mock } from "@/data/mock"
-import { formatCurrency, formatCurrencyWhole, formatDateTime, formatInteger, formatMonthDay, formatTime } from "@/lib/format"
+import { formatCurrency, formatCurrencyWhole, formatDateTime, formatFullDateTime, formatInteger, formatMonthDay, formatRelativeToAsOf, formatTime } from "@/lib/format"
 
-import { bind, demo, DemoBox, GRID_3, K, Matrix as KitMatrix, Row, TABLE_PAGE_COUNT, TABLE_PAGE_SIZE, TABLE_TOTAL, type OverlayProps, type State } from "./kit"
+import { bind, demo, DemoBox, GRID_2, GRID_3, K, Matrix as KitMatrix, Row, TABLE_PAGE_COUNT, TABLE_PAGE_SIZE, TABLE_TOTAL, type OverlayProps, type State } from "./kit"
 
 /**
  * /kitchen-sink 第 2 轮追加区块（orders / form / settings / components / landing / chat 六屏所需控件）。
@@ -214,9 +219,8 @@ const cancelReasons = [...new Set(mock.ordersAll.flatMap((o) => ("cancelReason" 
 
 export function OverlayExtras(overlay: OverlayProps) {
   const order = mock.ordersAll[0]
-  const status = orderStatus[order.status]
   return (
-    <Row label="Dialog / AlertDialog / Drawer" cols={["Dialog", "AlertDialog", "Drawer"]}>
+    <Row label="Dialog / AlertDialog" cols={["Dialog", "AlertDialog"]}>
       <Dialog {...bind(overlay, "dialog")}>
         <DialogTrigger asChild>
           <Button variant="secondary" size="sm">
@@ -264,7 +268,16 @@ export function OverlayExtras(overlay: OverlayProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </Row>
+  )
+}
 
+/** Drawer 示例（hifi 卡「Sheet · Drawer · Anchor」第 2 格；由 demos.OverlayDemo part="sheet" 引用） */
+export function DrawerExample(overlay: OverlayProps) {
+  const order = mock.ordersAll[0]
+  const status = orderStatus[order.status]
+  return (
+    <DemoBox caption={C("sample.drawer.caption")} className="w-full">
       <Drawer {...bind(overlay, "drawer")}>
         <DrawerTrigger asChild>
           <Button variant="secondary" size="sm">
@@ -290,19 +303,84 @@ export function OverlayExtras(overlay: OverlayProps) {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
-    </Row>
+    </DemoBox>
+  )
+}
+
+const ANCHOR_ITEMS = ["profile", "notifications", "security", "billing", "danger"] as const
+
+/** Anchor 页内导航示例（hifi .anchor-nav：设置分区，第 2 项 hover 态） */
+export function AnchorExample() {
+  const [active, setActive] = React.useState<string>(ANCHOR_ITEMS[0])
+  return (
+    <DemoBox caption={C("sample.anchor.caption")} className="w-full">
+      <AnchorNav
+        aria-label={C("sample.anchor.caption")}
+        items={ANCHOR_ITEMS.map((id) => ({ id, label: C(`sample.anchor.${id}`), href: "#overlay", demo: id === "notifications" ? ("hover" as const) : undefined }))}
+        activeId={active}
+        onActivate={setActive}
+      />
+    </DemoBox>
   )
 }
 
 /* ---------------- 导航追加：Segmented / Stepper / Accordion ---------------- */
+const ORDER_TABS = ["all", "pending_shipment", "refunding"] as const
+/** hifi 孤立演示口径：全部 = TABLE_TOTAL（与 Pagination 演示同源）；待发货取 ordersSummary；退款中 = ordersAll 样本内计数 */
+const orderTabCount = (key: (typeof ORDER_TABS)[number]) =>
+  key === "all" ? TABLE_TOTAL : key === "refunding" ? mock.ordersAll.filter((o) => o.status === "refunding").length : mock.ordersSummary.byStatus[key]
+const RECOMMENDED_PLAN = mock.settings.billing.plans.find((p) => p.recommended) ?? mock.settings.billing.plans[0]
+/** 年付折省比例：1 − yearly / (monthly × 12)，按推荐套餐计算（2990 / 3588 → 17%） */
+const YEARLY_SAVE_PERCENT = Math.round((1 - RECOMMENDED_PLAN.yearly / (RECOMMENDED_PLAN.monthly * 12)) * 100)
+const SETTINGS_TAB_ICONS = { profile: UserIcon, notifications: BellIcon, security: ShieldIcon, billing: ReceiptTextIcon } as const
+const SETTINGS_TABS = (Object.keys(SETTINGS_TAB_ICONS) as (keyof typeof SETTINGS_TAB_ICONS)[]).flatMap((key) => {
+  const tab = mock.settings.tabs.find((x) => x.key === key)
+  return tab ? [{ ...tab, key, Icon: SETTINGS_TAB_ICONS[key] }] : []
+})
+const PAID_ORDER = mock.ordersAll.find((o) => o.status === "pending_shipment" && o.paidAt) ?? mock.ordersAll[0]
+
 export function NavExtras({ part }: { part: "tabs" | "menu" }) {
   const [view, setView] = React.useState("list")
+  const [cycle, setCycle] = React.useState("yearly")
   const statusLabels = { done: t("form.stepper.status.done"), current: t("form.stepper.status.current"), todo: t("form.stepper.status.todo"), error: K("state.error") }
+  const shipSteps = [
+    { key: "paid", label: C("sample.stepper.paid"), description: PAID_ORDER.paidAt ? formatFullDateTime(PAID_ORDER.paidAt) : undefined },
+    { key: "shipFailed", label: C("sample.stepper.shipFailed"), description: C("sample.stepper.shipFailedHint") },
+    { key: "delivered", label: C("sample.stepper.delivered") },
+  ]
   return (
     <>
       {part === "tabs" && (
         <>
-      <Row label="Segmented" cols={[K("state.default"), K("state.disabled"), "icon"]}>
+      <Row label="Tabs line / vertical" cols={["line", "vertical"]}>
+        <Tabs variant="line" defaultValue="all">
+          <TabsList aria-label={C("sample.tabs.orders.aria")}>
+            {ORDER_TABS.map((key) => (
+              <TabsTrigger key={key} value={key} data-demo={key === "refunding" ? "focus" : undefined}>
+                {key === "all" ? C("sample.tabs.orders.all") : orderStatus[key]?.label}
+                <span className="font-mono text-role-caption tabular-nums">{formatInteger(orderTabCount(key))}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {ORDER_TABS.map((key) => (
+            <TabsContent key={key} value={key} forceMount hidden className="hidden" />
+          ))}
+        </Tabs>
+        <Tabs variant="vertical" defaultValue={SETTINGS_TABS[0]?.key}>
+          <TabsList aria-label={C("sample.tabs.settings.aria")}>
+            {SETTINGS_TABS.map(({ key, label, Icon }) => (
+              <TabsTrigger key={key} value={key}>
+                <Icon />
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {SETTINGS_TABS.map(({ key }) => (
+            <TabsContent key={key} value={key} forceMount hidden className="hidden" />
+          ))}
+        </Tabs>
+      </Row>
+      <Row label="Segmented" cols={[K("state.default"), K("state.disabled"), "icon", t("settings.billing.cycle.aria")]}>
         <Segmented type="single" value={view} onValueChange={(v) => v && setView(v)} aria-label={C("sample.segmented.aria")}>
           <SegmentedItem value="list">{K("sample.segmented.list")}</SegmentedItem>
           <SegmentedItem value="cards">{K("sample.segmented.cards")}</SegmentedItem>
@@ -319,11 +397,21 @@ export function NavExtras({ part }: { part: "tabs" | "menu" }) {
             <LayoutGridIcon />
           </SegmentedItem>
         </Segmented>
+        <Segmented type="single" value={cycle} onValueChange={(v) => v && setCycle(v)} aria-label={t("settings.billing.cycle.aria")}>
+          <SegmentedItem value="monthly">{t("settings.billing.cycle.monthly")}</SegmentedItem>
+          <SegmentedItem value="yearly">
+            {t("settings.billing.cycle.yearly")}
+            <Tag tone="success" dot={false}>
+              {C("sample.segmented.savePercent", { n: formatInteger(YEARLY_SAVE_PERCENT) })}
+            </Tag>
+          </SegmentedItem>
+        </Segmented>
       </Row>
-      <Row label="Stepper" wide cols={[`${K("state.active")} · 2/3`, K("state.error"), K("state.success")]}>
+      <Row label="Stepper" wide cols={[`${K("state.active")} · 2/3`, K("state.error"), K("state.success"), "vertical"]}>
         <Stepper steps={form.steps} current={1} statusLabels={statusLabels} aria-label={t("form.stepper.aria")} compactLabel={t("form.stepper.step", { n: 2 })} />
         <Stepper steps={form.steps} current={1} errorAt={1} statusLabels={statusLabels} aria-label={t("form.stepper.aria")} />
         <Stepper steps={form.steps} current={3} statusLabels={statusLabels} aria-label={t("form.stepper.aria")} />
+        <Stepper orientation="vertical" steps={shipSteps} current={1} errorAt={1} statusLabels={statusLabels} aria-label={C("sample.stepper.verticalAria")} />
       </Row>
         </>
       )}
@@ -457,6 +545,114 @@ export function LayoutSection() {
   )
 }
 
+/** MemberRow 示例：当前用户（角色禁用 + 「你」）/ 普通成员（可改角色 + 移除）/ 待接受邀请（data-pending） */
+function MemberRows() {
+  const team = mock.settings.team
+  const me = mock.team.find((m) => m.id === mock.user.id) ?? mock.team[0]
+  const candidates = mock.team.filter((m) => m.id !== me.id && m.role !== "admin")
+  const stateOf = (id: string) => team.members.find((m) => m.id === id)
+  const other = candidates.find((m) => {
+    const s = stateOf(m.id)
+    return s ? formatRelativeToAsOf(s.lastActiveAt) !== null : false
+  }) ?? candidates[0] ?? mock.team[1]
+  const otherState = stateOf(other.id)
+  const invite = team.pendingInvites[0]
+  const inviter = mock.team.find((m) => m.id === invite?.invitedBy)
+  const [otherRole, setOtherRole] = React.useState(other.role)
+  const [inviteRole, setInviteRole] = React.useState(invite?.role ?? team.roles[1].key)
+  const lastActive = otherState ? formatRelativeToAsOf(otherState.lastActiveAt) ?? formatTime(otherState.lastActiveAt) : null
+  return (
+    <DemoBox caption={C("sample.member.caption")} className="w-full">
+      <div className="flex w-full flex-col">
+        <MemberRow
+          avatar={<Avatar initial={me.initial} hue={me.avatarHue} aria-hidden />}
+          name={me.name}
+          meta={me.email}
+          roles={team.roles}
+          role={me.role}
+          roleLabel={C("sample.member.roleAria", { name: me.name })}
+          roleDisabled
+          status={t("settings.team.you")}
+        />
+        <MemberRow
+          avatar={<Avatar initial={other.initial} hue={other.avatarHue} aria-hidden />}
+          name={other.name}
+          meta={other.email}
+          roles={team.roles}
+          role={otherRole}
+          roleLabel={C("sample.member.roleAria", { name: other.name })}
+          onRoleChange={setOtherRole}
+          status={lastActive ? C("sample.member.lastActive", { time: lastActive }) : undefined}
+          action={
+            <IconButton label={t("settings.team.remove.aria", { name: other.name })}>
+              <Trash2Icon />
+            </IconButton>
+          }
+        />
+        {invite ? (
+          <MemberRow
+            pending
+            avatar={
+              <Avatar initial="" aria-hidden>
+                <MailIcon />
+              </Avatar>
+            }
+            name={invite.email}
+            meta={C("sample.member.inviteSent", { date: formatMonthDay(invite.invitedAt), name: inviter?.name ?? "" })}
+            roles={team.roles}
+            role={inviteRole}
+            roleLabel={C("sample.member.inviteRoleAria", { email: invite.email })}
+            onRoleChange={setInviteRole}
+            status={<Tag dot={false}>{C("sample.member.pending")}</Tag>}
+            action={
+              <IconButton label={C("sample.member.revokeInvite", { email: invite.email })}>
+                <XIcon />
+              </IconButton>
+            }
+          />
+        ) : null}
+      </div>
+    </DemoBox>
+  )
+}
+
+/** SessionRow 示例：当前会话（success Tag + 相对时间）/ 其他会话（注销）/ 注销中（aria-busy） */
+function SessionRows() {
+  const sessions = mock.settings.security.sessions
+  const iconOf = (device: string) => (/iphone|android|移动端/i.test(device) ? <SmartphoneIcon /> : <MonitorIcon />)
+  return (
+    <DemoBox caption={C("sample.session.caption")} className="w-full">
+      <div className="flex w-full flex-col">
+        {sessions.map((s, i) => {
+          const isSameDay = s.lastActiveAt.slice(0, 10) === today
+          const busy = !s.current && i === sessions.length - 1
+          return (
+            <SessionRow
+              key={s.id}
+              icon={iconOf(s.device)}
+              device={s.device}
+              badge={s.current ? <Tag tone="success">{t("settings.security.sessions.current")}</Tag> : undefined}
+              meta={[s.location, s.ip, !s.current && !isSameDay ? formatDateTime(s.lastActiveAt) : null].filter(Boolean).join(" · ")}
+              trailing={
+                s.current ? (
+                  C("sample.session.justNow")
+                ) : (
+                  <Button variant="ghost" size="sm" loading={busy} aria-label={busy ? undefined : t("settings.security.sessions.revokeAria", { device: s.device })}>
+                    {busy ? C("sample.session.revoking") : t("settings.security.sessions.revoke")}
+                  </Button>
+                )
+              }
+            />
+          )
+        })}
+      </div>
+      <div className="flex w-full justify-end">
+        <Button variant="danger">{t("settings.security.sessions.revokeAll")}</Button>
+      </div>
+    </DemoBox>
+  )
+}
+
 /* ---------------- 复合：Result / PricingCard / Chat ---------------- */
 export type ComposedPart = "state" | "pricing" | "chat" | "md"
 
@@ -504,7 +700,8 @@ export function ComposedSection({ part }: { part: ComposedPart }) {
       )}
 
       {part === "pricing" && (
-      <Row label={`PricingCard · ${yearly ? t("landing.state.pricing.yearly") : t("landing.state.pricing.monthly")}`}>
+        <>
+      <DemoBox caption={`${C("sample.pricing.caption")} · ${yearly ? t("landing.state.pricing.yearly") : t("landing.state.pricing.monthly")}`} className="w-full">
         <div className="flex w-full flex-col gap-6">
           <SwitchField id="pricing-cycle" label={t("landing.pricing.toggle.aria")} hint={mock.landing.pricing.toggle.yearlyBadge} checked={yearly} onCheckedChange={setYearly} className="max-w-form-max" />
           <div className="grid gap-6 pt-3 md:grid-cols-3">
@@ -512,9 +709,10 @@ export function ComposedSection({ part }: { part: ComposedPart }) {
               <PricingCard
                 key={p.key}
                 name={p.label}
+                description={mock.landing.pricing.plans.find((x) => x.key === p.key)?.description}
                 price={formatCurrencyWhole(yearly ? p.yearly : p.monthly)}
                 suffix={yearly ? t("landing.pricing.perYear") : t("landing.pricing.perMonth")}
-                note={yearly ? t("landing.pricing.yearlyPerMonth", { n: formatInteger(Math.round(p.yearly / 12)) }) : undefined}
+                note={yearly ? [C("sample.pricing.perMonthApprox", { n: formatInteger(Math.round(p.yearly / 12)) }), p.recommended ? mock.landing.pricing.toggle.yearlyBadge : null].filter(Boolean).join(" · ") : undefined}
                 features={p.features}
                 featureLabels={{ included: t("landing.pricing.included"), excluded: K("state.disabled") }}
                 recommended={p.recommended}
@@ -532,8 +730,14 @@ export function ComposedSection({ part }: { part: ComposedPart }) {
               />
             ))}
           </div>
+          <p className="text-role-caption text-fg-muted">{mock.landing.pricing.footnote}</p>
         </div>
-      </Row>
+      </DemoBox>
+      <div className={GRID_2}>
+        <MemberRows />
+        <SessionRows />
+      </div>
+        </>
       )}
 
       {part === "chat" && (

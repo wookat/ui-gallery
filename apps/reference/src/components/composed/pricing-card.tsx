@@ -7,10 +7,12 @@ import { Tag } from "@/components/ui/badge"
 
 type PricingCardProps = React.ComponentProps<typeof Card> & {
   name: string
+  /** 套餐描述行（mock landing.pricing.plans[].description；hifi .plan > .t-caption） */
+  description?: string
   /** 已格式化价格（formatCurrencyWhole）与后缀（content pricing.perMonth / perYear） */
   price: string
   suffix: string
-  /** 副价（年付折合月价等） */
+  /** 副价（年付折合月价、省 n 个月等）：与后缀同行，「 · 」分隔（hifi .plan-price span） */
   note?: React.ReactNode
   features: readonly { label: string; included: boolean }[]
   /** 包含 / 不包含 的视觉隐藏文字 */
@@ -22,7 +24,7 @@ type PricingCardProps = React.ComponentProps<typeof Card> & {
 }
 
 /** 定价卡：hifi .plan —— Card 骨架，recommended 时 primary 描边 + 顶部角标；价格 display 字阶；特性行勾 / 横杠（不含项 fg-muted） */
-function PricingCard({ name, price, suffix, note, features, featureLabels, recommended, recommendedLabel, current, action, className, ...props }: PricingCardProps) {
+function PricingCard({ name, description, price, suffix, note, features, featureLabels, recommended, recommendedLabel, current, action, className, ...props }: PricingCardProps) {
   return (
     <Card
       data-slot="pricing-card"
@@ -38,11 +40,14 @@ function PricingCard({ name, price, suffix, note, features, featureLabels, recom
       ) : null}
       <header className="flex flex-col gap-2">
         <h3 className="text-role-title">{name}</h3>
-        <p className="flex items-baseline gap-1">
+        {description ? <p className="text-role-caption text-fg-muted">{description}</p> : null}
+        <p className="flex flex-wrap items-baseline gap-1">
           <span className="text-role-display tabular-nums">{price}</span>
-          <span className="text-role-body text-fg-muted">{suffix}</span>
+          <span className="text-role-caption text-fg-muted">
+            {suffix}
+            {note ? <> · {note}</> : null}
+          </span>
         </p>
-        {note ? <p className="text-role-caption text-fg-muted">{note}</p> : null}
       </header>
       <ul className="flex flex-1 flex-col gap-2">
         {features.map((f) => (

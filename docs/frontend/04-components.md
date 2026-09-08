@@ -20,7 +20,7 @@
 | `.tag` + `.tag-*`（订单状态、渠道） | `Tag` | `tone`: info · warning · danger · success · neutral · muted；`dot` | 高 `space.6`，`caption` medium，胶囊 | — | shadcn（Badge 重写） |
 | `.count-badge`（导航未读数 / 铃铛红点） | `CountBadge` | `tone`: neutral · warning · alert | 高 `size.badge`，最小宽 `size.badge` | — | composed |
 | `.card` / `.card-head` | `Card` `CardHeader` `CardTitle` `CardDescription` `CardAction` `CardContent` | — | `surface` + hairline + `radius.lg` + `shadow.sm`，内距 `space.6`（375 移动端由页面收窄） | — | shadcn |
-| `.tabs` / `.tab`（日 / 周 / 月分段） | `Tabs` `TabsList` `TabsTrigger` `TabsContent` | — | 触发器 `control.sm` 视觉高 + `hit-area`；槽 `surface-muted`，选中 `surface` + `shadow.sm` | hover / focus-visible / disabled；键盘左右切换（Radix） | shadcn |
+| `.tabs` / `.tab`（日 / 周 / 月分段）；**R2** `.tabs-line` / `.tabs-v`（订单状态 / 设置分区） | `Tabs` `TabsList` `TabsTrigger` `TabsContent` | `variant`: pill（默认）· line（底边指示）· vertical（列向，图标 + 文字） | 触发器 `control.sm` 视觉高 + `hit-area`；槽 `surface-muted`，选中 `surface` + `shadow.sm` | hover / focus-visible / disabled；键盘左右切换（Radix） | shadcn |
 | `[data-tip]`（无箭头黑底提示） | `Tooltip` `TooltipTrigger` `TooltipContent` `TooltipProvider` | — | 反色底、`caption`、`radius.sm` | 悬停 / 焦点触发；`?open=tooltip` 强制显示 | shadcn |
 | `.popover`（通知面板） | `Popover` `PopoverTrigger` `PopoverContent` `PopoverHeader` `PopoverFooter` | — | `surface-raised` + `radius.lg` + `shadow.lg`，宽 `content-max/4` | `?open=popover`；需给 `aria-label` | shadcn |
 | `.menu-head` / `.menu-item` / `.menu-sep`（账号菜单、订单行内菜单） | `DropdownMenu` `DropdownMenuTrigger` `DropdownMenuContent` `DropdownMenuHeader` `DropdownMenuLabel` `DropdownMenuItem` `DropdownMenuSeparator` | Item `tone`: default · danger | 项高 `size.hit`，内距 `space.3` | highlighted → `surface-muted`；disabled；默认非模态（不给页面加 aria-hidden） | shadcn |
@@ -67,7 +67,7 @@
 | `.area` / `.line`（销售趋势）、`.donut` / `.donut-legend`（渠道占比）、`.chart-tip` | `TrendChart` `DonutChart` `ChartTip` | — | 高 `size.chart.trend`（375 用 `chart.trend-mobile`） | 颜色仅 `chart.1–5` / `chart.line` 令牌；Recharts | composed（Recharts） |
 | `.order-card`（375 最近订单卡片） | `Card` + `Tag` 组合（见 kitchen-sink「OrderCard (375)」） | — | 内距 `space.4` | — | composed（页面内组合，未抽独立组件） |
 | `.theme`（主题切换） | `IconButton` + `useTheme()`（`ThemeProvider`） | light · dark · system | `size.hit` | `?theme=` 覆写、localStorage 记忆、跟随系统 | composed |
-| **R2** `.stepper` / `.step`（采购单三步） | `Stepper` | `steps[{key,label}]`、`current`、`errorAt`；`compactLabel`（375 只显示「第 n 步」） | 步号圆 `size.step`，连接线 hairline | done → primary 勾、current → primary 实心、todo → `border-strong`、error → danger；`statusLabels` 供读屏 | composed |
+| **R2** `.stepper` / `.step`（采购单三步）、`.stepper.vertical`（发货进度） | `Stepper` | `steps[{key,label,description?}]`、`current`、`errorAt`；`orientation`: horizontal · vertical（描述行 + 竖连接线）；`compactLabel`（375 只显示「第 n 步」） | 步号圆 `size.step`，连接线 hairline | done → primary 勾、current → primary 实心、todo → `border-strong`、error → danger；`statusLabels` 供读屏 | composed |
 | **R2** `.page-header`（各屏页头） | `PageHeader` | `breadcrumb` / `description` / `actions` / `extra` 插槽 | 标题 `heading`，描述 `caption`；375 纵向堆叠 | — | composed |
 | **R2** `.toolbar`（筛选 / 搜索 / 视图切换） | `Toolbar` `ToolbarGroup` `ToolbarSpacer` | — | 一行排布 `space.3` 间距，375 换行；`ToolbarSpacer` 把后续项推到右侧 | `role="toolbar"` + 必填 aria-label | composed |
 | **R2** `.result`（提交成功 / 失败页） | `Result` | `status`: success · error · warning · info | 居中 `control.lg` 圆形语义底 + `icon.lg`，标题 `heading`，摘要区可放 `DescriptionList` | 与 `StateCard` 同骨架 | composed |
@@ -79,6 +79,9 @@
 | **R2** `.suggestion`（建议提问） | `SuggestionChip` | — | `min-h size.hit`，hairline + `radius.full` | hover `primary-soft`；disabled | composed |
 | **R2** `.composer`（输入区） | `Composer` | `tools` 插槽（附件 / 模型）；`streaming` 时发送键变停止 | 自增高 textarea（`maxRows`），发送键 `size.hit` | Enter 发送 / Shift+Enter 换行；空内容或 disabled 不可发；`hint` caption；`labels.{send,stop,attach}` | composed |
 | **R2** `.conv`（会话列表项） | `ConversationItem` | `active` · `unread`；`action` 插槽（更多） | `min-h size.hit`，`radius.md`，未读点 `size.dot` | hover `surface-muted`；active `primary-soft`；标题 truncate + caption 时间 | composed |
+| **R2** `.anchor-nav`（设置页内锚点） | `AnchorNav` | `items[{id,label,href?}]`、`activeId`、`onActivate` | 行高 `min-h size.hit`，左侧 `border-width-focus` 竖线 | 当前项 primary 竖线 + primary 文字（`aria-current`）；hover `fg` | composed |
+| **R2** `.member-row`（团队成员行） | `MemberRow` | `roles` + `role` / `onRoleChange`（原生 `Select`）、`roleDisabled`（当前用户）、`status` Tag、`action` 插槽、`pending`（待接受邀请，`data-pending`） | `Avatar` md，grid 头像 / 主文 / 角色 / 尾部，≤768 两列 | 头像可传图标（邀请 = Mail） | composed |
+| **R2** `.session-row`（登录会话行） | `SessionRow` | `icon`（设备）、`badge`（当前会话 Tag）、`meta`、`trailing`（注销 / 注销中 / 时间） | `Avatar system` 图标底，grid 头像 / 主文 / 尾部 | loading 态在 `trailing` 传 `Spinner` | composed |
 
 ## 3. hifi 未出现、后续屏幕可能需要（todo）
 

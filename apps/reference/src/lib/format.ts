@@ -9,6 +9,7 @@ const compact = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 1 })
 const moneyWhole = new Intl.NumberFormat("zh-CN", { style: "currency", currency, maximumFractionDigits: 0 })
 const short = new Intl.NumberFormat("zh-CN", { notation: "compact", maximumFractionDigits: 1 })
 const relativeDay = new Intl.RelativeTimeFormat("zh-CN", { numeric: "auto" })
+const relativeHour = new Intl.RelativeTimeFormat("zh-CN", { numeric: "always" })
 
 /** ¥1,234.00 */
 export const formatCurrency = (n: number) => money.format(n)
@@ -68,6 +69,14 @@ export function formatTime(iso: string) {
   return new Intl.DateTimeFormat("zh-CN", { timeZone: zone, hour: "2-digit", minute: "2-digit", hour12: false }).format(
     new Date(iso),
   )
+}
+
+/** 2 小时前 / 3 天前（相对 meta.asOf；1 小时内返回 null，由调用方决定文案） */
+export function formatRelativeToAsOf(iso: string) {
+  const minutes = Math.round((new Date(mock.meta.asOf).getTime() - new Date(iso).getTime()) / 60000)
+  if (minutes < 60) return null
+  const hours = Math.round(minutes / 60)
+  return hours < 24 ? relativeHour.format(-hours, "hour") : relativeHour.format(-Math.round(hours / 24), "day")
 }
 
 /** 按 meta.asOf 小时段问候（content/dashboard.md dashboard.greeting 规则） */

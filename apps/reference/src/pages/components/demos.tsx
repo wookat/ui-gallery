@@ -63,7 +63,7 @@ import { channelLabel, mock, navBadge, navBadgeLabel, navBadgeTone, periods, ser
 import { currencySymbol, formatAmount, formatCurrency, formatDateTime, formatFullDateTime, formatInteger, formatMonthDay, formatPercent, formatTime } from "@/lib/format"
 
 import { Dash, demo, DemoBox, GRID_2, GRID_3, K, Matrix, MatrixWrap, Row, Stage, StageCol, STATES, TABLE_TOTAL, type MatrixRow, type OverlayProps, type State } from "./kit"
-import { ListExtras, TableExtras } from "./round2"
+import { AnchorExample, DrawerExample, ListExtras, TableExtras } from "./round2"
 
 /**
  * /components 各卡片的演示体（自 /kitchen-sink 迁入，文案前缀改为 components.*）。
@@ -693,8 +693,8 @@ export function NavDemo() {
   )
 }
 
-const overlayLabel = { dialog: "Tooltip", menu: "Popover / DropdownMenu", sheet: "Sheet" } as const
-const overlayCols: Record<keyof typeof overlayLabel, string[]> = { dialog: ["Tooltip"], menu: ["Popover", "DropdownMenu"], sheet: ["Sheet"] }
+const overlayLabel = { dialog: "Tooltip", menu: "Popover / DropdownMenu", sheet: "Sheet / Drawer / AnchorNav" } as const
+const overlayCols: Record<keyof typeof overlayLabel, string[]> = { dialog: ["Tooltip"], menu: ["Popover", "DropdownMenu"], sheet: ["Sheet", "Drawer", "AnchorNav"] }
 
 export function OverlayDemo({ open, set, part }: OverlayProps & { part: "dialog" | "menu" | "sheet" }) {
   return (
@@ -774,6 +774,7 @@ export function OverlayDemo({ open, set, part }: OverlayProps & { part: "dialog"
           )}
 
           {part === "sheet" && (
+          <DemoBox caption={K("sample.sheet.caption")} className="w-full">
           <Sheet open={open === "sheet" || undefined} onOpenChange={(o) => (o ? set({ open: "sheet" }) : set({ open: null }))}>
             <SheetTrigger asChild>
               <IconButton label={K("sample.sheet.open")}>
@@ -805,7 +806,10 @@ export function OverlayDemo({ open, set, part }: OverlayProps & { part: "dialog"
               </nav>
             </SheetContent>
           </Sheet>
+          </DemoBox>
           )}
+          {part === "sheet" && <DrawerExample open={open} set={set} />}
+          {part === "sheet" && <AnchorExample />}
         </Row>
 
       

@@ -254,6 +254,35 @@
 | sample.spinner.caption | Spinner 尺寸 / 按钮内 / 页面级 | |
 | sample.skeleton.caption | Skeleton：统计卡 / 列表行 | |
 | sample.progress.caption | Progress（mock/tasks.json） | |
+| sample.tabs.orders.aria | 订单状态 | Tabs line 示例 aria-label；三项为「全部 / 待发货 / 退款中」，计数：全部 = 孤立演示口径 234（与 Pagination 示例同源），待发货取 mock/orders-summary.json byStatus，退款中 = mock/orders-all.json 样本内计数 |
+| sample.tabs.orders.all | 全部 | Tabs line 首项；其余两项文案取 orders 状态表 |
+| sample.tabs.settings.aria | 设置分区 | Tabs vertical 示例 aria-label；项目取 mock/settings.json tabs（带图标） |
+| sample.stepper.verticalAria | 步骤示例（垂直） | 垂直 Stepper ol aria-label |
+| sample.stepper.paid | 已付款 | 垂直 Stepper done 步；描述行为 mock 订单 paidAt 全量时间 |
+| sample.stepper.shipFailed | 发货失败 | 垂直 Stepper error 步 |
+| sample.stepper.shipFailedHint | 面单打印异常，请重试 | error 步描述行 |
+| sample.stepper.delivered | 已签收 | 垂直 Stepper todo 步 |
+| sample.segmented.savePercent | 省 {n}% | 计费周期 Segmented 年付侧 Tag；n = round((1 − yearly / (monthly × 12)) × 100)，按推荐套餐算得 17 |
+| sample.pricing.caption | PricingCard（mock/landing.json · 按年付，专业版推荐） | 演示框 caption |
+| sample.pricing.perMonthApprox | 约 ¥{n} / 月 | 年付副文案；n = yearly / 12 四舍五入 |
+| sample.member.caption | MemberRow（mock/team.json：角色 Select、待接受邀请、移除） | 演示框 caption |
+| sample.member.roleAria | {name} 的角色 | 角色 Select aria-label |
+| sample.member.inviteRoleAria | 邀请 {email} 的角色 | |
+| sample.member.pending | 待接受 | 待接受邀请行 Tag |
+| sample.member.lastActive | {time} 活跃 | 成员行最近活动 caption |
+| sample.member.inviteSent | 邀请已发送 · {date} 由 {name} 邀请 | 待接受邀请行副文案 |
+| sample.member.revokeInvite | 撤回邀请 {email} | 撤回 IconButton aria-label |
+| sample.session.caption | SessionRow（mock/settings.json 登录会话：当前 / 其他 / 注销中） | 演示框 caption |
+| sample.session.justNow | 刚刚 | 当前会话相对时间（lastActiveAt = meta.asOf） |
+| sample.session.revoking | 注销中 | aria-busy 注销按钮文案 |
+| sample.anchor.caption | Anchor 页内导航（设置分区） | 演示框 caption |
+| sample.anchor.profile | 基本信息 | AnchorNav 项 |
+| sample.anchor.notifications | 通知偏好 | |
+| sample.anchor.security | 安全 | |
+| sample.anchor.billing | 账单与计划 | |
+| sample.anchor.danger | 危险操作 | |
+| sample.sheet.caption | Sheet 示例（打开导航抽屉） | 演示框 caption |
+| sample.drawer.caption | Drawer 示例（打开订单详情） | |
 | sectionDesc.typography | display / h1–h3 / body / label / caption / mono — 全部字阶来自 typography.* 复合令牌；字体 Inter Variable + Noto Sans SC Variable，等宽 JetBrains Mono Variable。 | 类别说明（cat-head） |
 | sectionDesc.button | Button 全部 variant × size × state；IconButton。primary / secondary 禁用不降透明度，转 neutral-soft / surface-muted；ghost / danger 禁用用 opacity.disabled；link aria-disabled 保持 link 色 + cursor:not-allowed。 |  |
 | sectionDesc.formControls | Input / PasswordInput / SearchInput / NumberInput / Textarea / Select / Combobox / Checkbox / Radio / Switch / Slider / DatePicker / DateRangePicker / TimePicker / TagInput / OTPInput / FileDropzone / Field。示例数据取 mock/purchase-form.json、suppliers.json、settings.json。 |  |

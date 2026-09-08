@@ -110,6 +110,70 @@ const SPACE = tokens.space['1'].$value.value; // 4 → 8pt 节奏取 2×
 const lum = (rgb) => { const [r, g, b] = rgb.match(/\d+(\.\d+)?/g).slice(0, 3).map((c) => { c = +c / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
 const contrast = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return (l1 + 0.05) / (l2 + 0.05); };
 
+// 页内全量扫描（每视口×主题×状态各跑一次）：boundingRect/固定选择器覆盖不到的盲区
+//   1) 全文本对比度：每个含文字的元素，文字色（合成祖先 opacity）vs 最近不透明祖先背景；≥24px 或 ≥18.66px 粗体按 3:1，其余 4.5:1；
+//      跳过 aria-hidden / sr-only / disabled / aria-disabled / 代码面板 / 有 background-image 的祖先
+//   2) elementFromPoint 有效热区：把控件滚到视口中央，从中心向四方逐像素 elementFromPoint，统计连续命中自身（或 .hit-area/.switch-hit/.control/.taginput 包裹层、关联 label）的长度 → 实际可点尺寸 ≥ size.hit；被遮挡/重叠即失败
+const deepScan = (hit) => {
+  const parse = (c) => { // rgb()/rgba() 与 color-mix 产生的 color(srgb r g b / a)
+    const m = (c.match(/[\d.]+/g) || []).map(Number); const k = c.startsWith('color(') ? 255 : 1;
+    return { r: (m[0] || 0) * k, g: (m[1] || 0) * k, b: (m[2] || 0) * k, a: m.length > 3 ? m[3] : (c === 'transparent' ? 0 : 1) };
+  };
+  const over = (f, b) => ({ r: f.r * f.a + b.r * (1 - f.a), g: f.g * f.a + b.g * (1 - f.a), b: f.b * f.a + b.b * (1 - f.a), a: 1 });
+  const lum = ({ r, g, b }) => { const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+  const ratio = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return (l1 + 0.05) / (l2 + 0.05); };
+  const vis = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && el.closest('[hidden]') === null; };
+  const label = (el) => `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}.${[...el.classList].join('.')}`;
+  const low = []; let texts = 0;
+  const seen = new Set();
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n; (n = walker.nextNode());) {
+    if (!n.data.trim()) continue;
+    const el = n.parentElement;
+    if (!el || seen.has(el) || !vis(el) || el.closest('[aria-hidden="true"], .sr-only, [disabled], [aria-disabled="true"], .code-panel, pre, code, script, style, svg')) continue;
+    seen.add(el);
+    const cs = getComputedStyle(el);
+    let fg = parse(cs.color);
+    if (fg.a === 0 || (cs.webkitTextFillColor && parse(cs.webkitTextFillColor).a === 0)) continue;
+    let opacity = 1, bg = null, image = false;
+    for (let a = el; a; a = a.parentElement) {
+      const s = getComputedStyle(a);
+      opacity *= +s.opacity;
+      if (s.backgroundImage !== 'none') { image = true; break; }
+      const b = parse(s.backgroundColor);
+      if (b.a > 0) { bg = bg ? over(bg, b) : b; if (b.a >= 1) break; }
+    }
+    if (image) continue;
+    if (!bg || bg.a < 1) bg = over(bg || { r: 0, g: 0, b: 0, a: 0 }, parse(getComputedStyle(document.documentElement).backgroundColor));
+    fg = over({ ...fg, a: fg.a * opacity }, bg);
+    const size = parseFloat(cs.fontSize), bold = +cs.fontWeight >= 700;
+    const need = size >= 24 || (size >= 18.66 && bold) ? 3 : 4.5;
+    const c = ratio(fg, bg);
+    texts++;
+    if (c < need) low.push(`${label(el)} "${n.data.trim().slice(0, 10)}" ${c.toFixed(2)}<${need}`);
+  }
+  const scrollers = [...document.querySelectorAll('*')].filter((e) => e.scrollLeft || e.scrollTop).map((e) => [e, e.scrollLeft, e.scrollTop]);
+  const small = []; let probed = 0;
+  for (const el of document.querySelectorAll('a[href], button, [role="tab"], [role="menuitem"], [role="checkbox"], [role="radio"], [role="switch"], [role="option"], input, select, textarea, summary, [tabindex="0"]')) {
+    if (!vis(el) || el.closest('[aria-hidden="true"]') || el.classList.contains('sr-only') || el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
+    el.scrollIntoView({ block: 'center', inline: 'center' });
+    const wrap = el.closest('.hit-area, .switch-hit, .control, .taginput');
+    const owns = (t) => !!t && (el.contains(t) || (wrap && wrap.contains(t)) || (t.tagName === 'LABEL' && t.control === el));
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    if (cx < 0 || cy < 0 || cx >= innerWidth || cy >= innerHeight) continue; // 滚不进视口（如 .skip 仅聚焦时出现）
+    const name = `${label(el)} "${(el.getAttribute('aria-label') || el.textContent).trim().slice(0, 12)}"`;
+    if (!owns(document.elementFromPoint(cx, cy))) { small.push(`${name} 中心点被遮挡`); continue; }
+    const span = (dx, dy) => { let n = 0; while (n < hit && owns(document.elementFromPoint(cx + dx * (n + 1), cy + dy * (n + 1)))) n++; return n; };
+    const w = span(1, 0) + span(-1, 0) + 1, h = span(0, 1) + span(0, -1) + 1;
+    probed++;
+    if (w < hit || h < hit) small.push(`${name} ${w}x${h}`);
+  }
+  for (const [e, l, t] of scrollers) { e.scrollLeft = l; e.scrollTop = t; }
+  scrollTo(0, 0);
+  return { texts, low, probed, small };
+};
+
 const shoot = async (page, file) => {
   await page.screenshot({ path: file, fullPage: false, animations: 'disabled' });
   let size = statSync(file).size;
@@ -172,6 +236,9 @@ for (const [vpName, vp] of Object.entries(viewports)) {
       ok(m.sw <= vp.width && m.bw <= vp.width, `${tag}: scrollWidth=${m.sw}/${m.bw} ≤ ${vp.width}`);
       ok(m.overflow.length === 0, `${tag}: 无元素超出视口右缘（表格/矩阵滚动容器除外）${m.overflow.length ? ' → ' + m.overflow.join(' | ') : ''}`);
       ok(m.smallCount === 0, `${tag}: 可点元素热区 ≥${HIT}×${HIT}${m.smallCount ? ` → ${m.smallCount} 处: ` + m.small.join(' | ') : ''}`);
+      const d = await page.evaluate(deepScan, HIT);
+      ok(d.texts > 500 && d.low.length === 0, `${tag}: 全文本对比度扫描 ${d.texts} 处均达标${d.low.length ? ` → ${d.low.length} 处不足: ` + d.low.slice(0, 8).join(' | ') : ''}`);
+      ok(d.probed > 300 && d.small.length === 0, `${tag}: elementFromPoint 实测热区 ${d.probed} 个控件均 ≥${HIT}×${HIT}${d.small.length ? ` → ${d.small.length} 处: ` + d.small.slice(0, 8).join(' | ') : ''}`);
       ok(m.theme === theme, `${tag}: data-theme=${m.theme}`);
       if (name === 'snippet-expanded') ok(m.open === 'code' && m.expanded === m.toggles && m.hiddenPanels === 0, `${tag}: ?open=code → ${m.expanded}/${m.toggles} 代码面板全部展开`);
       else ok(m.expanded === 0 && m.hiddenPanels === m.toggles, `${tag}: 默认 ${m.toggles} 个代码面板全部折叠`);

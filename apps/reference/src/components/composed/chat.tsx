@@ -148,7 +148,7 @@ function SuggestionChip({ className, children, ...props }: React.ComponentProps<
       type="button"
       data-slot="suggestion-chip"
       className={cn(
-        "inline-flex min-h-hit max-w-full items-center gap-2 rounded-full border bg-surface px-4 text-left text-role-body text-fg transition-colors duration-(--motion-fast) ease-std hover:not-disabled:border-primary hover:not-disabled:bg-primary-soft hover:not-disabled:text-on-primary-soft disabled:disabled-look [&_svg]:size-icon-sm [&_svg]:shrink-0 [&_svg]:text-fg-muted",
+        "inline-flex min-h-hit max-w-full items-center gap-2 rounded-full border bg-surface px-4 text-left text-role-label text-fg transition-colors duration-(--motion-fast) ease-std hover:not-disabled:border-primary hover:not-disabled:bg-primary-soft hover:not-disabled:text-on-primary-soft disabled:disabled-look [&_svg]:size-icon-sm [&_svg]:shrink-0 [&_svg]:text-fg-muted",
         className,
       )}
       {...props}

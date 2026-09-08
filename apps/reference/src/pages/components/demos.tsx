@@ -25,6 +25,7 @@ import {
   XIcon,
   ZapIcon,
 } from "lucide-react"
+import { cn } from "@/lib/cn"
 
 import { Avatar } from "@/components/composed/avatar"
 import { BrandMark } from "@/components/composed/brand"
@@ -585,9 +586,7 @@ export function TabsDemo() {
                 ))}
               </TabsList>
               {periods.map((p) => (
-                <TabsContent key={p} value={p} forceMount className="sr-only">
-                  {t(`dashboard.period.${p}`)}
-                </TabsContent>
+                <TabsContent key={p} value={p} forceMount hidden className="hidden" />
               ))}
             </Tabs>
           )}
@@ -596,6 +595,9 @@ export function TabsDemo() {
     </>
   )
 }
+
+/** hifi .table th：高度固定为 size.table-header（dashboard 的共享 TableHead 不设高度，仅 components 示例追加） */
+const TABLE_TH = "h-table-header"
 
 const TABLE_IDS = ["SO-20260906-0043", "SO-20260906-0108", "SO-20260906-0104", "SO-20260906-0107"]
 const TABLE_ROWS = TABLE_IDS.flatMap((id) => mock.ordersAll.filter((o) => o.id === id))
@@ -635,7 +637,7 @@ export function NavDemo() {
   return (
     <div className={GRID_3}>
       <DemoBox caption={K("sample.nav.expanded")}>
-        <nav aria-label={K("sample.nav.aria")} className="flex w-full flex-col">
+        <nav aria-label={K("sample.nav.aria")} className="flex w-full flex-col gap-1">
           {NAV_GROUPS.map(({ group, items }) => (
             <React.Fragment key={group.group}>
               <NavGroupLabel>{group.groupLabel}</NavGroupLabel>
@@ -647,7 +649,7 @@ export function NavDemo() {
         </nav>
       </DemoBox>
       <DemoBox caption={K("sample.nav.rail")}>
-        <nav aria-label={K("sample.nav.railAria")} className="flex w-sidebar-rail flex-col items-center">
+        <nav aria-label={K("sample.nav.railAria")} className="flex w-sidebar-rail flex-col items-center gap-1">
           {NAV_ITEMS.map((n) => (
             <DemoNavItem key={n.item.key} {...n} rail state={n.state === "focus" ? "default" : n.state} />
           ))}
@@ -819,7 +821,7 @@ function DensityTable({ density }: { density: "default" | "compact" }) {
     <Table density={density} className="w-auto min-w-[calc(var(--size-content-max)/4)]">
       <TableBody>
         <TableRow>
-          <TableCell className="font-mono text-role-caption">{DENSITY_ROW.id}</TableCell>
+          <TableCell className="font-mono text-sm">{DENSITY_ROW.id}</TableCell>
           <TableCell>{DENSITY_ROW.customer.name}</TableCell>
           <TableCell className="text-right tabular-nums">{formatCurrency(DENSITY_ROW.amount)}</TableCell>
           <TableCell>{st ? <Tag tone={st.tone}>{st.label}</Tag> : DENSITY_ROW.status}</TableCell>
@@ -852,21 +854,21 @@ export function TableDemo({ part }: { part: "table" | "order" }) {
                 <caption className="sr-only">{K("sample.table.caption")}</caption>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-hit">
+                    <TableHead className={TABLE_TH}>
                       <span className="sr-only">{t("orders.col.select")}</span>
                     </TableHead>
-                    <TableHead>{t("dashboard.orders.col.id")}</TableHead>
-                    <TableHead>{t("dashboard.orders.col.customer")}</TableHead>
-                    <TableHead>{t("dashboard.orders.col.items")}</TableHead>
-                    <TableHead className="text-right">
-                      <button type="button" aria-pressed aria-label={K("sample.table.sortAmount")} className="inline-flex h-hit items-center gap-1 rounded-sm text-fg hover:text-primary">
+                    <TableHead className={TABLE_TH}>{t("dashboard.orders.col.id")}</TableHead>
+                    <TableHead className={TABLE_TH}>{t("dashboard.orders.col.customer")}</TableHead>
+                    <TableHead className={TABLE_TH}>{t("dashboard.orders.col.items")}</TableHead>
+                    <TableHead className={cn(TABLE_TH, "text-right")}>
+                      <button type="button" aria-pressed aria-label={K("sample.table.sortAmount")} className="-my-2 inline-flex h-hit items-center gap-1 rounded-sm text-fg hover:text-primary">
                         {t("dashboard.orders.col.amount")}
                         <ArrowDownIcon aria-hidden className="size-icon-sm" />
                       </button>
                     </TableHead>
-                    <TableHead>{t("dashboard.orders.col.status")}</TableHead>
-                    <TableHead>{t("dashboard.orders.col.time")}</TableHead>
-                    <TableHead>
+                    <TableHead className={TABLE_TH}>{t("dashboard.orders.col.status")}</TableHead>
+                    <TableHead className={TABLE_TH}>{t("dashboard.orders.col.time")}</TableHead>
+                    <TableHead className={TABLE_TH}>
                       <span className="sr-only">{t("dashboard.orders.col.actions")}</span>
                     </TableHead>
                   </TableRow>
@@ -877,16 +879,18 @@ export function TableDemo({ part }: { part: "table" | "order" }) {
                     return (
                       <TableRow key={o.id} aria-selected={i === 0 || undefined} data-demo={i === 1 ? "hover" : undefined}>
                         <TableCell>
-                          <Checkbox checked={i === 0} aria-label={t("orders.col.selectRow", { id: o.id })} />
+                          <span className="grid size-hit place-items-center">
+                            <Checkbox checked={i === 0} aria-label={t("orders.col.selectRow", { id: o.id })} />
+                          </span>
                         </TableCell>
-                        <TableCell className="font-mono text-role-caption">{o.id}</TableCell>
+                        <TableCell className="font-mono text-sm">{o.id}</TableCell>
                         <TableCell>
                           <span className="flex items-center gap-2 whitespace-nowrap">
                             <Avatar size="sm" initial={o.customer.initial} hue={o.customer.avatarHue} name={o.customer.name} />
                             {o.customer.name}
                           </span>
                         </TableCell>
-                        <TableCell className="max-w-form-max truncate text-fg-muted">{o.items.map((it) => `${it.name} ×${it.qty}`).join("、")}</TableCell>
+                        <TableCell className="max-w-form-max truncate">{o.items.map((it) => `${it.name} ×${it.qty}`).join("、")}</TableCell>
                         <TableCell className="text-right tabular-nums">{formatCurrency(o.amount)}</TableCell>
                         <TableCell>{st ? <Tag tone={st.tone}>{st.label}</Tag> : o.status}</TableCell>
                         <TableCell className="tabular-nums whitespace-nowrap text-fg-muted">{formatFullDateTime(o.placedAt)}</TableCell>
@@ -901,7 +905,7 @@ export function TableDemo({ part }: { part: "table" | "order" }) {
                 </TableBody>
               </Table>
             </MatrixWrap>
-            <p className="hidden text-role-caption text-fg-muted mobile:block">{K("sample.table.mobileHint")}</p>
+            <p className="mt-3 hidden text-role-caption text-fg-muted mobile:block">{K("sample.table.mobileHint")}</p>
             <Matrix
               caption={K("sample.table.density")}
               head={K("matrix.density")}

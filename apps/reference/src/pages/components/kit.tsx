@@ -23,7 +23,7 @@ export const bind = ({ open, set }: OverlayProps, id: string) => ({
 })
 
 export const MATRIX_WRAP = "relative -mx-6 w-auto overflow-x-auto px-6 scroll-px-6 mobile:-mx-4 mobile:px-4 mobile:scroll-px-4 data-scrollable:scroll-shadow-x"
-export const MATRIX_TH = "h-table-header border-b border-border whitespace-nowrap px-3 text-left align-middle text-role-caption font-medium text-fg-muted first:pl-0 last:pr-0"
+export const MATRIX_TH = "box-content h-table-header border-b border-border whitespace-nowrap px-3 text-left align-middle text-role-caption font-medium text-fg-muted first:pl-0 last:pr-0"
 export const MATRIX_ROW = "border-b border-border last:border-b-0"
 export const MATRIX_ROW_TH = "py-3 pr-3 text-left align-middle whitespace-nowrap text-role-label text-fg"
 export const MATRIX_TD = "px-3 py-3 align-middle whitespace-nowrap last:pr-0"

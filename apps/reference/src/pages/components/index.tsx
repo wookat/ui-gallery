@@ -22,7 +22,7 @@ import { formatCurrency, formatCurrencyWhole, formatDateTime, formatTime } from 
 import { tokenMs, useBelowWidth } from "@/lib/media"
 
 import { AlertDemo, AvatarDemo, ButtonDemo, CardDemo, ChartDemo, CheckboxDemo, FeedbackDemo, IconButtonDemo, InputDemo, ListDemo, NavDemo, OverlayDemo, TabsDemo, TableDemo, TagDemo } from "./demos"
-import { DemoBox, GRID_2, GRID_3, MATRIX_ROW, MATRIX_ROW_TH, MATRIX_TD, MATRIX_TH, MatrixWrap, Stage, StageCol } from "./kit"
+import { DemoBox, GRID_2, GRID_3, MATRIX_ROW, MATRIX_ROW_TH, MATRIX_TD, MATRIX_TD_WIDE, MATRIX_TH, MatrixWrap, Stage, StageCol } from "./kit"
 import { ComposedSection, FormControlsSection, LayoutSection, NavExtras, OverlayExtras } from "./round2"
 import { snippets, type Snippet } from "./snippets"
 
@@ -88,7 +88,7 @@ function TypographyDemo() {
     <>
       <MatrixWrap label={K("type.caption")}>
         <table className="w-full border-collapse">
-          <caption className="pb-3 text-left text-role-caption text-fg-muted">{K("type.caption")}</caption>
+          <caption className="pb-2 text-left text-role-caption text-fg-muted">{K("type.caption")}</caption>
           <thead>
             <tr>
               <th scope="col" className={MATRIX_TH}>{K("type.col.token")}</th>
@@ -103,19 +103,19 @@ function TypographyDemo() {
                   {role}
                   <span className="block font-mono text-role-caption font-regular text-fg-muted">typography.{role}</span>
                 </th>
-                <td className={cn(MATRIX_TD, "w-full min-w-[calc(var(--size-content-max)/5)]")}>
+                <td className={cn(MATRIX_TD, MATRIX_TD_WIDE)}>
                   <span className={cn("block max-w-[calc(var(--size-content-max)/2)] truncate mobile:max-w-[calc(var(--size-content-max)/6)]", cls)}>{TYPE_SAMPLES[role]}</span>
                 </td>
-                <td className={cn(MATRIX_TD, "text-role-caption text-fg-muted")}>{K(`type.usage.${role}`)}</td>
+                <td className={cn(MATRIX_TD, "text-fg-muted")}>{K(`type.usage.${role}`)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </MatrixWrap>
-      <DemoBox caption={K("type.hierarchy")} className="gap-2 self-stretch">
+      <DemoBox caption={K("type.hierarchy")} className="self-stretch">
         <p className="text-role-title">{HIERARCHY_ORDER.items[0].name}</p>
         <p className="text-role-body">
-          {HIERARCHY_ORDER.items.map((it) => `${it.name} ×${it.qty}`).join("、")} — {formatCurrency(HIERARCHY_ORDER.amount)}
+          {HIERARCHY_ORDER.items.map((it) => `${it.name} ×${it.qty}`).join("、")} — {K("sample.purchase.total")} {formatCurrency(HIERARCHY_ORDER.amount)}
         </p>
         <p className="text-role-caption text-fg-muted">
           {formatDateTime(HIERARCHY_ORDER.placedAt)} · {channelLabel(HIERARCHY_ORDER.channel)} · {HIERARCHY_ORDER.warehouse}
@@ -215,7 +215,7 @@ function ScaleDemo() {
     <div className="grid w-full gap-6 lg:grid-cols-2">
       <MatrixWrap label={K("scale.space.caption")}>
         <table className="w-full border-collapse">
-          <caption className="pb-3 text-left text-role-caption text-fg-muted">{K("scale.space.caption")}</caption>
+          <caption className="pb-2 text-left text-role-caption text-fg-muted">{K("scale.space.caption")}</caption>
           <thead>
             <tr>
               <th scope="col" className={MATRIX_TH}>{K("type.col.token")}</th>
@@ -226,11 +226,11 @@ function ScaleDemo() {
           <tbody>
             {SPACES.map((n) => (
               <tr key={n} className={MATRIX_ROW}>
-                <th scope="row" className={cn(MATRIX_ROW_TH, "font-mono font-regular")}>space-{n}</th>
-                <td className={cn(MATRIX_TD, "w-full")}>
+                <th scope="row" className={MATRIX_ROW_TH}>space-{n}</th>
+                <td className={cn(MATRIX_TD, MATRIX_TD_WIDE)}>
                   <i aria-hidden className="block h-3 rounded-xs bg-primary" style={{ width: `var(--space-${n})` }} />
                 </td>
-                <td className={cn(MATRIX_TD, "text-role-caption text-fg-muted")}>{K(`scale.space.${n}`)}</td>
+                <td className={cn(MATRIX_TD, "text-fg-muted")}>{K(`scale.space.${n}`)}</td>
               </tr>
             ))}
           </tbody>
@@ -558,12 +558,12 @@ function ComponentCard({ s, expanded, onToggle, overlay }: { s: Snippet; expande
           <ChevronDownIcon aria-hidden className={cn("transition-transform duration-(--motion-fast) ease-std", expanded && "rotate-180")} />
         </button>
       </header>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         <Demo id={s.id} overlay={overlay} />
       </div>
       <div id={panelId} hidden={!expanded} className={cn("flex flex-col gap-3 border-t pt-4", SCROLL_MT)}>
         <p className="sr-only">{K("code.hint")}</p>
-        <CodeBlock code={s.code} language={K("code.language")} labels={{ copy: K("code.copy"), copied: K("code.copied") }} copyAs="text" />
+        <CodeBlock code={s.code} language={K("code.language")} labels={{ copy: K("code.copy"), copied: K("code.copied") }} copyAs="text" highlight="jsx" />
         {s.props.length ? (
           <>
             <h4 className="text-role-label">{K("props.title")}</h4>

@@ -68,6 +68,13 @@ type ShellProps = {
   setOpen: (v: string | null) => void
   /** 侧栏收起/展开后需要重绘的内容（图表）通知 */
   onSidebarToggle?: () => void
+  /** 当前导航项 key（mock/nav.json items[].key）与面包屑当前项文案 */
+  current?: string
+  currentLabel?: string
+  /** ≤768 导航抽屉对应的 ?open= 值；订单页 `drawer` 已被详情抽屉占用，改用 `nav` */
+  navOpenKey?: string
+  /** 顶栏全局搜索（dashboard hifi 有、orders hifi 无） */
+  search?: boolean
 }
 
 function NavList({ rail, empty, current, onNavigate }: { rail: boolean; empty: boolean; current: string; onNavigate?: () => void }) {
@@ -119,7 +126,18 @@ function Brand({ empty, rail, className }: { empty: boolean; rail?: boolean; cla
 }
 
 /** 应用壳：hifi .app —— 侧栏（expanded / rail / ≤768 抽屉）+ 顶栏 + 内容区 */
-function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarToggle }: ShellProps) {
+function AppShell({
+  children,
+  empty = false,
+  sidebar,
+  open,
+  setOpen,
+  onSidebarToggle,
+  current = "dashboard",
+  currentLabel = t("shell.breadcrumb.current"),
+  navOpenKey = "drawer",
+  search = true,
+}: ShellProps) {
   const mobile = useMaxWidth("--breakpoint-md")
   const tablet = useMaxWidth("--breakpoint-lg")
   const { resolved, toggle } = useTheme()
@@ -142,7 +160,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
   const urlOpened = (key: string) => (e: Event) => {
     if (open === key) e.preventDefault()
   }
-  const drawerOpen = open === "drawer" && mobile
+  const drawerOpen = open === navOpenKey && mobile
   const collapseLabel = rail ? t("shell.nav.expand") : t("shell.nav.collapse")
 
   return (
@@ -159,7 +177,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
         className={cn("sticky top-0 flex h-svh shrink-0 flex-col border-r bg-surface mobile:hidden", rail ? "w-sidebar-rail" : "w-sidebar-expanded")}
       >
         <Brand empty={empty} rail={rail} />
-        <NavList rail={rail} empty={empty} current="dashboard" />
+        <NavList rail={rail} empty={empty} current={current} />
         <div className={cn("border-t p-3", rail && "flex justify-center px-2")}>
           <NavItem
             icon={rail ? PanelLeftOpenIcon : PanelLeftCloseIcon}
@@ -177,7 +195,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
         </div>
       </aside>
 
-      <Sheet open={drawerOpen} onOpenChange={(o) => setOpen(o ? "drawer" : null)}>
+      <Sheet open={drawerOpen} onOpenChange={(o) => setOpen(o ? navOpenKey : null)}>
         <SheetContent
           title={t("shell.nav.aria")}
           closeLabel={t("shell.nav.collapse")}
@@ -190,13 +208,13 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
           }}
         >
           <Brand empty={empty} className="pr-hit" />
-          <NavList rail={false} empty={empty} current="dashboard" onNavigate={() => setOpen(null)} />
+          <NavList rail={false} empty={empty} current={current} onNavigate={() => setOpen(null)} />
         </SheetContent>
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header data-slot="topbar" className="sticky top-0 z-20 flex h-topbar shrink-0 items-center gap-3 border-b bg-surface px-6 mobile:gap-2 mobile:px-4">
-          <IconButton label={t("shell.nav.open")} aria-expanded={drawerOpen} className="hidden mobile:inline-flex" onClick={() => setOpen("drawer")}>
+          <IconButton label={t("shell.nav.open")} aria-expanded={drawerOpen} className="hidden mobile:inline-flex" onClick={() => setOpen(navOpenKey)}>
             <MenuIcon />
           </IconButton>
           <Breadcrumb aria-label={t("shell.breadcrumb.aria")} className="min-w-0 flex-1">
@@ -204,20 +222,24 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
               <BreadcrumbItem className="mobile:hidden">{t("shell.breadcrumb.root")}</BreadcrumbItem>
               <BreadcrumbSeparator className="mobile:hidden" />
               <BreadcrumbItem>
-                <BreadcrumbPage className="mobile:text-role-title">{t("shell.breadcrumb.current")}</BreadcrumbPage>
+                <BreadcrumbPage className="mobile:text-role-title">{currentLabel}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
           <div className="flex shrink-0 items-center gap-2 mobile:gap-0">
-            <SearchInput
-              aria-label={t("shell.search.aria")}
-              placeholder={t("shell.search.placeholder")}
-              shortcut={isApple ? "⌘K" : "Ctrl K"}
-              className="mr-2 w-popover tablet:w-sidebar-expanded mobile:hidden"
-            />
-            <IconButton label={t("shell.search.aria")} className="hidden mobile:inline-flex" onClick={() => notYet(t("shell.search.aria"))}>
-              <SearchIcon />
-            </IconButton>
+            {search ? (
+              <>
+                <SearchInput
+                  aria-label={t("shell.search.aria")}
+                  placeholder={t("shell.search.placeholder")}
+                  shortcut={isApple ? "⌘K" : "Ctrl K"}
+                  className="mr-2 w-popover tablet:w-sidebar-expanded mobile:hidden"
+                />
+                <IconButton label={t("shell.search.aria")} className="hidden mobile:inline-flex" onClick={() => notYet(t("shell.search.aria"))}>
+                  <SearchIcon />
+                </IconButton>
+              </>
+            ) : null}
 
             <Popover {...overlay("notifications")}>
               <PopoverTrigger asChild>

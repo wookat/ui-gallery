@@ -76,9 +76,17 @@ const ORDER_ROWS: readonly { key: string; w: readonly [string, string, string] }
   { key: "refunding", w: ["w-7/10", "w-1/2", "w-3/5"] },
   { key: "completed", w: ["w-1/2", "w-3/5", "w-7/10"] },
 ]
-/** 分屏②库存条形图：6 条相对高度，低于安全线（45%）的两条为 warning */
-const INVENTORY_BARS = ["h-22/25", "h-16/25", "h-2/5", "h-18/25", "h-7/25", "h-14/25"] as const
+/** 分屏②库存条形图：6 条相对高度（mock/landing.json solutions[1].visual「6 条，2 条为 warning 色」），低于安全线（45%）的为 warning，预警 Tag 计数由此得出 */
+const INVENTORY_BARS: readonly { h: string; ratio: number }[] = [
+  { h: "h-22/25", ratio: 22 / 25 },
+  { h: "h-16/25", ratio: 16 / 25 },
+  { h: "h-2/5", ratio: 2 / 5 },
+  { h: "h-18/25", ratio: 18 / 25 },
+  { h: "h-7/25", ratio: 7 / 25 },
+  { h: "h-14/25", ratio: 14 / 25 },
+]
 const SAFETY_RATIO = 0.45
+const isLowStockBar = (b: { ratio: number }) => b.ratio < SAFETY_RATIO
 const twoDecimals = new Intl.NumberFormat("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 /** 不可达链接（hifi aria-disabled + data-tip）：保留 href 供语义，点击不跳转，hover / focus 出 Tooltip */
@@ -269,9 +277,9 @@ function OrdersPanel({ label }: { label: string }) {
   )
 }
 
+/** 分屏②库存：预警 Tag 文案 = 图中低于安全线的柱数（hifi「2 个 SKU 低于安全线」） */
 function InventoryPanel({ label: panelLabel }: { label: string }) {
-  const stat = mock.stats.cards.find((c) => c.key === "lowStock")
-  const label = stat ? `${mock.stats.byPeriod.month.lowStock.value} ${stat.unit} ${stat.label}` : ""
+  const label = t("landing.solutions.inventory.lowStock", { n: INVENTORY_BARS.filter(isLowStockBar).length })
   return (
     <Panel label={panelLabel} className="grid-rows-[auto_1fr_auto]">
       <div className={cn(tblRow, "min-h-table-header")}>
@@ -284,8 +292,8 @@ function InventoryPanel({ label: panelLabel }: { label: string }) {
       </div>
       <div className="relative grid h-full min-h-0 grid-cols-6 items-end gap-3 pt-4">
         <span className="absolute inset-x-0 border-t border-dashed border-warning" style={{ bottom: `${SAFETY_RATIO * 100}%` }} />
-        {INVENTORY_BARS.map((h, i) => (
-          <b key={i} className={cn("block rounded-t-sm", h, i === 2 || i === 4 ? "bg-warning" : "bg-chart-bar")} />
+        {INVENTORY_BARS.map((b, i) => (
+          <b key={i} className={cn("block rounded-t-sm", b.h, isLowStockBar(b) ? "bg-warning" : "bg-chart-bar")} />
         ))}
       </div>
       <div className="grid grid-cols-6 gap-3">
@@ -297,19 +305,21 @@ function InventoryPanel({ label: panelLabel }: { label: string }) {
   )
 }
 
-/** 分屏③对话：问答与来源取 mock/chat.json c_1 首轮，SKU 编码取 skus.json 缺货最多项 */
+/** 分屏③对话：提问与来源取 mock/chat.json c_1 首轮；答复按 content 模板填 skus.json 缺货最多项（名称 / 编码 / 缺货单数 / 库存 / 安全线，与 hifi 同源数字） */
 function AssistantPanel({ label }: { label: string }) {
   const thread = mock.chat.messages.c_1
   const ask = thread.find((m) => m.role === "user")
   const answer = thread.find((m) => m.role === "assistant")
   const topSku = [...mock.skus.items].sort((a, b) => b.weekStockoutOrders - a.weekStockoutOrders)[0]
-  const summary = answer && "markdown" in answer ? (answer.markdown ?? "").split("\n\n")[0].replaceAll("**", "") : ""
+  const [beforeSku, afterSku] = t("landing.solutions.assistant.answer", { name: topSku.name, n: topSku.weekStockoutOrders, stock: topSku.stock, safety: topSku.safetyStock }).split("{sku}")
   const source = answer && "sources" in answer ? answer.sources?.filter((s) => s.type === "order").at(-1) : undefined
   return (
     <Panel label={label} className="content-center">
       <div className="max-w-[85%] justify-self-end rounded-lg rounded-br-xs bg-primary px-4 py-3 text-role-body text-on-primary">{ask && "text" in ask ? ask.text : null}</div>
       <div className="max-w-[85%] justify-self-start rounded-lg rounded-bl-xs bg-surface-muted px-4 py-3 text-role-body text-fg">
-        {summary} <span className="font-mono">{topSku.sku}</span>
+        {beforeSku}
+        <span className="font-mono">{topSku.sku}</span>
+        {afterSku}
       </div>
       {source ? (
         <span className="inline-flex h-chip items-center gap-1 justify-self-start rounded-full border bg-surface px-3 text-role-code text-fg-muted [&_svg]:size-icon-sm [&_svg]:text-primary">
@@ -581,7 +591,7 @@ export default function LandingPage() {
                     featureLabels={{ included: t("landing.pricing.included"), excluded: t("landing.pricing.included") }}
                     recommended={p.recommended}
                     recommendedLabel={t("landing.pricing.recommended")}
-                    className={cn("w-full p-8 mobile:p-6 [&_h3]:text-role-heading [&_header_.tabular-nums]:text-role-display-lg [&_header]:gap-1 [&_header>p:nth-of-type(2)]:mt-5 [&_ul]:gap-3 [&_ul_svg]:text-primary", p.recommended && "shadow-lg")}
+                    className={cn("w-full p-8 mobile:p-6 [&_h3]:text-role-heading [&_header_.text-role-display]:text-role-display-lg [&_header]:gap-1 [&_header>p:nth-of-type(2)]:mt-5 [&_ul]:gap-3 [&_ul_svg]:text-primary", p.recommended && "shadow-lg")}
                     action={
                       <Button variant={p.recommended ? "primary" : "secondary"} block asChild>
                         <TipLink href={p.key === "business" ? "#faq" : landing.cta.trialHref} tip={disabledTip()}>
@@ -739,7 +749,13 @@ export default function LandingPage() {
 
       {/* Sheet（375 / 768 菜单；?open=menu）：Radix Dialog 提供 Esc / 遮罩关闭、焦点圈定与归还 */}
       <Sheet open={menuOpen} onOpenChange={setMenu}>
-        <SheetContent side="right" title={t("landing.nav.menu.title")} closeLabel={t("landing.nav.menu.close")} className="w-sheet max-w-full" onOpenAutoFocus={focusSheetClose}>
+        <SheetContent
+          side="right"
+          title={t("landing.nav.menu.title")}
+          closeLabel={t("landing.nav.menu.close")}
+          className="w-sheet max-w-full [&_[data-slot=sheet-close]]:top-[calc((var(--size-navbar)-var(--size-hit))/2)] [&_[data-slot=sheet-close]]:right-3"
+          onOpenAutoFocus={focusSheetClose}
+        >
           <div className="flex h-navbar items-center border-b pr-3 pl-4">
             <span aria-hidden className="inline-flex min-h-hit items-center gap-2 text-role-title whitespace-nowrap text-fg">
               <BrandMark variant="a" className="size-8" />

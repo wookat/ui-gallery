@@ -29,12 +29,27 @@
 | 品牌标复用 login 三横线 | `BrandMark` 新增 `variant="a"`（hifi 同一 path），landing 全部品牌位改用 | 代码核对 + compare menu-open 99.3–99.7% |
 | 抽屉初始焦点落底部主题切换 | `SheetContent` 关闭按钮标 `data-slot="sheet-close"`；landing 用 `onOpenAutoFocus` 把焦点移到该按钮（对应 hifi `.js-close-menu.focus()`） | 375 / 768 打开菜单后 `document.activeElement = BUTTON[关闭菜单]` |
 
+### 第 2 轮审查修复记录（a5fd68e 审查清单）
+
+| 问题 | 修法 | 实测证据 |
+|---|---|---|
+| blocking · 年付副价「折合 ¥82.50 / 月」被 `[&_header_.tabular-nums]:text-role-display-lg` 命中，渲染成 display-lg | 选择器改为 `[&_header_.text-role-display]:text-role-display-lg`，只命中 PricingCard 价格 span（其自带 `text-role-display`）；不改 PricingCard 组件与设计稿 | 1440 / 375 / 768 / 1024 × 亮暗 `?cycle=yearly`：价格 span 36px（display-lg），副价 span 12px + fg-muted（hifi `.price-sub` caption）；三卡等高（1440 486.7px） |
+| minor · Sheet 关闭钮贴顶右（中心 y≈27），hifi 与品牌行同行居中（y≈32、右距 space.3） | landing 给 `SheetContent` 追加 `[&_[data-slot=sheet-close]]:top-[calc((var(--size-navbar)-var(--size-hit))/2)] [&_[data-slot=sheet-close]]:right-3`（只引令牌变量；组件默认值不动，login/dashboard 不受影响） | 375 / 768 `?open=menu`：关闭钮中心 y = 32、距抽屉右边 12px；初始焦点仍在关闭钮 |
+| minor · 分屏②预警 Tag 取 stats.lowStock（12 SKU 库存预警），hifi「2 个 SKU 低于安全线」 | `INVENTORY_BARS` 带相对高度比，低于 `SAFETY_RATIO` 的柱既着 warning 色也计入 Tag 数（mock/landing.json `solutions[1].visual`「6 条，2 条为 warning 色」）；文案新增 content key `solutions.inventory.lowStock`（`{n} 个 SKU 低于安全线`） | 全部视口渲染「2 个 SKU 低于安全线」，与图中 2 根 warning 柱一致 |
+| minor · 分屏③助理答复取 chat.json c_1 markdown 首段，hifi 为床头柜一句 | 新增 content key `solutions.assistant.answer`（`{name}{sku}，近 7 天因缺货延迟发货 {n} 单，当前库存 {stock} / 安全线 {safety}。`），字段全部取 mock/skus.json 缺货最多项（QM-NS-WAL-2D：14 单、18 / 40）；提问与来源 Chip 仍取 chat.json c_1 | 渲染「胡桃木床头柜（双抽）QM-NS-WAL-2D，近 7 天因缺货延迟发货 14 单，当前库存 18 / 安全线 40。」+ 来源 SO-20260903-0087，与 hifi 逐字一致（数字与 chat.json c_1 表格同源） |
+
+未修（非实现分支可改）：
+
+- blocking · `compare.mjs landing` 未达 95%：根因仍是 L-D1（hifi `.sec-head p` / `.sol-text > p` 覆盖 `.eyebrow`），ref 比实现高 148–279px。实现阶段不改 `design/hifi/*`；待设计侧修正并重生成 `ref/*.png` 后复跑。
+- minor · L-D2 三屏品牌图形不一致：跨屏设计侧遗留，实现按 landing hifi 的 A 形绘制，待设计统一。
+- 本轮新增 content key 只追加在 `content/landing.md`，不影响已上线 login / dashboard 文案；未改 `design/` 与 `mock/`。
+
 ### 门禁实跑结果（commit 见 git log）
 
 - `pnpm lint` ✔（eslint + no-hardcode 73 文件）· `pnpm typecheck` ✔ · `pnpm build` ✔
-- `node tools/a11y.mjs landing` → ALL PASS（axe serious/critical 0、375 无溢出、热区 ≥ 40、焦点环缺失 0、console error 0）
+- `node tools/a11y.mjs landing` → ALL PASS（axe serious/critical 0、375 无溢出、热区 ≥ 40、焦点环缺失 0、console error 0；20 个状态×视口×主题）
 - `node tools/shoot.mjs landing && node tools/compare.mjs landing` → 20/20 对比，阈值 95%：
-  - mobile-menu-open 4 张：99.33–99.70% ✔（修复前 86.0 / 93.2%）
-  - navbar-scrolled 6 张：87.80–94.63%（修复前 84.9–93.5%；剩余差异 = L-D1 眉题字阶/间距导致的整体下移）
-  - default / pricing-yearly 整页 10 张：82.96–89.75%，ref 仍比实现高 148–279px（全部为 L-D1）
+  - mobile-menu-open 4 张：99.55–99.80% ✔（第 1 轮 99.33–99.70%）
+  - navbar-scrolled 6 张：87.80–94.63%（剩余差异 = L-D1 眉题字阶/间距导致的整体下移）
+  - default / pricing-yearly 整页 10 张：82.87–88.89%，ref 仍比实现高 148–279px（1440 6793 vs 6645、375 10805 vs 10544、768 8294 vs 8015、1024 6649 vs 6501；全部为 L-D1）；年付定价卡区域裁切肉眼对照与 ref 一致
   - 结论：compare 门禁在 L-D1 修正并重生成 ref 前无法转绿；diff 图见 `shots/reference/landing/diff/`（不入库）

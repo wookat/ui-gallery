@@ -591,7 +591,7 @@ export default function LandingPage() {
                     featureLabels={{ included: t("landing.pricing.included"), excluded: t("landing.pricing.included") }}
                     recommended={p.recommended}
                     recommendedLabel={t("landing.pricing.recommended")}
-                    className={cn("w-full p-8 mobile:p-6 [&_h3]:text-role-heading [&_header_.text-role-display]:text-role-display-lg [&_header]:gap-1 [&_header>p:nth-of-type(2)]:mt-5 [&_ul]:gap-3 [&_ul_svg]:text-primary", p.recommended && "shadow-lg")}
+                    className={cn("w-full p-8 mobile:p-8 mobile:max-md:p-6 [&_h3]:text-role-heading [&_header_.text-role-display]:text-role-display-lg [&_header]:gap-1 [&_header>p:nth-of-type(2)]:mt-5 [&>ul]:mb-6 [&_ul]:gap-3 [&_ul_svg]:text-primary", p.recommended && "shadow-lg")}
                     action={
                       <Button variant={p.recommended ? "primary" : "secondary"} block asChild>
                         <TipLink href={p.key === "business" ? "#faq" : landing.cta.trialHref} tip={disabledTip()}>

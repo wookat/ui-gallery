@@ -15,6 +15,7 @@
 - 现象（Playwright 对 hifi 实测 computed style）：5 个 section-head 与 3 个 solution 的 `<p class="eyebrow">` 实际渲染为 16px/25.6px（solution 内 14px/22.4px）fg-muted + margin-top 16px；仅 hero eyebrow 为意图中的 12px primary。ref PNG 因此比按 `.eyebrow` 意图实现的页面高 148–279px。
 - 实现侧处理：按 `.eyebrow` 意图渲染（`text-role-eyebrow text-primary`），不复制缺陷。
 - 建议修正：给 `.eyebrow` 提特异性（如 `.sec-head .eyebrow` / `.sol-text > .eyebrow`），或把 `.sec-head p` / `.sol-text > p` 改为 `.sec-head > p:not(.eyebrow)`，然后重生成 `ref/*.png`。在此之前 `compare.mjs landing` 整页状态（default / pricing-yearly 各视口亮暗）与 navbar-scrolled 状态无法过 95%。
+- 第 3 处（第 3 轮补充，第 385 行）：`@media (max-width: 767px)` 内 `.sol-text > p, .bullets li { font: var(--typography-body); }` 同样命中 3 个 solution 眉题（375 下眉题 14px/22.4px 而非 12px/16.8px，`#solutions` 因此比实现高 42.4px，三个 `.sol` 各 +15.2 / +12 / +15.2）。只修前两处、不修这一处时，375 整页仍差 42px（临时修正 hifi 对比 ≈ 89–90%）；三处一起改为 `:not(.eyebrow)` 后，实现与 hifi 在 375 / 768 / 1024 / 1440 各 section top/height 逐项一致（见下方第 3 轮门禁结果）。
 
 **L-D2 · 三屏品牌图形不一致**
 
@@ -38,18 +39,30 @@
 | minor · 分屏②预警 Tag 取 stats.lowStock（12 SKU 库存预警），hifi「2 个 SKU 低于安全线」 | `INVENTORY_BARS` 带相对高度比，低于 `SAFETY_RATIO` 的柱既着 warning 色也计入 Tag 数（mock/landing.json `solutions[1].visual`「6 条，2 条为 warning 色」）；文案新增 content key `solutions.inventory.lowStock`（`{n} 个 SKU 低于安全线`） | 全部视口渲染「2 个 SKU 低于安全线」，与图中 2 根 warning 柱一致 |
 | minor · 分屏③助理答复取 chat.json c_1 markdown 首段，hifi 为床头柜一句 | 新增 content key `solutions.assistant.answer`（`{name}{sku}，近 7 天因缺货延迟发货 {n} 单，当前库存 {stock} / 安全线 {safety}。`），字段全部取 mock/skus.json 缺货最多项（QM-NS-WAL-2D：14 单、18 / 40）；提问与来源 Chip 仍取 chat.json c_1 | 渲染「胡桃木床头柜（双抽）QM-NS-WAL-2D，近 7 天因缺货延迟发货 14 单，当前库存 18 / 安全线 40。」+ 来源 SO-20260903-0087，与 hifi 逐字一致（数字与 chat.json c_1 表格同源） |
 
+### 第 3 轮审查修复记录（0027e3e 审查清单，tech-lead 接手）
+
+| 问题 | 修法 | 实测证据 |
+|---|---|---|
+| blocking · 定价卡特性列表→按钮间距：hifi `.plan` 为 grid `auto auto auto 1fr auto` + 空 `<span>` 撑位行，列表与按钮最小间距 = 2×space.6 = 48px；实现 `PricingCard` 为 `flex-col gap-6` 仅 24px，每卡矮 24px，其后 quotes / faq / cta / footer 整体上移 | 只改 `pages/landing/index.tsx` 的 `PricingCard className`：追加 `[&>ul]:mb-6`（列表下 margin 24 + gap 24 = 48，等价 hifi 撑位行）；同时 `mobile:p-6` 改为 `mobile:p-8 mobile:max-md:p-6`（hifi 768 下 `.plan` padding 仍是 space.8，375 才降到 space.6；原实现 768 下多矮 16px）。不改 `composed/pricing-card.tsx`（kitchen-sink / settings 同用），不改 hifi 与令牌 | 复现（修前，Playwright 对 hifi vs 实现 `getBoundingClientRect`）：1440 卡高 510.7 vs 486.7、list→btn 48 vs 24；768 卡高 476.3/476.3/510.7 vs 436.3/436.3/470.7；375 卡高 425.9/460.3/494.7 vs 401.9/436.3/470.7。修后三视口 × 亮暗 × 月付/年付：卡高、list→btn（48px）、`#pricing` 高度（1440 988.7 / 768 1489.4 / 375 1847.4）与 hifi 逐项相等；对比 L-D1 临时修正后的 hifi（本地 `shots/`，不入库），20 张全部 ≥ 99.55%（详见门禁结果） |
+| 06-impl-notes 第 54 行「全部为 L-D1」「年付定价卡区域…与 ref 一致」结论有误 | 已改写为下方第 3 轮门禁结果，区分「L-D1 造成的差」与「定价卡实现差」 | 修前 ref−实现 高差 148 / 261 / 279 / 148（1440 / 375 / 768 / 1024），其中定价卡贡献 24 / 72 / 80 / 24（1440 一行 3 卡 24；375 三卡竖排 3×24；768 两行 40+40）；修后剩 124 / 189 / 199 / 124，逐 section 核对全部落在 L-D1 三处眉题 |
+
 未修（非实现分支可改）：
 
-- blocking · `compare.mjs landing` 未达 95%：根因仍是 L-D1（hifi `.sec-head p` / `.sol-text > p` 覆盖 `.eyebrow`），ref 比实现高 148–279px。实现阶段不改 `design/hifi/*`；待设计侧修正并重生成 `ref/*.png` 后复跑。
+- blocking · `compare.mjs landing` 对官方 `ref/*.png` 仍未达 95%：定价卡实现差已修完，剩余 ref 比实现高 124–199px 全部为 L-D1（含第 385 行 mobile 媒体查询那一处）。实现阶段不改 `design/hifi/*`；待设计侧三处一起修正并重生成 `ref/*.png` 后复跑即可转绿（用本地临时修正的 hifi 重生成 20 张 ref 对比，最低 99.55%）。
 - minor · L-D2 三屏品牌图形不一致：跨屏设计侧遗留，实现按 landing hifi 的 A 形绘制，待设计统一。
 - 本轮新增 content key 只追加在 `content/landing.md`，不影响已上线 login / dashboard 文案；未改 `design/` 与 `mock/`。
 
-### 门禁实跑结果（commit 见 git log）
+### 门禁实跑结果（第 3 轮，commit 见 git log）
 
-- `pnpm lint` ✔（eslint + no-hardcode 73 文件）· `pnpm typecheck` ✔ · `pnpm build` ✔
+- `apps/reference/`：`pnpm lint` ✔（eslint + no-hardcode 73 文件）· `pnpm typecheck` ✔ · `pnpm build` ✔ · `node tools/no-hardcode.mjs` ✔
 - `node tools/a11y.mjs landing` → ALL PASS（axe serious/critical 0、375 无溢出、热区 ≥ 40、焦点环缺失 0、console error 0；20 个状态×视口×主题）
-- `node tools/shoot.mjs landing && node tools/compare.mjs landing` → 20/20 对比，阈值 95%：
-  - mobile-menu-open 4 张：99.55–99.80% ✔（第 1 轮 99.33–99.70%）
-  - navbar-scrolled 6 张：87.80–94.63%（剩余差异 = L-D1 眉题字阶/间距导致的整体下移）
-  - default / pricing-yearly 整页 10 张：82.87–88.89%，ref 仍比实现高 148–279px（1440 6793 vs 6645、375 10805 vs 10544、768 8294 vs 8015、1024 6649 vs 6501；全部为 L-D1）；年付定价卡区域裁切肉眼对照与 ref 一致
-  - 结论：compare 门禁在 L-D1 修正并重生成 ref 前无法转绿；diff 图见 `shots/reference/landing/diff/`（不入库）
+- `node tools/shoot.mjs landing && node tools/compare.mjs landing`（对官方 ref）→ 20/20 对比，阈值 95%，最低 83.67%，未过：
+  - mobile-menu-open 4 张：99.55–99.80% ✔
+  - navbar-scrolled 6 张：87.80–94.63%（视口内差异 = L-D1 眉题字阶/间距导致的整体下移）
+  - default / pricing-yearly 整页 10 张：83.67–89.84%，ref 比实现高 124–199px（1440 6793 vs 6669、375 10805 vs 10616、768 8294 vs 8095、1024 6649 vs 6525）；较第 2 轮实现高度分别 +24 / +72 / +80 / +24 = 定价卡修复量，剩余差全部为 L-D1
+  - 结论：compare 门禁在设计侧修 L-D1（三处）并重生成 ref 前无法转绿；diff 图见 `shots/reference/landing/diff/`（不入库）
+- 佐证（本地临时产物，不入库）：把 hifi 复制到 `shots/hifi-landing-ld1/` 并只把 L-D1 三处改为 `:not(.eyebrow)`，按 `check.mjs` 同一矩阵重生成 20 张 ref 与实现截图 pixelmatch：desktop 99.80–99.98%、tablet 99.71%、tabletSm 99.55–99.80%、mobile 99.60–99.91%，最低 99.55%，20/20 ≥ 95%；各视口整页高度与实现完全一致（1440 6669、1024 6525、768 8095、375 10616）
+
+### 第 2 轮门禁结果（a5fd68e / 0027e3e，供对照）
+
+- compare 20/20，最低 82.87%：default / pricing-yearly 10 张 82.87–88.89%，ref 比实现高 148–279px（1440 6793 vs 6645、375 10805 vs 10544、768 8294 vs 8015、1024 6649 vs 6501）。当时记为「全部为 L-D1」有误：其中 24 / 72 / 80 / 24px 是定价卡 list→btn 24px（应 48px）与 768 下 padding 24px（应 32px）的实现差，已在第 3 轮修正。

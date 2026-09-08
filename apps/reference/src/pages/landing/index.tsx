@@ -99,6 +99,18 @@ function TipLink({ tip, children, className, ...props }: React.ComponentProps<"a
 
 const disabledTip = () => t("shell.nav.disabled.tip")
 
+/** 锚点滚动偏移：hifi `html { scroll-padding-top: calc(navbar + space.4) }` —— 固定导航下 #main 与每个锚点 section 顶边距导航底 space.4 */
+const anchorOffset = "scroll-mt-[calc(var(--size-navbar)+var(--space-4))] [&>section]:scroll-mt-[calc(var(--size-navbar)+var(--space-4))]"
+
+/** Sheet 打开时初始焦点落在右上关闭按钮（hifi openMenu → .js-close-menu.focus()） */
+const focusSheetClose = (e: Event) => {
+  const close = e.currentTarget instanceof HTMLElement ? e.currentTarget.querySelector<HTMLButtonElement>("[data-slot=sheet-close]") : null
+  if (close) {
+    e.preventDefault()
+    close.focus()
+  }
+}
+
 /** 品牌：hifi .brand —— mark space.8 + title 字阶，min-h hit */
 function Brand({ className, ...props }: React.ComponentProps<"a">) {
   return (
@@ -108,7 +120,7 @@ function Brand({ className, ...props }: React.ComponentProps<"a">) {
       className={cn("inline-flex min-h-hit items-center gap-2 rounded-sm text-role-title whitespace-nowrap text-fg", className)}
       {...props}
     >
-      <BrandMark className="size-8 [&_svg]:size-icon-md" />
+      <BrandMark variant="a" className="size-8" />
       <span>{landing.brand.name}</span>
     </a>
   )
@@ -405,7 +417,7 @@ export default function LandingPage() {
         </Wrap>
       </header>
 
-      <main id="main">
+      <main id="main" className={anchorOffset}>
         {/* ② Hero */}
         <section id="top" aria-labelledby="hero-title" className="relative overflow-clip bg-linear-to-b from-surface-brand from-0% to-surface to-85% pt-[calc(var(--size-navbar)+var(--space-16))] pb-20 max-lg:pt-[calc(var(--size-navbar)+var(--space-12))] max-lg:pb-16 max-md:pt-[calc(var(--size-navbar)+var(--space-10))] max-md:pb-12">
           <Wrap className="grid grid-cols-[minmax(0,6fr)_minmax(0,6fr)] items-center gap-16 max-lg:grid-cols-[minmax(0,1fr)] max-lg:gap-12 max-md:gap-10">
@@ -727,10 +739,10 @@ export default function LandingPage() {
 
       {/* Sheet（375 / 768 菜单；?open=menu）：Radix Dialog 提供 Esc / 遮罩关闭、焦点圈定与归还 */}
       <Sheet open={menuOpen} onOpenChange={setMenu}>
-        <SheetContent side="right" title={t("landing.nav.menu.title")} closeLabel={t("landing.nav.menu.close")} className="w-sheet max-w-full">
+        <SheetContent side="right" title={t("landing.nav.menu.title")} closeLabel={t("landing.nav.menu.close")} className="w-sheet max-w-full" onOpenAutoFocus={focusSheetClose}>
           <div className="flex h-navbar items-center border-b pr-3 pl-4">
             <span aria-hidden className="inline-flex min-h-hit items-center gap-2 text-role-title whitespace-nowrap text-fg">
-              <BrandMark className="size-8 [&_svg]:size-icon-md" />
+              <BrandMark variant="a" className="size-8" />
               <span>{landing.brand.name}</span>
             </span>
           </div>

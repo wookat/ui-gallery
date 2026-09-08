@@ -17,7 +17,7 @@ function SheetClose(props: React.ComponentProps<typeof SheetPrimitive.Close>) {
   return <SheetPrimitive.Close data-slot="sheet-close" {...props} />
 }
 
-/** 抽屉：hifi 移动端侧栏 —— overlay 令牌遮罩、surface 面板、宽 = size.sidebar.drawer */
+/** 抽屉：hifi 移动端侧栏 —— overlay 令牌遮罩、surface 面板、宽 = size.sidebar.drawer（页面可传 w-sheet 等覆盖）；关闭按钮 data-slot=sheet-close 供 onOpenAutoFocus 定位 */
 function SheetContent({
   className,
   children,
@@ -49,7 +49,7 @@ function SheetContent({
         {description ? <SheetPrimitive.Description className="sr-only">{description}</SheetPrimitive.Description> : null}
         {children}
         <SheetPrimitive.Close asChild>
-          <IconButton label={closeLabel} className="absolute top-2 right-2">
+          <IconButton label={closeLabel} data-slot="sheet-close" className="absolute top-2 right-2">
             <XIcon />
           </IconButton>
         </SheetPrimitive.Close>

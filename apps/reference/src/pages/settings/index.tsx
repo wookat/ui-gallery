@@ -82,6 +82,8 @@ type Local = Overlay | null
 
 const S = mock.settings
 const TAB_ICON: Record<Tab, React.ComponentType<React.SVGProps<SVGSVGElement>>> = { profile: UserIcon, security: ShieldIcon, notifications: BellIcon, team: UsersIcon, billing: CreditCardIcon }
+/** mock sessions[].deviceType → 会话图标（hifi DEV_ICON：smartphone / laptop / monitor） */
+const SESSION_ICONS: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = { mobile: SmartphoneIcon, laptop: LaptopIcon, desktop: MonitorIcon }
 const TEAM_BY_ID = new Map(mock.team.map((m) => [m.id, m]))
 const SELF_ID = mock.user.id
 
@@ -450,7 +452,13 @@ export default function SettingsPage() {
     }
     goTab(next, focus)
   }
+  /** 壳内导航拦截；账号菜单指向本屏 `/settings?tab=` 时走 requestTab（hifi #acctPop：关菜单、切 Tab、焦点留在触发器；脏表单同样弹「离开页面？」） */
   const beforeLeave = (href: string) => {
+    const url = new URL(href, window.location.origin)
+    if (url.pathname === "/settings") {
+      requestTab(pick(url.searchParams.get("tab"), TABS, "profile"))
+      return false
+    }
     if (!anyDirty) return true
     setLeaveTo({ href })
     openLocal("leave")
@@ -548,13 +556,22 @@ export default function SettingsPage() {
       </Alert>
     ) : null
 
-  const sessionIcon = (device: string) => (device.includes("iPhone") || device.includes("移动") ? SmartphoneIcon : device.includes("macOS") ? LaptopIcon : MonitorIcon)
+  /** 会话图标由 mock sessions[].deviceType 驱动（mobile / laptop / desktop，见 mock/settings.json note），不匹配设备文案 */
+  const sessionIcon = (deviceType: string) => SESSION_ICONS[deviceType] ?? MonitorIcon
 
   const tabPanelId = (k: Tab) => `settings-pane-${k}`
   const tabId = (k: Tab) => `settings-tab-${k}`
 
   return (
-    <AppShell current="settings" currentLabel={t("settings.title")} sidebar={sidebar} open={open} setOpen={(o) => set({ open: o })} beforeLeave={beforeLeave}>
+    <AppShell
+      current="settings"
+      currentLabel={t("settings.title")}
+      sidebar={sidebar}
+      open={open}
+      setOpen={(o) => set({ open: o })}
+      beforeLeave={beforeLeave}
+      accountCurrent={tab === "profile" || tab === "security" ? tab : undefined}
+    >
       <PageHeader
         title={t("settings.title")}
         description={`${mock.user.workspace.name} · ${mock.user.workspace.plan} · ${mock.user.roleLabel}`}
@@ -908,7 +925,7 @@ export default function SettingsPage() {
                 <CardContent>
                   <ul className="flex flex-col">
                     {visibleSessions.map((s) => {
-                      const Icon = sessionIcon(s.device)
+                      const Icon = sessionIcon(s.deviceType)
                       return (
                         <li key={s.id} className="grid min-h-table-row grid-cols-[var(--size-avatar-md)_minmax(0,1fr)_auto] items-center gap-3 border-b py-2 last:border-b-0 mobile:grid-cols-[var(--size-avatar-md)_minmax(0,1fr)]">
                           <span className="grid size-avatar-md place-items-center rounded-md bg-surface-muted text-fg-muted">
@@ -973,7 +990,8 @@ export default function SettingsPage() {
                 />
                 <CardContent>
                   <form onSubmit={submitNotifications} aria-busy={busyOf("notifications") || undefined} noValidate>
-                    <fieldset disabled={busyOf("notifications")} className="min-w-0 border-0 p-0">
+                    {/* 保存中：hifi form[aria-busy] 仅 pointer-events:none（Switch / 链接保持原色），用 inert 锁交互而不走 disabled-look */}
+                    <fieldset inert={busyOf("notifications") || undefined} className="min-w-0 border-0 p-0">
                       <TableWrap className="mobile:-mx-4 mobile:px-4">
                         <Table className="table-fixed mobile:table-auto">
                           <caption className="sr-only">{t("settings.notifications.title")}</caption>
@@ -1052,19 +1070,19 @@ export default function SettingsPage() {
                   title={t("settings.notifications.quiet.title")}
                   description={t("settings.notifications.quiet.description")}
                   actions={
-                    <span className="inline-grid size-hit place-items-center">
-                      <Switch id="quietSwitch" size="sm" aria-label={t("settings.notifications.quiet.title")} aria-controls="quietBody" checked={quiet.enabled} disabled={busyOf("notifications")} onCheckedChange={(on) => setQuiet({ ...quiet, enabled: on })} />
+                    <span inert={busyOf("notifications") || undefined} className="inline-grid size-hit place-items-center">
+                      <Switch id="quietSwitch" size="sm" aria-label={t("settings.notifications.quiet.title")} aria-controls="quietBody" checked={quiet.enabled} onCheckedChange={(on) => setQuiet({ ...quiet, enabled: on })} />
                     </span>
                   }
                 />
-                <CardContent id="quietBody" aria-disabled={!quiet.enabled || undefined} className={cn("grid max-w-form-max grid-cols-2 gap-x-6 gap-y-5 mobile:max-w-none mobile:gap-3", !quiet.enabled && "opacity-(--opacity-disabled)")}>
+                <CardContent id="quietBody" inert={busyOf("notifications") || undefined} aria-disabled={!quiet.enabled || undefined} className={cn("grid max-w-form-max grid-cols-2 gap-x-6 gap-y-5 mobile:max-w-none mobile:gap-3", !quiet.enabled && "opacity-(--opacity-disabled)")}>
                     <Field>
                       <FieldLabel htmlFor="quietFrom">{t("settings.notifications.quiet.from")}</FieldLabel>
-                      <Input id="quietFrom" type="time" value={quiet.from} disabled={!quiet.enabled || busyOf("notifications")} className="tabular-nums" onChange={(e) => setQuiet({ ...quiet, from: e.target.value })} />
+                      <Input id="quietFrom" type="time" value={quiet.from} disabled={!quiet.enabled} className="tabular-nums" onChange={(e) => setQuiet({ ...quiet, from: e.target.value })} />
                     </Field>
                     <Field>
                       <FieldLabel htmlFor="quietTo">{t("settings.notifications.quiet.to")}</FieldLabel>
-                      <Input id="quietTo" type="time" value={quiet.to} disabled={!quiet.enabled || busyOf("notifications")} className="tabular-nums" onChange={(e) => setQuiet({ ...quiet, to: e.target.value })} />
+                      <Input id="quietTo" type="time" value={quiet.to} disabled={!quiet.enabled} className="tabular-nums" onChange={(e) => setQuiet({ ...quiet, to: e.target.value })} />
                     </Field>
                   </CardContent>
               </Card>

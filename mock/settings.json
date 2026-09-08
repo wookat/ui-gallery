@@ -1,5 +1,5 @@
 {
- "note": "settings 屏五个 Tab 的数据。profile 与 user.json 同源（id/name/email/avatarHue 必须一致）；team.members 引用 team.json；billing.plan 与 user.workspace.plan 一致；发票金额 = 计划年付/月付价。twoFactor.otpauth 仅为二维码位（纯 SVG 图形）的文本源，不放位图。",
+ "note": "settings 屏五个 Tab 的数据。profile 与 user.json 同源（id/name/email/avatarHue 必须一致）；team.members 引用 team.json；billing.plan 与 user.workspace.plan 一致；发票金额 = 计划年付/月付价。twoFactor.otpauth 仅为二维码位（纯 SVG 图形）的文本源，不放位图。sessions[].deviceType ∈ mobile|laptop|desktop 决定会话图标（smartphone / laptop / monitor），与 hifi DEV_ICON(device) 结果一致，页面不做文案匹配。",
  "tabs": [
   { "key": "profile", "label": "个人资料" },
   { "key": "security", "label": "账号安全" },
@@ -52,9 +52,9 @@
    "hint": "用任意支持 TOTP 的验证器应用扫描二维码，或手动输入密钥"
   },
   "sessions": [
-   { "id": "s_1", "device": "Chrome · macOS", "location": "浙江 杭州", "ip": "115.196.xx.xx", "lastActiveAt": "2026-09-06T17:30:00+08:00", "current": true },
-   { "id": "s_2", "device": "移动端内置浏览器 · iPhone", "location": "浙江 杭州", "ip": "39.174.xx.xx", "lastActiveAt": "2026-09-06T12:05:00+08:00", "current": false },
-   { "id": "s_3", "device": "Edge · Windows", "location": "浙江 宁波", "ip": "60.190.xx.xx", "lastActiveAt": "2026-09-03T09:40:00+08:00", "current": false }
+   { "id": "s_1", "device": "Chrome · macOS", "deviceType": "laptop", "location": "浙江 杭州", "ip": "115.196.xx.xx", "lastActiveAt": "2026-09-06T17:30:00+08:00", "current": true },
+   { "id": "s_2", "device": "移动端内置浏览器 · iPhone", "deviceType": "mobile", "location": "浙江 杭州", "ip": "39.174.xx.xx", "lastActiveAt": "2026-09-06T12:05:00+08:00", "current": false },
+   { "id": "s_3", "device": "Edge · Windows", "deviceType": "laptop", "location": "浙江 宁波", "ip": "60.190.xx.xx", "lastActiveAt": "2026-09-03T09:40:00+08:00", "current": false }
   ],
   "sessionsEmpty": "没有其他活跃会话",
   "revokeAllLabel": "注销其他所有会话"

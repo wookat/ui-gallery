@@ -86,6 +86,16 @@ type ShellProps = {
   busy?: boolean
   /** 离开拦截：返回 false 则阻止导航（有未保存改动时弹「离开页面？」） */
   beforeLeave?: (path: string) => boolean
+  /** 账号菜单当前项（hifi .menu-item[aria-current=page] primary-soft 高亮）：settings 屏按 ?tab= 传 profile / security */
+  accountCurrent?: AccountMenuKey
+}
+
+type AccountMenuKey = "profile" | "security"
+
+/** 账号菜单可达项 → 目标路由（hifi settings #acctPop href="?tab=…"） */
+const accountLinks: Record<AccountMenuKey, string> = {
+  profile: "/settings?tab=profile",
+  security: "/settings?tab=security",
 }
 
 function NavList({ rail, empty, current, onNavigate, beforeLeave }: { rail: boolean; empty: boolean; current: string; onNavigate?: () => void; beforeLeave?: (path: string) => boolean }) {
@@ -163,6 +173,7 @@ function AppShell({
   flush = false,
   busy = false,
   beforeLeave,
+  accountCurrent,
 }: ShellProps) {
   const mobile = useMaxWidth("--breakpoint-md")
   const tablet = useMaxWidth("--breakpoint-lg")
@@ -188,6 +199,13 @@ function AppShell({
   }
   const drawerOpen = open === navOpenKey && mobile
   const collapseLabel = rail ? t("shell.nav.expand") : t("shell.nav.collapse")
+  /** 与 hifi 一致：当前项点击不导航；其余项先过离开拦截再跳转 */
+  const goAccount = (key: AccountMenuKey) => {
+    if (key === accountCurrent) return
+    const href = accountLinks[key]
+    if (beforeLeave && !beforeLeave(href)) return
+    navigate(href)
+  }
 
   return (
     <div data-slot="app-shell" data-sidebar={rail ? "rail" : "expanded"} className="flex min-h-svh bg-bg text-fg">
@@ -335,10 +353,10 @@ function AppShell({
                     <span className="block truncate text-role-caption text-fg-muted">{mock.user.email}</span>
                   </div>
                 </DropdownMenuHeader>
-                <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.profile"))}>
+                <DropdownMenuItem aria-current={accountCurrent === "profile" ? "page" : undefined} onSelect={() => goAccount("profile")}>
                   <UserIcon /> {t("shell.account.menu.profile")}
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.security"))}>
+                <DropdownMenuItem aria-current={accountCurrent === "security" ? "page" : undefined} onSelect={() => goAccount("security")}>
                   <ShieldIcon /> {t("shell.account.menu.security")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.switch"))}>

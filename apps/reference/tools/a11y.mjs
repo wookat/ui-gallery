@@ -2,7 +2,7 @@
 // 每个 视口 × 主题 × 状态：axe-core（wcag2a/aa：对比度等）+ 热区 ≥ tokens.size.hit + 键盘焦点环可见
 // + 375 下 scrollWidth ≤ 375 + console error = 0。任一失败退出码 1。
 import { createRequire } from "node:module";
-import { chromium, hitMin, openPage, pageUrl, screenArg, serveDist, settle, shotList, themes, viewports } from "./_shared.mjs";
+import { hitMin, launch, openPage, pageUrl, screenArg, serveDist, settle, shotList, themes, viewports } from "./_shared.mjs";
 
 const axeSource = createRequire(import.meta.url)("axe-core").source;
 const screen = screenArg();
@@ -14,7 +14,7 @@ const ok = (cond, msg) => {
 };
 
 const { origin, close } = await serveDist();
-const browser = await chromium.launch();
+const browser = await launch();
 for (const [vpName, vp] of Object.entries(viewports)) {
   for (const theme of themes) {
     const { ctx, page, errors } = await openPage(browser, vp, theme);

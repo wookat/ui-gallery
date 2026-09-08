@@ -3,10 +3,11 @@
 // 条目可选 `viewports: ["tablet", "tabletSm"]`：附加在 1024/768 视口截图（仅该条目），与 hifi ref 的 tablet-*/tabletSm-* 基准配对。
 // 条目可选 `stretch: true`：不用 fullPage，而是把视口高度撑到 document 高度后截视口（sticky 元素落在自然位置），
 // 对齐 design/hifi/settings/check.mjs 的策略；fullPage 会把 375 下 `mobile:sticky bottom-0` 的 SaveBar 卡在第一屏中部。
+// 条目可选 `lang: "zh_CN.UTF-8"`：该条目在进程 LANG=zh_CN 的 Chromium 中截（原生 <input type=time> 渲染 24 小时制），见 _shared.mjs launch()。
 // 输出 shots/reference/<screen>/<viewport>-<theme>-<name>.png，命名与 design/hifi/<screen>/ref 一致，供 compare.mjs 配对。
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { chromium, extraViewports, openPage, pageUrl, screenArg, serveDist, settle, shotList, shotsRoot, themes, viewports } from "./_shared.mjs";
+import { extraViewports, launch, openPage, pageUrl, screenArg, serveDist, settle, shotGroups, shotList, shotsRoot, themes, viewports } from "./_shared.mjs";
 
 const screen = screenArg();
 const list = shotList(screen);
@@ -14,45 +15,47 @@ const out = join(shotsRoot, screen);
 mkdirSync(out, { recursive: true });
 
 const { origin, close } = await serveDist();
-const browser = await chromium.launch();
 let n = 0;
 const errors = [];
-for (const [vpName, vp] of [...Object.entries(viewports), ...Object.entries(extraViewports)]) {
-  // 无 viewports 字段 = 默认 desktop+mobile；有则为完整清单
-  const items = list.filter((s) => (s.viewports ? s.viewports.includes(vpName) : vpName in viewports));
-  if (!items.length) continue;
-  for (const theme of themes) {
-    const { ctx, page, errors: errs } = await openPage(browser, vp, theme);
-    for (const { name, query, overlay, scrollTo, stretch } of items) {
-      await page.goto(pageUrl(origin, screen, query, theme), { waitUntil: "networkidle" });
-      await settle(page);
-      if (scrollTo) {
-        await page.locator(scrollTo).first().evaluate((el) => el.scrollIntoView({ block: "start" }));
-        await page.waitForTimeout(200);
+for (const { lang, items: group } of shotGroups(list)) {
+  const browser = await launch({ lang });
+  for (const [vpName, vp] of [...Object.entries(viewports), ...Object.entries(extraViewports)]) {
+    // 无 viewports 字段 = 默认 desktop+mobile；有则为完整清单
+    const items = group.filter((s) => (s.viewports ? s.viewports.includes(vpName) : vpName in viewports));
+    if (!items.length) continue;
+    for (const theme of themes) {
+      const { ctx, page, errors: errs } = await openPage(browser, vp, theme);
+      for (const { name, query, overlay, scrollTo, stretch } of items) {
+        await page.goto(pageUrl(origin, screen, query, theme), { waitUntil: "networkidle" });
+        await settle(page);
+        if (scrollTo) {
+          await page.locator(scrollTo).first().evaluate((el) => el.scrollIntoView({ block: "start" }));
+          await page.waitForTimeout(200);
+        }
+        // 仅 overlay 条目：?open= 程序化打开浮层时 Radix 自动聚焦首项会带出 :focus-visible 焦点环，hifi ref 无此环，截图前移开焦点
+        //（不影响 a11y.mjs 的键盘检查）。非 overlay 页面不 blur——表单页 autoFocus 的输入框被 blur 会触发 onBlur 校验，与 ref 不符
+        if (overlay) {
+          await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
+        }
+        // 浮层（fixed 抽屉/菜单/Toast）截视口；stretch 条目撑高视口再截视口；其余整页
+        const file = join(out, `${vpName}-${theme}-${name}.png`);
+        if (!overlay && stretch) {
+          const docH = await page.evaluate(() => document.documentElement.scrollHeight);
+          await page.setViewportSize({ width: vp.width, height: Math.max(vp.height, docH) });
+          await page.waitForTimeout(50);
+          await page.screenshot({ path: file });
+          await page.setViewportSize(vp);
+        } else {
+          await page.screenshot({ path: file, fullPage: !overlay });
+        }
+        n++;
       }
-      // 仅 overlay 条目：?open= 程序化打开浮层时 Radix 自动聚焦首项会带出 :focus-visible 焦点环，hifi ref 无此环，截图前移开焦点
-      //（不影响 a11y.mjs 的键盘检查）。非 overlay 页面不 blur——表单页 autoFocus 的输入框被 blur 会触发 onBlur 校验，与 ref 不符
-      if (overlay) {
-        await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
-      }
-      // 浮层（fixed 抽屉/菜单/Toast）截视口；stretch 条目撑高视口再截视口；其余整页
-      const file = join(out, `${vpName}-${theme}-${name}.png`);
-      if (!overlay && stretch) {
-        const docH = await page.evaluate(() => document.documentElement.scrollHeight);
-        await page.setViewportSize({ width: vp.width, height: Math.max(vp.height, docH) });
-        await page.waitForTimeout(50);
-        await page.screenshot({ path: file });
-        await page.setViewportSize(vp);
-      } else {
-        await page.screenshot({ path: file, fullPage: !overlay });
-      }
-      n++;
+      if (errs.length) errors.push(`${vpName}/${theme}: ${errs.join(" | ")}`);
+      await ctx.close();
     }
-    if (errs.length) errors.push(`${vpName}/${theme}: ${errs.join(" | ")}`);
-    await ctx.close();
   }
+  await browser.close();
 }
-await browser.close();
 close();
 console.log(`shot ${n} → ${out}`);
 if (errors.length) {

@@ -1,150 +1,127 @@
-# 07 QA + 合规/安全审计：Acme Console 参考应用（阶段 7）
+# 07 · QA + 合规安全审计（第 3 轮：orders / form 合入后）
 
-> 阶段 7 产物（frontend-0to1-ai 步骤 7，角色 qa/qa-engineer 兼合规与安全审计，CHARTER 四道把关中的第 1 与第 4 道）。
-> 审计对象：`fe01/integration` @ `aa1a1643cef490696c0440d74765e053afaa92e1`（2026-09-08，第三轮；上两轮对象 `0b3c2e7` → `c7e47e6`）。输入：`docs/frontend/00-brief.md`。
-> 本文只写报告，不改产品代码；所有结论均来自本机实跑或生产实查，命令与原始输出摘录见 §3。每条都标明「实跑 / 实查 / 代码核对」三种证据等级，未验证项见 §5。
+> 角色：roles/qa/qa-engineer（兼合规与安全审计，CHARTER 四道把关中的 QA + 审计）。
+> 对象：`fe01/integration` @ `6f4fe2a50296086d5fae9b6d828a651b7ccdf53c`（`origin/main` e2ab886 已包含，`git merge --ff-only origin/main` 无变化）。
+> 范围：本轮合入 **orders、form**；已上线回归 **login、dashboard**。`components` / `landing` / `chat` 本轮明确未合入，其缺失**不计** P0/P1（§5）。
+> 方法：本机实跑门禁（§3）+ Playwright 1.62.1 对 `pnpm build` 产物走查（`tools/_shared.mjs serveDist`，与生产同构：base `/apps/reference/`、目录 `index.html`、`/foo` → 307 `/foo/`、未知路径 404），脚本在仓库外 `~/qa/walk.mjs`、`~/qa/menu.mjs`，截图不入库。**只写报告，不改产品代码。**
+> 证据口径：每条标注「实跑」（本轮直接复现）/「代码核对」（读源码推断）/「历史」（上轮报告，本轮未复验）。上一轮报告（对象 `aa1a164`）的编号 QA-01 ~ QA-16 沿用，新增自 QA-17。
 
 ## 0. 结论
 
-**verdict = pass（0 项 P0，0 项 P1）。**
+**verdict = fix（P0 = 0，P1 = 3）。**
 
-`aa1a164` 相对上一轮审计对象 `c7e47e6` 只改了 3 个文件（`vite.config.ts` / `tools/_shared.mjs` / `pages/dashboard/index.tsx`），针对的是上一轮 QA-01（P1，生产托管下 `/apps/reference/login` 直达 404）与体验官 P1-新1（订单菜单选项不关闭、无反馈）。本轮实跑确认两项**均已修复**：
-
-- **QA-01 关闭**：`pnpm build` 现在为每条非根路由落盘 `dist/login/index.html`、`dist/kitchen-sink/index.html`（与 `dist/index.html` 逐字节相同，资源路径为 `/apps/reference/assets/*` 绝对路径）；`tools/_shared.mjs` 静态服务已对齐 `wrangler.jsonc` 语义（目录缺尾斜杠 307 补斜杠并保留查询串、缺失 404、不再回退 SPA 入口），本地门禁不再掩盖路由落盘问题。Playwright 复现（§3.7）：`/apps/reference/login` → 307 → `/apps/reference/login/` → 200 渲染表单；`/login?state=error&theme=dark` 307 后查询串完整保留并渲染 `role=alert`；在 `/login/` 上刷新、退出登录后刷新均 200；`tools/assemble.mjs` 实跑后 `dist/apps/reference/login/index.html` 存在。生产侧 Cloudflare `auto-trailing-slash` 对「有 index.html 的目录」的 307 + 查询串保留行为用已上线的 `apps/antd` 实查复核（`/apps/antd?x=1` → 307 `/apps/antd/?x=1`）。
-- **P1-新1 关闭**：`OrderMenu` 改为始终受控（`open: boolean`，去掉 `|| undefined`），四个菜单项 `onSelect` 关菜单并 `toast.info(<动作>, { description: 后续轮次提供 })`，文案 key 均在 `content/dashboard.md`（L17 / L73–77），时长取令牌 `--timing-toast-stay`。1440 鼠标 / 键盘 Enter / 375 触屏均复现「关菜单 + Toast」，禁用项点击不触发、同一菜单可重开、Escape 关闭（§3.7）。
-
-其余检查项（lint / typecheck / build、三屏 a11y、许可证、资产来源、secrets、供应链策略、mock 个人信息）**全部通过**，与上一轮一致。上一轮 P2/P3 中 QA-05 随本次 `_shared.mjs` 改动一并关闭；其余仍开放并沿用编号，新增 3 条 P3（QA-14 ~ QA-16）。
+合规与安全六项检查（lint/typecheck/build、四屏 a11y、许可证与字体、第三方文案商标、secrets 与供应链策略、mock 个人信息）**全部通过**；四屏 `compare.mjs` 254/254 ≥ 95%。阻塞项全部是**功能/集成**缺陷，且都集中在「新屏与外壳的连接」上：
 
 | 级别 | 数量 | 编号 |
 |---|---|---|
 | P0 | 0 | — |
-| P1 | 0 | — |
-| P2 | 2 | QA-02、QA-04 |
-| P3 | 12 | QA-03、QA-06 ~ QA-16 |
+| P1 | 3 | QA-17（侧栏原生 `<a>` 跳出 basename）、QA-18（订单行菜单「查看详情 / 取消订单 / 删除订单」不生效）、QA-19（orders 未在导航放开） |
+| P2 | 2 | QA-02（历史）、QA-20（主包 538 kB） |
+| P3 | 11 | QA-03、QA-06、QA-08 ~ QA-12、QA-14 ~ QA-16（历史沿用）、QA-21（Drawer 可访问名） |
+
+三项 P1 修法都很小（一个组件、一个函数、一个 JSON 字段），建议一并交 frontend-engineer 在同一分支修复后按 §6 复验清单回归。
 
 ## 1. P0 / P1
 
-无。上一轮 QA-01（P1）的关闭证据见 §0 与 §3.7 第 1–2 组、§3.8。
+### QA-17 · P1 · 侧栏导航是原生 `<a href="/">`，从 orders / form 点「仪表盘」整页跳出 `/apps/reference/`（实跑）
+
+- **现象**：在 `/apps/reference/orders/` 或 `/apps/reference/form/`（未 dirty 或已保存草稿）点击侧栏「仪表盘」，浏览器向 **站点根 `/`** 发起整页请求：本地同构静态服务返回 **404**（`~/qa/menu.mjs`：`侧栏首项 href="/" → 点击后 url = http://127.0.0.1:<port>/ 响应 = 404`；`walk.log` L85 / L99 / L100 同）。生产站根路径是画廊首页（非参考应用），用户会被踢出应用。这也是 form / orders 桌面 console 出现 `Failed to load resource: 404` 的唯一来源——其余走查 console error 均为 0。
+- **代码核对**：`src/components/composed/nav-item.tsx` L27 渲染裸 `<a>`，`shell.tsx` L102 传 `href={it.path}`（`/`、`/orders`…），点击未 `preventDefault` 也未 `navigate()`；`react-router` `basename: import.meta.env.BASE_URL`（`app.tsx` L34）只对 `<Link>`/`navigate` 生效。同一 `<a>` 在 dashboard 页自身（`aria-current=page`）按代码同理也会整页刷新到 `/`，本轮未单独实测。
+- **未受影响的路径**（实跑）：form dirty 时侧栏点击被 `beforeLeave` 拦截，「放弃并离开」走 `navigate(leaveTo)` → 正确到 `/apps/reference/`（`walk.log` L83）；login 提交 → `/apps/reference/?toast=login`（L93）。
+- **影响**：orders / form 与 dashboard 之间**没有可用的应用内返回路径**（只能浏览器后退）。上一轮 login/dashboard 两屏因侧栏只有当前项可点，问题被掩盖；本轮 orders 合入后首次暴露。
+- **建议**：`NavItem` 改用 `react-router-dom` `<Link>`（或 `<a>` 上 `onClick` → `preventDefault` + `navigate(path)`），保留 `aria-disabled` 分支；`dashboard/index.tsx` L129 `ViewAll` 的 `<a href>` 同改。修后复验：orders → 仪表盘、form（草稿已保存）→ 仪表盘、dashboard 点自身，URL 均停留在 `/apps/reference/…`，console 404 = 0。
+
+### QA-18 · P1 · 订单行菜单「查看详情 / 取消订单 / 删除订单」点了没反应（实跑，稳定复现）
+
+- **现象**：1440 成功态，打开任一行「更多操作」菜单，点「查看详情」或「取消订单」→ 菜单关闭、**无抽屉 / 无对话框 / URL 不变 / 无 Toast / 无 console error**。`~/qa/menu.mjs` 鼠标 × 4、键盘 Enter × 4、reducedMotion × 4 全部 `overlay=0 url=(空)`（12/12）；「删除订单」（已取消订单菜单内）同样 `alertdialogs=0`（`walk.log` L39）。对照：直达 `?open=drawer&order=…` / `?open=dialog-cancel&order=…` / `?open=dialog-delete&order=…` 均正常打开（`menu.mjs` 末三行 1/1/1），点行开抽屉、抽屉底部「取消订单」→ AlertDialog → 选原因 → 确认 → Toast「已取消」→ 行状态变更全链路正常（L24–37）。
+- **不受影响**：同一菜单的「标记发货」「加急」「复制订单号」正常（L21、`menu.mjs` 复制项预期无覆盖层），因为它们不写 URL 态。
+- **代码核对（根因推断，高置信）**：`orders/index.tsx` L1070 `OrderMenu` 受控于 URL（`open=order-menu&order=<id>`），`onOpenChange(false)` → `set({ open: null, order: null })`；菜单项 `onSelect` → `doAction` → `openDrawer`/`openDialog` → `set({ open: "drawer" | "dialog-cancel", … })`。两次 `set` 在同一事件循环内各自基于**闭包里同一份旧 `params`** 构造 `URLSearchParams`（`data/screen-state.ts` `set`），Radix 关菜单的那次后执行、以 `replace` 覆盖，最终 `open` 被删掉。写 URL 态的三个动作因此全部失效，改本地 state 的动作不受影响。
+- **影响**：菜单里 3 个动作有 2 个有替代路径（点行 / 抽屉底部），但「删除订单」**只有菜单一个入口**，等于 UI 上删不了订单；对键盘/读屏用户「查看详情」也失去了菜单入口。上一轮 dashboard 菜单是「关菜单 + Toast 占位」所以没暴露。
+- **建议**：`set` 改为函数式合并（`setParams(prev => …)`）或 `doAction` 里合并成一次 `set({ open: "drawer", order: id })`（该写法本身已隐含关菜单，`onOpenChange(false)` 可在 `open` 已非 `order-menu` 时跳过）。修后按 `menu.mjs` 三输入方式 × 3 动作复验。
+
+### QA-19 · P1 · orders 已合入，但导航仍按「未实现」禁用：brief 要求本轮翻 `implemented: true`（实跑 + 代码核对）
+
+- **现象**：dashboard 与 orders 页侧栏「订单」项 `href=null aria-disabled=true role=link`，hover Tooltip「后续轮次提供」（`walk.log` L14 / L95 / L96）；dashboard「最近订单 → 查看全部」`href=/orders aria-disabled=true`，点击无跳转（L97 / L98）。orders 只能靠手输 URL 进入。
+- **依据**：`docs/frontend/00-brief.md` §11.1 / 需求 #12：「`mock/nav.json` 的 `orders` 与 `settings` 在实现阶段置 `implemented: true` 并去掉『后续轮次提供』禁用态」。当前 `mock/nav.json` `orders.implemented` 仍为 `false`（该文件最后改动仍是阶段 0 提交 `36bedc9`）；`dashboard/index.tsx` L129 `ViewAll` 无条件 `aria-disabled="true"`，注释仍写「指向本轮不可达路径」。`settings` 本轮无实现，保持 `false` 正确。
+- **影响**：本轮交付的核心屏用户发现不了；需求逐条对照表上该条为「未满足」。
+- **建议**：`mock/nav.json` `orders.implemented: true`；`ViewAll` 按 `mock.nav` 中目标路径的 `implemented` 决定是否禁用。**注意**：单独翻 `true` 后侧栏「订单」会变成 `<a href="/orders">` → 整页跳到站点根 `/orders` 同样 404（QA-17 同源），必须与 QA-17 一起修。修后复验 dashboard → 订单 → 仪表盘往返，`a11y.mjs dashboard/orders` 重跑（`aria-current` / Tooltip 契约变化）。
 
 ## 2. P2 / P3
 
 | 编号 | 级别 | 状态 | 项 | 证据 | 建议 |
 |---|---|---|---|---|---|
-| QA-02 | P2 | 仍开放 | `tools/assemble.mjs` 自动把参考应用纳入 `dist/manifest.json`，画廊首页会出现「Acme Console（参考应用）」卡片，与 brief §6「画廊首页本轮不接入参考应用」冲突 | **本轮实跑**：`pnpm --filter @ui-gallery/gallery build && node tools/assemble.mjs` → `assembled 1 apps`，`manifest.json` 含 `reference`（本机其他 app 无 dist 故只有 1 条；生产机会与其他 app 并列）。`gallery/src/pages/index.astro` L54 卡片链接 `/apps/reference${routeOf(route)}`：`/login`、`/` 现已可达（QA-01 关闭），但 tab 切到 `/orders` 等 6 条 `contract.json` 路由时链到 `/apps/reference/orders` → 生产 404 空白（QA-14）；截图 `/shots/reference/*.png` 不入库，部署机不 shoot 则显示「截图待生成」 | release 阶段二选一并写进 04-adr：接受接入（补 `gallery.json.routes`（QA-09）、把 `shots/reference` 纳入部署产物），或在 assemble 里按 `gallery.json` 加 `hidden: true` 过滤 |
-| QA-04 | P2 | 仍开放 | 登录页第三方登录三键、dashboard 顶栏 375 搜索键、头像菜单 4 项点击零反馈（无 `aria-disabled` / Tooltip / Toast），与同屏「忘记密码？」「免费注册」的 `aria-disabled + cursor-not-allowed` 契约及本次订单菜单的 Toast 反馈不一致；体验官 P2-新1 / P2-新2 / P2-新3 同题 | 代码核对：`login/index.tsx` L326–331 三个 `<Button variant="secondary" block disabled={locked}>` 无 onClick；`dashboard/shell.tsx` L217 搜索 `IconButton` 无 onClick、无 `aria-disabled`；L272–281 四个 `DropdownMenuItem` 无 onSelect | 复用本次 `orderAction` 的模式（`toast.info(<项>, { description: t("shell.nav.disabled.tip") })`），一处工具函数三处调用；文案已在 content |
-| QA-03 | P3（↓自 P2） | 仍开放 | `/login?state=success` 停留在登录页（表单锁定 + 常驻 Toast），未按 `content/login.md` L52「success = 立即跳转 `/?toast=login`」执行 | 代码核对：`login/index.tsx` L160 `locked = busy \|\| state === "success"`，L176–182 无 `navigate`。真实提交路径（§3.7）不经过该态，只影响 `?state=success` 直达与截图矩阵；体验官第 2 轮已按此降为 P3-新5，本报告随之降级 | 二选一：`?state=success` → `<Navigate to="/?toast=login" replace>`（`shots.json` success 条目改指 dashboard `success-toast`），或在 content/login.md 把它改定义为「截图专用静态态」 |
-| QA-06 | P3 | 仍开放 | `vite` / `tailwindcss` / `@tailwindcss/vite` 放在 `dependencies` 而非 `devDependencies` | `apps/reference/package.json`；`licenses list --prod` 因而把构建链（lightningcss MPL-2.0、less、stylus 等）算进「生产依赖」 | 迁到 `devDependencies`，使生产依赖清单与审计口径干净 |
-| QA-07 | P3 | 可接受 | 第三方登录用 simple-icons（CC0-1.0）单色 Google / GitHub / 微信 路径 | `login/index.tsx` L72–91；brief §4.1 / §5 明示允许 | 接真实 OAuth 时按各家品牌指南调整 |
-| QA-08 | P3 | 仍开放 | `tools/a11y.mjs` 只跑 1440 / 375；dashboard `shots.json` 的 `tablet`（1024）/ `tabletSm`（768）未进 a11y 矩阵 | 实跑：`a11y dashboard` 212 行全为 `desktop/` + `mobile/` | a11y 也读 `shots.json` 的 `viewports` |
-| QA-09 | P3 | 仍开放 | `apps/reference/gallery.json` `routes: ["/kitchen-sink"]` 过时 | 文件本身；画廊目前用 `contract.json` 渲染 tab，无用户可见影响 | 随 QA-02 更新为 `["/login", "/", "/kitchen-sink"]` |
-| QA-10 | P3 | 仍开放 | 虚构邮箱域 `qimu-home.cn` 为真实可注册 TLD | `mock/team.json` / `user.json` 共 10 处 `@qimu-home.cn`（§3.6） | 下轮内容修订改用 `.example` 保留域 |
-| QA-11 | P3 | 仍开放（面扩大） | `vite.config.ts` 使用 `__dirname`，与 Vite 未来默认 `configLoader: 'native'` 不兼容 | 实跑 §3.1 build 告警 `(!) … __dirname (vite.config.ts:13:33)`；本次新增的 `spaRoutes()` 又加一处，现共 6 处（L13 / 44 / 45 / 47 / 48 / 52） | 全部改 `import.meta.dirname`（Node 22 支持） |
-| QA-12 | P3 | 仍开放 | `design/hifi/login/index.html` 从 `cdn.jsdelivr.net` 加载字体 | 该文件 L32–34；设计稿不进生产 | 两稿字体来源统一为本地 |
-| QA-13 | P3 | 可接受 | 集成分支相对 `main` 改了 `apps/shadcn-ui/package.json`（+`@fontsource-variable/jetbrains-mono`） | `git diff --stat main...HEAD`：`apps/reference`、`design`、`content`、`mock`、`docs/frontend`、`.devin`、`AGENTS.md`、`pnpm-lock.yaml` 之外仅此 1 行；`c7e47e6..HEAD` 无新增其他 app 改动 | 已在 04-adr 记录；下轮解耦 |
-| QA-14 | P3 | 新增 | 生产托管下参考应用的**未知路径**（如 `/apps/reference/orders`、手误 URL）返回 Cloudflare 空体 404（`content-length: 0`），用户看到纯白页；本地静态服务对齐生产后同样 404。`src/app.tsx` 的 `path: "*" → Navigate("/")` 只对客户端导航生效 | 实查：`curl -D - https://ui.zalize.com/apps/antd/login` → `HTTP/2 404`、`content-length: 0`（同配置）；本地 `/apps/reference/nope`、`/nope/deep` → 404（§3.7）。属 `not_found_handling: "none"` 的站点级行为，`c7e47e6` 之前在生产上就是如此，本次只是让本地也暴露 | release 阶段站点级决定：`wrangler.jsonc` 改 `not_found_handling: "404-page"` 并在 `gallery/public/404.html` 放一页令牌色的「页面不存在 → 回画廊 / 回参考应用」（影响全站，非参考应用单独可修）；或接受现状 |
-| QA-15 | P3 | 新增 | `spaRoutes()` 用正则 `^export const path = "([^"]+)"` 读页面路径覆盖，只认双引号、行首、单空格；写法稍有出入（单引号 / `as const` / 多空格）会静默回退到 `/<id>`，落盘目录与实际路由不一致且无告警 | 代码核对：`vite.config.ts` L26；当前仅 dashboard 用 `export const path = "/"`（`src/pages/dashboard/index.tsx` L29），格式匹配，本轮无实际影响 | 与 `src/app.tsx` 共用一个解析函数，或正则放宽为 `^export\s+const\s+path\s*=\s*["']([^"']+)["']` 并在不匹配但含 `export const path` 时抛错 |
-| QA-16 | P3 | 新增 | 本地静态服务（`_shared.mjs serveDist`）与生产的差异仍剩一条：生产 `auto-trailing-slash` 对 `/foo` 且存在 `/foo.html` 时会直接服务，本地无此分支；参考应用没有 `*.html` 平铺文件，当前无影响 | 代码核对：`_shared.mjs` L85–93 | 记录即可，新增平铺 HTML 时再补 |
+| QA-02 | P2 | 历史·本轮未复验 | `tools/assemble.mjs` 把参考应用纳入 `dist/manifest.json`，画廊首页出现「Acme Console」卡片，与 brief §6 冲突 | 上轮实跑；本轮未跑 gallery build | release 阶段二选一并写进 04-adr（见上轮） |
+| QA-20 | P2 | 新增 | 主包 `index-*.js` **538.40 kB**（gzip 143.80）触发 Vite `> 500 kB` 告警；上轮 `aa1a164` 为 247.58 kB，orders + form 合入后 +117%，四屏全部打进同一个 chunk | 实跑 §3.1 `pnpm build` 输出 `(!) Some chunks are larger than 500 kB` | `app.tsx` 路由 `React.lazy` 按屏拆包（或 `manualChunks` 按 pages 拆），目标单屏首包回到 ≤ 300 kB；不建议只调 `chunkSizeWarningLimit` 压掉告警 |
+| QA-21 | P3 | 新增 | 订单详情 Drawer 可访问名只有「订单」：`DrawerContent` 同时有 `aria-label="订单详情"` 与 `aria-labelledby`→标题，后者优先，标题里的订单号又是独立节点，读屏只听到「订单 对话框」 | 实跑 `walk.log` L23 / L25（`aria-label=订单详情 labelledby→订单`）；axe 无违规（有名字即通过） | 标题节点包含订单号，或去掉 `aria-labelledby` 让 `aria-label` 生效并带 `{id}` |
+| QA-03 | P3 | 历史·本轮未复验 | `/login?state=success` 停留登录页未跳转 | 代码核对 `login/index.tsx` L160 `locked = busy \|\| state === "success"` 仍在 | 见上轮 |
+| QA-06 | P3 | 仍开放（实跑） | `vite` / `tailwindcss` / `@tailwindcss/vite` 在 `dependencies`，`licenses --prod` 把 lightningcss（MPL-2.0）算进生产依赖 | `package.json` L20 / L30 / L31；§3.3 MPL-2.0 两项均为 lightningcss | 迁到 `devDependencies` |
+| QA-08 | P3 | 仍开放（实跑） | `a11y.mjs` 只跑 desktop / mobile，1024 / 768 不进 a11y 矩阵 | `a11y-orders.log` 372 行全为 `desktop/` `mobile/`，`tablet` 0 次 | a11y 读 `shots.json` viewports |
+| QA-09 | P3 | 历史·本轮未复验 | `gallery.json` `routes` 过时 | — | 随 QA-02 |
+| QA-10 | P3 | 仍开放（面扩大） | 虚构域名用真实可注册 TLD：`qimu-home.cn` 16 处（mock + content），本轮 suppliers / purchase-form 新增 `zhangli-wood.cn`、`linyu-wood.cn`、`nuanzhu-scent.cn`、`zhuli-craft.cn`、`yunzhi-textile.cn`、`keqiao-linen.cn` | §3.6 | 下轮内容修订改用 `.example` |
+| QA-11 | P3 | 仍开放（实跑） | `vite.config.ts` `__dirname` 与 Vite `configLoader: 'native'` 不兼容 | §3.1 build 告警 `(vite.config.ts:13:33)` | 改 `import.meta.dirname` |
+| QA-12 | P3 | 仍开放（实跑） | `design/hifi/login/index.html` L32–34 从 `cdn.jsdelivr.net` 加载字体（设计稿，不进生产） | `grep jsdelivr design content mock src` 仅此 3 行；orders / form hifi 无远程资源 | 统一为本地 |
+| QA-14 | P3 | 仍开放（实跑） | 未知路径整页 404 空白（生产 `not_found_handling: none`） | `walk.log` L7 `/after-sales/` → 404，与上轮一致 | 站点级，记录 |
+| QA-15 / QA-16 | P3 | 历史·本轮未复验 | `spaRoutes()` 正则脆弱 / 本地静态服务与生产 `*.html` 平铺差异 | 代码未变（实跑 `git diff --stat aa1a164..HEAD -- vite.config.ts tools/_shared.mjs` 无输出） | 见上轮 |
 
-体验官走查（`07-ux-walkthrough.md` 第 2 轮）其余开放项状态：P1-新1 关闭（§3.7）；P2-新1 / P2-新2 / P2-新3 并入 QA-04；P2-新4（改邮箱后 Alert 停留）、P2-新5（`?theme=` 链接下手动切主题刷新被弹回）、P3-新1 ~ P3-新6 均仍开放，属体验优化不在 QA/审计定级内，交项目负责人排期。
+**已关闭**：QA-04（P2，登录第三方三键 / 顶栏搜索 / 头像菜单零反馈）——代码核对 `login/index.tsx` L330、`shell.tsx` L268 / L324–333 均已接 `notYet()` Toast；本轮走查未逐个点击，标注「代码核对关闭，待体验官复验」。QA-07 / QA-13 维持「可接受」。
 
 ## 3. 门禁与检查实跑记录
 
-环境：Ubuntu，Node 22.23.2，pnpm 11.9.0，`pnpm install --frozen-lockfile` 成功（1m01s），输出中 `MINIMUM_RELEASE_AGE` 0 次命中；Playwright 1.62.1（`tools/shoot`）+ `pnpm exec playwright install chromium`（headless shell 1234）。所有命令在 `apps/reference/` 下执行，除特别说明。
+环境：Ubuntu，Node 22.23.2，pnpm 11.9.0，`pnpm install --frozen-lockfile` 成功，输出无 `MINIMUM_RELEASE_AGE`。Playwright 1.62.1（`tools/shoot`，`pnpm exec playwright install chromium` 装 headless shell 1234）。命令在 `apps/reference/` 下执行。
 
 ### 3.1 lint / typecheck / build（检查项 ①）
 | 命令 | 结果 |
 |---|---|
-| `pnpm lint`（`eslint . && node tools/no-hardcode.mjs`） | exit 0；eslint 0 error / 0 warning；`no-hardcode: 47 个文件通过` |
-| `pnpm typecheck`（`tsc --noEmit -p tsconfig.app.json`） | exit 0 |
-| `pnpm build`（`tsc -b && vite build`） | exit 0，`✓ built in 636ms`；产物 `index-*.css` 165.81 kB（gzip 59.86）、`react-*.js` 271.62 kB（gzip 86.61）、`charts-*.js` 381.99 kB（gzip 111.14）、`index-*.js` 247.58 kB（gzip 68.26）、`radix-*.js` 107.48 kB（gzip 34.75）+ 字体 woff2；**无** chunk > 500 kB 告警；唯一告警为 `__dirname`（QA-11）。`find dist -name index.html` → `dist/index.html`、`dist/login/index.html`、`dist/kitchen-sink/index.html`；`diff dist/index.html dist/login/index.html` → 相同 |
+| `pnpm lint`（`eslint . && node tools/no-hardcode.mjs`） | exit 0；eslint 0 error / 0 warning；`no-hardcode: 75 个文件通过`（上轮 47） |
+| `pnpm typecheck` | exit 0 |
+| `pnpm build` | exit 0，`✓ built in 727ms`；`index-*.css` 205.42 kB、`react` 271.62、`charts` 381.99、`radix` 137.01、**`index-*.js` 538.40 kB（gzip 143.80）→ `> 500 kB` 告警（QA-20）**；`__dirname` 告警（QA-11） |
 
-### 3.2 每屏 `node tools/a11y.mjs <screen>`（检查项 ②）
-矩阵：视口 1440×900 / 375×812 × 主题 light / dark × `shots.json` 全部状态；每格 4 项断言（axe-core 4.13.0 `wcag2a / wcag2aa / wcag21aa / best-practice` serious+critical = 0；`scrollWidth ≤ 视口宽`；可点击件 `elementFromPoint` 实测热区 ≥ 40×40；Tab 焦点环可见）+ 每视口×主题 console error = 0。本轮 a11y 跑在已对齐生产语义的静态服务上（`pageUrl` 生成的 `/login?…` 经 307 → `/login/?…`）。
+### 3.2 `tools/a11y.mjs`（检查项 ②）— 全部 EXIT 0，0 FAIL
+| 屏 | 结果（light+dark × desktop 1440 + mobile 375；axe serious/critical、375 scrollWidth、热区 ≥ hit、Tab 焦点环、console error） |
+|---|---|
+| login | 116 PASS / 0 FAIL |
+| dashboard | 212 PASS / 0 FAIL |
+| orders | 372 PASS / 0 FAIL |
+| form | 324 PASS / 0 FAIL |
+| kitchen-sink（回归） | 180 PASS / 0 FAIL |
 
-| 屏 | 状态数 | PASS | FAIL | axe minor/moderate | 结果 |
-|---|---|---|---|---|---|
-| `login` | 7（default / invalid / loading / error / error-locked / error-network / success） | 116 | 0 | 0 行 | **ALL PASS**，exit 0，console error 0 |
-| `dashboard` | 13（success / loading / empty / error / success-toast / -notifications / -account / -order-menu / -week / -day / -rail / -expanded / -drawer） | 212 | 0 | 0 行 | **ALL PASS**，exit 0，console error 0 |
-| `kitchen-sink` | 6（default / popover / menu / sheet / tooltip / toast） | 100 | 0 | 0 行 | **ALL PASS**，exit 0，console error 0 |
+视觉回归 `node tools/shoot.mjs <screen> --build && node tools/compare.mjs <screen>`：login 28/28 最低 98.15%、dashboard 56/56 最低 98.41%、orders 86/86 最低 96.36%、form 84/84 最低 96.85%，阈值 95%，全部通过（shots 未入库）。
 
-补充（仓库根）：`node design/check-contrast.mjs` → **PASS**（正文 110 组最小 4.58:1 ≥ 4.5；图形 70 组最小 3.08:1 ≥ 3；exempt 6）。`node tools/compare.mjs` 像素对照属阶段 6 视觉 QA 职责，本报告未跑（`aa1a164` 提交说明记录 dashboard 56/56 ≥ 98.41%、login 28/28 ≥ 98.36%，未复核）。
-
-### 3.3 依赖许可证（检查项 ③）
-`pnpm --filter reference licenses list --prod --json`（`apps/reference` 生产依赖树，210 个包，与上一轮完全一致——本次提交未改依赖）：
-
-| 许可证 | 包数 | 备注 |
-|---|---|---|
-| MIT | 172 | react / react-dom / react-router / radix-ui / recharts / sonner / cn / tailwindcss / vite … |
-| ISC | 23 | lucide-react、d3-* |
-| OFL-1.1 | 3 | `@fontsource-variable/inter@5.3.0`、`@fontsource-variable/noto-sans-sc@5.3.0`、`@fontsource-variable/jetbrains-mono@5.3.0` |
-| Apache-2.0 | 3 | class-variance-authority、detect-libc、less |
-| BSD-3-Clause | 3 | d3-ease、source-map、source-map-js |
-| MPL-2.0 | 2 | lightningcss、lightningcss-linux-x64-gnu（Tailwind v4 构建链，不进浏览器产物，见 QA-06） |
-| BlueOak-1.0.0 / 0BSD / MIT AND ISC / (MIT OR Apache-2.0) | 1 / 1 / 1 / 1 | sax / tslib / victory-vendor / atob |
-
-结论：**无 GPL / AGPL / LGPL / SSPL / CC-BY / 商业或未知许可证**进入生产依赖。字体三者均 OFL-1.1、随包自托管（`dist/assets/*.woff2`）；产物 CSS/JS 中出现的外部 URL 仅为 W3C 命名空间、react.dev / reactrouter.com 错误说明链接、tailwindcss.com 版权注释，**无运行时外部字体 / 脚本请求**（§3.7 亦实测 0 条）。
-`pnpm audit --prod`（exit 1，3 条：1 low / 2 moderate）：`echarts` ← `apps/ant-design-vue`；`decode-uri-component` ← `apps/daisyui` / `heroui` / `kobalte` 构建链；`cookie` ← `apps/shadcn-svelte`。三条路径均**不经过 `apps/reference`**，reference 运行时与构建链 0 条 advisory。
+### 3.3 依赖许可证与字体（检查项 ③）
+`pnpm --filter reference licenses list --prod --json`：MIT 172、ISC 23、OFL-1.1 3、Apache-2.0 3、BSD-3-Clause 3、MPL-2.0 2（lightningcss，构建链，QA-06）、BlueOak-1.0.0 1、0BSD 1、`(MIT OR Apache-2.0)` 1、`MIT AND ISC` 1。**GPL / AGPL / SSPL / BUSL / UNLICENSED / UNKNOWN：0。** 字体仅 `@fontsource-variable/{inter,noto-sans-sc,jetbrains-mono}`（OFL-1.1），`theme.css` 本地 `@import`，`src/` 与 `dist/` 无远程字体 / 图片 URL；hifi 仅 login 稿引用 jsdelivr（QA-12）。
 
 ### 3.4 第三方文案 / 图片 / 商标（检查项 ④）
-- 位图 / 字体文件：`git ls-files` 在 `apps/reference/`、`content/`、`mock/`、`design/`、`docs/frontend/`、`.devin/` 内无任何 png/jpg/gif/webp/svg/woff/ttf/ico 文件（`design/hifi/*/ref/*.png` 84 张基准图除外，允许）。
-- 文案：`grep -rniE 'lorem|ipsum|placeholder\.com|unsplash|pravatar|randomuser|picsum|gravatar|faker'` 在 `apps/reference/src`、`content`、`mock`、`design/hifi`、`design/wireframes` 内仅命中 `content/README.md` 的禁令原文与两份 hifi `check.mjs` 的检测正则；`name@example.com` 为 RFC 2606 保留域示例。
-- 商标 / 竞品：按 brief §8 参考品牌（Linear / Vercel / Stripe / Notion / Figma / Shopify / antd / Material …）grep `src`、`content`、`mock`：命中仅 CSS `linear infinite` 动画与 Recharts `type="linear"`；品牌标 `src/components/composed/brand.tsx` 为自绘几何 SVG；界面图标只用 lucide-react（ISC）。
-- 运行时外部请求（实跑，§3.7 脚本）：Playwright 监听 `/`、`/login/`、`/kitchen-sink/` 及全部流程请求，**非本地 origin 请求 0 条**。
+`content/*.md`、`mock/*.json`、`src/` grep `lorem|ipsum|placeholder|unsplash|pravatar|picsum|randomuser`：0 命中。品牌为虚构「栖木家居 / Acme Console」，供应商名（张力木业、林语木作…）为虚构；第三方登录仅 simple-icons CC0 单色路径（QA-07，brief 允许）。未发现竞品 / 官网真实文案。
 
-### 3.5 secrets / 供应链策略 / GitHub Actions（检查项 ⑤）
-- `git ls-files` 无 `.env*`、`*.pem`、`*.key`、credential / secret 命名文件（文件名含 `token` 的仅 `design/tokens.json` / `tokens.css` / `build-tokens.mjs` / 模板 `tokens.json`，为设计令牌）；对 `apps/reference`、`design`、`content`、`mock`、`docs/frontend`、`.devin` 全部跟踪文件按 `AKIA…|ghp_…|sk-…|-----BEGIN … PRIVATE KEY|api[_-]?key=|secret=|password=` 扫描，唯一命中为 `login/index.tsx` L154 的文案 key `password: "login.error.password.short"`，非口令。
-- `minimumReleaseAge`：`pnpm-workspace.yaml`、`.npmrc`、根/子 `package.json` 中均无该项；`git log main..HEAD -- pnpm-workspace.yaml .npmrc package.json` 0 条提交，即沿用与 `main` 相同的 pnpm 默认，未放宽；`pnpm install --frozen-lockfile` 无 `ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION`。
-- 生成物：`git ls-files` 无 `dist/`、`node_modules/`、`shots/` 路径入库；本轮 build / assemble 产物已在本机清理，`git status` 干净。
-- GitHub Actions：仓库无 `.github/` 目录。
-- `index.html`（及其两份路由副本）含一段内联主题脚本（首帧防闪白）：当前 `wrangler.jsonc` 无 CSP 头，不构成问题；若日后加 CSP 需 nonce 或外置。
-- 本地静态服务 `serveDist()` 仅监听 `127.0.0.1` 随机端口，属开发工具；对 `/apps/reference/../../package.json` 与 `%2e%2e` 编码变体实测均 404，无目录穿越。
+### 3.5 secrets 与供应链策略（检查项 ⑤）
+- `git ls-files | grep -Ei '\.env|\.pem|id_rsa|credentials|secret'`：0；`git grep` AWS/GitHub/OpenAI/Slack token 与私钥头模式：0。
+- 仓库无 `.github/`（GitHub Actions 未启用，符合公司规则）。
+- `.npmrc` / `pnpm-workspace.yaml` / `package.json` 无 `minimumReleaseAge` 改动（`git diff --stat origin/main...HEAD` 对这三文件无输出），install 无策略告警。
 
-### 3.6 mock 数据个人信息（检查项 ⑥）
-- `node mock/check.mjs` → `mock ok (2026-09-06T17:30:00+08:00)`。
-- 人名 / 公司 / 邮箱：团队 5 人与订单客户均为虚构（`content/README.md` L6 声明）；邮箱域只有 `@qimu-home.cn` 10 处（QA-10）与 `@example.com` 2 处。
-- 电话 / 证件 / 长数字：`grep -E '1[3-9][0-9]{9}|[0-9]{17}[0-9Xx]|[0-9]{15,19}'` 在 `mock`、`content` **0 命中**（排除 `138****2046` 形式的 `phoneMasked`）；无 `phone` / `address` / `idCard` 明文字段。
-- 头像：全部 `initial + avatarHue`，零图片。
+### 3.6 mock 个人信息（检查项 ⑥）
+`node mock/check.mjs` → `mock ok (2026-09-06T17:30:00+08:00) — orders.json 5 · orders-all 样本 50 / summary 731 · skus 18 · suppliers 6 · chat 7 会话`。手机号：`orders*.json` 55 处全部 `1xx****xxxx` 掩码；`suppliers.json` / `purchase-form.json` 6 个完整号码均为 `13x0000xxxx` 形态（中间 0000，非真实号段分配）；地址只到区级（「浙江省杭州市 西湖区」）；快递单号 / 订单号为规律生成；邮箱 15 个全在虚构域（QA-10：TLD 真实）。**未发现真实个人信息。**
 
-### 3.7 回归与流程走查（Playwright 1.62.1，`serveDist()` 静态服务，脚本 55 项断言）
-覆盖 `aa1a164` 提交说明声称的三项修复（路由落盘 / 静态服务对齐生产 / 订单菜单）、上一轮 QA-01 / QA-05、体验官 P1-新1 与前两轮已关闭项的回归；1440×900 鼠标 + 375×812 触屏（`hasTouch + isMobile`）：
+### 3.7 功能走查（`~/qa/walk.mjs` 76 PASS / 8 FAIL / 14 INFO；FAIL 全部归入 QA-17 / 18 / 19）
+- **路由**：`/orders` → 307 `/orders/`；`/orders/`、`/form/`、`/login/`、`/`、`/kitchen-sink/` → 200；`/after-sales/` → 404（QA-14）。
+- **orders（1440）**：默认 success、计数 731、每页 20（`summary.defaultPageSize`）、下单时间倒序、页码 37 且样本外页 `aria-disabled`；金额排序 + URL `sort=amount&dir=desc`；搜索无结果 → 空态 → 清除恢复；状态=待发货 → 63 单；全选 → 「已选 20 单」；行菜单「标记发货」→ Toast，关菜单焦点回触发器；点行开 Drawer → 物流 Tab → 添加备注 Toast → Esc 关闭 → 焦点回表格行；Drawer 底部取消 → 未选原因阻断（`aria-invalid`）→ 确认 → Toast → 行变已取消；删除（直达 URL）→ Toast + 撤销 → 行恢复；导出 Toast；每页 10 / 第 3 页 range；error 态重试、loading `aria-busy`、empty-new；console error 0（除 QA-17 的 404）。
+- **orders（375 触屏）**：20 张卡片、scrollWidth 375、筛选 Sheet → 「查看 63 单」→ 「筛选 · 1」、卡片开 Drawer、console 0。
+- **form（1440）**：第 1 步校验阻断 + Alert「还有 1 项需要修正」+ 首错聚焦；第 2 步加行 / 未选 SKU 行内错误；第 3 步条款默认未勾、未同意 `aria-disabled` 阻断；《采购条款》Dialog；提交 → success「采购单已提交」副文案用当前邮箱；「再建一张」回第 1 步；`?state=loading` 「提交中…」；`?fail=1` → error 且焦点在「重新提交」；dirty 离开 → 确认 Dialog → 继续填写 / 放弃并离开（→ dashboard 正确）；保存草稿 Toast → 之后离开无确认（但整页跳出，QA-17）。reducedMotion 下 `--motion-slow=0ms` loading 瞬时结束属预期。
+- **form（375）**：「第 1 步，共 3 步」、无溢出、三步走通、提交成功、console 0。
+- **login → dashboard**：提交 → `/?toast=login` 欢迎 Toast，h1 可见。
 
-| 组 | 项 | 结果 |
-|---|---|---|
-| HTTP 契约 | `/apps/reference` → 307 `/apps/reference/`；`/apps/reference/` → 200；`/login` → 307 `/login/`；`/login?state=error&theme=dark` → 307 `/login/?state=error&theme=dark`（查询串保留）；`/login/` → 200；`/kitchen-sink` → 307 → 200；`/login/index.html` → 200；`/nope`、`/nope/deep`、`/apps/other/`、`/apps/referencex/` → 404 | PASS ×12 |
-| 直达渲染 | `/login` 直达 → 地址栏补斜杠并渲染 1 form + 1 password；`/login?state=error` 直达 → `role=alert` ≥ 1；`/login/?state=error` 刷新仍渲染；`/kitchen-sink` 直达 → 307 → h1 | PASS ×4 ×2 视口 |
-| 登录流程（自 `/login/` 出发） | `ruolin.shen@qimu-home.cn` + 8 位密码首击即 `disabled` 进 loading，落地 `/?toast=login`；「欢迎回来」Toast；后退回 `/login/` 按钮未锁 | PASS ×3 ×2 视口 |
-| 订单菜单（P1-新1） | 可见触发器 5 个；点开 → `role=menu` 可见；选「查看详情」→ 菜单关闭 + Toast「查看详情 / 后续轮次提供」；同一菜单可再次打开；Escape 关闭；第 2 行 2 个禁用项 `force` 点击不触发 Toast、不关菜单 | PASS ×6 ×2 视口 |
-| 键盘（仅 1440） | 触发器聚焦 + Enter 打开；ArrowDown + Enter 选中 → 菜单关闭 + Toast | PASS ×2 |
-| 退出登录 + 刷新（QA-01） | 账号菜单「退出登录」→ `/login`；在 `/login` 刷新 → 307 → 200 渲染表单 | PASS ×2 ×2 视口 |
-| 375 `scrollWidth ≤ 375` | `/`、`/login/`、`/?state=error`、`/?state=empty`、`/?state=loading`、`/kitchen-sink/` | PASS ×6（均 = 375） |
-| 洁净度 | 两视口 console error / pageerror / requestfailed = 0；非本地 origin 请求 = 0 | PASS ×3 |
+## 4. 本轮未覆盖（如实标注）
+- form 供应商联想 / SKU 联想浮层的键盘导航、附件上传、日期选择器交互（只验证了校验与步进）。
+- orders 375 行菜单（卡片模式菜单同组件，QA-18 按代码同理，未实测）；批量操作条的批量发货 / 批量取消；键盘 Tab 全表遍历。
+- dashboard 图表 / 日周月切换 / 通知面板回归（上轮体验官已测，本轮仅 h1 + 侧栏 + 查看全部）。
+- 1024 / 768 断点仅靠 compare.mjs 像素对比，无交互走查。
+- 暗色主题仅靠 a11y.mjs + compare.mjs 覆盖，未手动走查。
+- 生产站（ui.zalize.com）未实查：集成分支未部署，QA-17 在生产的表现（跳到画廊首页）为按站点结构推断。
 
-合计 **55 PASS / 0 FAIL**。上一轮的唯一 FAIL（QA-05 `/apps/reference` 无尾斜杠本地空白）本轮变为 307 → 200，关闭。
+## 5. 明确不在本轮范围（不计 P0/P1）
+`components`（round2 卡片形态不符）、`landing`（compare 最低 83.67%，hifi 侧 eyebrow 特异性问题）、`chat`（与 orders 的 `shell.tsx` ShellProps 冲突未合入）——均按项目负责人说明未合入 `fe01/integration`，本报告未审计、未计分；`fe01/integration@6f4fe2a` 的 `shell.tsx` 已是 orders + form 属性并集，chat 合入时按其 merge 说明取并集即可。
 
-### 3.8 组装与生产契约（brief §7「须被 assemble 组装」「部署沿用 wrangler.jsonc」）
-- 实跑（仓库根）：`pnpm --filter @ui-gallery/gallery build`（astro，1.6s）→ `node tools/assemble.mjs` → `assembled 1 apps`；`dist/apps/reference/{index,login/index,kitchen-sink/index}.html` 三份俱在；`dist/manifest.json` 含 `reference`（QA-02）。随后 `rm -rf dist`，未入库。
-- 生产实查（2026-09-08）：`ui.zalize.com` 上同一 `wrangler.jsonc` 的 `apps/antd`：`/apps/antd` → 307 `/apps/antd/`；`/apps/antd?x=1` → 307 `/apps/antd/?x=1`（查询串保留）；`/apps/antd/` → 200；`/apps/antd/login` → 404 空体。据此推断部署后 `/apps/reference/login` 将 307 → `/apps/reference/login/` → 200；**参考应用本身尚未部署**（`/apps/reference/` 当前 404），最终以部署后 `curl -I https://ui.zalize.com/apps/reference/login` 为准（release 阶段复验项）。
-
-## 4. 需求逐条对照（brief §4 / §5 / §6 / §7 与本审计相关项）
-| brief 条目 | 结果 |
-|---|---|
-| §4 屏幕清单 2 屏（login + dashboard） | 两屏均在集成分支，路由 `/login`、`/`；直达 / 刷新路径已落盘（§3.7） |
-| §4.1 login 5 态 + `?alert=` 变体；成功跳 `/?toast=login` 由 dashboard 渲染 Toast | 真实提交路径通过（§3.7）；`?state=success` 直达仍停留 login（QA-03，P3） |
-| §4.2 dashboard 13 个截图态；订单操作菜单 | a11y 212/0（§3.2）；菜单选项关闭 + 反馈（§3.7） |
-| §5 零位图 / OFL 字体 / Lucide / simple-icons CC0 | 通过（§3.3、§3.4） |
-| §5 人名公司邮箱域虚构、无真实个人信息 | 通过（§3.6；QA-10 建议换保留域） |
-| §6 不启用 Actions、不放宽 minimumReleaseAge、无 secrets | 通过（§3.5） |
-| §6 不改其他 `apps/*`、`gallery/`、`packages/spec/` | 一行技术性例外（QA-13，P3）；`c7e47e6..HEAD` 无新增 |
-| §6 画廊首页本轮不接入参考应用 | assemble 会自动纳入（QA-02，P2，release 阶段决定） |
-| §7 WCAG 2.2 AA：对比度 / 热区 ≥ 40 / 键盘 / 焦点环 | 通过（§3.2 三屏 428 项断言 0 FAIL；check-contrast PASS） |
-| §7 375 无横向溢出、0 console error | 通过（§3.2、§3.7） |
-| §7 lint / typecheck / build 全绿 | 通过（§3.1） |
-| §7 被 `tools/assemble.mjs` 组装进 `dist/apps/reference/` | 通过（§3.8 实跑） |
-| §7 部署沿用 `wrangler.jsonc` | 路由落盘后与 `auto-trailing-slash` + `not_found_handling: none` 兼容（§3.7 本地对齐 + §3.8 同配置生产实查）；未知路径空 404 为站点级既有行为（QA-14，P3） |
-
-## 5. 未验证项（如实声明）
-- 未跑 `tools/shoot.mjs` + `tools/compare.mjs` 像素对照（阶段 6 视觉 QA 职责）；`aa1a164` 提交说明的 compare 数字未复核。
-- 未真机 / 真实浏览器手工走查（体验官职责）；§3.7 是 Playwright headless 复现，触屏用 `hasTouch + isMobile` 模拟。
-- 768 / 1024 视口未做 a11y（QA-08）。
-- 未实跑 `wrangler deploy`；生产 307 / 404 行为基于同配置已上线 `apps/antd` 的 `curl` 实查外推，参考应用本身部署后需复验 `/apps/reference/login`（§3.8）。
-- 未审计 `apps/<其他库>/`、`gallery/`、`packages/spec/` 内部（brief §6 非本轮范围），仅在 QA-02 / QA-14 涉及其与参考应用的接口处引用。
+## 6. 复验清单（交 gates-fix 后 QA 复查用，时间盒 30 分钟）
+1. QA-17：orders → 仪表盘、form（保存草稿后）→ 仪表盘、dashboard 点自身、（QA-19 修后）dashboard → 订单：URL 始终 `/apps/reference/…`，console 404 = 0。
+2. QA-18：`~/qa/menu.mjs` 同法——鼠标 / 键盘 / reducedMotion × 「查看详情 / 取消订单 / 删除订单」12/12 出覆盖层且 URL 含 `open=`；「标记发货 / 复制订单号」不回退。
+3. QA-19：侧栏「订单」`href=/orders`、无 `aria-disabled`、当前页 `aria-current=page`；「查看全部」可点。`settings` 仍禁用。
+4. 回归：`pnpm lint && pnpm typecheck && pnpm build`，`a11y.mjs` 四屏 0 FAIL，`compare.mjs` dashboard / orders ≥ 95%。

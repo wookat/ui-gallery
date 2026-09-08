@@ -18,12 +18,13 @@ import {
   SearchIcon,
   SettingsIcon,
   ShieldIcon,
+  SparklesIcon,
   SunIcon,
   TruckIcon,
   UserIcon,
   WarehouseIcon,
 } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 import { Avatar } from "@/components/composed/avatar"
 import { BrandMark } from "@/components/composed/brand"
@@ -68,6 +69,14 @@ type ShellProps = {
   setOpen: (v: string | null) => void
   /** 侧栏收起/展开后需要重绘的内容（图表）通知 */
   onSidebarToggle?: () => void
+  /** 当前导航项（mock/nav.json key），缺省 dashboard */
+  current?: string
+  /** 面包屑当前项文案，缺省 shell.breadcrumb.current */
+  title?: string
+  /** 顶栏「智能助理」入口（chat hifi #assistBtn）：aria-current=page 时 primary-soft */
+  assistant?: { label: string; href: string; current?: boolean }
+  /** 通栏内容区（chat）：main 不加内边距/最大宽，桌面端整列锁高由内部滚动 */
+  flush?: boolean
 }
 
 function NavList({ rail, empty, current, onNavigate }: { rail: boolean; empty: boolean; current: string; onNavigate?: () => void }) {
@@ -119,7 +128,7 @@ function Brand({ empty, rail, className }: { empty: boolean; rail?: boolean; cla
 }
 
 /** 应用壳：hifi .app —— 侧栏（expanded / rail / ≤768 抽屉）+ 顶栏 + 内容区 */
-function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarToggle }: ShellProps) {
+function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarToggle, current = "dashboard", title, assistant, flush = false }: ShellProps) {
   const mobile = useMaxWidth("--breakpoint-md")
   const tablet = useMaxWidth("--breakpoint-lg")
   const { resolved, toggle } = useTheme()
@@ -159,7 +168,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
         className={cn("sticky top-0 flex h-svh shrink-0 flex-col border-r bg-surface mobile:hidden", rail ? "w-sidebar-rail" : "w-sidebar-expanded")}
       >
         <Brand empty={empty} rail={rail} />
-        <NavList rail={rail} empty={empty} current="dashboard" />
+        <NavList rail={rail} empty={empty} current={current} />
         <div className={cn("border-t p-3", rail && "flex justify-center px-2")}>
           <NavItem
             icon={rail ? PanelLeftOpenIcon : PanelLeftCloseIcon}
@@ -190,11 +199,11 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
           }}
         >
           <Brand empty={empty} className="pr-hit" />
-          <NavList rail={false} empty={empty} current="dashboard" onNavigate={() => setOpen(null)} />
+          <NavList rail={false} empty={empty} current={current} onNavigate={() => setOpen(null)} />
         </SheetContent>
       </Sheet>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className={cn("flex min-w-0 flex-1 flex-col", flush && "h-svh mobile:h-auto mobile:min-h-svh")}>
         <header data-slot="topbar" className="sticky top-0 z-20 flex h-topbar shrink-0 items-center gap-3 border-b bg-surface px-6 mobile:gap-2 mobile:px-4">
           <IconButton label={t("shell.nav.open")} aria-expanded={drawerOpen} className="hidden mobile:inline-flex" onClick={() => setOpen("drawer")}>
             <MenuIcon />
@@ -204,7 +213,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
               <BreadcrumbItem className="mobile:hidden">{t("shell.breadcrumb.root")}</BreadcrumbItem>
               <BreadcrumbSeparator className="mobile:hidden" />
               <BreadcrumbItem>
-                <BreadcrumbPage className="mobile:text-role-title">{t("shell.breadcrumb.current")}</BreadcrumbPage>
+                <BreadcrumbPage className="mobile:text-role-title">{title ?? t("shell.breadcrumb.current")}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -218,6 +227,13 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
             <IconButton label={t("shell.search.aria")} className="hidden mobile:inline-flex" onClick={() => notYet(t("shell.search.aria"))}>
               <SearchIcon />
             </IconButton>
+            {assistant ? (
+              <IconButton asChild label={assistant.label} className="aria-[current=page]:bg-primary-soft aria-[current=page]:text-on-primary-soft">
+                <Link to={assistant.href} aria-current={assistant.current ? "page" : undefined}>
+                  <SparklesIcon />
+                </Link>
+              </IconButton>
+            ) : null}
 
             <Popover {...overlay("notifications")}>
               <PopoverTrigger asChild>
@@ -289,7 +305,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
             </DropdownMenu>
           </div>
         </header>
-        <main id="main" className="mx-auto flex w-full max-w-content-max flex-1 flex-col gap-6 p-6 mobile:gap-4 mobile:p-4">
+        <main id="main" className={flush ? "flex min-h-0 w-full flex-1" : "mx-auto flex w-full max-w-content-max flex-1 flex-col gap-6 p-6 mobile:gap-4 mobile:p-4"}>
           {children}
         </main>
       </div>

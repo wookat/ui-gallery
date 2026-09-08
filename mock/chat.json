@@ -336,5 +336,18 @@
     "status": "running"
    }
   ]
+ },
+ "demo": {
+  "note": "hifi 运行时演示值：发送后追加的用户消息（streaming / error 态）与「添加附件」示例文件",
+  "followUp": {
+   "id": "m_follow",
+   "role": "user",
+   "at": "2026-09-06T17:06:00+08:00",
+   "text": "那就帮我建采购单草稿吧"
+  },
+  "attachment": {
+   "name": "缺货SKU-0906.csv",
+   "size": "12 KB"
+  }
  }
 }

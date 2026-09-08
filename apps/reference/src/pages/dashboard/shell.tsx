@@ -18,12 +18,13 @@ import {
   SearchIcon,
   SettingsIcon,
   ShieldIcon,
+  SparklesIcon,
   SunIcon,
   TruckIcon,
   UserIcon,
   WarehouseIcon,
 } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 import { Avatar } from "@/components/composed/avatar"
 import { BrandMark } from "@/components/composed/brand"
@@ -77,6 +78,10 @@ type ShellProps = {
   navOpenKey?: string
   /** 顶栏全局搜索（dashboard hifi 有、orders hifi 无） */
   search?: boolean
+  /** 顶栏「智能助理」入口（chat hifi #assistBtn）：aria-current=page 时 primary-soft */
+  assistant?: { label: string; href: string; current?: boolean }
+  /** 通栏内容区（chat）：main 不加内边距/最大宽，桌面端整列锁高由内部滚动 */
+  flush?: boolean
   /** 提交中：侧栏与顶栏导航置 inert（hifi syncInert） */
   busy?: boolean
   /** 离开拦截：返回 false 则阻止导航（有未保存改动时弹「离开页面？」） */
@@ -154,6 +159,8 @@ function AppShell({
   breadcrumb,
   navOpenKey = "drawer",
   search = true,
+  assistant,
+  flush = false,
   busy = false,
   beforeLeave,
 }: ShellProps) {
@@ -232,7 +239,7 @@ function AppShell({
         </SheetContent>
       </Sheet>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className={cn("flex min-w-0 flex-1 flex-col", flush && "h-svh mobile:h-auto mobile:min-h-svh")}>
         <header data-slot="topbar" className="sticky top-0 z-20 flex h-topbar shrink-0 items-center gap-3 border-b bg-surface px-6 mobile:gap-2 mobile:px-4">
           <IconButton label={t("shell.nav.open")} aria-expanded={drawerOpen} className="hidden mobile:inline-flex" onClick={() => setOpen(navOpenKey)}>
             <MenuIcon />
@@ -269,6 +276,13 @@ function AppShell({
                   <SearchIcon />
                 </IconButton>
               </>
+            ) : null}
+            {assistant ? (
+              <IconButton asChild label={assistant.label} className="aria-[current=page]:bg-primary-soft aria-[current=page]:text-on-primary-soft">
+                <Link to={assistant.href} aria-current={assistant.current ? "page" : undefined}>
+                  <SparklesIcon />
+                </Link>
+              </IconButton>
             ) : null}
 
             <Popover {...overlay("notifications")}>
@@ -347,7 +361,7 @@ function AppShell({
             </DropdownMenu>
           </div>
         </header>
-        <main id="main" className="mx-auto flex w-full max-w-content-max flex-1 flex-col gap-6 p-6 mobile:gap-4 mobile:p-4">
+        <main id="main" className={flush ? "flex min-h-0 w-full flex-1" : "mx-auto flex w-full max-w-content-max flex-1 flex-col gap-6 p-6 mobile:gap-4 mobile:p-4"}>
           {children}
         </main>
       </div>

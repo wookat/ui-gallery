@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useSearchParams } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { cn } from "@/lib/cn"
 import { BanIcon, ChevronRightIcon, EllipsisIcon, EyeIcon, PackageCheckIcon, PlugIcon, PrinterIcon, RefreshCwIcon, UploadIcon } from "lucide-react"
 
@@ -18,8 +18,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { notYet, toast } from "@/components/ui/sonner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { orderStatus, t } from "@/data/content"
-import { channelLabel, mock, periods, seriesFor, statFor, type Order, type Period } from "@/data/mock"
+import { channelLabel, mock, periods, seriesFor, statFor, type NavItem, type Order, type Period } from "@/data/mock"
 import { useScreenState } from "@/data/screen-state"
 import { formatCompact, formatCurrency, formatCurrencyWhole, formatDateTime, formatInteger, formatMonthDay, formatPercent, formatTime, formatToday } from "@/lib/format"
 import { tokenMs, useBelowWidth } from "@/lib/media"
@@ -122,15 +123,37 @@ function OrderMenu({ order, open, onOpenChange }: { order: Order; open: boolean;
   )
 }
 
-/** 「查看全部」：指向本轮不可达路径，保持可聚焦的 aria-disabled 链接（AGENTS fg-disabled 契约） */
+/** 已实现路由（mock/nav.json implemented）；「查看全部」据此决定可跳转还是 aria-disabled */
+const implementedPaths = new Set(mock.nav.flatMap((g): NavItem[] => g.items).filter((it) => it.implemented).map((it) => it.path))
+
+/** 「查看全部」：已实现路由走 react-router Link（尊重 basename）；本轮不可达路径保持可聚焦的 aria-disabled 链接 + Tooltip（AGENTS fg-disabled 契约） */
 function ViewAll({ href, children }: { href: string; children: React.ReactNode }) {
+  const inner = (
+    <>
+      {children}
+      <ChevronRightIcon className="size-icon-sm" />
+    </>
+  )
+  if (implementedPaths.has(href)) {
+    return (
+      <Button variant="ghost" size="sm" asChild>
+        <Link to={href}>{inner}</Link>
+      </Button>
+    )
+  }
   return (
-    <Button variant="ghost" size="sm" className="cursor-not-allowed" asChild>
-      <a href={href} aria-disabled="true" onClick={(e) => e.preventDefault()}>
-        {children}
-        <ChevronRightIcon className="size-icon-sm" />
-      </a>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="ghost" size="sm" className="cursor-not-allowed" asChild>
+          <a href={href} aria-disabled="true" onClick={(e) => e.preventDefault()}>
+            {inner}
+          </a>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="top" align="end">
+        {t("shell.nav.disabled.tip")}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 

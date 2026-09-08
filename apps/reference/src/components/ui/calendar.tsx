@@ -107,11 +107,13 @@ type DatePickerProps = Omit<CalendarProps, "value" | "onChange" | "className"> &
   invalid?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  /** 日历图标位置：缺省 trailing（组件稿 has-icon-r，hit 大图标块）；leading 为表单稿 .ctl 前置 icon-sm */
+  iconPosition?: "leading" | "trailing"
   className?: string
 } & Pick<React.ComponentProps<"button">, "aria-label" | "aria-labelledby" | "aria-describedby">
 
-/** 日期选择：触发器与 Input 同高同边框、右侧 CalendarIcon；面板为 Popover + Calendar */
-function DatePicker({ id, value, onChange, placeholder, format = (d) => d, disabled, invalid, open, onOpenChange, className, today, min, max, month, labels, ...aria }: DatePickerProps) {
+/** 日期选择：触发器与 Input 同高同边框、CalendarIcon 缺省在右（iconPosition=leading 时前置）；面板为 Popover + Calendar */
+function DatePicker({ id, value, onChange, placeholder, format = (d) => d, disabled, invalid, open, onOpenChange, iconPosition = "trailing", className, today, min, max, month, labels, ...aria }: DatePickerProps) {
   const [openState, setOpenState] = React.useState(false)
   const isOpen = open ?? openState
   const setOpen = (o: boolean) => {
@@ -129,15 +131,23 @@ function DatePicker({ id, value, onChange, placeholder, format = (d) => d, disab
           data-slot="date-picker-trigger"
           data-placeholder={value ? undefined : ""}
           className={cn(
-            "flex h-control-md w-full min-w-0 items-center justify-between gap-2 rounded-md border border-border-strong bg-surface pl-3 text-left text-role-body text-fg tabular-nums transition-colors duration-(--motion-fast) ease-std data-[placeholder]:text-fg-muted hover:not-disabled:border-fg-muted focus-visible:border-primary aria-expanded:border-primary aria-invalid:border-(length:--border-width-accent) aria-invalid:border-danger disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-fg-muted",
+            "flex h-control-md w-full min-w-0 items-center justify-between gap-2 rounded-md border border-border-strong bg-surface text-left text-role-body text-fg tabular-nums transition-colors duration-(--motion-fast) ease-std data-[placeholder]:text-fg-muted hover:not-disabled:border-fg-muted focus-visible:border-primary aria-expanded:border-primary aria-invalid:border-(length:--border-width-accent) aria-invalid:border-danger disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-fg-muted",
+            iconPosition === "leading" ? "px-3" : "pl-3",
             className,
           )}
           {...aria}
         >
-          <span className="truncate">{value ? format(value) : placeholder}</span>
-          <span aria-hidden className="grid size-hit shrink-0 place-items-center text-fg-muted [&_svg]:size-icon-md">
-            <CalendarIcon />
-          </span>
+          {iconPosition === "leading" ? (
+            <span aria-hidden className="grid shrink-0 place-items-center text-fg-muted [&_svg]:size-icon-sm">
+              <CalendarIcon />
+            </span>
+          ) : null}
+          <span className="flex-1 truncate">{value ? format(value) : placeholder}</span>
+          {iconPosition === "trailing" ? (
+            <span aria-hidden className="grid size-hit shrink-0 place-items-center text-fg-muted [&_svg]:size-icon-md">
+              <CalendarIcon />
+            </span>
+          ) : null}
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" aria-label={aria["aria-label"] ?? placeholder} className="w-auto mobile:w-auto p-2">

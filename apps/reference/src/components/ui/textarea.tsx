@@ -15,8 +15,8 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   )
 }
 
-/** 字数计数：hifi .counter —— 右对齐 caption，超限转 danger */
-function CharCounter({ value, max, className, ...props }: React.ComponentProps<"span"> & { value: number; max: number }) {
+/** 字数计数：hifi .counter —— 右对齐 caption，超限转 danger；children 可覆盖默认 `n/max` 文本（调用方用 t(key) 传入） */
+function CharCounter({ value, max, className, children, ...props }: React.ComponentProps<"span"> & { value: number; max: number }) {
   return (
     <span
       data-slot="char-counter"
@@ -24,7 +24,7 @@ function CharCounter({ value, max, className, ...props }: React.ComponentProps<"
       className={cn("text-right text-role-caption tabular-nums", value > max ? "text-danger" : "text-fg-muted", className)}
       {...props}
     >
-      {value}/{max}
+      {children ?? `${value}/${max}`}
     </span>
   )
 }

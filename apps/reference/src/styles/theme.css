@@ -33,6 +33,8 @@
  */
 @custom-variant tablet (@media (width <= theme(--breakpoint-lg)));
 @custom-variant mobile (@media (width <= theme(--breakpoint-md)));
+/* 侧栏收成 rail 时的页面布局（hifi form：1024 非 rail 单列、rail 仍双列）；由 AppShell 根节点 data-sidebar 驱动 */
+@custom-variant rail (&:where([data-sidebar="rail"] *));
 
 @theme inline reference {
   /* ---------- 颜色：清空默认调色板，只保留角色令牌 ---------- */

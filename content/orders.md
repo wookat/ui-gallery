@@ -148,3 +148,39 @@
 | mobile.filter | 筛选 | 375 工具栏折叠为「筛选」按钮 → Sheet |
 | mobile.filter.title | 筛选订单 | Sheet 标题 |
 | mobile.filter.apply | 查看 {n} 单 | Sheet 底部主按钮；n 同 countFiltered，取 summary |
+
+## 实现补充（阶段 5 按 hifi 补齐的状态语，只追加）
+| key | 文案 | 说明 |
+|---|---|---|
+| col.selectAll | 选择本页全部订单 | 全选 Checkbox 未选中态 aria-label（hifi） |
+| col.selectNone | 取消全选本页 | 全选 Checkbox 已全选态 aria-label |
+| col.selectSome.tip | 已选择部分订单，点击全选本页 | 全选 Checkbox 半选态 aria-label |
+| mobile.filter.selected | 筛选 · {n} | 有 n 个筛选条件时的「筛选」按钮文案 |
+| mobile.card.view | 查看详情 | 卡片主区 aria-label 后缀「{card.aria}，查看详情」 |
+| columns.fixed | 固定 | 列显示 Popover 中不可隐藏列的说明 |
+| drawer.field.shippedAt | 发货时间 | 描述列表项 |
+| drawer.field.completedAt | 完成时间 | |
+| drawer.field.cancelledAt | 取消时间 | |
+| drawer.logistics.syncing | 物流信息同步中 | 已发货 / 已完成但样本无运单 |
+| drawer.remarks.count | 备注 · {n} | 备注 Tab 标题（n > 0） |
+| drawer.remarks.counter | 备注不超过 {max} 字 · {n} / {max} | Textarea 计数行（hifi「备注不超过 200 字 · 0 / 200」） |
+| drawer.action.unurgent | 取消加急 | Drawer 底部按钮（已加急） |
+| drawer.action.delete | 删除订单 | Drawer 底部按钮（仅已取消） |
+| toast.unurgent | 订单 {id} 已取消加急 | |
+| toast.shippedMany | 已标记发货 {n} 单 | 批量发货 > 1 单 |
+| toast.remarkAdded | 已添加备注 | |
+| toast.dateCustom | 自定义日期范围将在实现阶段提供 | info；点击「开始日期 – 结束日期」 |
+| dialog.cancel.description.unpaid | 买家将收到取消通知。此操作不可撤销。 | 待付款订单（无退款句） |
+| dialog.cancel.reason.placeholder | 请选择 | Select 占位 |
+| dialog.cancel.reason.buyer | 买家取消 | |
+| dialog.cancel.reason.stockout | 缺货无法发出 | |
+| dialog.cancel.reason.duplicate | 重复下单 | |
+| dialog.cancel.reason.other | 其他 | |
+| drawer.tabs.aria | 订单详情分类 | Tabs aria-label |
+| filter.aria | 订单筛选 | 工具栏 role=search aria-label |
+| filter.dateRange.presets | 预设范围 | 日期 Popover radiogroup aria-label |
+| selection.aria | 批量操作 | 批量条 region aria-label |
+| table.aria.filtered | 订单列表（筛选无结果） | |
+| table.aria.error | 订单列表（加载失败） | |
+| search.clear | 清空搜索 | 搜索框右侧清空 IconButton aria-label（hifi #searchClear） |
+| mobile.filter.close | 关闭 | 筛选 Sheet 关闭 IconButton aria-label（hifi #sheetClose） |

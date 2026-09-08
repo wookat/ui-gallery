@@ -69,17 +69,26 @@ type ShellProps = {
   setOpen: (v: string | null) => void
   /** 侧栏收起/展开后需要重绘的内容（图表）通知 */
   onSidebarToggle?: () => void
-  /** 当前导航项（mock/nav.json key），缺省 dashboard */
+  /** 当前导航项 key（mock/nav.json items[].key）与面包屑当前项文案 */
   current?: string
-  /** 面包屑当前项文案，缺省 shell.breadcrumb.current */
-  title?: string
+  currentLabel?: string
+  /** 面包屑：parent 为不可达上级（aria-disabled），current 为当前页（优先于 currentLabel） */
+  breadcrumb?: { parent?: string; current: string }
+  /** ≤768 导航抽屉对应的 ?open= 值；订单页 `drawer` 已被详情抽屉占用，改用 `nav` */
+  navOpenKey?: string
+  /** 顶栏全局搜索（dashboard hifi 有、orders hifi 无） */
+  search?: boolean
   /** 顶栏「智能助理」入口（chat hifi #assistBtn）：aria-current=page 时 primary-soft */
   assistant?: { label: string; href: string; current?: boolean }
   /** 通栏内容区（chat）：main 不加内边距/最大宽，桌面端整列锁高由内部滚动 */
   flush?: boolean
+  /** 提交中：侧栏与顶栏导航置 inert（hifi syncInert） */
+  busy?: boolean
+  /** 离开拦截：返回 false 则阻止导航（有未保存改动时弹「离开页面？」） */
+  beforeLeave?: (path: string) => boolean
 }
 
-function NavList({ rail, empty, current, onNavigate }: { rail: boolean; empty: boolean; current: string; onNavigate?: () => void }) {
+function NavList({ rail, empty, current, onNavigate, beforeLeave }: { rail: boolean; empty: boolean; current: string; onNavigate?: () => void; beforeLeave?: (path: string) => boolean }) {
   return (
     <nav aria-label={t("shell.nav.aria")} className={cn("flex flex-1 flex-col gap-4 overflow-y-auto pt-2 pb-4", rail ? "items-center px-2" : "px-3")}>
       {mock.nav.map((g) => (
@@ -102,7 +111,17 @@ function NavList({ rail, empty, current, onNavigate }: { rail: boolean; empty: b
                   count={empty ? 0 : navBadge(it)}
                   countTone={navBadgeTone(it)}
                   countLabel={navBadgeLabel(it)}
-                  onClick={it.implemented ? onNavigate : undefined}
+                  onClick={
+                    it.implemented
+                      ? (e) => {
+                          if (beforeLeave && !beforeLeave(it.path)) {
+                            e.preventDefault()
+                            return
+                          }
+                          onNavigate?.()
+                        }
+                      : undefined
+                  }
                 />
               </li>
             ))}
@@ -128,7 +147,23 @@ function Brand({ empty, rail, className }: { empty: boolean; rail?: boolean; cla
 }
 
 /** 应用壳：hifi .app —— 侧栏（expanded / rail / ≤768 抽屉）+ 顶栏 + 内容区 */
-function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarToggle, current = "dashboard", title, assistant, flush = false }: ShellProps) {
+function AppShell({
+  children,
+  empty = false,
+  sidebar,
+  open,
+  setOpen,
+  onSidebarToggle,
+  current = "dashboard",
+  currentLabel = t("shell.breadcrumb.current"),
+  breadcrumb,
+  navOpenKey = "drawer",
+  search = true,
+  assistant,
+  flush = false,
+  busy = false,
+  beforeLeave,
+}: ShellProps) {
   const mobile = useMaxWidth("--breakpoint-md")
   const tablet = useMaxWidth("--breakpoint-lg")
   const { resolved, toggle } = useTheme()
@@ -151,11 +186,11 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
   const urlOpened = (key: string) => (e: Event) => {
     if (open === key) e.preventDefault()
   }
-  const drawerOpen = open === "drawer" && mobile
+  const drawerOpen = open === navOpenKey && mobile
   const collapseLabel = rail ? t("shell.nav.expand") : t("shell.nav.collapse")
 
   return (
-    <div className="flex min-h-svh bg-bg text-fg">
+    <div data-slot="app-shell" data-sidebar={rail ? "rail" : "expanded"} className="flex min-h-svh bg-bg text-fg">
       <a
         href="#main"
         className="fixed top-2 left-2 z-50 inline-flex min-h-hit -translate-y-[calc(var(--size-topbar)+var(--space-8))] items-center rounded-md bg-primary px-4 py-2 text-role-label text-on-primary focus:translate-y-0"
@@ -165,10 +200,11 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
       <aside
         aria-label={t("shell.nav.aria")}
         data-sidebar={rail ? "rail" : "expanded"}
+        inert={busy || undefined}
         className={cn("sticky top-0 flex h-svh shrink-0 flex-col border-r bg-surface mobile:hidden", rail ? "w-sidebar-rail" : "w-sidebar-expanded")}
       >
         <Brand empty={empty} rail={rail} />
-        <NavList rail={rail} empty={empty} current={current} />
+        <NavList rail={rail} empty={empty} current={current} beforeLeave={beforeLeave} />
         <div className={cn("border-t p-3", rail && "flex justify-center px-2")}>
           <NavItem
             icon={rail ? PanelLeftOpenIcon : PanelLeftCloseIcon}
@@ -186,7 +222,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
         </div>
       </aside>
 
-      <Sheet open={drawerOpen} onOpenChange={(o) => setOpen(o ? "drawer" : null)}>
+      <Sheet open={drawerOpen} onOpenChange={(o) => setOpen(o ? navOpenKey : null)}>
         <SheetContent
           title={t("shell.nav.aria")}
           closeLabel={t("shell.nav.collapse")}
@@ -199,34 +235,48 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
           }}
         >
           <Brand empty={empty} className="pr-hit" />
-          <NavList rail={false} empty={empty} current={current} onNavigate={() => setOpen(null)} />
+          <NavList rail={false} empty={empty} current={current} onNavigate={() => setOpen(null)} beforeLeave={beforeLeave} />
         </SheetContent>
       </Sheet>
 
       <div className={cn("flex min-w-0 flex-1 flex-col", flush && "h-svh mobile:h-auto mobile:min-h-svh")}>
         <header data-slot="topbar" className="sticky top-0 z-20 flex h-topbar shrink-0 items-center gap-3 border-b bg-surface px-6 mobile:gap-2 mobile:px-4">
-          <IconButton label={t("shell.nav.open")} aria-expanded={drawerOpen} className="hidden mobile:inline-flex" onClick={() => setOpen("drawer")}>
+          <IconButton label={t("shell.nav.open")} aria-expanded={drawerOpen} className="hidden mobile:inline-flex" onClick={() => setOpen(navOpenKey)}>
             <MenuIcon />
           </IconButton>
           <Breadcrumb aria-label={t("shell.breadcrumb.aria")} className="min-w-0 flex-1">
             <BreadcrumbList>
               <BreadcrumbItem className="mobile:hidden">{t("shell.breadcrumb.root")}</BreadcrumbItem>
               <BreadcrumbSeparator className="mobile:hidden" />
+              {breadcrumb?.parent ? (
+                <>
+                  <BreadcrumbItem className="mobile:hidden">
+                    <span role="link" aria-disabled tabIndex={0} className="cursor-not-allowed rounded-xs">
+                      {breadcrumb.parent}
+                    </span>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="mobile:hidden" />
+                </>
+              ) : null}
               <BreadcrumbItem>
-                <BreadcrumbPage className="mobile:text-role-title">{title ?? t("shell.breadcrumb.current")}</BreadcrumbPage>
+                <BreadcrumbPage className="mobile:text-role-title">{breadcrumb?.current ?? currentLabel}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
           <div className="flex shrink-0 items-center gap-2 mobile:gap-0">
-            <SearchInput
-              aria-label={t("shell.search.aria")}
-              placeholder={t("shell.search.placeholder")}
-              shortcut={isApple ? "⌘K" : "Ctrl K"}
-              className="mr-2 w-popover tablet:w-sidebar-expanded mobile:hidden"
-            />
-            <IconButton label={t("shell.search.aria")} className="hidden mobile:inline-flex" onClick={() => notYet(t("shell.search.aria"))}>
-              <SearchIcon />
-            </IconButton>
+            {search ? (
+              <>
+                <SearchInput
+                  aria-label={t("shell.search.aria")}
+                  placeholder={t("shell.search.placeholder")}
+                  shortcut={isApple ? "⌘K" : "Ctrl K"}
+                  className="mr-2 w-popover tablet:w-sidebar-expanded mobile:hidden"
+                />
+                <IconButton label={t("shell.search.aria")} className="hidden mobile:inline-flex" onClick={() => notYet(t("shell.search.aria"))}>
+                  <SearchIcon />
+                </IconButton>
+              </>
+            ) : null}
             {assistant ? (
               <IconButton asChild label={assistant.label} className="aria-[current=page]:bg-primary-soft aria-[current=page]:text-on-primary-soft">
                 <Link to={assistant.href} aria-current={assistant.current ? "page" : undefined}>
@@ -298,7 +348,13 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
                   <CircleQuestionMarkIcon /> {t("shell.account.menu.help")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="danger" onSelect={() => navigate("/login")}>
+                <DropdownMenuItem
+                  variant="danger"
+                  onSelect={() => {
+                    if (beforeLeave && !beforeLeave("/login")) return
+                    navigate("/login")
+                  }}
+                >
                   <LogOutIcon /> {t("shell.account.menu.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>

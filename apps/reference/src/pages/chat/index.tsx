@@ -684,7 +684,7 @@ export default function Chat() {
       open={open}
       setOpen={(v) => set({ open: v })}
       current="chat"
-      title={t("chat.title")}
+      currentLabel={t("chat.title")}
       assistant={{ label: t("chat.title"), href: "/chat", current: true }}
       flush
     >

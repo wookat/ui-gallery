@@ -1,0 +1,22 @@
+[
+  { "name": "default", "query": "state=default", "viewports": ["desktop", "mobile", "tablet", "tabletSm"] },
+  { "name": "invalid", "query": "state=invalid" },
+  { "name": "loading", "query": "state=loading" },
+  { "name": "success", "query": "state=success" },
+  { "name": "error", "query": "state=error" },
+  { "name": "default-step2", "query": "state=default&step=2", "viewports": ["desktop", "mobile", "tablet", "tabletSm"] },
+  { "name": "default-step3", "query": "state=default&step=3" },
+  { "name": "invalid-step2", "query": "state=invalid&step=2", "viewports": ["desktop", "mobile", "tablet"] },
+  { "name": "invalid-step3", "query": "state=invalid&step=3" },
+  { "name": "default-terms", "query": "state=default&step=3&open=terms", "overlay": true },
+  { "name": "default-leave", "query": "state=default&open=leave", "overlay": true },
+  { "name": "default-supplier", "query": "state=default&open=supplier" },
+  { "name": "default-sku", "query": "state=default&step=2&open=sku" },
+  { "name": "default-toast", "query": "state=default&toast=draft&hold", "overlay": true },
+  { "name": "default-notifications", "query": "state=default&open=notifications", "overlay": true },
+  { "name": "default-account", "query": "state=default&open=account", "overlay": true },
+  { "name": "default-rail", "query": "state=default&sidebar=rail", "viewports": ["desktop"] },
+  { "name": "default-expanded", "query": "state=default&sidebar=expanded", "viewports": ["tablet"] },
+  { "name": "default-step2-expanded", "query": "state=default&step=2&sidebar=expanded", "viewports": ["tablet"] },
+  { "name": "default-drawer", "query": "state=default&open=drawer", "overlay": true, "viewports": ["mobile", "tabletSm"] }
+]

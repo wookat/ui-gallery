@@ -46,7 +46,7 @@ function DialogContent({
         {children}
         {closeLabel ? (
           <DialogPrimitive.Close asChild>
-            <IconButton label={closeLabel} className="absolute top-2 right-2">
+            <IconButton data-slot="dialog-close-icon" label={closeLabel} className="absolute top-2 right-2">
               <XIcon />
             </IconButton>
           </DialogPrimitive.Close>

@@ -64,6 +64,7 @@
 - `node tools/shoot.mjs landing && node tools/compare.mjs landing` → 20/20 ≥ 95%，最低 99.55%（tabletSm-light-mobile-menu-open），最高 99.91%；L-D1 已由设计侧在 e389b5a 修正并重截 ref，compare 门禁转绿
 - `node tools/a11y.mjs landing` → ALL PASS（axe serious/critical 0、375 无溢出、热区 ≥ 40、焦点环缺失 0、console error 0）
 - 焦点归还矩阵（上表）12/12 PASS
+- 同步 `origin/fe01/integration@1afe7d5`（chat 已合入）：仅 `src/lib/cn.ts` 冲突，取两侧并集（landing 侧 spacing 命名刻度 + chat 侧 w 命名宽度组）。合并后复跑：`pnpm lint`（no-hardcode 78 文件）/ `typecheck` / `build` ✔；landing compare 20/20，最低 99.47%（menu-open 三张 99.47–99.51%：integration 侧 `shoot.mjs` 对 overlay 条目截图前 blur 焦点，关闭钮焦点环不再入图，hifi ref 仍带环，差 ≈0.08%，非实现差）；landing a11y ALL PASS；焦点矩阵 12/12 PASS；chat compare 88/88 ≥ 95%（最低 95.99%），cn.ts 并集未造成回退
 
 ### 门禁实跑结果（第 3 轮，commit 见 git log）
 

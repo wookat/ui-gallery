@@ -1,10 +1,15 @@
 import * as React from "react"
 import { cn } from "@/lib/cn"
+import { XIcon } from "lucide-react"
 import { AlertDialog as AlertDialogPrimitive } from "radix-ui"
 
 import { buttonVariants } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 
-/** 确认对话框：与 Dialog 同一外观（hifi .dialog），但无关闭按钮、点遮罩不关闭、Cancel 默认聚焦（Radix AlertDialog 语义） */
+/**
+ * 确认对话框：与 Dialog 同一外观（hifi .dialog），点遮罩不关闭、Cancel 默认聚焦（Radix AlertDialog 语义）。
+ * 缺省无关闭按钮；传 closeLabel 时在右上渲染一个 Cancel 语义的 ×（表单稿「离开页面？」），页面可用 onOpenAutoFocus 把初始焦点给它。
+ */
 function AlertDialog(props: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
 }
@@ -13,7 +18,7 @@ function AlertDialogTrigger(props: React.ComponentProps<typeof AlertDialogPrimit
   return <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />
 }
 
-function AlertDialogContent({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
+function AlertDialogContent({ className, children, closeLabel, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Content> & { closeLabel?: string }) {
   return (
     <AlertDialogPrimitive.Portal>
       <AlertDialogPrimitive.Overlay data-slot="alert-dialog-overlay" className="fixed inset-0 z-40 bg-overlay" />
@@ -24,7 +29,16 @@ function AlertDialogContent({ className, ...props }: React.ComponentProps<typeof
           className,
         )}
         {...props}
-      />
+      >
+        {closeLabel ? (
+          <AlertDialogPrimitive.Cancel asChild>
+            <IconButton data-slot="alert-dialog-close-icon" label={closeLabel} className="absolute top-2 right-2">
+              <XIcon />
+            </IconButton>
+          </AlertDialogPrimitive.Cancel>
+        ) : null}
+        {children}
+      </AlertDialogPrimitive.Content>
     </AlertDialogPrimitive.Portal>
   )
 }

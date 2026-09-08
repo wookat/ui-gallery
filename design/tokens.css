@@ -35,8 +35,10 @@
   --color-amber-600: #9e5607;
   --color-amber-950: #33240a;
   --color-red-50: #fbe5e5;
+  --color-red-300: #f5a9a9;
   --color-red-400: #f08a8a;
   --color-red-600: #bd3535;
+  --color-red-700: #a52d2d;
   --color-red-950: #3a1414;
   --color-semantic-success: #11733f;
   --color-semantic-warning: #9e5607;
@@ -70,6 +72,9 @@
   --color-role-danger: #bd3535;
   --color-role-danger-soft: #fbe5e5;
   --color-role-on-danger: #ffffff;
+  --color-role-danger-hover: #a52d2d;
+  --color-role-scan-bg: #ffffff;
+  --color-role-scan-fg: #0e1212;
   --color-role-info: #17736a;
   --color-role-neutral-soft: #e1e6e6;
   --color-role-on-neutral-soft: #3b4444;
@@ -239,6 +244,7 @@
   --color-role-danger: #f08a8a;
   --color-role-danger-soft: #3a1414;
   --color-role-on-danger: #0e1212;
+  --color-role-danger-hover: #f5a9a9;
   --color-role-info: #46aa9a;
   --color-role-neutral-soft: #272e2e;
   --color-role-on-neutral-soft: #e1e6e6;
@@ -293,6 +299,7 @@
     --color-role-danger: #f08a8a;
     --color-role-danger-soft: #3a1414;
     --color-role-on-danger: #0e1212;
+    --color-role-danger-hover: #f5a9a9;
     --color-role-info: #46aa9a;
     --color-role-neutral-soft: #272e2e;
     --color-role-on-neutral-soft: #e1e6e6;

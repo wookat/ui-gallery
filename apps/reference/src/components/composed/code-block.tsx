@@ -97,8 +97,8 @@ function CodeBlock({ code, language, labels, copyAs = "icon", highlight, classNa
   }, [copied])
   return (
     <figure data-slot="code-block" className={cn("relative min-w-0 overflow-hidden rounded-md border bg-surface-muted", className)} {...props}>
-      <figcaption className={cn("flex h-hit items-center justify-between border-b", copyAs === "text" ? "pl-4 pr-2" : "pl-3 pr-1")}>
-        <span className="font-mono text-role-caption text-fg-muted">{language}</span>
+      <figcaption className={cn("flex min-h-hit items-center justify-between border-b", copyAs === "text" ? "pl-4 pr-2" : "pl-3 pr-1")}>
+        <span className={cn("font-mono text-role-caption text-fg-muted", copyAs === "icon" && "uppercase")}>{language}</span>
         {copyAs === "text" ? (
           <Button
             variant="ghost"
@@ -126,7 +126,7 @@ function CodeBlock({ code, language, labels, copyAs = "icon", highlight, classNa
           {copied ? labels.copied : ""}
         </span>
       </figcaption>
-      <pre tabIndex={0} className={cn("overflow-x-auto font-mono text-role-code text-fg", copyAs === "text" ? "p-4" : "px-4 py-3")}>
+      <pre tabIndex={0} className={cn("overflow-x-auto text-role-code text-fg", copyAs === "text" ? "p-4" : "px-4 py-3")}>
         <code>
           {highlight === "jsx"
             ? tokenizeJsx(code).map((tk, idx) =>

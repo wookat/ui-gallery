@@ -48,26 +48,37 @@ type AlertProps = React.ComponentProps<"div"> &
     onClose?: () => void
     /** 标题行右侧的动作（hifi components 稿：ghost sm 按钮，颜色随提示条） */
     action?: React.ReactNode
+    /** 覆盖变体默认图标（lucide） */
+    icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>
+    /** 右侧动作区（hifi .alert-actions）：与关闭按钮同行 */
+    actions?: React.ReactNode
+    /** ≤768 时动作区换行、右对齐（hifi .alert-stack） */
+    wrapActions?: boolean
   }
 
-function Alert({ className, variant, appearance, closeLabel, onClose, action, children, ...props }: AlertProps) {
-  const Icon = icons[variant ?? "danger"]
+function Alert({ className, variant, appearance, closeLabel, onClose, action, icon, actions, wrapActions, children, ...props }: AlertProps) {
+  const Icon = icon ?? icons[variant ?? "danger"]
+  const soft = appearance === "soft"
   return (
     <div
       role="alert"
       data-slot="alert"
       data-variant={variant ?? "danger"}
       data-appearance={appearance ?? "outlined"}
-      className={cn(alertVariants({ variant, appearance }), className)}
+      className={cn(alertVariants({ variant, appearance }), wrapActions && "mobile:grid-cols-[var(--size-icon-md)_1fr]", className)}
       {...props}
     >
       <Icon aria-hidden />
       <div data-slot="alert-body" className="grid min-w-0 gap-2 self-center wrap-anywhere [&>[data-slot=alert-title]+[data-slot=alert-description]]:-mt-1">
         {children}
       </div>
-      {action || onClose ? (
-        <span data-slot="alert-actions" className={cn("flex items-center [&_[data-slot=button]]:text-inherit", appearance !== "soft" && "-my-2")}>
+      {action || actions || onClose ? (
+        <div
+          data-slot="alert-actions"
+          className={cn("flex items-center gap-2", soft ? "[&_[data-slot=button]]:text-inherit" : "-my-2", wrapActions && "mobile:col-span-2 mobile:my-0 mobile:justify-self-end")}
+        >
           {action}
+          {actions}
           {onClose ? (
             <button
               type="button"
@@ -75,13 +86,13 @@ function Alert({ className, variant, appearance, closeLabel, onClose, action, ch
               onClick={onClose}
               className={cn(
                 "grid size-hit place-items-center rounded-sm transition-colors duration-(--motion-fast) ease-std hover:bg-surface [&_svg]:size-icon-md",
-                appearance === "soft" ? "text-inherit" : "text-fg-muted hover:text-fg",
+                soft ? "text-inherit" : "text-fg-muted hover:text-fg",
               )}
             >
               <XIcon />
             </button>
           ) : null}
-        </span>
+        </div>
       ) : (
         <span aria-hidden />
       )}

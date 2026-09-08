@@ -1,6 +1,7 @@
 import * as React from "react"
 import { cn } from "@/lib/cn"
 import type { LucideIcon } from "lucide-react"
+import { Link } from "react-router-dom"
 
 import { CountBadge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
@@ -20,29 +21,30 @@ type NavItemProps = React.ComponentProps<"a"> & {
   rail?: boolean
 }
 
-/** 侧栏导航项：hifi .nav-item —— size.hit 高、radius.md、当前项 primary-soft / on-primary-soft */
-function NavItem({ icon: Icon, label, active, disabledTip, count = 0, countTone, countLabel, rail = false, className, onClick, ...props }: NavItemProps) {
+/** 侧栏导航项：hifi .nav-item —— size.hit 高、radius.md、当前项 primary-soft / on-primary-soft；有 href 且可用时走 react-router Link（尊重 basename） */
+function NavItem({ icon: Icon, label, active, disabledTip, count = 0, countTone, countLabel, rail = false, className, onClick, href, ...props }: NavItemProps) {
   const disabled = Boolean(disabledTip)
-  const link = (
-    <a
-      data-slot="nav-item"
-      aria-current={active ? "page" : undefined}
-      aria-disabled={disabled || undefined}
-      aria-label={rail ? label : undefined}
-      tabIndex={0}
-      onClick={(e) => {
-        if (disabled) e.preventDefault()
-        onClick?.(e)
-      }}
-      className={cn(
-        "relative flex h-hit items-center gap-3 rounded-md px-3 text-left text-role-label text-fg-muted no-underline transition-colors duration-(--motion-fast) ease-std hover:bg-surface-muted hover:text-fg hover:no-underline",
-        active && "bg-primary-soft text-on-primary-soft [&>svg]:text-primary",
-        disabled && "cursor-not-allowed hover:bg-transparent hover:text-fg-muted",
-        rail && "w-hit justify-center px-0",
-        className,
-      )}
-      {...props}
-    >
+  const shared = {
+    ...props,
+    "data-slot": "nav-item",
+    "aria-current": active ? ("page" as const) : undefined,
+    "aria-disabled": disabled || undefined,
+    "aria-label": rail ? label : undefined,
+    tabIndex: 0,
+    onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (disabled) e.preventDefault()
+      onClick?.(e)
+    },
+    className: cn(
+      "relative flex h-hit items-center gap-3 rounded-md px-3 text-left text-role-label text-fg-muted no-underline transition-colors duration-(--motion-fast) ease-std hover:bg-surface-muted hover:text-fg hover:no-underline",
+      active && "bg-primary-soft text-on-primary-soft [&>svg]:text-primary",
+      disabled && "cursor-not-allowed hover:bg-transparent hover:text-fg-muted",
+      rail && "w-hit justify-center px-0",
+      className,
+    ),
+  }
+  const inner = (
+    <>
       <Icon aria-hidden className="size-icon-md shrink-0" />
       {rail ? (
         count > 0 ? <i aria-hidden className="absolute top-2 right-2 size-2 rounded-full bg-danger" /> : null
@@ -63,8 +65,18 @@ function NavItem({ icon: Icon, label, active, disabledTip, count = 0, countTone,
           ) : null}
         </>
       )}
-    </a>
+    </>
   )
+  const link =
+    href && !disabled ? (
+      <Link to={href} {...shared}>
+        {inner}
+      </Link>
+    ) : (
+      <a href={href} {...shared}>
+        {inner}
+      </a>
+    )
   const tip = disabledTip ?? (rail ? label : undefined)
   if (!tip) return link
   return (

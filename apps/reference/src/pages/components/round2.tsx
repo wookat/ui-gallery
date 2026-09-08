@@ -710,6 +710,7 @@ export function ComposedSection({ part }: { part: ComposedPart }) {
                 key={p.key}
                 name={p.label}
                 description={mock.landing.pricing.plans.find((x) => x.key === p.key)?.description}
+                meta="inline"
                 price={formatCurrencyWhole(yearly ? p.yearly : p.monthly)}
                 suffix={yearly ? t("landing.pricing.perYear") : t("landing.pricing.perMonth")}
                 note={yearly ? [C("sample.pricing.perMonthApprox", { n: formatInteger(Math.round(p.yearly / 12)) }), p.recommended ? mock.landing.pricing.toggle.yearlyBadge : null].filter(Boolean).join(" · ") : undefined}

@@ -17,7 +17,7 @@ function SheetClose(props: React.ComponentProps<typeof SheetPrimitive.Close>) {
   return <SheetPrimitive.Close data-slot="sheet-close" {...props} />
 }
 
-/** 抽屉：hifi 移动端侧栏 —— overlay 令牌遮罩、surface 面板、宽 = size.sidebar.drawer */
+/** 抽屉：hifi 移动端侧栏 —— overlay 令牌遮罩、surface 面板、宽 = size.sidebar.drawer（页面可传 w-sheet 等覆盖）；关闭按钮 data-slot=sheet-close 供 onOpenAutoFocus 定位 */
 function SheetContent({
   className,
   children,
@@ -27,7 +27,7 @@ function SheetContent({
   closeLabel,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
-  side?: "left" | "right"
+  side?: "left" | "right" | "bottom"
   title: string
   description?: string
   closeLabel: string
@@ -39,8 +39,12 @@ function SheetContent({
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 z-30 flex w-sidebar-drawer max-w-[calc(100vw-var(--size-hit))] flex-col bg-surface text-fg shadow-lg outline-none",
-          side === "left" ? "left-0 border-r" : "right-0 border-l",
+          "fixed z-30 flex flex-col bg-surface text-fg shadow-lg outline-none",
+          side === "bottom"
+            ? "inset-x-0 bottom-0 max-h-[88vh] rounded-t-xl"
+            : "inset-y-0 w-sidebar-drawer max-w-[calc(100vw-var(--size-hit))]",
+          side === "left" && "left-0 border-r",
+          side === "right" && "right-0 border-l",
           className,
         )}
         {...props}
@@ -49,7 +53,7 @@ function SheetContent({
         {description ? <SheetPrimitive.Description className="sr-only">{description}</SheetPrimitive.Description> : null}
         {children}
         <SheetPrimitive.Close asChild>
-          <IconButton label={closeLabel} className="absolute top-2 right-2">
+          <IconButton label={closeLabel} data-slot="sheet-close" className="absolute top-2 right-2">
             <XIcon />
           </IconButton>
         </SheetPrimitive.Close>

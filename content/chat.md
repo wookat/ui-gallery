@@ -18,12 +18,15 @@
 | sidebar.group.earlier | 更早 | |
 | sidebar.item.aria | {title}，{time}{unread} | `{unread}` = 「，有新回复」或空 |
 | sidebar.item.unread | 有新回复 | 未读点视觉隐藏文字 |
+| sidebar.item.meta | {time} · {n} 条 | 第二行元信息：time = hifi `listTime`（今天 HH:mm / 昨天 HH:mm / 本周 MM-dd HH:mm / 更早 MM-dd），n = `messageCount` |
+| sidebar.item.yesterday | 昨天 {time} | 昨天的会话时间前缀 |
 | sidebar.item.menu | 会话操作 | 悬停出现的 ⋯ 按钮 |
 | sidebar.item.rename | 重命名 | |
 | sidebar.item.delete | 删除会话 | 危险色 → Dialog |
 | sidebar.delete.title | 删除会话「{title}」？ | |
 | sidebar.delete.description | 删除后无法恢复，助理执行过的操作（如改单）不会撤销。 | |
 | sidebar.delete.confirm | 删除 | |
+| sidebar.delete.cancel | 取消 | 次级按钮 |
 | sidebar.empty | 还没有会话，从右侧的建议开始 | 会话列表空态 |
 
 ## 消息流
@@ -57,6 +60,7 @@
 | tool.running | 正在{name}… | status=running |
 | tool.done | {name} · {duration} | status=done，`{duration}` 如「0.6 秒」 |
 | tool.failed | {name}失败 | |
+| tool.duration | {n} 秒 | `tool.done` 的 `{duration}`：n = durationMs / 1000，保留 1 位小数 |
 | tool.args | 参数 | 展开内标签 |
 | tool.result | 结果 | |
 | tool.expand | 展开详情 | |
@@ -64,6 +68,7 @@
 | streaming.aria | 助理正在输入 | 流式态气泡 `aria-busy` 视觉隐藏文字 |
 | streaming.stop | 停止生成 | 输入区发送按钮在流式时替换为此 |
 | streaming.cursor | ▍ | 打字光标字符（`aria-hidden`） |
+| streaming.followUp | 那就帮我建采购单草稿吧 | 流式 / 错误态追加在消息流末尾的用户追问（承接 c_1 末条助手提议，沿用 design/wireframes/chat.html 定稿文案）；时间 = 当前会话末条消息 + 1 分钟 |
 | disclaimer | 助理答案基于数据快照，重要操作请核对 | 消息流底部小字（mock 有全文，此处为短版） |
 | scrollToBottom | 回到最新消息 | 上滑后出现的浮动按钮 |
 
@@ -77,6 +82,8 @@
 | composer.attach.accept | 支持 CSV / XLSX / PDF / PNG / JPG，不超过 10 MB | Tooltip |
 | composer.attach.remove | 移除附件 {name} | |
 | composer.attach.tooLarge | 文件超过 10 MB | 内联错误 |
+| composer.attach.demo.name | 缺货SKU-0906.csv | 「添加附件」/ `?attach` 的演示附件文件名（hifi 运行时示例） |
+| composer.attach.demo.size | 12 KB | 演示附件大小 |
 | composer.model.aria | 选择模型 | Select |
 | composer.model.label | 模型 | |
 | composer.hint | Enter 发送，Shift + Enter 换行 | 与 mock.composer.hint 一致（375 隐藏） |
@@ -93,6 +100,7 @@
 | loading.sidebar | 正在加载会话 | 左栏骨架 |
 | history.unavailable.title | 历史消息未包含在演示数据中 | `historyAvailable: false` 的会话（c_6 / c_7）：骨架 `motion.duration.slow` 后停留为此空态 |
 | history.unavailable.description | 这条会话共 {n} 条消息，最后更新于 {time}；演示站点只保留今天与本周的会话内容。 | n = `messageCount`，time = `updatedAt` 相对时间 |
+| history.unavailable.daysAgo | {n} 天前 | `history.unavailable.description` 的 `{time}` 相对快照 meta.asOf |
 | history.unavailable.back | 返回今天的会话 | 次级按钮 → `?conversation=c_1` |
 | error.title | 回复失败 | Alert（danger）标题；正文 mock.errorState.message |
 | error.retry | 重试 | |

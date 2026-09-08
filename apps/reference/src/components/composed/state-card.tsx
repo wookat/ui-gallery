@@ -10,6 +10,8 @@ type StateCardProps = React.ComponentProps<typeof Card> & {
   body: string
   actions?: React.ReactNode
   help?: React.ReactNode
+  /** 替换默认插图（每屏 hifi 的空态插图不同，如 orders 的「订单纸 + 加号」） */
+  figure?: React.ReactNode
 }
 
 /** 空态插图：hifi .state-card .figure —— 令牌色几何图，无位图 */
@@ -26,7 +28,7 @@ function EmptyFigure() {
 }
 
 /** 空态 / 错误态卡：hifi .state-card —— 居中、heading 标题、fg-muted 正文、动作区 */
-function StateCard({ kind, title, body, actions, help, className, ...props }: StateCardProps) {
+function StateCard({ kind, title, body, actions, help, figure, className, ...props }: StateCardProps) {
   const titleId = React.useId()
   return (
     <Card
@@ -37,7 +39,9 @@ function StateCard({ kind, title, body, actions, help, className, ...props }: St
       className={cn("flex flex-col items-center gap-2 px-6 py-16 text-center", className)}
       {...props}
     >
-      {kind === "empty" ? (
+      {figure ? (
+        figure
+      ) : kind === "empty" ? (
         <EmptyFigure />
       ) : (
         <span aria-hidden className="mb-4 grid size-control-lg place-items-center rounded-full bg-danger-soft text-danger">

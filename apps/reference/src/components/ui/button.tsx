@@ -19,7 +19,7 @@ const buttonVariants = cva(
         secondary:
           "bg-surface border-border text-fg hover:not-disabled:bg-surface-muted hover:not-disabled:border-border-strong active:not-disabled:bg-neutral-soft disabled:bg-surface-muted disabled:text-fg-muted [&_svg]:text-fg-muted",
         ghost:
-          "px-3 text-link hover:not-disabled:bg-primary-soft hover:not-disabled:text-on-primary-soft aria-expanded:bg-primary-soft aria-expanded:text-on-primary-soft disabled:disabled-look",
+          "text-link hover:not-disabled:bg-primary-soft hover:not-disabled:text-on-primary-soft aria-expanded:bg-primary-soft aria-expanded:text-on-primary-soft disabled:disabled-look",
         danger:
           "bg-danger border-danger text-on-danger hover:not-disabled:opacity-90 disabled:disabled-look",
         link: "text-link underline-offset-4 hover:not-disabled:underline",
@@ -34,7 +34,11 @@ const buttonVariants = cva(
       },
     },
     // link 不受 size 高度/内边距约束（hifi .row .link / .signup a：min-h hit、padding 0 space-1、radius-sm）；放 compoundVariants 才能在 cn 合并时压过 size 的 h-*/px-*
-    compoundVariants: [{ variant: "link", className: "h-auto min-h-hit min-w-0 rounded-sm px-1" }],
+    // ghost md：hifi .btn-ghost padding 0 space-3（同样要在 compoundVariants 才能压过 size.md 的 px-4）
+    compoundVariants: [
+      { variant: "link", className: "h-auto min-h-hit min-w-0 rounded-sm px-1" },
+      { variant: "ghost", size: "md", className: "px-3" },
+    ],
     defaultVariants: {
       variant: "primary",
       size: "md",

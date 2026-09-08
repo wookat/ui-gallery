@@ -14,6 +14,8 @@ type PaginationProps = React.ComponentProps<"nav"> & {
   isPageDisabled?: (page: number) => boolean
   /** 当前页两侧保留的页码数 */
   siblings?: number
+  /** 覆盖页码序列（各稿折叠规则不同时由调用方给出，如 orders 的「1 2 3 4 … 37」） */
+  pages?: (number | "…")[]
 }
 
 /** 页码序列：首尾恒显，当前页 ± siblings，其余折叠为省略号 */
@@ -30,7 +32,7 @@ function pageItems(page: number, pageCount: number, siblings: number): (number |
 }
 
 /** 分页：hifi .pagination —— size.hit 方块页码、当前页 primary、省略号 fg-muted、range 靠右（≤768 换行到下一行） */
-function Pagination({ page, pageCount, onPageChange, labels, range, isPageDisabled, siblings = 1, className, ...props }: PaginationProps) {
+function Pagination({ page, pageCount, onPageChange, labels, range, isPageDisabled, siblings = 1, pages, className, ...props }: PaginationProps) {
   const btn =
     "inline-grid h-hit min-w-hit place-items-center rounded-md px-2 text-role-label text-fg-muted tabular-nums transition-colors duration-(--motion-fast) ease-std hover:not-disabled:not-aria-disabled:bg-surface-muted hover:not-disabled:not-aria-disabled:text-fg aria-[current=page]:bg-primary aria-[current=page]:text-on-primary aria-disabled:cursor-not-allowed disabled:disabled-look [&_svg]:size-icon-md"
   return (
@@ -38,15 +40,16 @@ function Pagination({ page, pageCount, onPageChange, labels, range, isPageDisabl
       <button type="button" className={btn} aria-label={labels.prev} disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
         <ChevronLeftIcon />
       </button>
-      {pageItems(page, pageCount, siblings).map((item, i) =>
+      {(pages ?? pageItems(page, pageCount, siblings)).map((item, i) =>
         item === "…" ? (
-          <span key={`e${i}`} aria-hidden className="w-hit text-center text-fg-muted">
+          <span key={`e${i}`} data-slot="pagination-ellipsis" aria-hidden className="w-hit text-center text-fg-muted">
             …
           </span>
         ) : (
           <button
             key={item}
             type="button"
+            data-page={item}
             className={btn}
             aria-label={labels.page(item)}
             aria-current={item === page ? "page" : undefined}

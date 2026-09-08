@@ -7,12 +7,16 @@ import { Tag } from "@/components/ui/badge"
 
 type PricingCardProps = React.ComponentProps<typeof Card> & {
   name: string
-  /** 套餐描述行（mock landing.pricing.plans[].description；hifi .plan > .t-caption） */
-  description?: string
+  /** 计划一句话说明（landing .plan-desc 为 body；components hifi .plan > .t-caption 为 caption，见 meta="inline"） */
+  description?: React.ReactNode
+  /** 推荐角标位置：start 贴左（settings）· center 顶部居中（landing） */
+  badgeAlign?: "start" | "center"
+  /** 价格附注排布：stacked = 后缀 body + 副价独立 caption 行（landing .price / .price-sub）；inline = 后缀 caption 且副价同行「 · 」分隔、描述 caption（components hifi .plan-price span） */
+  meta?: "stacked" | "inline"
   /** 已格式化价格（formatCurrencyWhole）与后缀（content pricing.perMonth / perYear） */
   price: string
   suffix: string
-  /** 副价（年付折合月价、省 n 个月等）：与后缀同行，「 · 」分隔（hifi .plan-price span） */
+  /** 副价（年付折合月价、省 n 个月等） */
   note?: React.ReactNode
   features: readonly { label: string; included: boolean }[]
   /** 包含 / 不包含 的视觉隐藏文字 */
@@ -24,7 +28,8 @@ type PricingCardProps = React.ComponentProps<typeof Card> & {
 }
 
 /** 定价卡：hifi .plan —— Card 骨架，recommended 时 primary 描边 + 顶部角标；价格 display 字阶；特性行勾 / 横杠（不含项 fg-muted） */
-function PricingCard({ name, description, price, suffix, note, features, featureLabels, recommended, recommendedLabel, current, action, className, ...props }: PricingCardProps) {
+function PricingCard({ name, description, badgeAlign = "start", meta = "stacked", price, suffix, note, features, featureLabels, recommended, recommendedLabel, current, action, className, ...props }: PricingCardProps) {
+  const inline = meta === "inline"
   return (
     <Card
       data-slot="pricing-card"
@@ -34,20 +39,21 @@ function PricingCard({ name, description, price, suffix, note, features, feature
       {...props}
     >
       {recommended && recommendedLabel ? (
-        <Tag tone="info" dot={false} className="absolute -top-3 left-6">
+        <Tag tone="info" dot={false} className={cn("absolute -top-3", badgeAlign === "center" ? "left-1/2 -translate-x-1/2" : "left-6")}>
           {recommendedLabel}
         </Tag>
       ) : null}
       <header className="flex flex-col gap-2">
         <h3 className="text-role-title">{name}</h3>
-        {description ? <p className="text-role-caption text-fg-muted">{description}</p> : null}
-        <p className="flex flex-wrap items-baseline gap-1">
+        {description ? <p className={cn(inline ? "text-role-caption" : "text-role-body", "text-fg-muted")}>{description}</p> : null}
+        <p className={cn("flex items-baseline gap-1", inline && "flex-wrap")}>
           <span className="text-role-display tabular-nums">{price}</span>
-          <span className="text-role-caption text-fg-muted">
+          <span className={cn(inline ? "text-role-caption" : "text-role-body", "text-fg-muted")}>
             {suffix}
-            {note ? <> · {note}</> : null}
+            {inline && note ? <> · {note}</> : null}
           </span>
         </p>
+        {!inline && note ? <p className="text-role-caption text-fg-muted">{note}</p> : null}
       </header>
       <ul className="flex flex-1 flex-col gap-2">
         {features.map((f) => (

@@ -1,0 +1,6 @@
+[
+  { "name": "default", "query": "state=default", "viewports": ["desktop", "mobile", "tablet", "tabletSm"] },
+  { "name": "navbar-scrolled", "query": "state=scrolled", "overlay": true, "scrollTo": "#features" },
+  { "name": "pricing-yearly", "query": "state=default&cycle=yearly" },
+  { "name": "mobile-menu-open", "query": "state=default&open=menu", "overlay": true, "viewports": ["mobile", "tabletSm"] }
+]

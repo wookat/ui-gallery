@@ -39,6 +39,8 @@
 | solutions.title | 三个场景，看它怎么用 | |
 | solutions.visual.aria | {title} 功能示意图 | 每段分屏右/左侧抽象图 |
 | solutions.learnMore | 了解更多 | 每段底部链接（锚到 FAQ） |
+| solutions.inventory.lowStock | {n} 个 SKU 低于安全线 | 分屏②抽象图预警 Tag；n = 图中低于安全线的柱数（mock `solutions[1].visual`：2） |
+| solutions.assistant.answer | {name}{sku}，近 7 天因缺货延迟发货 {n} 单，当前库存 {stock} / 安全线 {safety}。 | 分屏③助理答复气泡；字段取 mock/skus.json 缺货最多项（name / sku / weekStockoutOrders / stock / safetyStock） |
 | stats.aria | 平台数据 | 数据带 aria-label |
 | stats.footnote | 数据截至 2026 年 8 月 | |
 

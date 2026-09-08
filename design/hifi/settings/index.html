@@ -16,6 +16,20 @@
   · 2FA 二维码为纯 SVG 示意（由 otpauth 演示串确定性生成的 25×25 模块，含三个定位图形，非可扫描的真实密钥）
   · 图标：Lucide（ISC），内联 <symbol> 精灵；字体：OFL 的 Inter Variable / Noto Sans SC Variable / JetBrains Mono Variable（apps/shadcn-ui 依赖 @fontsource-variable/*）
   · 门禁：node design/hifi/settings/check.mjs（--static 只跑静态检查）
+  · 独立审查修复（基于 947413f）：
+    - blocking 成员表极值邮箱：.ttable .who .name/.m 全断点 white-space:normal + overflow-wrap:anywhere；.role-cell / .col-actions 加 min-width；.ttable-wrap position:relative 收容 th 内 absolute 的 .sr-only。
+      check.mjs 新增 1440/1024 × 亮/暗 极值检查（67 字符含点邮箱 + 64 字符不可断行串）：documentElement.scrollWidth ≤ 视口、表内溢出 0、角色列 ≥ 115px 且下拉文字可见、操作列 ≥ size.hit。
+    - 375/768 首屏激活 Tab：setTab 去掉 booted 守卫，改用 .stabs.scrollTo（不用 scrollIntoView——Chromium 会把顺序焦点起点移到该处，破坏 Tab 序列）；Tab 条加 mask-image 边缘渐隐（scroll() 动画时间线驱动，宽度 = space.8）。
+    - 成员卡 .tcard .m display:block（邮箱与「职位 · 加入 · 最近活动」分行）。
+    - twofa=off 时 #twofaCard .card-head margin-bottom:0（卡底留白 = 卡 padding）。
+    - twofa=setup 新增「待验证」warning 标签（content/settings.md security.2fa.status.pending），与开关 aria-checked=true 一致。
+    - 免打扰 <input type=time>：12/24 小时制取自浏览器进程区域（LANG），与页面 lang / Playwright locale / --lang 均无关；check.mjs 以 LANG=zh_CN.UTF-8 启动 Chromium，ref 现为 22:00 / 08:00。
+      交实现阶段：产品运行在用户浏览器中，24 小时制取决于用户系统区域；若需强制 24 小时制须改自定义时间选择器（本稿不预设）。
+    - 二维码 .qr 改用新增 role 令牌 scan-bg / scan-fg（neutral.0 / neutral.950，不随主题反转）：暗色下仍为白瓷砖是二维码可扫描性的功能性例外，令牌描述已注明。
+    - .btn-danger-solid:hover 由 filter:brightness(0.92) 改为新增 role 令牌 danger-hover（red.700 / 暗 red.300，白字 6.97:1 / 9.99:1，check-contrast 已纳入）。
+    - 通知卡头描述改为「按事件分别设置邮件、推送与站内三种接收方式」（content/settings.md notifications.description），不再声称站内始终显示。
+    - 令牌影响面：tokens.json 仅追加 red.300 / red.700 / role.danger-hover / role.scan-bg / role.scan-fg，旧值零改动；login / dashboard 稿与已实现页面不受影响。
+    - 未修项：无。ref 124 张全部重截（<300KB）。
 -->
 <link rel="stylesheet" href="../../tokens.css">
 <link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/inter/index.css">
@@ -40,6 +54,8 @@
   --hifi-z-dialog: 45;
   --hifi-z-toast: 50;
 }
+@property --hifi-fade-l { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --hifi-fade-r { syntax: '<number>'; inherits: false; initial-value: 0; }
 
 /* ---------- 基础 ---------- */
 *, *::before, *::after { box-sizing: border-box; }
@@ -123,7 +139,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .btn-danger { background: var(--color-role-surface); color: var(--color-role-danger); border-color: var(--color-role-danger); }
 .btn-danger:hover { background: var(--color-role-danger-soft); }
 .btn-danger-solid { background: var(--color-role-danger); color: var(--color-role-on-danger); }
-.btn-danger-solid:hover { filter: brightness(0.92); }
+.btn-danger-solid:hover { background: var(--color-role-danger-hover); }
 .btn-block { width: 100%; }
 .btn .icon { width: var(--size-icon-sm); height: var(--size-icon-sm); }
 .btn .busy { display: none; }
@@ -423,7 +439,7 @@ textarea.input { min-height: var(--hifi-textarea-h); padding: var(--space-2) var
 
 /* 两步验证 */
 .twofa-panel { display: grid; grid-template-columns: var(--hifi-qr) minmax(0, 1fr); gap: var(--space-6); margin-top: var(--space-5); padding-top: var(--space-5); border-top: var(--border-width-hairline) solid var(--color-role-border); }
-.qr { width: var(--hifi-qr); height: var(--hifi-qr); padding: var(--space-2); border-radius: var(--radius-md); background: var(--color-neutral-0); color: var(--color-neutral-950); border: var(--border-width-hairline) solid var(--color-role-border); }
+.qr { width: var(--hifi-qr); height: var(--hifi-qr); padding: var(--space-2); border-radius: var(--radius-md); background: var(--color-role-scan-bg); color: var(--color-role-scan-fg); border: var(--border-width-hairline) solid var(--color-role-border); }
 .qr svg { display: block; width: 100%; height: 100%; }
 .qr rect { fill: currentColor; }
 .twofa-steps { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
@@ -439,8 +455,9 @@ textarea.input { min-height: var(--hifi-textarea-h); padding: var(--space-2) var
 .twofa-actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
 .twofa-panel { display: none; }
 html[data-twofa="setup"] .twofa-panel { display: grid; }
-html[data-twofa="on"] #twofaStatus { display: inline-flex; }
-#twofaStatus, html[data-twofa="on"] #twofaStatusOff { display: none; }
+html:not([data-twofa="setup"]) #twofaCard .card-head { margin-bottom: 0; }
+#twofaStatus, #twofaStatusPending, #twofaStatusOff { display: none; }
+html[data-twofa="on"] #twofaStatus, html[data-twofa="setup"] #twofaStatusPending, html[data-twofa="off"] #twofaStatusOff { display: inline-flex; }
 
 /* 会话 / 列表 */
 .list { display: flex; flex-direction: column; }
@@ -497,19 +514,20 @@ html[data-channel="email"] .ntable .col-email, html[data-channel="push"] .ntable
 .chips .chip .iconbtn:hover { background: var(--color-role-primary); color: var(--color-role-on-primary); }
 .chips input { flex: 1; min-width: calc(var(--space-16) * 2); border: 0; background: transparent; min-height: var(--size-hit); margin: calc(-1 * var(--space-1)) 0; padding: 0; }
 .chips input:focus-visible { outline: 0; }
-.ttable-wrap, .itable-wrap { overflow-x: auto; }
+.ttable-wrap, .itable-wrap { position: relative; overflow-x: auto; }
 .ttable td { height: var(--size-table-row); padding-top: var(--space-1); padding-bottom: var(--space-1); white-space: nowrap; }
 .ttable .who { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
-.ttable .who .name { display: flex; align-items: center; gap: var(--space-2); font: var(--typography-label); font-family: var(--font-family-sans); }
-.ttable .who .m { color: var(--color-role-fg-muted); font: var(--typography-caption); font-family: var(--font-family-sans); }
+.ttable .who .name { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); font: var(--typography-label); font-family: var(--font-family-sans); white-space: normal; overflow-wrap: anywhere; }
+.ttable .who .m { color: var(--color-role-fg-muted); font: var(--typography-caption); font-family: var(--font-family-sans); white-space: normal; overflow-wrap: anywhere; }
 .ttable .who > div { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-.ttable .role-cell { width: calc(var(--size-settings-tabs) * 0.75); }
-.ttable .col-actions { width: var(--size-hit); text-align: right; }
+.ttable .role-cell { width: calc(var(--size-settings-tabs) * 0.75); min-width: calc(var(--size-settings-tabs) * 0.75); }
+.ttable .role-cell .select-wrap { min-width: calc(var(--size-settings-tabs) * 0.6); }
+.ttable .col-actions { width: var(--size-hit); min-width: var(--size-hit); text-align: right; }
 .ttable .muted { color: var(--color-role-fg-muted); }
 .tcards { display: none; flex-direction: column; gap: var(--space-3); }
 .tcard { border: var(--border-width-hairline) solid var(--color-role-border); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); display: grid; grid-template-columns: var(--size-avatar-md) minmax(0, 1fr); gap: var(--space-2) var(--space-3); }
 .tcard .name { display: flex; align-items: center; gap: var(--space-2); font: var(--typography-label); font-family: var(--font-family-sans); flex-wrap: wrap; }
-.tcard .m { color: var(--color-role-fg-muted); font: var(--typography-caption); font-family: var(--font-family-sans); overflow-wrap: anywhere; }
+.tcard .m { display: block; color: var(--color-role-fg-muted); font: var(--typography-caption); font-family: var(--font-family-sans); overflow-wrap: anywhere; }
 .tcard .acts { grid-column: 2; display: flex; align-items: center; gap: var(--space-2); }
 .tcard .acts .select-wrap { flex: 1; }
 .tcard .acts .btn-ghost-danger { margin-right: calc(-1 * var(--space-3)); }
@@ -604,7 +622,6 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
   .settings { gap: var(--space-6); }
   .form-grid { gap: var(--space-4); }
   .ttable td, .itable td { white-space: normal; }
-  .ttable .who .name, .ttable .who .m { overflow-wrap: anywhere; }
   .ttable .role-cell { width: auto; min-width: calc(var(--size-settings-tabs) * 0.6); }
   .itable .desc-col { min-width: 0; }
   .plans { gap: var(--space-4); }
@@ -641,6 +658,13 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
   .settings { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-4); }
   .stabs { position: sticky; top: var(--size-topbar); z-index: calc(var(--hifi-z-topbar) - 1); flex-direction: row; gap: var(--space-1); overflow-x: auto; margin: 0 calc(-1 * var(--space-4)); padding: var(--space-2) var(--space-4); background: var(--color-role-bg); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .stabs::-webkit-scrollbar { display: none; }
+  /* 横向 Tab 条边缘渐隐：滚动驱动动画按滚动进度切换左右渐隐（无溢出时时间线不激活 → 两侧不渐隐） */
+  .stabs {
+    mask-image: linear-gradient(to right, transparent, currentColor calc(var(--hifi-fade-l) * var(--space-8)), currentColor calc(100% - var(--hifi-fade-r) * var(--space-8)), transparent);
+    animation: stabs-fade linear both;
+    animation-timeline: scroll(self inline);
+  }
+  @keyframes stabs-fade { from { --hifi-fade-l: 0; --hifi-fade-r: 1; } to { --hifi-fade-l: 1; --hifi-fade-r: 0; } }
   .stab { flex: none; padding: 0 var(--space-4); }
   .stab .dirty-dot { margin-left: 0; }
   .panes, .pane { gap: var(--space-4); }
@@ -886,7 +910,7 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
             <section class="card" id="twofaCard" aria-labelledby="twofaTitle">
               <div class="card-head">
                 <div><h2 id="twofaTitle">两步验证</h2><span class="desc">登录时额外输入验证器应用生成的 6 位动态码</span></div>
-                <div class="head-actions"><span class="tag tag-success" id="twofaStatus">已启用</span><span class="tag tag-neutral" id="twofaStatusOff">未启用</span><button class="switch" id="twofaSwitch" type="button" role="switch" aria-checked="false" aria-label="启用两步验证"></button></div>
+                <div class="head-actions"><span class="tag tag-success" id="twofaStatus">已启用</span><span class="tag tag-warning" id="twofaStatusPending">待验证</span><span class="tag tag-neutral" id="twofaStatusOff">未启用</span><button class="switch" id="twofaSwitch" type="button" role="switch" aria-checked="false" aria-label="启用两步验证"></button></div>
               </div>
               <div class="twofa-panel" id="twofaPanel">
                 <div class="qr" id="qr" role="img" aria-label="两步验证二维码（示意）"></div>
@@ -918,7 +942,7 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
           <section class="pane pane-notifications" id="pane-notifications" role="tabpanel" aria-labelledby="tab-notifications" hidden>
             <form class="card" id="notifForm" data-form="notifications" novalidate>
               <div class="card-head">
-                <div><h2>通知偏好</h2><span class="desc">按事件选择接收方式，站内通知始终显示在铃铛中</span></div>
+                <div><h2>通知偏好</h2><span class="desc">按事件分别设置邮件、推送与站内三种接收方式</span></div>
                 <div class="head-actions"><div class="seg" role="group" aria-label="接收方式" id="channelSeg"></div></div>
               </div>
               <div class="ntable-wrap"><table class="ntable" aria-label="通知偏好"><thead><tr><th scope="col">事件</th><th scope="col" class="c col-email">邮件</th><th scope="col" class="c col-push">推送</th><th scope="col" class="c col-inapp">站内</th></tr></thead><tbody id="notifRows"></tbody></table></div>
@@ -1212,7 +1236,7 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
     $$('.pane').forEach(function (p) { p.hidden = p.id !== 'pane-' + t; });
     $$('#acctPop [data-tab]').forEach(function (a) { if (a.getAttribute('data-tab') === t) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     var url = new URL(location.href); url.searchParams.set('tab', t); history.replaceState(null, '', url);
-    if (isMobile() && booted) { var b = $('tab-' + t); b.scrollIntoView({ block: 'nearest', inline: 'center' }); }
+    if (isMobile()) { var b = $('tab-' + t), s = $('stabs'); s.scrollTo({ left: b.offsetLeft + b.offsetWidth / 2 - s.clientWidth / 2, behavior: booted ? 'smooth' : 'instant' }); } /* 不用 scrollIntoView：会移动顺序焦点起点 */
     window.scrollTo({ top: 0 });
   };
   var pendingLeave = null;

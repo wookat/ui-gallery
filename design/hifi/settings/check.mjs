@@ -61,9 +61,9 @@ try {
 const content = readFileSync(join(repo, 'content/settings.md'), 'utf8');
 for (const s of ['设置', '设置分类', '个人资料', '账号安全', '通知', '团队', '计费', '保存', '保存中…', '重置', '有未保存的修改', '保存失败', '重试',
   '你的姓名与头像会显示在团队活动与备注中', '头像由姓名末字自动生成，不支持上传图片', '姓名', '请填写姓名', '邮箱', '登录邮箱不可修改，如需变更请联系管理员', '职位', '简介', '一句话介绍你负责的工作', '语言', '时区', '搜索城市或 UTC 偏移', '没有匹配的时区',
-  '修改密码', '上次修改于', '当前密码', '新密码', '确认新密码', '两次输入的密码不一致', '当前密码不正确', '密码强度', '密码要求', '更新密码', '两步验证', '登录时额外输入验证器应用生成的 6 位动态码', '启用两步验证', '已启用', '未启用', '两步验证二维码（示意）', '无法扫码？手动输入密钥', '输入 6 位验证码', '验证码不正确或已过期', '验证并启用', '关闭两步验证？', '关闭后仅凭密码即可登录，账号安全性会降低。',
+  '修改密码', '上次修改于', '当前密码', '新密码', '确认新密码', '两次输入的密码不一致', '当前密码不正确', '密码强度', '密码要求', '更新密码', '两步验证', '登录时额外输入验证器应用生成的 6 位动态码', '启用两步验证', '已启用', '未启用', '待验证', '两步验证二维码（示意）', '无法扫码？手动输入密钥', '输入 6 位验证码', '验证码不正确或已过期', '验证并启用', '关闭两步验证？', '关闭后仅凭密码即可登录，账号安全性会降低。',
   '活跃会话', '以下设备当前已登录你的账号', '当前设备', '注销', '注销其他所有会话', '没有其他活跃会话',
-  '通知偏好', '按事件选择接收方式，站内通知始终显示在铃铛中', '接收方式', '全部开启', '全部关闭', '免打扰时段', '该时段内推送通知静默，次日早上汇总', '该接收方式下没有可配置的通知',
+  '通知偏好', '按事件分别设置邮件、推送与站内三种接收方式', '接收方式', '全部开启', '全部关闭', '免打扰时段', '该时段内推送通知静默，次日早上汇总', '该接收方式下没有可配置的通知',
   '团队成员', '邀请成员', '输入邮箱，回车添加', '角色', '发送邀请', '邮箱格式不正确', '待接受邀请', '重新发送', '撤回', '成员列表', '成员', '加入时间', '最近活动', '不能修改自己的角色', '移除', '取消', '还没有其他成员，邀请同事一起使用',
   '当前计划', '下次续费', '付款方式', '更换付款方式', '取消订阅', '按月付', '按年付', '切换计费周期', '省 2 个月', '推荐', '折合', '升级到', '降级到', '联系销售', '包含', '不包含', '发票', '编号', '开具日期', '说明', '金额', '状态', '下载 PDF', '还没有发票，首次扣款后会显示在这里',
   '危险区', '删除团队空间', '以确认', '输入内容不匹配', '永久删除']) {
@@ -75,6 +75,8 @@ for (const s of ['搜索订单号、商品、客户', '全部标为已读', '查
 }
 ok(html.includes(S.dangerZone.confirmPhrase) && html.includes(S.dangerZone.confirmHint), `危险区确认短语「${S.dangerZone.confirmPhrase}」来自 mock`);
 ok(!/secret=[A-Z2-7]{16,}/.test(html) || html.includes('DEMO-NOT-A-REAL-SECRET'), '2FA otpauth 仅为演示串，无真实密钥');
+ok(!html.includes('站内通知始终显示'), '通知卡头描述不再声称站内始终显示（站内列可关闭）');
+ok(!/filter:\s*brightness\(/.test(styleBlock), 'hover 不用 filter:brightness 字面量（用 danger-hover 令牌）');
 
 if (process.argv.includes('--static')) finish();
 
@@ -120,7 +122,10 @@ const perViewport = {
   tabletSm: [...TABS.map((t) => [`${t}-default`, `tab=${t}&state=default`]), ['profile-default-drawer', 'tab=profile&state=default&open=drawer']],
 };
 
-const browser = await chromium.launch();
+// 原生 <input type=time> 的 12/24 小时制取自浏览器进程区域（LANG），与页面 lang / context locale / --lang 无关：
+// 不设 LANG 时 headless shell 渲染「10:00 PM」，设 zh_CN 后渲染「22:00」（与 mock 22:00/08:00 一致）
+const LAUNCH = { env: { ...process.env, LANG: 'zh_CN.UTF-8', LANGUAGE: 'zh_CN' } };
+const browser = await chromium.launch(LAUNCH);
 let shots = 0;
 for (const [vpName, vp] of Object.entries(viewports)) {
   const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1, colorScheme: 'light', locale: 'zh-CN', timezoneId: 'Asia/Shanghai' });
@@ -189,8 +194,8 @@ await browser.close();
 
 // ---------- 键盘可达 / 交互检查（1440 亮色） ----------
 {
-  const b2 = await chromium.launch();
-  const page = await b2.newPage({ viewport: viewports.desktop });
+  const b2 = await chromium.launch(LAUNCH);
+  const page = await b2.newPage({ viewport: viewports.desktop, locale: 'zh-CN', timezoneId: 'Asia/Shanghai' });
   const errors = [];
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
@@ -254,8 +259,12 @@ await browser.close();
   await page.click('#pwdForm [type="submit"]');
   ok((await page.evaluate(() => document.getElementById('pwdConfirm').closest('.field').classList.contains('is-invalid') && document.activeElement.id === 'pwdConfirm')), '确认密码不一致 → 内联错误并聚焦');
   // 2FA：开关 → 内联面板 → 6 位码 → 已启用；再关 → Dialog
+  const offHead = await page.evaluate(() => { const c = document.getElementById('twofaCard'); return { mb: getComputedStyle(c.querySelector('.card-head')).marginBottom, gap: Math.round(c.getBoundingClientRect().bottom - parseFloat(getComputedStyle(c).borderBottomWidth) - c.querySelector('.card-head').getBoundingClientRect().bottom), pad: parseFloat(getComputedStyle(c).paddingBottom) }; });
+  ok(offHead.mb === '0px' && offHead.gap === Math.round(offHead.pad), `twofa=off 时卡头无底边距，卡底留白 = 卡 padding（${offHead.gap}px）`);
   await page.click('#twofaSwitch');
   ok((await page.getAttribute('html', 'data-twofa')) === 'setup' && (await page.evaluate(() => getComputedStyle(document.getElementById('twofaPanel')).display)) === 'grid', 'Switch 开启 → 展开 2FA 设置面板');
+  const pendingTag = await page.evaluate(() => ['twofaStatus', 'twofaStatusPending', 'twofaStatusOff'].map((id) => getComputedStyle(document.getElementById(id)).display !== 'none'));
+  ok(pendingTag.join() === 'false,true,false' && (await page.textContent('#twofaStatusPending')) === '待验证', 'setup 中间态仅显示「待验证」标签（与开关 aria-checked=true 一致）');
   const qrRects = await page.evaluate(() => document.querySelectorAll('#qr svg rect').length);
   ok(qrRects > 200, `二维码位为纯 SVG（${qrRects} 个模块）`);
   await page.keyboard.type('123456');
@@ -284,6 +293,8 @@ await browser.close();
   ok((await page.getAttribute('html', 'data-channel')) === 'push' && (await page.evaluate(() => getComputedStyle(document.querySelector('.ntable .col-email')).display)) === 'none', '渠道分段「推送」只显示推送列');
   await page.click('#quietSwitch');
   ok((await page.isDisabled('#quietStart')) && (await page.getAttribute('#quietBody', 'aria-disabled')) === 'true', '关闭免打扰 → 时间输入禁用');
+  const time24 = await page.evaluate(() => ({ v: document.getElementById('quietStart').value, lang: navigator.language }));
+  ok(time24.v === '22:00' && time24.lang === 'zh-CN', `免打扰时间 value=${time24.v}，浏览器语言 ${time24.lang}（进程 LANG=zh_CN → 原生 time 输入按 24 小时制渲染，见 ref *-notifications-default.png）`);
   // 团队：邀请 chips / 移除 Dialog
   await page.goto(`${fileUrl}?tab=team&state=default&theme=light`);
   await page.fill('#inviteInput', 'bad-email'); await page.keyboard.press('Enter');
@@ -341,16 +352,41 @@ await browser.close();
   });
   ok(navMeta.total === 8 && navMeta.disabled === 6 && navMeta.withHref === 0 && navMeta.cursor && navMeta.focusable, `未实现导航项 6/8 aria-disabled 无 href + cursor:not-allowed + 可聚焦（${navMeta.disabled}/${navMeta.total}）`);
 
+  // 文案极值：桌面成员表（1440 / 1024 × 亮/暗）长邮箱不压缩角色列、不产生横向滚动
+  const LONG_MAIL = 'yuwei.ouyang.maria.von.strauss@customer-success-huadong.qimu-home.cn';
+  const LONG_MAIL_NB = 'yuweiouyangmariavonstrausscustomersuccesshuadongqimuhomecnabcdefgh'; // 64 字符无分隔符
+  for (const [vpName, vp] of [['desktop', viewports.desktop], ['tablet', viewports.tablet]]) {
+    for (const theme of ['light', 'dark']) {
+      const dp = await b2.newPage({ viewport: vp, locale: 'zh-CN' });
+      await dp.goto(`${fileUrl}?tab=team&state=default&theme=${theme}`);
+      await dp.evaluate(() => document.fonts.ready);
+      const dext = await dp.evaluate(([mail, mailNb, w]) => {
+        const rows = [...document.querySelectorAll('#memberRows tr')]; const row = rows.find((r) => r.querySelector('.role-cell select'));
+        row.querySelector('.who .m').textContent = mail + ' · 华东大区客户成功负责人'; rows[rows.length - 1].querySelector('.who .m').textContent = mailNb;
+        const wrap = document.querySelector('.ttable-wrap'); const rc = row.querySelector('.role-cell'); const sel = rc.querySelector('select'); const act = row.querySelector('.col-actions');
+        const tabs = getComputedStyle(document.documentElement).getPropertyValue('--size-settings-tabs');
+        const selVisible = sel.getBoundingClientRect().width >= 96 && sel.scrollWidth <= sel.clientWidth + 1;
+        return { doc: document.documentElement.scrollWidth, wrapOver: wrap.scrollWidth - wrap.clientWidth, role: Math.round(rc.getBoundingClientRect().width), roleMin: Math.round(parseFloat(tabs) * 0.75), selVisible, act: Math.round(act.getBoundingClientRect().width), hit: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--size-hit')), mailInside: row.querySelector('.who .m').getBoundingClientRect().right <= rc.getBoundingClientRect().left + 0.5, w };
+      }, [LONG_MAIL, LONG_MAIL_NB, vp.width]);
+      ok(dext.doc <= vp.width && dext.wrapOver === 0, `${vpName}-${theme}: 67/64 字符极值邮箱 → 无页面横向滚动（doc=${dext.doc} ≤ ${vp.width}，表内溢出=${dext.wrapOver}）`);
+      ok(dext.role >= dext.roleMin * 0.8 && dext.selVisible && dext.mailInside, `${vpName}-${theme}: 角色列 ${dext.role}px（≥ ${Math.round(dext.roleMin * 0.8)}）下拉文字可见，邮箱在成员列内换行`);
+      ok(dext.act >= dext.hit, `${vpName}-${theme}: 操作列 ${dext.act}px ≥ --size-hit ${dext.hit}`);
+      await dp.close();
+    }
+  }
   // 文案极值：长姓名 / 长邮箱 / 长金额（375）不溢出
-  const mob = await b2.newPage({ viewport: viewports.mobile });
+  const mob = await b2.newPage({ viewport: viewports.mobile, locale: 'zh-CN' });
   await mob.goto(`${fileUrl}?tab=team&state=default&theme=light`);
   await mob.evaluate(() => document.fonts.ready);
   const ext = await mob.evaluate(() => {
     const c = document.querySelector('#memberCards .tcard'); c.querySelector('.name').firstChild.textContent = '欧阳雨薇·玛丽亚·冯·施特劳斯（华东大区客户成功负责人）'; c.querySelector('.m').textContent = 'yuwei.ouyang.maria.von.strauss@customer-success-huadong.qimu-home.cn';
     const s = document.getElementById('seats'); s.querySelector('b').textContent = '9999';
-    return { doc: document.documentElement.scrollWidth, cardRight: Math.round(c.getBoundingClientRect().right), nameOver: c.querySelector('.name').getBoundingClientRect().right > c.getBoundingClientRect().right + 0.5, mailOver: c.querySelector('.m').getBoundingClientRect().right > c.getBoundingClientRect().right + 0.5 };
+    const ms = c.querySelectorAll('.m');
+    return { doc: document.documentElement.scrollWidth, cardRight: Math.round(c.getBoundingClientRect().right), nameOver: c.querySelector('.name').getBoundingClientRect().right > c.getBoundingClientRect().right + 0.5, mailOver: c.querySelector('.m').getBoundingClientRect().right > c.getBoundingClientRect().right + 0.5,
+      metaBelowMail: ms.length === 2 && ms[1].getBoundingClientRect().top >= ms[0].getBoundingClientRect().bottom - 0.5 };
   });
   ok(ext.doc <= 375 && ext.cardRight <= 375 && !ext.nameOver && !ext.mailOver, `375 成员卡长姓名 + 长邮箱不溢出（doc=${ext.doc} cardRight=${ext.cardRight}）`);
+  ok(ext.metaBelowMail, '375 成员卡邮箱与「职位 · 加入 · 最近活动」分两行');
   await mob.goto(`${fileUrl}?tab=billing&state=default&theme=light`);
   const ext2 = await mob.evaluate(() => {
     document.querySelectorAll('#plans .price strong').forEach((s) => { s.textContent = '¥1,289,990'; });
@@ -383,6 +419,8 @@ await browser.close();
     orientation: document.getElementById('stabs').getAttribute('aria-orientation'), inert: document.getElementById('sidebar').inert, vis: getComputedStyle(document.getElementById('sidebar')).visibility,
   }));
   ok(mobMeta.tabsScroll && mobMeta.orientation === 'horizontal', '375 Tabs 横向可滚动且 aria-orientation=horizontal');
+  const tabIn = await mob.evaluate(() => { const s = document.getElementById('stabs').getBoundingClientRect(); const b = document.getElementById('tab-team').getBoundingClientRect(); return { l: Math.round(b.left), r: Math.round(b.right), sl: Math.round(s.left), sr: Math.round(s.right), scrolled: document.getElementById('stabs').scrollLeft > 0, mask: getComputedStyle(document.getElementById('stabs')).maskImage !== 'none' }; });
+  ok(tabIn.l >= tabIn.sl && tabIn.r <= tabIn.sr && tabIn.scrolled && tabIn.mask, `375 首屏 ?tab=team 激活 Tab 已滚入视口（${tabIn.l}–${tabIn.r} ⊆ ${tabIn.sl}–${tabIn.sr}）且 Tab 条有边缘渐隐遮罩`);
   ok(mobMeta.tableHidden && mobMeta.cards === 5, `375 成员表变卡片（${mobMeta.cards} 张）`);
   ok(mobMeta.inert && mobMeta.vis === 'hidden', '375 抽屉关闭：侧栏 inert + visibility:hidden');
   await mob.keyboard.press('Tab'); await mob.keyboard.press('Tab');

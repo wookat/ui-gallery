@@ -59,6 +59,7 @@
 | security.2fa.switch | 启用两步验证 | Switch aria-label |
 | security.2fa.status.on | 已启用 | Tag success |
 | security.2fa.status.off | 未启用 | Tag neutral |
+| security.2fa.status.pending | 待验证 | Tag warning；开关已打开但尚未通过验证码（setup 中间态） |
 | security.2fa.qr.aria | 两步验证二维码（示意） | 纯 CSS/SVG 图形容器 aria-label |
 | security.2fa.manual | 无法扫码？手动输入密钥 | 折叠链接，展开显示 `manualKey` |
 | security.2fa.code.label | 输入 6 位验证码 | OTP 输入 |
@@ -82,7 +83,7 @@
 | key | 文案 | 说明 |
 |---|---|---|
 | notifications.title | 通知偏好 | |
-| notifications.description | 按事件选择接收方式，站内通知始终显示在铃铛中 | |
+| notifications.description | 按事件分别设置邮件、推送与站内三种接收方式 | 三列均可开关（mock 中「账单与发票」站内=off），文案不再声称站内始终显示 |
 | notifications.channel.aria | 接收方式 | Segmented（邮件 / 推送 / 站内）aria-label |
 | notifications.item.aria | {item}：{channel} | 每个 Switch aria-label |
 | notifications.enableAll | 全部开启 | 分组右侧链接按钮 |

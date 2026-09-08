@@ -1,149 +1,138 @@
-# 07 · 体验官走查（UX Walkthrough）
+# 07 · 体验官走查报告（第 2 轮复查）
 
-走查对象：`fe01/integration` @ `0b3c2e7e425d2a2f301df8b7bf03589ca0d20f91`（merge: fe01/screen-login → fe01/integration）
-角色：roles/legal-research/user-experience-officer（体验官）　只走不改：本报告不含任何产品代码改动。
-日期：2026-09-07　运行方式：`apps/reference/` 下 `pnpm install --frozen-lockfile && pnpm build && pnpm preview --port 4173 --host 127.0.0.1`，Chromium（Playwright 1.62.1，复用根 `tools/shoot`）以真实用户路径逐步点按，1440×900 鼠标 + 375×812 触屏模拟（`isMobile + hasTouch`，DPR 2），亮 / 暗各一遍。
+> 角色：roles/legal-research/user-experience-officer（体验官）。
+> 对象：`fe01/integration` @ `c7e47e6f3dabfba441ecf95ed8ef4aa316c2490e`（login + dashboard 合入后、第 1 轮 P1 修复后）。
+> 目的：复验第 1 轮（对 `0b3c2e7e`）的 1 个 P0 / 2 个 P1 是否修复，并记录本轮新发现。**不改产品代码。**
+> 方法：`pnpm install --frozen-lockfile && pnpm build && pnpm preview --port 4173`，以 Playwright Chromium（`tools/shoot` 固定的 1.62.1）**模拟真实用户**：1440×900 鼠标 / 375×812 触屏（`isMobile+hasTouch`，DPR 2，一次 tap）× 亮/暗（走 `prefers-color-scheme`，不带 `?theme=`），每组合从 `/login` 开始按 brief 5 个核心任务走一遍。共 4 组合 × 约 70 个检查点；另做 2 个补充探针脚本核对可疑项。脚本与日志在仓库外 `~/ux/walk.mjs`、`~/ux/probe*.mjs`，截图输出 `shots/ux/*.png`（不入库）。
 
 ## 0. 结论
 
-**verdict：fix**（存在 P0）
+**verdict = fix**（有 1 个 P1）。
 
 | 级别 | 数量 | 摘要 |
-|---|---|---|
-| P0 | 1 | dashboard（`/`）在本提交不存在：`/`、`/?state=*`、`/?toast=login`、登录成功后全部落到组件总览 `/kitchen-sink`。brief 两条核心任务之一（「打开即知今天生意如何」）无法完成，登录任务也无法闭环。 |
-| P1 | 2 | ① 邮箱为空时首次点「登录」被吞掉（布局位移把按钮从手指下移开），375 触屏 100% 复现。② 登录成功后按浏览器「后退」回到 `/login?state=loading`，表单永久锁死在「登录中…」。 |
-| P2 | 5 | 见 §3 |
-| P3 | 4 | 见 §3 |
+| --- | --- | --- |
+| P0 | 0 | 第 1 轮 P0（登录后落到 kitchen-sink）已修：4 组合登录成功均落 `/?toast=login` 仪表盘 |
+| P1 | 1 | **P1-新1** 订单「更多操作」菜单里点任一项（如「标记发货」）菜单不关闭、无任何反馈（鼠标/触屏/键盘 Enter 三种输入均复现） |
+| P2 | 5 | 第三方登录按钮静默无响应；全局搜索（1440 输入回车 / Ctrl K、375 放大镜）无任何反应但顶栏展示 `Ctrl K` 快捷键提示；头像菜单前 4 项静默关闭；错误 Alert 在改邮箱后不清除；`?theme=` 链接下手动切主题刷新被弹回 |
+| P3 | 6 | 详见 §3 |
 
-login 屏本身（表单、校验、五态、亮暗、375、键盘、热区、文案）质量高，`node tools/a11y.mjs login` 全绿，console error = 0。阻塞项集中在「集成」而非「实现」：dashboard 屏的实现已存在于 `fe01/screen-dashboard@f221e98` 但**尚未合回集成分支**；本报告 §5 附了对该分支的预检，供合入后的复走参考（不计入本次 verdict）。
+第 1 轮遗留复验：
 
-## 1. 走查矩阵
+| 第 1 轮编号 | 现象 | 本轮结果 |
+| --- | --- | --- |
+| P0-1 | 登录成功落到 `/kitchen-sink` | **已修**。4 组合均 `→ /apps/reference/?toast=login`，h1「仪表盘」，Toast「欢迎回来，若琳」约 3 s 后消失 |
+| P1-1 | 空表单首次点「登录」无反应 | **已修**。4 组合首次 click/tap 即出「请输入邮箱」「请输入密码」并回焦邮箱（`onMouseDown preventDefault` 生效） |
+| P1-2 | 登录后浏览器后退，login 停在「登录中…」锁死 | **已修**。后退回 `/login` 按钮为「登录」、字段可编辑；前进回仪表盘正常 |
+| 上轮预检 P1（dashboard 分支） | 刷新丢尾斜杠导致静态托管 404 | **未复现**。切周后刷新 `/apps/reference/?period=week` 仍渲染仪表盘且保持「周」 |
 
-| 屏 | 任务 / 状态 | 1440 亮 | 1440 暗 | 375 亮 | 375 暗 |
-|---|---|---|---|---|---|
-| login | 默认态渲染、文案、层级 | ✅ | ✅ | ✅ | ✅ |
-| login | 空表单提交 → 双字段错误 + 焦点到邮箱 | ⚠ P1-1（按钮上半部无效） | ⚠ P1-1 | ❌ P1-1（首次点按无效） | ❌ P1-1 |
-| login | 失焦校验（格式 / 长度） | ✅ | ✅ | ✅ | ✅ |
-| login | 密码显隐（40×40，aria-pressed，标签切换） | ✅ | ✅ | ✅ | ✅ |
-| login | 30 天记住我 | ✅ 可勾选（P3-3：无任何持久化） | ✅ | ✅ | ✅ |
-| login | 忘记密码 / 免费注册 / 服务条款 / 隐私政策 | 点击 & Enter 均不跳转（brief 定义不可达；P2-4 缺解释） | 同 | 同 | 同 |
-| login | Google / GitHub / 微信 | 点击零反馈（P2-3） | 同 | 同 | 同 |
-| login | 提交中（禁用 + spinner + 只读） | ✅ 900ms | ✅ | ✅ | ✅ |
-| login | 密码错误 → Alert 聚焦、文案 | ✅ | ✅ | ✅ | ✅ |
-| login | 锁定账号 `locked@qimu-home.cn` | ✅ | ✅ | ✅ | ✅ |
-| login | 断网提交 → 网络 Alert + 「重试」 | ✅ 重试可用 | ✅ | ✅ | ✅ |
-| login | `?state=success` | ⚠ P2-1：停留在 login，未按 brief 跳 `/?toast=login` | 同 | 同 | 同 |
-| login → dashboard | 正确账号登录 → 仪表盘 + Toast「欢迎回来，若琳」 | ❌ P0-1（落到 /kitchen-sink，无 Toast） | ❌ | ❌ | ❌ |
-| login | 登录后浏览器后退 | ❌ P1-2 | ❌ | ❌ | ❌ |
-| dashboard | 默认 / loading / empty / error / success / period / toast | ❌ P0-1（路由不存在） | ❌ | ❌ | ❌ |
-| 通用 | 375 横向溢出（scrollWidth ≤ 375） | — | — | ✅ 375 | ✅ 375 |
-| 通用 | console error | 0 | 0 | 0 | 0 |
-| 通用 | Tab 顺序 / 焦点环 | ✅ 品牌→邮箱→密码→显隐→记住我→忘记密码→登录→3 OAuth→注册→条款→隐私 | ✅ | ✅ | ✅ |
+## 1. 走查矩阵与覆盖
 
-## 2. 走查脚本与证据（不入库）
+| 组合 | login 任务 1 | dashboard 任务 2–5 | 状态 | 备注 |
+| --- | --- | --- | --- | --- |
+| 1440 亮 | ✅ | ✅ | login default/invalid/loading/error(invalid/locked/network)/success；dashboard success/loading/empty/error + 重试 | 键盘 Tab 顺序、焦点环、Tabs 方向键、rail/expanded、Ctrl K、跳到主内容 |
+| 1440 暗 | ✅ | ✅ | 同上 | 同上 |
+| 375 亮（触屏） | ✅ | ✅ | 同上 | 抽屉开关/遮罩/Esc、放大镜、订单卡、Toast 与顶栏关系、375×420 键盘弹起 |
+| 375 暗（触屏） | ✅ | ✅ | 同上 | 同上 |
 
-- 走查日志：`shots/ux/walk-log.txt`（每一步的 URL、DOM 断言、热区实测）；复现脚本 `~/ux/walk.mjs`、`~/ux/repro.mjs`、`~/ux/repro2.mjs`（仓库外，不入库）。
-- 截图目录：`shots/ux/`（`.gitignore` 已排除 `shots/**/*.png`），命名 `<屏>-<状态>-<desktop|mobile>-<light|dark>.png`：
-  - `login-default-*.png` 五态 × 4 组合：`login-{default,invalid,loading,error,error-locked,error-network,success}-{desktop,mobile}-{light,dark}.png`
-  - 真实交互：`flow-empty-submit-*`（空提交）、`flow-blur-invalid-*`（失焦校验）、`flow-loading-live-*`（真实提交中）、`flow-error-invalid-live-*`、`flow-error-network-live-*`、`flow-focus-ring-*`（键盘焦点环）、`flow-after-login-*`（**登录成功后的落点，即组件总览页**）
-  - dashboard 路由：`dashboard-{default,loading,empty,error,login,day,week}-*`（全部为 `/kitchen-sink` 组件总览的截图，证明路由缺失）
-  - 复现专用：`repro-mobile-first-tap-1.png`（375 首次点「登录」后：只出现邮箱错误、按钮呈按下态、未提交）、`repro-back-after-login.png`（后退后卡死的「登录中…」）、`repro-landing-mobile.png`（375 访问 `/?toast=login` 的落点）
+未走到（如实标 untested）：768/1024 视口；真实 iOS Safari / Android Chrome（仅 Chromium 触屏模拟）；屏幕阅读器实际朗读；`?state=success` 之外的 login 截图状态 URL 直达（用户路径不经过）。
+
+## 2. 核心任务逐条结果
+
+### 任务 1 · 用工作邮箱进入团队空间（login）
+- 打开即聚焦邮箱、主题跟随系统偏好（4/4）。375 `scrollWidth = 375`。
+- 空表单点登录 → 两字段错误 + 焦点回邮箱（P1-1 已修）。失焦校验文案「邮箱格式不正确，例如 name@example.com」「密码至少 8 位」，输入即清除（4/4）。
+- 密码显隐 40×40 热区、`aria-pressed` 正确；「30 天内记住我」整行 label 热区 ≥40（4/4）。
+- 「忘记密码？」「免费注册」「服务条款」「隐私政策」：`aria-disabled` + `cursor: not-allowed`，点击不跳转不 404（4/4）。
+- 错误账号 → 按钮「登录中…」禁用、字段只读，URL 不带 `state=loading`（P1-2 根因已除）→ Alert「邮箱或密码不正确。连续 5 次失败后账号将锁定 15 分钟。」并把焦点移到 Alert（4/4）。锁定账号 / 断网 → 对应 Alert；断网 Alert 带「重试」，恢复网络点重试 → 登录中 → 成功（4/4）。
+- 成功 → `/?toast=login` 仪表盘 + Toast，3 s 自动消失；375 下 Toast 位于顶栏之下（y≈70，汉堡 y 8–48）不遮挡（2/2）。
+- 后退不锁死（P1-2 已修）。
+- 1440 Tab 顺序：邮箱 → 密码 → 显示密码 → 记住我 → 忘记密码？ → 登录 → Google → GitHub → 微信 → 免费注册 → 品牌 → 服务条款 → 隐私政策；焦点环可见。
+
+### 任务 2 · 看经营概览并切日/周/月
+- 默认「月」：¥1,186,420 / 2,964 单 / 待发货 63 / 库存预警 12，较上期 +9.4% / +5.1% / −21 / +4；问候「下午好，若琳」与「数据更新于 今天 17:30」一致（4/4）。
+- 切「日」→ 副标题「按销售额，今日」，统计卡 ¥42,380 / 108；「周」→「近 7 天」¥286,940 / 731；URL `?period=` 同步，刷新保持（4/4）。Tabs 热区 1440 64×40、375 109×40 四向全命中。1440 方向键可切换。
+
+### 任务 3 · 判断趋势与渠道结构
+- 折线+柱状趋势图与环形图在 4 组合均渲染，375 不溢出；环形图副标题随周期变化。sr-only 数据表 30 行可供读屏。
+- **untested**：图表 hover / 触摸 tooltip 与键盘漫游（探针脚本在此项前中断，未拿到一手结果，不下结论）。
+
+### 任务 4 · 处理最近订单
+- 5 行订单（1440 表格 / 375 卡片）；首单「待发货」菜单 4 项全可用，第 2 单「待付款」正确禁用「标记发货」「打印面单」（4/4）。「更多操作」按钮 40×40 热区，菜单 Esc 关闭并回焦按钮。
+- ❌ **P1-新1**：点「标记发货」（或任何一项）后菜单仍打开（`data-state=open`、触发器 `aria-expanded=true`）、无 Toast/状态变化/确认；键盘 Enter 选择同样；再点触发器才关闭。见 §3。
+- 「查看全部」`aria-disabled` 不跳转（4/4）。
+
+### 任务 5 · 团队动态、任务进度、通知
+- 团队动态、任务进度卡片渲染。
+- 铃铛 `aria-label`「通知，3 条未读」；Popover 5 条 + 「全部标为已读」+ 「查看全部通知」；标为已读后角标消失；Esc 关闭并回焦铃铛；375 Popover 不出视口（4/4）。
+- 头像菜单：沈若琳 / 邮箱 + 5 项；「退出登录」→ `/login`（4/4）。
+- 状态：loading 骨架 `aria-busy` + 视觉隐藏「正在加载仪表盘数据」，应用壳照常；empty「还没有经营数据」+ 2 个 CTA、铃铛无角标、侧边栏无角标、工作区「未命名团队」；error「数据加载失败」+ 错误码 503 + 「重试」→ loading → success 并把焦点交给当前 Tab（4/4）。
+- 未知路径 `/orders`、`/nope` 落回仪表盘不 404。
+- console error / HTTP ≥400 = 0（4/4）。
 
 ## 3. 问题清单
 
-### P0
-
-**P0-1 · dashboard 屏在本提交不存在，`/` 及所有仪表盘状态回退到 `/kitchen-sink` 组件总览**
-- 现象：访问 `/`、`/?state=loading|empty|error|success`、`/?period=day|week`、`/?toast=login`，以及用正确账号 `ruolin.shen@qimu-home.cn` 登录成功后，浏览器地址均变为 `/apps/reference/kitchen-sink`，页面 h1 = 「组件总览」，没有 Toast「欢迎回来，若琳」。四个视口 × 主题组合 100% 复现。对不存在的路径（`/orders`、`/dashboard`、`/nope`）同样回退到 kitchen-sink，用户无法从 URL 判断发生了什么。
-- 影响：brief 的两条核心任务，「用工作邮箱进入团队空间」在最后一步落到一个内部组件清单页，「打开即知今天生意如何」完全不可达；真实用户会认为登录跳错页或产品未上线。
-- 根因（源码核对，非猜测）：`apps/reference/src/app.tsx` 用 `import.meta.glob("./pages/*/index.tsx")` 自动注册路由，`fallback = pages.find(p => p.path === "/") ?? pages[0]`；本提交 `src/pages/` 下只有 `kitchen-sink/` 与 `login/`，没有 `dashboard/`，于是 `pages[0]`（kitchen-sink）成为兜底。`git log origin/fe01/screen-dashboard` 显示 dashboard 实现已在 `f221e98`，但未合入 `fe01/integration`。
-- 建议（交项目负责人）：把 `fe01/screen-dashboard` 合回 `fe01/integration` 后**重新走查**；同时为「未知路径」提供明确 404 或跳 `/`，而不是静默落到 kitchen-sink（kitchen-sink 应只作内部基准，不应成为终端用户可见的兜底页）。
-- 截图：`shots/ux/flow-after-login-desktop-light.png`、`shots/ux/dashboard-default-mobile-light.png`、`shots/ux/repro-landing-mobile.png`
-
 ### P1
 
-**P1-1 · 邮箱为空时首次点「登录」无效（375 触屏必现；1440 点按钮上半部亦复现）**
-- 步骤：打开 `/login`（邮箱自动聚焦，两字段为空）→ 直接点「登录」。
-- 现象：邮箱下方出现「请输入邮箱」，按钮短暂呈按下态，但**没有提交**：密码字段无错误、焦点未移到邮箱、URL 无变化；再点一次才正常。375 触屏两轮（自动聚焦 / 手动聚焦）均复现；1440 鼠标点按钮垂直中心可成功，点按钮上沿 8px 处失败。
-- 根因：邮箱 `onBlur` 即校验并插入一行 `FieldError`（约 25px），整张表单向下位移，`pointerup`/`touchend` 落点已不在按钮上，`click` 未触发。这是「失焦校验 + 无预留错误行高度」的典型交互缺陷。
-- 影响：手机用户第一次点登录「没反应」，是明显的粗糙感；误导用户以为按钮坏了。
-- 建议：三选一——错误行预留固定高度（`min-height`）避免位移；或对「从未输入过的空字段」不在 blur 时报必填、只在提交时报；或在 blur 时若 `relatedTarget` 是提交按钮则延后校验。
-- 截图：`shots/ux/repro-mobile-first-tap-1.png`
-
-**P1-2 · 登录成功后按「后退」回到 `/login?state=loading`，表单永久锁死**
-- 步骤：正确账号登录（成功跳转）→ 浏览器后退。
-- 现象：地址为 `/apps/reference/login?state=loading`，按钮显示「登录中…」且禁用，所有字段只读，spinner 永远转，没有任何方式恢复（只能手改 URL）。
-- 根因：`submit()` 用 `set({ state: "loading" })` 把 loading 写进 URL（`replace: true` 覆盖了干净的 `/login` 记录），随后 `navigate("/?toast=login")` push 新记录；后退时 URL 携带的 `state=loading` 被 `useScreenState` 当作真实状态渲染，而并没有正在进行的提交。
-- 建议：loading 只作组件内瞬态（不写 URL），或成功跳转时对 login 记录 `navigate(..., { replace: true })`；同时 `?state=loading` 进入时若无进行中的提交应自动回落 default。
-- 截图：`shots/ux/repro-back-after-login.png`
+**P1-新1 · 订单操作菜单选项点击后菜单不关闭、无任何反馈**
+- 复现：`/` → 首单「更多操作」→ 点「标记发货」（或「查看详情」「打印面单」「取消订单」）。鼠标 1440、触屏 375、键盘（Enter 打开 → ↓ → Enter）三种方式均复现，亮/暗一致。
+- 现象：菜单保持 `open`，触发器 `aria-expanded=true`，焦点停在菜单项 `div`；无 Toast、无行状态变化、无确认对话；用户会认为「点不动」。再点一次触发器才关闭；Esc 可关闭。
+- 影响：核心任务 4「订单状态操作」的唯一交互出口给用户错误信号；与 brief「操作菜单」的预期不符（即使本轮不做真实业务，也应关闭菜单并给「后续轮次提供」类反馈）。
+- 疑似根因（供实现者核对，未改代码）：`SuccessView` 中 `open={menu === key || undefined}` 让同一 `DropdownMenu` 在受控 / 非受控间切换；选项 `onSelect` 触发 Radix 关闭时 `onOpenChange(false)` 把 `menu` 置 `null` 后 `open` 变回 `undefined`（非受控），Radix 内部状态仍为 open。建议改成 `open={menu === key}` 固定受控，并给 4 个选项加与「后续轮次提供」一致的反馈。
+- 截图：`shots/ux/dash-order-menu-{desktop,mobile}-{light,dark}.png`（菜单打开态）、`shots/ux/probe-order-after-select-D.png`（点「标记发货」750 ms 后菜单仍开）。
 
 ### P2
 
-**P2-1 · `?state=success` 未按 brief「立即跳 `/?toast=login`」**：停留在 `/login?state=success`，表单置灰 + 右上 Toast「欢迎回来，若琳」。brief §3 与 `content/login.md` 都定义 success = 跳转仪表盘由 dashboard 叠加 Toast；当前更像一个「假成功态」。与 P0-1 同源（dashboard 缺失），合入后应改为跳转。截图：`login-success-desktop-light.png`
+**P2-新1 · 第三方登录 3 个按钮完全静默**
+- Google / GitHub / 微信按钮为可用态（`cursor: default`、无 `aria-disabled`），点击无 Toast、无提示、无跳转（4/4）。同页其他「本轮不可达」项都给了 `not-allowed` 光标；这三个看起来能点却什么都不发生，最容易被当作 bug。brief 说「本轮只做视觉」，建议至少统一为 `aria-disabled + not-allowed` 或给「后续轮次提供」Toast。
+- 截图：`shots/ux/login-default-*.png`。
 
-**P2-2 · 未知 / 不可达路径静默落到组件总览**（见 P0-1 描述）：`/orders`、`/forgot-password`、`/signup` 都显示「组件总览」及「映射表 docs/frontend/04-components.md…」这类开发者文案，终端用户完全看不懂。建议 404 页或重定向 `/`。截图：`dashboard-default-desktop-light.png`
+**P2-新2 · 全局搜索是「死」控件，却展示 `Ctrl K` 快捷键**
+- 1440：输入「SO-2026」回车无任何结果/提示；按 `Ctrl+K` 焦点仍在 body（4/4 桌面组合）。375：放大镜 IconButton 点按无反应（无输入框、无弹层）。顶栏 `Kbd` 提示 `Ctrl K` 暗示可用，属误导。建议：隐藏快捷键提示或接一个「后续轮次提供」反馈；375 放大镜同理。
+- 截图：`shots/ux/dash-search-desktop-*.png`、`shots/ux/dash-search-mobile-mobile-*.png`。
 
-**P2-3 · 第三方登录三个按钮点击零反馈**：`cursor: default`、无 `aria-disabled`、无 Toast、无提示。brief 允许「只做视觉」，但从用户视角这是三个「坏掉的按钮」。同屏的「忘记密码？」「免费注册」至少有 `aria-disabled + cursor-not-allowed`，两种不可达表现不一致。建议统一：`aria-disabled` + Tooltip / Toast「演示环境暂不支持第三方登录」。
+**P2-新3 · 头像菜单「个人资料 / 账号安全 / 切换团队空间 / 帮助中心」静默关闭**
+- 4 项均为可用态，点击只关闭菜单、无反馈（「个人资料」4/4 验证；其余 3 项按同源代码路径推断，未逐项实测 → untested）。与导航项的 Tooltip「后续轮次提供」不一致。
+- 截图：`shots/ux/dash-account-*.png`。
 
-**P2-4 · 「忘记密码？」「免费注册」「服务条款」「隐私政策」不可点但没有解释**：hover 只有 `not-allowed` 光标，键盘 Enter 无反应，屏幕阅读器只听到 disabled。dashboard 侧文案已有 `shell.nav.disabled.tip = 后续轮次提供` 的 Tooltip 模式，login 侧应复用同一模式。
+**P2-新4 · 登录错误 Alert 在用户修改邮箱后仍停留**
+- 密码错误 Alert 出现后改邮箱，Alert 不清除（4/4）；字段级错误是「输入即清除」，两者行为不一致，用户可能以为新输入仍是错的。需点「关闭」或再提交才消失。
+- 截图：`shots/ux/login-error-live-*.png`。
 
-**P2-5 · 密码错误 Alert 在用户修改邮箱后仍常驻**：`?state=error` 下改邮箱、改密码，「邮箱或密码不正确…」不消失，直到再次提交。可接受但偏粗糙，建议字段变更即清除 Alert（保留字段级错误）。
+**P2-新5 · 带 `?theme=` 的链接下手动切主题，刷新被弹回**
+- 打开 `/?theme=light` → 点主题切换变暗 → 刷新 → 回到亮（4/4）。`?theme=` 优先级高于 localStorage 是设计约定（截图用），但用户从带参数的分享链接进入后会遇到「切了又变回来」。建议手动切换时把 `?theme=` 从 URL 移除。
+- 截图：`shots/ux/dash-theme-toggled-*.png`。
 
 ### P3
 
-**P3-1 · 375 上成功 Toast 盖住品牌头**（`login-success-mobile-light.png`）：Toast 从顶部弹出，正好覆盖「Acme Console」标识；1440 上在右上角不遮挡。建议 375 用底部或在头部下方留位。
+- **P3-新1** `document.title` 恒为「Acme Console」，login / dashboard 无页面名，标签页与历史记录无法区分（4/4）。
+- **P3-新2** 「30 天内记住我」勾选后登录，后退回 login 邮箱为空、复选未勾（4/4）；mock 阶段可接受，但与文案承诺不一致。
+- **P3-新3** 375 抽屉的关闭按钮 `aria-label` 为「收起侧边栏」（抽屉语境应为「关闭导航」）；抽屉内点禁用项弹出 Tooltip 后需按两次 Esc 才关抽屉（首次关 Tooltip）。纯净抽屉 Esc 一次即关（untested：仅 tooltip 场景实测 2/2）。
+- **P3-新4** 「跳到主内容」按 Enter 后 `location.hash = #main` 但 `document.activeElement` 仍为 body（`main` 无 `tabindex=-1`），键盘用户下一 Tab 不从主内容开始（2/2 桌面）。
+- **P3-新5** login `?state=success` 直达 URL 停留在 login 显示成功态，而 brief 定义 success = 跳 `/?toast=login`；仅影响截图/联调，用户路径不经过（4/4）。
+- **P3-新6** 1440 Tab 顺序里品牌 Link 可聚焦但指向 `/login` 自身，多一个无意义停靠点（2/2）。
 
-**P3-2 · 未输入即失焦就报「请输入邮箱」**：Tab 跳过空邮箱立刻变红，对刚打开页面的用户略显急躁；常见做法是「脏字段 blur 才报，干净字段提交时才报」。修 P1-1 时可一并处理。
-
-**P3-3 · 「30 天内记住我」勾选后没有任何持久化**：再次访问 `/login` 邮箱为空、复选框未勾，`localStorage` 为空。演示环境可接受，但文案许诺了 30 天，建议至少记住邮箱。
-
-**P3-4 · `document.title` 恒为「Acme Console」**：login 与 kitchen-sink 标签页标题相同，多标签时无法区分；建议「登录 · Acme Console」。同时缺 `<meta name="description">`。
-
-### 通过项（无需处理，记录以便复走）
-- 亮 / 暗主题在 login 全部元素上正确映射，无白块、无硬编码残留（`node tools/no-hardcode.mjs` 通过）。
-- 375 无横向溢出；字段、按钮、OAuth 按钮全宽；错误文案不截断。
-- 密码显隐按钮 40×40，`aria-pressed` + 标签「显示 / 隐藏密码」随状态切换；loading 时禁用。
-- 复选框视觉 20×20，但 `label` 热区实测 ±19px 四向均命中 → 满足 ≥40（早期自写探针误报为 20×20，以 `tools/a11y.mjs` 的 elementFromPoint 实测为准）。
-- 提交中：按钮禁用 + spinner + 「登录中…」，全表单只读，`prefers-reduced-motion` 下 spinner 动画时长 0s。
-- 失败：Alert `role=alert tabindex=-1`，提交后焦点确实落到 Alert；文案与 `content/login.md` 完全一致（含锁定 / 网络两种）。
-- Enter 键在密码框可提交；Tab 顺序合理，焦点环全部可见（a11y 脚本「焦点环缺失 0」）。
-- 自动填充语义正确：`autocomplete=username / current-password`；`<html lang="zh-CN">`。
-
-## 4. 本阶段门禁运行结果（`apps/reference/` 下实跑）
+## 4. 门禁运行结果（`apps/reference/`，本机实跑）
 
 | 命令 | 结果 |
-|---|---|
-| `pnpm lint` | ✅ eslint 0 问题；`no-hardcode: 43 个文件通过` |
-| `pnpm typecheck` | ✅ |
-| `pnpm build` | ✅（Vite 提示单 chunk > 500 kB，非阻塞；`fe01/screen-dashboard` 已拆 charts chunk） |
-| `node tools/no-hardcode.mjs` | ✅ |
-| `node tools/a11y.mjs login` | ✅ ALL PASS：4 视口/主题 × 7 状态，axe serious/critical = 0、scrollWidth ≤ 375、热区 ≥ 40×40（0 处不足）、焦点环缺失 0、console error = 0 |
-| `node tools/a11y.mjs dashboard` / `shoot` / `compare` | ⛔ 本提交无 `pages/dashboard/`，无法运行（对应 P0-1） |
-| 体验官走查脚本（`~/ux/walk.mjs`） | 4 组合全部跑完；console error 0 / 0 / 0 / 0；375 scrollWidth 375 |
+| --- | --- |
+| `pnpm install --frozen-lockfile` | 通过（pnpm 11.9.0） |
+| `pnpm build` | 通过（`tsc -b && vite build`，✓ built） |
+| `pnpm lint` | 通过（eslint 0 错；`no-hardcode: 47 个文件通过`） |
+| `pnpm typecheck` | 通过 |
+| `node tools/a11y.mjs login` | ALL PASS |
+| `node tools/a11y.mjs dashboard` | ALL PASS（含 success-drawer 等状态，console error = 0） |
+| `node tools/shoot.mjs` / `compare.mjs` | 未跑（本轮为体验走查，视觉回归由 06 负责；截图用自有脚本输出到 `shots/ux/`） |
 
-本报告只新增 `docs/frontend/07-ux-walkthrough.md`，未改动 `apps/reference/src/**`、`design/**`、`content/**`、`mock/**`；门禁结果与走查前一致。
+## 5. 截图索引（`shots/ux/`，不入库；`{combo}` = `desktop-light | desktop-dark | mobile-light | mobile-dark`）
 
-## 5. 附：`fe01/screen-dashboard@f221e98` 预检（非本次验收对象，供合入后复走）
+- login：`login-default-{combo}.png`、`login-empty-submit-{combo}.png`（P1-1 复验）、`login-invalid-live-{combo}.png`、`login-loading-live-{combo}.png`、`login-error-live-{combo}.png`、`login-error-locked-live-{combo}.png`、`login-error-network-live-{combo}.png`、`login-state-success-{combo}.png`、`login-focus-ring-desktop-*.png`
+- 流程：`flow-after-login-{combo}.png`（P0 复验）、`flow-back-after-login-{combo}.png`（P1-2 复验）
+- dashboard：`dash-success-{combo}.png`、`dash-success-full-{combo}.png`、`dash-week-{combo}.png`、`dash-notifications-{combo}.png`、`dash-theme-toggled-{combo}.png`、`dash-account-{combo}.png`、`dash-rail-desktop-*.png`、`dash-search-desktop-*.png`、`dash-skip-link-desktop-*.png`、`dash-drawer-mobile-*.png`、`dash-search-mobile-mobile-*.png`、`dash-order-menu-{combo}.png`、`dash-loading-{combo}.png`、`dash-empty-{combo}.png`、`dash-error-{combo}.png`
+- 探针：`probe-order-after-select-D.png`（P1-新1）
+- 日志：`shots/ux/walk-log.txt`（每检查点 PASS/FAIL + 实测值）
 
-为缩短下一轮，在独立 worktree 构建了尚未合入的 dashboard 分支（`pnpm preview --port 4174`），用同一套 1440/375 × 亮/暗路径走了一遍。该分支**不含 login 屏**（从 login 合入前切出），所以两屏只有合入集成分支后才能一起验证。截图在 `shots/ux/dash-preview/`。
+## 6. 建议下一步
 
-整体：成功态 1440/375 亮暗四张图布局、层级、数据、语义色均到位（`dash-success-*.png`）；loading 骨架与成功态同布局；empty 有两个 CTA「接入销售渠道 / 导入历史订单」；error 有「重试」且约 2s 内（经 loading 骨架）恢复成功态；日/周/月切换同步统计卡、图表、环形图副标题（今日 / 近 7 天 / 近 30 天）；通知 Popover 5 条 + 全部标为已读（角标随之消失）+ Esc 关闭并回焦铃铛；账号菜单 5 项；侧边栏折叠到 64px 轨道，悬停有「订单 · 后续轮次提供」Tooltip；375 抽屉 280px、8 项、可关闭；订单 375 卡片化 5 张、操作菜单 4 项按状态禁用；`/?toast=login` 正确出「欢迎回来，若琳」；Tab 首焦点「跳到主内容」。
-
-合入后需要注意的预检发现（按合入后严重度预估）：
-
-| 预估 | 现象 | 证据 |
-|---|---|---|
-| P1 | **切换日/周/月或任何写 URL 的操作后，地址从 `/apps/reference/?…` 变成 `/apps/reference?…`（丢尾斜杠）；此时刷新 / 分享链接得到 Vite 的「public base URL」404 白页**。1440/375 × 亮/暗全部复现。生产托管若不自动补斜杠，收藏 / 分享链接会失效 | `dash-reload-after-tabs-*.png`；日志「刷新前 URL: /apps/reference?theme=light&period=month → rendered:false」 |
-| P1 | 头像菜单「退出登录」点击后仍停留在 `/`，未回 `/login`（`content/dashboard.md` 定义「点击回 /login」）| 日志「退出登录 → /apps/reference/?theme=light」 |
-| P1 | 375 顶栏「全局搜索」图标按钮点按无任何反应（不展开输入框、不弹层）| `dash-search-mobile-*.png`；日志「点搜索按钮后 inputVisible:false」 |
-| P2 | 1440 搜索框输入「SO-2026」无任何结果 / 提示 / 状态；Ctrl K 能聚焦但仅此而已 | `dash-search-desktop-*.png` |
-| P2 | 订单菜单「查看详情」、空态 CTA、「查看全部」点击均无反馈（`aria-disabled` 链接尚可，菜单项应给 Toast「后续轮次提供」）| 日志「查看详情 → / toasts=[]」 |
-| P2 | 主题切换写入 `localStorage`，但只要 URL 还带 `?theme=`，刷新后被 URL 覆盖回原主题（用户「切了又弹回」）| 日志「主题切换 light → dark … 刷新后 theme:light」 |
-| P3 | 375 抽屉 `role=dialog` 无 `aria-label`（应为「主导航」），关闭按钮 aria-label 为「收起侧边栏」而非「关闭导航」；点抽屉内禁用项后按 Esc 一次未关闭（疑被 Tooltip 消费，需复核）| `dash-drawer-mobile-*.png` |
-| P3 | console 出现 1 条 404（即上文尾斜杠刷新所致），其余交互 console error = 0 | 日志 |
-
-## 6. 下一步建议（如无异议将按此进入修复轮）
-
-1. 项目负责人合入 `fe01/screen-dashboard` → `fe01/integration`，解 P0-1；合入后按 §5 复核尾斜杠 / 退出登录 / 375 搜索三项 P1 预估。
-2. login 实现者修 P1-1（错误行占位或脏字段校验）与 P1-2（loading 不入 URL / 成功跳转 replace），同时顺手处理 P2-1、P2-3、P2-4、P3-2。
-3. 修复后体验官按本文件 §1 矩阵复走一遍（含 375），更新本报告 §0 verdict。
+1. 修 P1-新1（订单菜单受控态 + 选项反馈），回归时用键盘 Enter 与 375 tap 各验一次。
+2. 统一「本轮不可达」交互反馈策略：第三方登录、全局搜索、头像菜单前 4 项、订单菜单项 → 同一种（`aria-disabled + not-allowed` 或 Toast「后续轮次提供」）。
+3. P2-新4 / P2-新5 为小改；P3 可并入下一轮。

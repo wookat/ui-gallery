@@ -28,8 +28,11 @@ for (const [vpName, vp] of [...Object.entries(viewports), ...Object.entries(extr
         await page.locator(scrollTo).first().evaluate((el) => el.scrollIntoView({ block: "start" }));
         await page.waitForTimeout(200);
       }
-      // 浮层由 ?open= 程序化打开时 Radix 自动聚焦首项会带出 :focus-visible 焦点环，hifi ref 无此环：截图前移开焦点（不影响 a11y.mjs 的键盘检查）
-      await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
+      // 仅 overlay 条目：?open= 程序化打开浮层时 Radix 自动聚焦首项会带出 :focus-visible 焦点环，hifi ref 无此环，截图前移开焦点
+      //（不影响 a11y.mjs 的键盘检查）。非 overlay 页面不 blur——表单页 autoFocus 的输入框被 blur 会触发 onBlur 校验，与 ref 不符
+      if (overlay) {
+        await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
+      }
       // 浮层（fixed 抽屉/菜单/Toast）截视口；其余整页
       await page.screenshot({ path: join(out, `${vpName}-${theme}-${name}.png`), fullPage: !overlay });
       n++;

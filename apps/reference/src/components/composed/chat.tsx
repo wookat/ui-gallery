@@ -54,7 +54,7 @@ function ChatBubble({ role, avatar, name, time, streaming, streamingLabel, curso
       <div className={cn("flex min-w-0 flex-col gap-2", own && "col-start-1 items-end")}>
         <div className="flex min-h-avatar-md items-center gap-2 text-role-caption text-fg-muted">
           {name ? <span className="text-role-label text-fg mobile:hidden">{name}</span> : null}
-          {streaming ? <span>{streamingLabel}</span> : time ? <time className="tabular-nums">{time}</time> : null}
+          {streaming ? <span>{streamingLabel}</span> : time ? <time>{time}</time> : null}
         </div>
         {tools}
         <div

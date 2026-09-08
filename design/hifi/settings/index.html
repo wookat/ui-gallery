@@ -12,7 +12,7 @@
   · 路由参数：?tab=profile|security|notifications|team|billing；?state=default|saving|saved|error|empty（saved = Toast，&hold 不自动消失；empty = 无其他会话 / 仅自己一名成员 / 无待邀请 / 无发票）；
     ?open=2fa|2fa-disable|remove|danger|leave|notifications|account|drawer；?cycle=monthly|yearly；?theme=light|dark；?sidebar=rail|expanded；?channel=all|email|push|inapp
     （brief 首轮通用状态名 loading/success 在本屏对应 saving/saved：设置页无整页加载骨架，保存进行中即 loading，保存成功即 success——与 wireframes/settings.html 一致）
-  · 断点（tokens.breakpoint）：≥1025 侧边栏展开 + 左侧竖向 Tabs；769–1024 侧边栏 icon rail + 左侧竖向 Tabs；≤768 抽屉 + 顶部横向可滚 Tabs + 表格卡片化 + 保存栏吸底
+  · 断点（tokens.breakpoint）：≥1025 侧边栏展开 + 左侧竖向 Tabs；769–1024 侧边栏 icon rail + 左侧竖向 Tabs（宽 = size.settings-tabs × 0.75，成员表「加入时间 / 最近活动」合并一列、职位换行）；≤768 抽屉 + 顶部横向可滚 Tabs + 表格卡片化 + 保存栏吸底
   · 2FA 二维码为纯 SVG 示意（由 otpauth 演示串确定性生成的 25×25 模块，含三个定位图形，非可扫描的真实密钥）
   · 图标：Lucide（ISC），内联 <symbol> 精灵；字体：OFL 的 Inter Variable / Noto Sans SC Variable / JetBrains Mono Variable（apps/shadcn-ui 依赖 @fontsource-variable/*）
   · 门禁：node design/hifi/settings/check.mjs（--static 只跑静态检查）
@@ -39,6 +39,19 @@
     - 未修项（数据层，非本稿）：mock/nav.json settings.implemented 仍为 false —— 翻为 true 会连带 dashboard 稿内联数据与已上线 dashboard 页面把「设置」渲染为指向尚不存在路由的实链接；应由 settings 实现阶段合入时同步翻为 true（本稿侧栏「设置」已按 current 渲染为实链接，不受影响）。
     - 连带：375 发票卡 PDF 链接补 data-tip 后，居中提示气泡使 .bot scrollWidth 超 6px（极值金额检查失败），.icard .bot [data-tip]::after 改右对齐（right:0）。
     - 门禁实跑：node design/hifi/settings/check.mjs → 912 PASS / 0 FAIL（--static 亦通过），ref 124 张全部重截（最大 180KB）；apps/reference: pnpm lint && pnpm typecheck && pnpm build 通过，node tools/no-hardcode.mjs 47 文件通过；tools/shoot|compare|a11y.mjs settings 不适用（settings 尚无实现页面，属实现阶段门禁）。
+  · 独立审查第 3 轮修复（基于 3435d29）：
+    - blocking 1024 团队 Tab 成员表破版（sidebar=expanded 时内容区仅 470px，成员列被压至 77px、邮箱折 10 行）：
+      ① @media(max-width:1024px) 下 .settings 竖向 Tabs 列由 size.settings-tabs 收窄为 × 0.75（144px），th/td 水平 padding space-3 → space-2；
+      ② 「加入时间」「最近活动」合并为一列上下两行（td.col-joined 内 .sub，nowrap；独立 .col-last 列 display:none，th 文案用 .th-last 同步切换），≥1025 仍为独立两列；
+      ③ 成员列 .m 拆为 .mail / .sep / .title 三段：1024 以下职位独占一行、隐藏「·」，邮箱在 @ 前加 <wbr>（极窄时先在 @ 断行而非任意字符处）；≥1025 仍为「邮箱 · 职位」单行；
+      ④ 角色列 / 下拉 min-width 由 settings-tabs × 0.75 降为 × 0.5（96px，仍 ≥ 控件可读宽度），操作列保持 min-width = size.hit。
+      实测 1024：rail 列宽 317/165/156/56、expanded 229/120/113/56，行高 66–71（原 expanded 最高 252），doc.scrollWidth = 1024。
+      check.mjs 原「1024 td.num 单行」检查改为 rail + expanded × 亮/暗 各 5 项（无横向滚动、Tabs 宽 = ×0.75、合并列两行、邮箱单行 + 职位独占行、行高 ≤ 1.5 × size.table-row）+ 1440 仍两列检查；极值邮箱检查改写 .mail/.title 且 1024 角色列阈值同步为 × 0.5。
+    - blocking 暗色团队 Tab 邀请 TagInput placeholder 3.74:1：#inviteInput 不带 .input 类，未命中 .input::placeholder，落到浏览器默认灰（实测 rgb(117,117,117) 亮暗同值）；新增 .chips input::placeholder { color: fg-muted }。
+      复核其余 placeholder：全局搜索（.search input::placeholder）、简介 pBio / 时区 pTz（.input::placeholder）原本已取 fg-muted。check.mjs 新增检查：profile + team Tab 全部 input/textarea[placeholder] 的 ::placeholder 计算色 = fg-muted 且与所在输入框背景对比度 ≥ 4.5（亮 5.13–5.78，暗 5.47–6.81）。
+    - 连带：1024 其余 Tab（profile / security / notifications / billing）因竖向 Tabs 收窄内容区变宽，ref 同步重截；全部团队 ref（1440 / 1024 / 768 / 375 × 亮暗）因 placeholder 色变化重截（375 / 768 成员卡结构未动）。令牌零改动。
+    - 未修项：无（本轮 minor 为空）。
+    - 门禁实跑：node design/hifi/settings/check.mjs → 933 PASS / 0 FAIL（--static 144 PASS），ref 124 张全部重截（最大 181.6KB，<300KB）；apps/reference: pnpm lint && pnpm typecheck && pnpm build 通过，node tools/no-hardcode.mjs 47 文件通过；tools/shoot|compare|a11y.mjs settings 仍不适用（无实现页面）。
 -->
 <link rel="stylesheet" href="../../tokens.css">
 <link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/inter/index.css">
@@ -529,12 +542,15 @@ html[data-channel="email"] .ntable .col-email, html[data-channel="push"] .ntable
 .chips .chip .iconbtn:hover { background: var(--color-role-primary); color: var(--color-role-on-primary); }
 .chips input { flex: 1; min-width: calc(var(--space-16) * 2); border: 0; background: transparent; min-height: var(--size-hit); margin: calc(-1 * var(--space-1)) 0; padding: 0; }
 .chips input:focus-visible { outline: 0; }
+.chips input::placeholder { color: var(--color-role-fg-muted); }
 .ttable-wrap, .itable-wrap { position: relative; overflow-x: auto; }
 .ttable td { height: var(--size-table-row); padding-top: var(--space-1); padding-bottom: var(--space-1); white-space: nowrap; }
 .ttable .who { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
 .ttable .who .name { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); font: var(--typography-label); font-family: var(--font-family-sans); white-space: normal; overflow-wrap: anywhere; }
 .ttable .who .m { color: var(--color-role-fg-muted); font: var(--typography-caption); font-family: var(--font-family-sans); white-space: normal; overflow-wrap: anywhere; }
+.ttable .who .m .title { white-space: nowrap; }
 .ttable .who > div { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.ttable .col-joined .sub, .ttable th.col-joined .th-last { display: none; }
 .ttable .role-cell { width: calc(var(--size-settings-tabs) * 0.75); min-width: calc(var(--size-settings-tabs) * 0.75); }
 .ttable .role-cell .select-wrap { min-width: calc(var(--size-settings-tabs) * 0.6); }
 .ttable .col-actions { width: var(--size-hit); min-width: var(--size-hit); text-align: right; }
@@ -637,9 +653,16 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
   .search { width: var(--size-sidebar-expanded); }
   .settings { gap: var(--space-6); }
   .form-grid { gap: var(--space-4); }
+  .settings { grid-template-columns: calc(var(--size-settings-tabs) * 0.75) minmax(0, 1fr); }
+  .ttable th, .ttable td { padding-left: var(--space-2); padding-right: var(--space-2); }
   .ttable td, .itable td { white-space: normal; }
   .ttable td.num { white-space: nowrap; }
-  .ttable .role-cell { width: auto; min-width: calc(var(--size-settings-tabs) * 0.6); }
+  .ttable .role-cell { width: auto; min-width: calc(var(--size-settings-tabs) * 0.5); }
+  .ttable .role-cell .select-wrap { min-width: calc(var(--size-settings-tabs) * 0.5); }
+  .ttable .col-last { display: none; }
+  .ttable .col-joined .sub, .ttable th.col-joined .th-last { display: block; }
+  .ttable .who .m .title { display: block; }
+  .ttable .who .m .sep { display: none; }
   .itable .desc-col { min-width: 0; }
   .plans { gap: var(--space-4); }
 }
@@ -996,7 +1019,7 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
                 <div class="field"><label for="inviteRole">角色</label><div class="select-wrap"><select class="input" id="inviteRole"></select><span class="chev"><svg class="icon icon-sm"><use href="#i-chevron-down"/></svg></span></div></div>
                 <div class="invite-btn"><button class="btn btn-primary" id="inviteBtn" type="submit" data-busy="false"><span class="idle"><svg class="icon"><use href="#i-send"/></svg>发送邀请</span><span class="busy"><svg class="icon icon-sm spin"><use href="#i-loader-circle"/></svg>发送中…</span></button></div>
               </form>
-              <div class="ttable-wrap"><table class="ttable" aria-label="成员列表"><thead><tr><th scope="col">成员</th><th scope="col">角色</th><th scope="col">加入时间</th><th scope="col">最近活动</th><th scope="col" class="col-actions"><span class="sr-only">操作</span></th></tr></thead><tbody id="memberRows"></tbody></table></div>
+              <div class="ttable-wrap"><table class="ttable" aria-label="成员列表"><thead><tr><th scope="col">成员</th><th scope="col">角色</th><th scope="col" class="col-joined">加入时间<span class="th-last">最近活动</span></th><th scope="col" class="col-last">最近活动</th><th scope="col" class="col-actions"><span class="sr-only">操作</span></th></tr></thead><tbody id="memberRows"></tbody></table></div>
               <ul class="tcards" id="memberCards" aria-label="成员列表"></ul>
               <div class="empty-inline only-empty">还没有其他成员，邀请同事一起使用</div>
             </section>
@@ -1538,8 +1561,8 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
     var list = state === 'empty' ? members.filter(function (m) { return m.id === user.id; }) : members;
     $('memberRows').innerHTML = list.map(function (m) {
       var u = team[m.id], self = m.id === user.id;
-      return '<tr data-id="' + m.id + '"><td><div class="who">' + avatar(u.initial, u.avatarHue, 'avatar-sm') + '<div><span class="name">' + esc(u.name) + (self ? '<span class="tag tag-neutral tag-plain">你</span>' : '') + '</span><span class="m">' + esc(u.email) + ' · ' + esc(u.title) + '</span></div></div></td>' +
-        '<td class="role-cell">' + roleSelect(m) + '</td><td class="num muted">' + esc(m.joinedAt) + '</td><td class="num muted">' + (self ? '现在' : relTime(m.lastActiveAt)) + '</td>' +
+      return '<tr data-id="' + m.id + '"><td><div class="who">' + avatar(u.initial, u.avatarHue, 'avatar-sm') + '<div><span class="name">' + esc(u.name) + (self ? '<span class="tag tag-neutral tag-plain">你</span>' : '') + '</span><span class="m"><span class="mail">' + esc(u.email).replace('@', '<wbr>@') + '</span><span class="sep"> · </span><span class="title">' + esc(u.title) + '</span></span></div></div></td>' +
+        '<td class="role-cell">' + roleSelect(m) + '</td><td class="num muted col-joined"><span class="nowrap">' + esc(m.joinedAt) + '</span><span class="sub nowrap">' + (self ? '现在' : relTime(m.lastActiveAt)) + '</span></td><td class="num muted col-last">' + (self ? '现在' : relTime(m.lastActiveAt)) + '</td>' +
         '<td class="col-actions">' + (self ? '<span class="iconbtn" aria-hidden="true"></span>' : '<button class="iconbtn" type="button" data-remove="' + m.id + '" aria-label="移除成员 ' + esc(u.name) + '" data-tip="移除">' + icon('trash-2', 'icon-sm') + '</button>') + '</td></tr>';
     }).join('');
     $('memberCards').innerHTML = list.map(function (m) {

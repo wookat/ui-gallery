@@ -385,17 +385,67 @@ await browser.close();
       await bp.close();
     }
   }
-  // 1024 成员表：加入时间 / 最近活动 列单行
+  const lum = (rgb) => { const [r, g, b] = rgb.match(/\d+(\.\d+)?/g).slice(0, 3).map((c) => { c = +c / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const contrast = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return (l1 + 0.05) / (l2 + 0.05); };
+  // 1024 成员表（rail 默认 + expanded）：竖向 Tabs 收窄至 0.75×、加入时间 / 最近活动 合并为上下两行一列、职位独占一行；邮箱不折行、无横向滚动
+  const textLines = (el) => { const r = document.createRange(); r.selectNodeContents(el); return new Set([...r.getClientRects()].map((x) => Math.round(x.top))).size; };
+  for (const sidebar of ['rail', 'expanded']) {
+    for (const theme of ['light', 'dark']) {
+      const tp = await b2.newPage({ viewport: viewports.tablet, locale: 'zh-CN' });
+      await tp.goto(`${fileUrl}?tab=team&state=default&theme=${theme}&sidebar=${sidebar}`); await tp.evaluate(() => document.fonts.ready);
+      const td = await tp.evaluate((lines) => {
+        const L = new Function('el', `return (${lines})(el)`);
+        const rows = [...document.querySelectorAll('#memberRows tr')];
+        const joined = rows.map((r) => r.querySelector('td.col-joined')); const last = rows.map((r) => r.querySelector('td.col-last'));
+        const mails = rows.map((r) => r.querySelector('.who .m .mail')); const titles = rows.map((r) => r.querySelector('.who .m .title'));
+        const tabs = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--size-settings-tabs'));
+        const wrap = document.querySelector('.ttable-wrap');
+        return {
+          n: rows.length, doc: document.documentElement.scrollWidth, wrapOver: wrap.scrollWidth - wrap.clientWidth, wrapW: Math.round(wrap.clientWidth),
+          stabs: Math.round(document.getElementById('stabs').getBoundingClientRect().width), stabsWant: Math.round(tabs * 0.75),
+          joinedNowrap: joined.every((c) => getComputedStyle(c).whiteSpace === 'nowrap'), joined2: joined.every((c) => { const a = c.firstElementChild.getBoundingClientRect(); const s = c.querySelector('.sub'); return s && getComputedStyle(s).display === 'block' && s.getBoundingClientRect().top >= a.bottom - 1 && L(c.firstElementChild) === 1 && L(s) === 1; }),
+          lastHidden: last.every((c) => getComputedStyle(c).display === 'none') && getComputedStyle(document.querySelector('th.col-last')).display === 'none',
+          thLast: getComputedStyle(document.querySelector('th.col-joined .th-last')).display === 'block',
+          mail1: mails.every((m) => L(m) === 1), titleBlock: titles.every((t) => getComputedStyle(t).display === 'block' && L(t) === 1), sepHidden: rows.every((r) => getComputedStyle(r.querySelector('.who .m .sep')).display === 'none'),
+          rowMax: Math.max(...rows.map((r) => Math.round(r.getBoundingClientRect().height))), rowCap: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--size-table-row')) * 1.5,
+        };
+      }, textLines.toString());
+      ok(td.n === 5 && td.doc <= viewports.tablet.width && td.wrapOver === 0, `1024-${sidebar}-${theme}: 成员表无横向滚动（doc=${td.doc}，表内溢出=${td.wrapOver}，表宽=${td.wrapW}）`);
+      ok(td.stabs === td.stabsWant, `1024-${sidebar}-${theme}: 竖向 Tabs 宽 ${td.stabs} = settings-tabs × 0.75（${td.stabsWant}）`);
+      ok(td.joinedNowrap && td.joined2 && td.lastHidden && td.thLast, `1024-${sidebar}-${theme}: 加入时间 / 最近活动 合并为一列上下两行（nowrap），独立最近活动列隐藏`);
+      ok(td.mail1 && td.titleBlock && td.sepHidden, `1024-${sidebar}-${theme}: 5 名成员邮箱均单行、职位独占一行（无「·」分隔）`);
+      ok(td.rowMax <= td.rowCap, `1024-${sidebar}-${theme}: 成员行高最大 ${td.rowMax} ≤ 1.5 × size.table-row（${td.rowCap}）`);
+      await tp.close();
+    }
+  }
+  // 1440：加入时间 / 最近活动 仍为两列，职位与邮箱同行
+  {
+    const dp = await b2.newPage({ viewport: viewports.desktop, locale: 'zh-CN' });
+    await dp.goto(`${fileUrl}?tab=team&state=default&theme=light`); await dp.evaluate(() => document.fonts.ready);
+    const d = await dp.evaluate((lines) => {
+      const L = new Function('el', `return (${lines})(el)`);
+      const rows = [...document.querySelectorAll('#memberRows tr')];
+      return { lastShown: rows.every((r) => getComputedStyle(r.querySelector('td.col-last')).display !== 'none'), subHidden: rows.every((r) => getComputedStyle(r.querySelector('td.col-joined .sub')).display === 'none'), thLastHidden: getComputedStyle(document.querySelector('th.col-joined .th-last')).display === 'none', m1: rows.every((r) => L(r.querySelector('.who .m')) === 1), ths: document.querySelectorAll('.ttable thead th:not([style*="none"])').length };
+    }, textLines.toString());
+    ok(d.lastShown && d.subHidden && d.thLastHidden && d.m1, '1440: 加入时间 / 最近活动 为独立两列，成员「邮箱 · 职位」单行');
+    await dp.close();
+  }
+  // 所有带 placeholder 的输入框：::placeholder 显式取 fg-muted（不留浏览器默认灰），与所在输入框背景对比度 ≥ 4.5（亮/暗）
   for (const theme of ['light', 'dark']) {
-    const tp = await b2.newPage({ viewport: viewports.tablet, locale: 'zh-CN' });
-    await tp.goto(`${fileUrl}?tab=team&state=default&theme=${theme}`); await tp.evaluate(() => document.fonts.ready);
-    const td = await tp.evaluate(() => {
-      const cells = [...document.querySelectorAll('#memberRows td.num')];
-      const lines = cells.map((c) => { const r = document.createRange(); r.selectNodeContents(c); return r.getClientRects().length; });
-      return { n: cells.length, nowrap: cells.every((c) => getComputedStyle(c).whiteSpace === 'nowrap'), maxLines: Math.max(...lines), doc: document.documentElement.scrollWidth };
-    });
-    ok(td.n === 10 && td.nowrap && td.maxLines === 1 && td.doc <= viewports.tablet.width, `1024-${theme}: 成员表加入时间 / 最近活动 列 nowrap 且单行（最多 ${td.maxLines} 行，doc=${td.doc}）`);
-    await tp.close();
+    const pp = await b2.newPage({ viewport: viewports.desktop, locale: 'zh-CN' });
+    const seen = [];
+    for (const tab of ['profile', 'team']) {
+      await pp.goto(`${fileUrl}?tab=${tab}&state=default&theme=${theme}`); await pp.evaluate(() => document.fonts.ready);
+      seen.push(...await pp.evaluate(() => {
+        const muted = getComputedStyle(document.documentElement).getPropertyValue('--color-role-fg-muted').trim();
+        const probe = document.createElement('span'); probe.style.color = muted; document.body.appendChild(probe); const mutedRgb = getComputedStyle(probe).color; probe.remove();
+        const bgOf = (el) => { for (let e = el; e; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor; if (c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent') return c; } return getComputedStyle(document.body).backgroundColor; };
+        return [...document.querySelectorAll('input[placeholder], textarea[placeholder]')].map((el) => ({ id: el.id || el.getAttribute('aria-label'), ph: getComputedStyle(el, '::placeholder').color, muted: mutedRgb, bg: bgOf(el) }));
+      }));
+    }
+    const bad = seen.filter((s) => s.ph !== s.muted || contrast(s.ph, s.bg) < 4.5);
+    ok(seen.length >= 4 && bad.length === 0, `${theme}: ${seen.length} 个 placeholder 均为 fg-muted 且对比度 ≥ 4.5（${seen.map((s) => `${s.id} ${contrast(s.ph, s.bg).toFixed(2)}`).join('，')}）`);
+    await pp.close();
   }
 
   // 文案极值：桌面成员表（1440 / 1024 × 亮/暗）长邮箱不压缩角色列、不产生横向滚动
@@ -408,11 +458,11 @@ await browser.close();
       await dp.evaluate(() => document.fonts.ready);
       const dext = await dp.evaluate(([mail, mailNb, w]) => {
         const rows = [...document.querySelectorAll('#memberRows tr')]; const row = rows.find((r) => r.querySelector('.role-cell select'));
-        row.querySelector('.who .m').textContent = mail + ' · 华东大区客户成功负责人'; rows[rows.length - 1].querySelector('.who .m').textContent = mailNb;
+        row.querySelector('.who .m .mail').textContent = mail; row.querySelector('.who .m .title').textContent = '华东大区客户成功负责人'; rows[rows.length - 1].querySelector('.who .m .mail').textContent = mailNb;
         const wrap = document.querySelector('.ttable-wrap'); const rc = row.querySelector('.role-cell'); const sel = rc.querySelector('select'); const act = row.querySelector('.col-actions');
         const tabs = getComputedStyle(document.documentElement).getPropertyValue('--size-settings-tabs');
         const selVisible = sel.getBoundingClientRect().width >= 96 && sel.scrollWidth <= sel.clientWidth + 1;
-        return { doc: document.documentElement.scrollWidth, wrapOver: wrap.scrollWidth - wrap.clientWidth, role: Math.round(rc.getBoundingClientRect().width), roleMin: Math.round(parseFloat(tabs) * 0.75), selVisible, act: Math.round(act.getBoundingClientRect().width), hit: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--size-hit')), mailInside: row.querySelector('.who .m').getBoundingClientRect().right <= rc.getBoundingClientRect().left + 0.5, w };
+        return { doc: document.documentElement.scrollWidth, wrapOver: wrap.scrollWidth - wrap.clientWidth, role: Math.round(rc.getBoundingClientRect().width), roleMin: Math.round(parseFloat(tabs) * (w > 1024 ? 0.75 : 0.5)), selVisible, act: Math.round(act.getBoundingClientRect().width), hit: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--size-hit')), mailInside: row.querySelector('.who .m').getBoundingClientRect().right <= rc.getBoundingClientRect().left + 0.5, w };
       }, [LONG_MAIL, LONG_MAIL_NB, vp.width]);
       ok(dext.doc <= vp.width && dext.wrapOver === 0, `${vpName}-${theme}: 67/64 字符极值邮箱 → 无页面横向滚动（doc=${dext.doc} ≤ ${vp.width}，表内溢出=${dext.wrapOver}）`);
       ok(dext.role >= dext.roleMin * 0.8 && dext.selVisible && dext.mailInside, `${vpName}-${theme}: 角色列 ${dext.role}px（≥ ${Math.round(dext.roleMin * 0.8)}）下拉文字可见，邮箱在成员列内换行`);
@@ -442,8 +492,6 @@ await browser.close();
   });
   ok(ext2.doc <= 375 && ext2.planRight <= 375 && ext2.over === 0, `375 计划卡 ¥1,289,990 / 发票卡长金额不溢出（doc=${ext2.doc} over=${ext2.over}）`);
   // 未实现项对比度 ≥ 4.5（亮/暗），跳转链接高 ≥ 40
-  const lum = (rgb) => { const [r, g, b] = rgb.match(/\d+(\.\d+)?/g).slice(0, 3).map((c) => { c = +c / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
-  const contrast = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return (l1 + 0.05) / (l2 + 0.05); };
   for (const theme of ['light', 'dark']) {
     await mob.goto(`${fileUrl}?tab=profile&state=default&theme=${theme}&open=drawer`);
     await mob.waitForTimeout(300);

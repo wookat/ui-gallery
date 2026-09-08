@@ -49,7 +49,7 @@
    "otpauth": "otpauth://totp/Acme%20Console:ruolin.shen%40qimu-home.cn?secret=DEMO-NOT-A-REAL-SECRET&issuer=Acme%20Console",
    "manualKey": "QIMU HOME DEMO KEY 2026",
    "codeLength": 6,
-   "hint": "用任意支持 TOTP 的验证器应用扫描，或手动输入密钥"
+   "hint": "用任意支持 TOTP 的验证器应用扫描二维码，或手动输入密钥"
   },
   "sessions": [
    { "id": "s_1", "device": "Chrome · macOS", "location": "浙江 杭州", "ip": "115.196.xx.xx", "lastActiveAt": "2026-09-06T17:30:00+08:00", "current": true },

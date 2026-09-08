@@ -2,20 +2,30 @@ import * as React from "react"
 import { cn } from "@/lib/cn"
 import { Switch as SwitchPrimitive } from "radix-ui"
 
-/** 开关：hifi .switch —— 轨道 icon.lg 高 × 1.5 宽、border-strong；选中 primary；滑块 surface + shadow.sm；外层 .switch-hit 撑到 size.hit */
-function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimitive.Root>) {
+/**
+ * 开关：hifi .switch —— 轨道 icon.lg 高 × 1.5 宽、border-strong；选中 primary；滑块 surface + shadow.sm；外层 .switch-hit 撑到 size.hit。
+ * size="sm"：settings 稿 .switch —— 轨道 icon.md 高（20）× 36 宽，滑块 icon.sm（16）；稿中轨道居中于 size.hit 方框，横向各留 space.1/2 外距凑齐 40 宽，热区由 hit-area 保证。
+ */
+function Switch({ className, size = "md", ...props }: React.ComponentProps<typeof SwitchPrimitive.Root> & { size?: "md" | "sm" }) {
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
+      data-size={size}
       className={cn(
-        "peer hit-area inline-flex h-icon-lg w-[calc(var(--size-icon-lg)*1.5)] shrink-0 cursor-pointer items-center rounded-full bg-border-strong transition-colors duration-(--motion-fast) ease-std hover:not-disabled:bg-fg-muted data-[state=checked]:bg-primary data-[state=checked]:hover:not-disabled:bg-primary-hover disabled:disabled-look",
+        "peer hit-area inline-flex shrink-0 cursor-pointer items-center rounded-full bg-border-strong transition-colors duration-(--motion-fast) ease-std hover:not-disabled:bg-fg-muted data-[state=checked]:bg-primary data-[state=checked]:hover:not-disabled:bg-primary-hover disabled:disabled-look",
+        size === "sm" ? "mx-[calc(var(--space-1)/2)] h-icon-md w-[calc(var(--size-icon-md)*2-var(--space-1))]" : "h-icon-lg w-[calc(var(--size-icon-lg)*1.5)]",
         className,
       )}
       {...props}
     >
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
-        className="block size-[calc(var(--size-icon-lg)-var(--space-2))] translate-x-1 rounded-full bg-surface shadow-sm transition-transform duration-(--motion-fast) ease-std data-[state=checked]:translate-x-[calc(var(--size-icon-lg)*0.5+var(--space-1))]"
+        className={cn(
+          "block rounded-full bg-surface shadow-sm transition-transform duration-(--motion-fast) ease-std",
+          size === "sm"
+            ? "size-icon-sm translate-x-[calc(var(--space-1)/2)] data-[state=checked]:translate-x-[calc(var(--space-1)/2+var(--size-icon-sm))]"
+            : "size-[calc(var(--size-icon-lg)-var(--space-2))] translate-x-1 data-[state=checked]:translate-x-[calc(var(--size-icon-lg)*0.5+var(--space-1))]",
+        )}
       />
     </SwitchPrimitive.Root>
   )

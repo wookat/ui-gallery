@@ -18,7 +18,7 @@ function PageHeader({ title, description, breadcrumb, actions, extra, className,
     <header data-slot="page-header" className={cn("flex flex-wrap items-start justify-between gap-4", className)} {...props}>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {breadcrumb}
-        <div className="flex min-h-hit flex-wrap items-center gap-3">
+        <div data-slot="page-header-title" className="flex min-h-hit flex-wrap items-center gap-3">
           <h1 className="text-role-heading wrap-anywhere">{title}</h1>
           {extra}
         </div>

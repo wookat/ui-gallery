@@ -10,6 +10,7 @@ import {
   CreditCardIcon,
   DownloadIcon,
   LaptopIcon,
+  InfoIcon,
   LoaderCircleIcon,
   MailIcon,
   MonitorIcon,
@@ -27,7 +28,7 @@ import { AppShell } from "@/pages/dashboard/shell"
 import { mock } from "@/data/mock"
 import { t } from "@/data/content"
 import { useScreenState } from "@/data/screen-state"
-import { formatCurrency, formatCurrencyWhole } from "@/lib/format"
+import { formatCurrency, formatCurrencyWhole, formatInteger } from "@/lib/format"
 import { tokenMs, useMaxWidth } from "@/lib/media"
 import { cn } from "@/lib/cn"
 
@@ -109,32 +110,39 @@ const relative = new Intl.RelativeTimeFormat("zh-CN", { numeric: "always" })
 function formatRelative(iso: string) {
   const min = (new Date(mock.meta.asOf).getTime() - new Date(iso).getTime()) / 60000
   if (min < 1) return t("settings.security.sessions.now")
-  if (min < 60) return relative.format(-Math.round(min), "minute")
-  if (min < 60 * 24) return relative.format(-Math.round(min / 60), "hour")
-  return relative.format(-Math.round(min / 60 / 24), "day")
+  const spaced = (v: number, unit: Intl.RelativeTimeFormatUnit) =>
+    relative
+      .formatToParts(v, unit)
+      .map((p) => p.value)
+      .join(" ")
+  if (min < 60) return spaced(-Math.round(min), "minute")
+  if (min < 60 * 24) return spaced(-Math.round(min / 60), "hour")
+  return spaced(-Math.round(min / 60 / 24), "day")
 }
 
-/** hifi qrSvg：由 otpauth 文本确定性生成的 21×21 示意码（纯矢量，不是可扫描二维码） */
+/** hifi qrSvg：由 otpauth 文本确定性生成的 25×25 示意码（纯矢量，不是可扫描二维码）；哈希与 xorshift 与 hifi 逐位一致 */
 function QrFigure({ seed, label, className }: { seed: string; label: string; className?: string }) {
-  const n = 21
+  const n = 25
   const cells: React.ReactNode[] = []
   let h = 2166136261
-  for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619) >>> 0
-  const finder = (x: number, y: number) => (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7)
-  const finderOn = (x: number, y: number) => {
-    const fx = x >= n - 7 ? x - (n - 7) : x
-    const fy = y >= n - 7 ? y - (n - 7) : y
-    return fx === 0 || fy === 0 || fx === 6 || fy === 6 || (fx >= 2 && fx <= 4 && fy >= 2 && fy <= 4)
+  for (let i = 0; i < seed.length; i++) h = ((h ^ seed.charCodeAt(i)) * 16777619) >>> 0
+  const rnd = () => {
+    h ^= h << 13
+    h ^= h >>> 17
+    h ^= h << 5
+    return (h >>> 0) / 4294967296
   }
+  const finder = (x: number, y: number) => (x < 8 && y < 8) || (x >= n - 8 && y < 8) || (x < 8 && y >= n - 8)
   for (let y = 0; y < n; y++) {
     for (let x = 0; x < n; x++) {
       let on: boolean
-      if (finder(x, y)) on = finderOn(x, y)
-      else if ((x === 7 && y < 8) || (y === 7 && x < 8) || (x === n - 8 && y < 8) || (y === 7 && x >= n - 8) || (x === 7 && y >= n - 8) || (y === n - 8 && x < 8)) on = false
-      else {
-        h = (Math.imul(h, 1103515245) + 12345) >>> 0
-        on = ((h >>> 16) & 1) === 1
-      }
+      if (finder(x, y)) {
+        const fx = x < 8 ? x : x - (n - 7)
+        const fy = y < 8 ? y : y - (n - 7)
+        if (fx > 6 || fy > 6 || fx < 0 || fy < 0) on = false
+        else on = Math.max(Math.abs(fx - 3), Math.abs(fy - 3)) !== 2
+      } else if (y === 6 || x === 6) on = (x + y) % 2 === 0
+      else on = rnd() < 0.5
       if (on) cells.push(<rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} />)
     }
   }
@@ -146,14 +154,16 @@ function QrFigure({ seed, label, className }: { seed: string; label: string; cla
 }
 
 const CENTERED_DIALOG =
-  "rounded-lg border-0 mobile:top-1/2 mobile:bottom-auto mobile:left-1/2 mobile:w-[calc(100vw-var(--space-4)*2)] mobile:max-w-dialog mobile:-translate-1/2 mobile:rounded-lg mobile:px-4 mobile:py-5"
+  "mobile:top-1/2 mobile:bottom-auto mobile:left-1/2 mobile:w-[calc(100vw-var(--space-4)*2)] mobile:max-w-dialog mobile:-translate-1/2 mobile:rounded-lg mobile:p-5"
 const DIALOG_ACTS = "mobile:flex-col-reverse mobile:[&>*]:w-full"
+/** hifi .dialog：h2 与 p 之间为 flex gap space-4，且无右上角 ✕ */
+const DIALOG_HEAD = "gap-4 pr-0"
 
 /** 卡片头：hifi .card-head —— 标题 + 说明 左、动作 右；≤768 动作换行到底部 */
 function SectionHead({ title, description, actions, className }: { title: React.ReactNode; description?: React.ReactNode; actions?: React.ReactNode; className?: string }) {
   return (
-    <CardHeader className={cn("flex flex-row flex-wrap items-start justify-between gap-4 mobile:mb-4", className)}>
-      <div className="flex min-w-0 flex-col gap-1">
+    <CardHeader className={cn("mb-5 flex min-h-0 flex-row flex-wrap items-start justify-between gap-4 mobile:mb-4", className)}>
+      <div className="flex min-w-0 flex-col">
         <CardTitle>{title}</CardTitle>
         {description ? <CardDescription className="text-role-body">{description}</CardDescription> : null}
       </div>
@@ -172,19 +182,19 @@ function SaveBar({ dirty, busy, onReset, saveLabel, resetDisabled }: { dirty: bo
     >
       {busy ? (
         <span className="mr-auto inline-flex items-center gap-1 text-role-caption text-fg-muted mobile:mr-0 mobile:w-full">
-          <LoaderCircleIcon aria-hidden className="size-icon-sm animate-spin" />
-          {t("settings.actions.saving")}
+          <InfoIcon aria-hidden className="size-icon-sm" />
+          {t("settings.actions.savingMsg")}
         </span>
       ) : dirty ? (
         <span className="mr-auto inline-flex items-center gap-1 text-role-caption text-warning mobile:mr-0 mobile:w-full">
-          <CircleIcon aria-hidden className="size-icon-sm fill-current" />
+          <InfoIcon aria-hidden className="size-icon-sm" />
           {t("settings.actions.unsaved")}
         </span>
       ) : null}
-      <Button type="button" variant="secondary" disabled={busy || resetDisabled || !dirty} onClick={onReset} className="mobile:flex-1">
+      <Button type="button" variant="secondary" disabled={busy || resetDisabled || !dirty} onClick={onReset} className="mobile:flex-1 disabled:disabled-look disabled:bg-surface disabled:text-fg">
         {t("settings.actions.reset")}
       </Button>
-      <Button type="submit" disabled={busy} aria-busy={busy || undefined} className="mobile:flex-1">
+      <Button type="submit" disabled={busy} aria-busy={busy || undefined} className="mobile:flex-1 disabled:disabled-look">
         {busy ? (
           <>
             <LoaderCircleIcon aria-hidden className="animate-spin" />
@@ -200,14 +210,6 @@ function SaveBar({ dirty, busy, onReset, saveLabel, resetDisabled }: { dirty: bo
 
 function EmptyInline({ children, className }: { children: React.ReactNode; className?: string }) {
   return <p className={cn("rounded-md border border-dashed px-4 py-8 text-center text-role-body text-fg-muted", className)}>{children}</p>
-}
-
-const focusDialogClose = (e: Event) => {
-  const close = e.currentTarget instanceof HTMLElement ? e.currentTarget.querySelector<HTMLElement>("[data-slot=dialog-close-icon],[data-slot=alert-dialog-close-icon]") : null
-  if (close) {
-    e.preventDefault()
-    close.focus()
-  }
 }
 
 /**
@@ -358,6 +360,8 @@ export default function SettingsPage() {
   const visibleMembers = empty ? members.filter((m) => m.id === SELF_ID) : members
   const visibleInvites = empty ? [] : invites
   const seatsUsed = empty ? 1 : visibleMembers.length
+  /** hifi .seats：已用数加粗 —— 保留模板里的 {used} 占位再拆开 */
+  const seatsParts = t("settings.team.seats", { used: "{used}", total: S.team.seats.total }).split("{used}")
   const seatsFull = seatsUsed + visibleInvites.length >= S.team.seats.total
   const removeTarget = TEAM_BY_ID.get(removeId ?? [...members].reverse().find((m) => m.id !== SELF_ID)?.id ?? "")
   const onEmailsChange = (next: string[]) => {
@@ -392,6 +396,8 @@ export default function SettingsPage() {
   const [planCycle, setPlanCycle] = React.useState<Cycle>(cycle)
   const setCycle = (c: Cycle) => set({ cycle: c })
   const current = S.billing.plans.find((p) => p.key === plan) ?? S.billing.plans[1]
+  /** hifi .plan-now .kv：席位数加粗 —— 同 seatsParts 的拆法 */
+  const seatsIncluded = t("settings.billing.current.seats", { n: "{n}" }).split("{n}")
   const invoices = empty ? [] : S.billing.invoices
   const cycleLabel = (c: Cycle) => t(`settings.billing.cycle.${c}Short`)
   const choosePlan = (p: Plan) => {
@@ -529,8 +535,9 @@ export default function SettingsPage() {
       <Alert
         variant="danger"
         icon={TriangleAlertIcon}
+        className="[&>[data-slot=alert-actions]]:self-center [&>[data-slot=alert-body]]:gap-1"
         actions={
-          <AlertAction onClick={retry} className="text-danger">
+          <AlertAction onClick={retry} className="gap-2 text-danger">
             <RefreshCwIcon aria-hidden className="size-icon-sm" />
             {t("settings.error.retry")}
           </AlertAction>
@@ -551,7 +558,7 @@ export default function SettingsPage() {
       <PageHeader
         title={t("settings.title")}
         description={`${mock.user.workspace.name} · ${mock.user.workspace.plan} · ${mock.user.roleLabel}`}
-        className="[&_h1]:text-role-display [&_p]:text-role-caption mobile:[&_h1]:text-role-heading"
+        className="[&_h1]:text-role-display [&_p]:text-role-caption [&_[data-slot=page-header-title]]:min-h-0 mobile:[&_h1]:text-role-heading"
       />
 
       <div className="grid grid-cols-[var(--size-settings-tabs)_minmax(0,1fr)] items-start gap-8 tablet:grid-cols-[calc(var(--size-settings-tabs)*0.75)_minmax(0,1fr)] tablet:gap-6 mobile:flex mobile:flex-col mobile:items-stretch mobile:gap-4">
@@ -659,7 +666,9 @@ export default function SettingsPage() {
                           />
                           <div className="flex justify-between gap-3">
                             <FieldDescription id="sBioHint">{t("settings.profile.bio.max", { n: S.profile.bioMax })}</FieldDescription>
-                            <CharCounter value={profile.bio.length} max={S.profile.bioMax} />
+                            <CharCounter value={profile.bio.length} max={S.profile.bioMax}>
+                              {profile.bio.length} / {S.profile.bioMax}
+                            </CharCounter>
                           </div>
                         </Field>
                         <Field className="col-span-full">
@@ -779,7 +788,7 @@ export default function SettingsPage() {
 
               <Card className="mobile:p-4">
                 <SectionHead
-                  className={cn(twofa !== "setup" && "mb-0")}
+                  className={cn(twofa !== "setup" && "mb-0 mobile:mb-0")}
                   title={t("settings.security.2fa.title")}
                   description={t("settings.security.2fa.description")}
                   actions={
@@ -794,6 +803,7 @@ export default function SettingsPage() {
                       <span className="inline-grid size-hit place-items-center">
                         <Switch
                           id="twofaSwitch"
+                          size="sm"
                           aria-label={t("settings.security.2fa.switch")}
                           checked={twofa !== "off"}
                           onCheckedChange={(on) => {
@@ -822,7 +832,7 @@ export default function SettingsPage() {
                           <ChevronDownIcon aria-hidden className="size-icon-sm transition-transform duration-(--motion-fast) ease-std group-open:rotate-180" />
                         </summary>
                         <div className="flex items-center gap-2 rounded-md bg-surface-muted py-2 pr-2 pl-3">
-                          <code className="min-w-0 flex-1 font-mono text-role-caption tracking-wide wrap-anywhere">{S.security.twoFactor.manualKey}</code>
+                          <code className="min-w-0 flex-1 font-mono text-role-code text-sm tracking-wide wrap-anywhere">{S.security.twoFactor.manualKey}</code>
                           <IconButton label={t("settings.security.2fa.copy")} onClick={copyKey}>
                             <CopyIcon />
                           </IconButton>
@@ -917,8 +927,8 @@ export default function SettingsPage() {
                               {s.location} · {s.ip} · {t("settings.security.sessions.lastActive", { time: formatRelative(s.lastActiveAt) })}
                             </span>
                           </div>
-                          {s.current ? null : (
-                            <div className="flex items-center mobile:col-start-2">
+                          <div className="flex items-center mobile:col-start-2">
+                            {s.current ? null : (
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -931,8 +941,8 @@ export default function SettingsPage() {
                               >
                                 {t("settings.security.sessions.revoke")}
                               </Button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </li>
                       )
                     })}
@@ -951,7 +961,7 @@ export default function SettingsPage() {
                   title={t("settings.notifications.title")}
                   description={t("settings.notifications.description")}
                   actions={
-                    <Segmented type="single" value={channel} aria-label={t("settings.notifications.channel.aria")} onValueChange={(v) => v && set({ channel: v === "all" ? null : v })}>
+                    <Segmented type="single" variant="soft" value={channel} aria-label={t("settings.notifications.channel.aria")} onValueChange={(v) => v && set({ channel: v === "all" ? null : v })}>
                       <SegmentedItem value="all">{t("settings.notifications.channel.all")}</SegmentedItem>
                       {S.notifications.channels.map((c) => (
                         <SegmentedItem key={c.key} value={c.key}>
@@ -968,7 +978,7 @@ export default function SettingsPage() {
                         <Table className="table-fixed mobile:table-auto">
                           <caption className="sr-only">{t("settings.notifications.title")}</caption>
                           <TableHeader>
-                            <TableRow className="hover:[&>td]:bg-transparent">
+                            <TableRow className="hover:[&>td]:bg-transparent [&>th]:h-table-header">
                               <TableHead scope="col">{t("settings.notifications.col.event")}</TableHead>
                               {visibleChannels.map((c) => (
                                 <TableHead key={c.key} scope="col" className="w-[calc(var(--size-hit)*2)] text-center mobile:w-[calc(var(--size-hit)+var(--space-3))] mobile:px-1">
@@ -981,7 +991,7 @@ export default function SettingsPage() {
                             {S.notifications.groups.map((g) => (
                               <React.Fragment key={g.key}>
                                 <TableRow className="hover:[&>td]:bg-bg">
-                                  <TableCell colSpan={visibleChannels.length + 1} className="rounded-sm bg-bg px-3 py-1 first:pl-3 last:pr-3 mobile:px-2">
+                                  <TableCell colSpan={visibleChannels.length + 1} className="rounded-sm bg-bg px-3 py-1 first:pl-3 last:pr-3 mobile:px-2 mobile:first:pl-2 mobile:last:pr-2">
                                     <div className="flex flex-wrap items-center gap-2">
                                       <strong className="mr-auto text-role-label text-fg-muted">{g.label}</strong>
                                       <Button type="button" variant="ghost" size="sm" className="min-h-hit" onClick={() => setGroup(g, true)}>
@@ -995,7 +1005,7 @@ export default function SettingsPage() {
                                 </TableRow>
                                 {g.items.map((it) => (
                                   <TableRow key={it.key}>
-                                    <TableCell className="whitespace-normal">
+                                    <TableCell className="py-2 whitespace-normal mobile:px-1 mobile:first:pl-1">
                                       <div className="flex flex-col gap-1 py-1">
                                         <strong className="text-role-label wrap-anywhere">{it.label}</strong>
                                         <span className="text-role-caption text-fg-muted wrap-anywhere">{it.description}</span>
@@ -1004,9 +1014,10 @@ export default function SettingsPage() {
                                     {visibleChannels.map((c) => {
                                       const ck = c.key as ChannelKey
                                       return (
-                                        <TableCell key={c.key} className="px-0 text-center">
+                                        <TableCell key={c.key} className="px-0 py-2 text-center">
                                           <span className="inline-grid size-hit place-items-center">
                                             <Switch
+                                              size="sm"
                                               aria-label={t("settings.notifications.item.aria", { item: it.label, channel: c.label })}
                                               checked={prefs[it.key][ck]}
                                               onCheckedChange={(on) => setPrefs((p) => ({ ...p, [it.key]: { ...p[it.key], [ck]: on } }))}
@@ -1042,7 +1053,7 @@ export default function SettingsPage() {
                   description={t("settings.notifications.quiet.description")}
                   actions={
                     <span className="inline-grid size-hit place-items-center">
-                      <Switch id="quietSwitch" aria-label={t("settings.notifications.quiet.title")} aria-controls="quietBody" checked={quiet.enabled} disabled={busyOf("notifications")} onCheckedChange={(on) => setQuiet({ ...quiet, enabled: on })} />
+                      <Switch id="quietSwitch" size="sm" aria-label={t("settings.notifications.quiet.title")} aria-controls="quietBody" checked={quiet.enabled} disabled={busyOf("notifications")} onCheckedChange={(on) => setQuiet({ ...quiet, enabled: on })} />
                     </span>
                   }
                 />
@@ -1069,7 +1080,11 @@ export default function SettingsPage() {
                   description={S.team.workspaceName}
                   actions={
                     <p className="flex items-center gap-3 text-role-caption whitespace-nowrap text-fg-muted mobile:w-full" aria-live="polite">
-                      <span>{t("settings.team.seats", { used: seatsUsed, total: S.team.seats.total })}</span>
+                      <span>
+                        {seatsParts[0]}
+                        <b className="text-role-label text-fg tabular-nums">{seatsUsed}</b>
+                        {seatsParts[1]}
+                      </span>
                       <span
                         role="progressbar"
                         aria-label={t("settings.team.seats.aria")}
@@ -1083,8 +1098,8 @@ export default function SettingsPage() {
                     </p>
                   }
                 />
-                <CardContent className="flex flex-col gap-5">
-                  <form onSubmit={sendInvites} noValidate className="grid grid-cols-[minmax(0,1fr)_calc(var(--size-settings-tabs)*0.75)_auto] items-start gap-4 rounded-md bg-bg p-5 mobile:grid-cols-1 mobile:p-4">
+                <CardContent>
+                  <form onSubmit={sendInvites} noValidate className="mb-5 grid grid-cols-[minmax(0,1fr)_calc(var(--size-settings-tabs)*0.75)_auto] items-start gap-4 rounded-md bg-bg p-5 mobile:grid-cols-1 mobile:p-4">
                     <Field>
                       <FieldLabel htmlFor="inviteInput">{t("settings.team.invite.label")}</FieldLabel>
                       <TagInput
@@ -1133,7 +1148,7 @@ export default function SettingsPage() {
                   <TableWrap className="mobile:hidden">
                     <Table aria-label={t("settings.team.table.aria")}>
                       <TableHeader>
-                        <TableRow className="hover:[&>td]:bg-transparent">
+                        <TableRow className="hover:[&>td]:bg-transparent [&>th]:h-table-header">
                           <TableHead scope="col">{t("settings.team.col.member")}</TableHead>
                           <TableHead scope="col" className="w-[calc(var(--size-settings-tabs)*0.75)] tablet:w-auto">
                             {t("settings.team.col.role")}
@@ -1156,15 +1171,15 @@ export default function SettingsPage() {
                           if (!who) return null
                           const self = m.id === SELF_ID
                           return (
-                            <TableRow key={m.id}>
+                            <TableRow key={m.id} className="[&>td]:h-table-row">
                               <TableCell className="py-1 whitespace-normal tablet:px-2">
                                 <div className="flex min-w-0 items-center gap-3">
-                                  <Avatar initial={who.initial} hue={who.avatarHue} name={who.name} />
+                                  <Avatar size="sm" initial={who.initial} hue={who.avatarHue} name={who.name} />
                                   <div className="flex min-w-0 flex-col gap-1">
                                     <span className="flex flex-wrap items-center gap-2 text-role-label wrap-anywhere">
                                       {who.name}
                                       {self ? (
-                                        <Tag tone="info" dot={false}>
+                                        <Tag tone="neutral" dot={false}>
                                           {t("settings.team.you")}
                                         </Tag>
                                       ) : null}
@@ -1239,11 +1254,11 @@ export default function SettingsPage() {
                       return (
                         <li key={m.id} className="grid grid-cols-[var(--size-avatar-md)_minmax(0,1fr)] gap-x-3 gap-y-2 rounded-md border px-4 py-3">
                           <Avatar initial={who.initial} hue={who.avatarHue} name={who.name} />
-                          <div className="flex min-w-0 flex-col gap-1">
+                          <div className="flex min-w-0 flex-col">
                             <span className="flex flex-wrap items-center gap-2 text-role-label">
                               {who.name}
                               {self ? (
-                                <Tag tone="info" dot={false}>
+                                <Tag tone="neutral" dot={false}>
                                   {t("settings.team.you")}
                                 </Tag>
                               ) : null}
@@ -1324,15 +1339,15 @@ export default function SettingsPage() {
                                 {role?.label} · {t("settings.team.pending.invitedAt", { date: inv.invitedAt.slice(0, 10), name: by?.name ?? inv.invitedBy })}
                               </span>
                             </div>
-                            <div className="flex items-center gap-1 mobile:col-start-2 mobile:-ml-3">
-                              <Button type="button" variant="ghost" size="sm" className="min-h-hit" onClick={() => toast.success(t("settings.team.pending.resend.toast", { email: inv.email }), { duration: tokenMs("--timing-toast-stay") })}>
+                            <div className="flex items-center gap-1 mobile:col-start-2">
+                              <Button type="button" variant="ghost" size="sm" className="-mr-3 min-h-hit mobile:mr-0 mobile:-ml-3" onClick={() => toast.success(t("settings.team.pending.resend.toast", { email: inv.email }), { duration: tokenMs("--timing-toast-stay") })}>
                                 {t("settings.team.pending.resend")}
                               </Button>
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                className="-mr-3 min-h-hit text-danger hover:text-danger mobile:mr-0"
+                                className="-mr-3 min-h-hit text-danger hover:text-danger mobile:mr-0 mobile:-ml-3"
                                 onClick={() => {
                                   setInvites((list) => list.filter((x) => x.email !== inv.email))
                                   toast(t("settings.team.pending.revoke.toast", { email: inv.email }), { duration: tokenMs("--timing-toast-stay") })
@@ -1362,15 +1377,15 @@ export default function SettingsPage() {
                       {current.label}
                       <Tag tone="success">{cycleLabel(planCycle)}</Tag>
                     </p>
-                    <p className="text-role-body text-fg-muted wrap-anywhere tabular-nums">
-                      {formatCurrencyWhole(planCycle === "yearly" ? current.yearly : current.monthly)} {t(`settings.billing.plan.unit.${planCycle}`)} ·{" "}
-                      {t("settings.billing.current.seats", { n: current.seats })}{" "}
-                      · {t("settings.billing.current.renews", { date: "" })}
-                      <b className="font-medium text-fg">{S.billing.renewsAt}</b>
+                    <p className="text-role-body text-fg-muted wrap-anywhere tabular-nums [&_b]:font-medium [&_b]:text-fg [&_b]:whitespace-nowrap">
+                      {formatCurrencyWhole(planCycle === "yearly" ? current.yearly : current.monthly)} {t(`settings.billing.plan.unit.${planCycle}`)} · {seatsIncluded[0]}
+                      <b>{current.seats}</b>
+                      {seatsIncluded[1]} · {t("settings.billing.current.renews", { date: "" })}
+                      <b>{S.billing.renewsAt}</b>
                     </p>
                     <p className="text-role-body text-fg-muted wrap-anywhere">
                       {t("settings.billing.current.payment")}：{S.billing.paymentMethod.label}（{S.billing.paymentMethod.account}）·{" "}
-                      <a href="#" aria-disabled="true" onClick={(e) => e.preventDefault()} title={t("shell.nav.disabled.tip")} className="-my-3 inline-flex min-h-hit cursor-not-allowed items-center rounded-xs px-1 text-link">
+                      <a href="#" aria-disabled="true" onClick={(e) => e.preventDefault()} title={t("shell.nav.disabled.tip")} className="-my-3 inline-flex min-h-hit cursor-not-allowed items-center rounded-xs px-1 text-fg-muted">
                         {t("settings.billing.current.change")}
                       </a>{" "}
                       ·{" "}
@@ -1399,7 +1414,7 @@ export default function SettingsPage() {
                       >
                         {t("settings.billing.cycle.monthly")}
                       </button>
-                      <Switch checked={cycle === "yearly"} aria-label={t("settings.billing.cycle.aria")} onCheckedChange={(v) => setCycle(v ? "yearly" : "monthly")} />
+                      <Switch size="sm" checked={cycle === "yearly"} aria-label={t("settings.billing.cycle.aria")} onCheckedChange={(v) => setCycle(v ? "yearly" : "monthly")} />
                       <button
                         type="button"
                         aria-pressed={cycle === "yearly"}
@@ -1436,13 +1451,21 @@ export default function SettingsPage() {
                       name={p.label}
                       price={formatCurrencyWhole(price)}
                       suffix={t(`settings.billing.plan.unit.${cycle}`)}
-                      note={cycle === "yearly" ? `${t("settings.billing.plan.price.yearlyPerMonth", { n: Math.round(p.yearly / 12) })} · ${S.billing.yearlyDiscountLabel}` : t("settings.billing.plan.yearlyNote", { n: p.yearly })}
+                      note={
+                        cycle === "yearly"
+                          ? `${t("settings.billing.plan.price.yearlyPerMonth", { n: formatInteger(Math.round(p.yearly / 12)) })} · ${S.billing.yearlyDiscountLabel}`
+                          : t("settings.billing.plan.yearlyNote", { n: formatInteger(p.yearly) })
+                      }
                       features={p.features}
                       featureLabels={{ included: t("settings.billing.plan.included"), excluded: t("settings.billing.plan.excluded") }}
+                      excludedIcon="x"
                       recommended={p.recommended}
                       recommendedLabel={t("settings.billing.plan.recommended")}
                       current={isCurrent}
-                      className={cn("p-5 mobile:p-4", isCurrent && "border-primary shadow-[0_0_0_var(--border-width-hairline)_var(--color-role-primary)]")}
+                      className={cn(
+                        "p-5 mobile:p-5 [&>[data-pricing-badge]]:left-5",
+                        isCurrent ? "border-primary shadow-[0_0_0_var(--border-width-hairline)_var(--color-role-primary)]" : "border-border shadow-none",
+                      )}
                       action={
                         <Button type="button" variant={!isCurrent && up ? "primary" : "secondary"} disabled={isCurrent} onClick={() => choosePlan(p)}>
                           {actionLabel}
@@ -1465,7 +1488,7 @@ export default function SettingsPage() {
                         <Table>
                           <caption className="sr-only">{t("settings.billing.invoices.title")}</caption>
                           <TableHeader>
-                            <TableRow className="hover:[&>td]:bg-transparent">
+                            <TableRow className="hover:[&>td]:bg-transparent [&>th]:h-table-header">
                               <TableHead scope="col">{t("settings.billing.invoices.col.id")}</TableHead>
                               <TableHead scope="col">{t("settings.billing.invoices.col.date")}</TableHead>
                               <TableHead scope="col" className="min-w-[calc(var(--size-settings-tabs)+var(--space-8))] tablet:min-w-0">
@@ -1484,8 +1507,8 @@ export default function SettingsPage() {
                             {invoices.map((inv) => {
                               const st = invoiceStatus(inv.status)
                               return (
-                                <TableRow key={inv.id}>
-                                  <TableCell className="font-mono text-role-caption">{inv.id}</TableCell>
+                                <TableRow key={inv.id} className="[&>td]:h-table-row [&>td]:py-2 tablet:[&>td]:whitespace-normal">
+                                  <TableCell className="font-mono tabular-nums">{inv.id}</TableCell>
                                   <TableCell className="tabular-nums">{inv.issuedAt}</TableCell>
                                   <TableCell className="whitespace-normal tablet:whitespace-normal">{inv.description}</TableCell>
                                   <TableCell className="text-right tabular-nums">{formatCurrency(inv.amount)}</TableCell>
@@ -1493,7 +1516,7 @@ export default function SettingsPage() {
                                     <Tag tone={st.tone}>{st.label}</Tag>
                                   </TableCell>
                                   <TableCell className="text-right">
-                                    <Button type="button" variant="ghost" aria-label={t("settings.billing.invoices.downloadAria", { id: inv.id })} className="-my-2 -mr-3" onClick={() => toast(t("shell.nav.disabled.tip"), { duration: tokenMs("--timing-toast-stay") })}>
+                                    <Button type="button" variant="ghost" aria-label={t("settings.billing.invoices.downloadAria", { id: inv.id })} className="-mr-3" onClick={() => toast(t("shell.nav.disabled.tip"), { duration: tokenMs("--timing-toast-stay") })}>
                                       <DownloadIcon aria-hidden />
                                       {t("settings.billing.invoices.download")}
                                     </Button>
@@ -1510,14 +1533,14 @@ export default function SettingsPage() {
                           return (
                             <li key={inv.id} className="flex flex-col gap-2 rounded-md border py-3 pr-3 pl-4">
                               <div className="flex items-center gap-2">
-                                <span className="flex-1 font-mono text-role-caption">{inv.id}</span>
+                                <span className="flex-1 font-mono text-role-body tabular-nums">{inv.id}</span>
                                 <Tag tone={st.tone}>{st.label}</Tag>
                               </div>
-                              <p className="text-role-body wrap-anywhere">{inv.description}</p>
-                              <div className="flex items-center gap-3">
-                                <span className="text-role-title tabular-nums">{formatCurrency(inv.amount)}</span>
-                                <span className="mr-auto text-role-caption text-fg-muted tabular-nums">{inv.issuedAt}</span>
-                                <Button type="button" variant="ghost" aria-label={t("settings.billing.invoices.downloadAria", { id: inv.id })} className="-my-2" onClick={() => toast(t("shell.nav.disabled.tip"), { duration: tokenMs("--timing-toast-stay") })}>
+                              <p className="text-role-caption text-fg-muted wrap-anywhere">{inv.description}</p>
+                              <div className="flex items-center gap-2">
+                                <span className="mr-auto text-role-title tabular-nums">{formatCurrency(inv.amount)}</span>
+                                <span className="text-role-caption text-fg-muted tabular-nums">{inv.issuedAt}</span>
+                                <Button type="button" variant="ghost" aria-label={t("settings.billing.invoices.downloadAria", { id: inv.id })} onClick={() => toast(t("shell.nav.disabled.tip"), { duration: tokenMs("--timing-toast-stay") })}>
                                   <DownloadIcon aria-hidden />
                                   {t("settings.billing.invoices.downloadShort")}
                                 </Button>
@@ -1554,8 +1577,8 @@ export default function SettingsPage() {
 
       {/* ---------------- 浮层 ---------------- */}
       <Dialog {...overlay("2fa")}>
-        <DialogContent closeLabel={t("settings.dialog.closeAria")} onOpenAutoFocus={focusDialogClose} className={CENTERED_DIALOG}>
-          <DialogHeader>
+        <DialogContent className={CENTERED_DIALOG}>
+          <DialogHeader className={DIALOG_HEAD}>
             <DialogTitle>{t("settings.security.2fa.title")}</DialogTitle>
             <DialogDescription>{S.security.twoFactor.hint}</DialogDescription>
           </DialogHeader>
@@ -1569,7 +1592,7 @@ export default function SettingsPage() {
                 <ChevronDownIcon aria-hidden className="size-icon-sm transition-transform duration-(--motion-fast) ease-std group-open:rotate-180" />
               </summary>
               <div className="flex items-center gap-2 rounded-md bg-surface-muted py-2 pr-2 pl-3">
-                <code className="min-w-0 flex-1 font-mono text-role-caption tracking-wide wrap-anywhere">{S.security.twoFactor.manualKey}</code>
+                <code className="min-w-0 flex-1 font-mono text-role-code text-sm tracking-wide wrap-anywhere">{S.security.twoFactor.manualKey}</code>
                 <IconButton label={t("settings.security.2fa.copy")} onClick={copyKey}>
                   <CopyIcon />
                 </IconButton>
@@ -1613,8 +1636,8 @@ export default function SettingsPage() {
       </Dialog>
 
       <AlertDialog {...overlay("2fa-disable")}>
-        <AlertDialogContent closeLabel={t("settings.dialog.closeAria")} onOpenAutoFocus={focusDialogClose} className={CENTERED_DIALOG}>
-          <AlertDialogHeader>
+        <AlertDialogContent className={CENTERED_DIALOG}>
+          <AlertDialogHeader className={DIALOG_HEAD}>
             <AlertDialogTitle>{t("settings.security.2fa.disable.title")}</AlertDialogTitle>
             <AlertDialogDescription>{t("settings.security.2fa.disable.description")}</AlertDialogDescription>
           </AlertDialogHeader>
@@ -1634,8 +1657,8 @@ export default function SettingsPage() {
       </AlertDialog>
 
       <AlertDialog {...overlay("remove")}>
-        <AlertDialogContent closeLabel={t("settings.dialog.closeAria")} onOpenAutoFocus={focusDialogClose} className={CENTERED_DIALOG}>
-          <AlertDialogHeader>
+        <AlertDialogContent className={CENTERED_DIALOG}>
+          <AlertDialogHeader className={DIALOG_HEAD}>
             <AlertDialogTitle>{t("settings.team.remove.title", { name: removeTarget?.name ?? "" })}</AlertDialogTitle>
             <AlertDialogDescription>{S.team.removeConfirm.replace("{name}", removeTarget?.name ?? "")}</AlertDialogDescription>
           </AlertDialogHeader>
@@ -1666,7 +1689,7 @@ export default function SettingsPage() {
           }
         }}
       >
-        <AlertDialogContent closeLabel={t("settings.dialog.closeAria")} onOpenAutoFocus={focusDialogClose} className={CENTERED_DIALOG}>
+        <AlertDialogContent className={CENTERED_DIALOG}>
           <form
             noValidate
             className="flex flex-col gap-4"
@@ -1678,7 +1701,7 @@ export default function SettingsPage() {
               toast.warning(t("settings.danger.toast"), { duration: tokenMs("--timing-toast-stay") })
             }}
           >
-            <AlertDialogHeader>
+            <AlertDialogHeader className={DIALOG_HEAD}>
               <AlertDialogTitle>{t("settings.danger.dialog.title", { workspace: S.team.workspaceName })}</AlertDialogTitle>
               <AlertDialogDescription>{t("settings.danger.dialog.description")}</AlertDialogDescription>
             </AlertDialogHeader>
@@ -1713,8 +1736,8 @@ export default function SettingsPage() {
           if (!o) setLeaveTo(null)
         }}
       >
-        <AlertDialogContent closeLabel={t("settings.leave.closeAria")} onOpenAutoFocus={focusDialogClose} className={CENTERED_DIALOG}>
-          <AlertDialogHeader>
+        <AlertDialogContent className={CENTERED_DIALOG}>
+          <AlertDialogHeader className={DIALOG_HEAD}>
             <AlertDialogTitle>{t("settings.leave.title")}</AlertDialogTitle>
             <AlertDialogDescription>{t("settings.leave.description")}</AlertDialogDescription>
           </AlertDialogHeader>

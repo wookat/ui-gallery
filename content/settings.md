@@ -16,6 +16,7 @@
 | actions.saving | 保存中… | |
 | actions.reset | 重置 | 恢复为已保存值，无改动时禁用 |
 | actions.unsaved | 有未保存的修改 | 表单底部粘性条文案 |
+| actions.savingMsg | 正在保存… | 表单底部粘性条文案（提交中，hifi .savebar .msg） |
 | error.title | 保存失败 | Alert（danger），正文用 mock 对应 `errorMessage` |
 | error.retry | 重试 | |
 

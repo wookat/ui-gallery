@@ -1,6 +1,8 @@
 // node tools/shoot.mjs <screen> [--build]
 // 1440/375 × 亮/暗 × 状态（src/pages/<screen>/shots.json，默认 ?state=default|loading|empty|error）
 // 条目可选 `viewports: ["tablet", "tabletSm"]`：附加在 1024/768 视口截图（仅该条目），与 hifi ref 的 tablet-*/tabletSm-* 基准配对。
+// 条目可选 `stretch: true`：不用 fullPage，而是把视口高度撑到 document 高度后截视口（sticky 元素落在自然位置），
+// 对齐 design/hifi/settings/check.mjs 的策略；fullPage 会把 375 下 `mobile:sticky bottom-0` 的 SaveBar 卡在第一屏中部。
 // 输出 shots/reference/<screen>/<viewport>-<theme>-<name>.png，命名与 design/hifi/<screen>/ref 一致，供 compare.mjs 配对。
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -21,7 +23,7 @@ for (const [vpName, vp] of [...Object.entries(viewports), ...Object.entries(extr
   if (!items.length) continue;
   for (const theme of themes) {
     const { ctx, page, errors: errs } = await openPage(browser, vp, theme);
-    for (const { name, query, overlay, scrollTo } of items) {
+    for (const { name, query, overlay, scrollTo, stretch } of items) {
       await page.goto(pageUrl(origin, screen, query, theme), { waitUntil: "networkidle" });
       await settle(page);
       if (scrollTo) {
@@ -33,8 +35,17 @@ for (const [vpName, vp] of [...Object.entries(viewports), ...Object.entries(extr
       if (overlay) {
         await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
       }
-      // 浮层（fixed 抽屉/菜单/Toast）截视口；其余整页
-      await page.screenshot({ path: join(out, `${vpName}-${theme}-${name}.png`), fullPage: !overlay });
+      // 浮层（fixed 抽屉/菜单/Toast）截视口；stretch 条目撑高视口再截视口；其余整页
+      const file = join(out, `${vpName}-${theme}-${name}.png`);
+      if (!overlay && stretch) {
+        const docH = await page.evaluate(() => document.documentElement.scrollHeight);
+        await page.setViewportSize({ width: vp.width, height: Math.max(vp.height, docH) });
+        await page.waitForTimeout(50);
+        await page.screenshot({ path: file });
+        await page.setViewportSize(vp);
+      } else {
+        await page.screenshot({ path: file, fullPage: !overlay });
+      }
       n++;
     }
     if (errs.length) errors.push(`${vpName}/${theme}: ${errs.join(" | ")}`);

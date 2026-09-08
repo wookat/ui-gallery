@@ -11,7 +11,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
 import { TextDivider } from "@/components/ui/separator"
-import { toast } from "@/components/ui/sonner"
+import { notYet, toast } from "@/components/ui/sonner"
 import { BrandMark } from "@/components/composed/brand"
 import { t } from "@/data/content"
 import { mock } from "@/data/mock"
@@ -183,7 +183,10 @@ export default function Login() {
 
   const update = <K extends keyof Values>(key: K, value: Values[K]) => {
     setValues((v) => ({ ...v, [key]: value }))
-    if (key !== "remember") setErrors((e) => ({ ...e, [key]: undefined }))
+    if (key !== "remember") {
+      setErrors((e) => ({ ...e, [key]: undefined }))
+      if (showAlert) set({ state: null, alert: null })
+    }
   }
 
   const submit = () => {
@@ -324,7 +327,7 @@ export default function Login() {
           <TextDivider className="mt-6 mb-4">{t("login.divider")}</TextDivider>
           <div className="grid gap-2">
             {OAUTH.map(({ key, Icon }) => (
-              <Button key={key} type="button" variant="secondary" block disabled={locked}>
+              <Button key={key} type="button" variant="secondary" block disabled={locked} onClick={() => notYet(t(key))}>
                 <Icon />
                 {t(key)}
               </Button>

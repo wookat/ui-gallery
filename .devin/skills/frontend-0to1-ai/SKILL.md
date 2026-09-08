@@ -33,9 +33,9 @@ description: 用 AI 从 0 到 1 做前端产品的八步流程（Brief → 信�
 | 2 | 设计令牌 | design/ui-designer | `design/tokens.json`（W3C DTCG 格式，模板 templates/tokens.json）+ 生成的 `design/tokens.css`：字阶（3–5 级）、8pt 间距、色板（1 主色 + 中性灰阶 + 语义色 + 暗色映射）、圆角/阴影/边框 | 所有正文/背景组合对比度 ≥4.5:1（脚本实测）；无硬编码色值 |
 | 3 | 高保真稿 | design/ui-designer | `design/hifi/<screen>/index.html`（只用 tokens.css，全部状态，1440/375，亮/暗）+ `design/hifi/<screen>/ref/*.png` 基准截图 | 独立视觉审查：对齐/留白/层级/文案长度/热区 ≥40px；≤2 轮修 |
 | 4 | 工程地基 | orchestrators/tech-lead | 选基座（无样式/低样式优先：Radix、Base UI、shadcn、Ark；或 brief 指定），把令牌注入主题（shadcn CSS 变量 / Tailwind `@theme`）；`docs/frontend/04-components.md` 组件映射表；`/kitchen-sink` 路由；`AGENTS.md`（模板 templates/ai-context.md）作为后续 AI 会话的设计系统上下文；文件式路由（新增屏幕 = 新增文件，避免注册表冲突） | lint/typecheck/build 绿；kitchen-sink 每个组件外观来自令牌而非库默认 |
-| 5 | 按稿实现 | engineering/frontend-engineer（每屏 1 实例并行） | `src/pages/<screen>/`，仅读 mock 数据；实现全部状态、断点、亮暗；每屏产出「设计稿 vs 实现」并排图 | lint/typecheck/build；375 无溢出；0 console error |
+| 5 | 按稿实现 | engineering/frontend-engineer（每屏 1 实例并行） | `src/pages/<screen>/`，仅读 mock 数据；实现全部状态、断点、亮暗；每屏产出「设计稿 vs 实现」并排图 | lint/typecheck/build；375 无溢出；0 console error。审查 2 轮仍不过 → **显式升级**：tech-lead 接手一轮 + 终审；再不过则该屏本轮不合入，列入未合入清单交给阶段 7（不靠门禁兜底） |
 | 6 | 视觉 QA | design/ui-designer（独立实例，非阶段 3/5 的会话） | 逐屏对照 `design/hifi/<screen>/ref` 与实现截图（pixelmatch 或并排肉眼），六项打分：布局骨架/间距/字阶/色彩/组件形态/交互反馈 | 全部 PASS；硬指标：无溢出、热区 ≥40px、对比度 ≥4.5:1、暗色无白块、0 console error；≤2 轮修 |
-| 7 | 集成上线 | orchestrators/project-lead + legal-research/user-experience-officer + qa/qa-engineer | 串行合入集成分支 → 体验官走完整流程（含 375，`docs/frontend/07-ux-walkthrough.md`）‖ QA + 合规/安全审计（a11y、许可证、资产来源、secrets，`07-qa-audit.md`）→ 修 P0/P1 → 合 main → 部署 → `docs/handoff-context.md` | 两份报告无 P0/P1（CHARTER 四道把关）；本地全绿即合（公司规则：不依赖 CI） |
+| 7 | 集成上线 | orchestrators/project-lead + legal-research/user-experience-officer + qa/qa-engineer | 串行合入集成分支 → 体验官走完整流程（含 375，`docs/frontend/07-ux-walkthrough.md`）‖ QA + 合规/安全审计（a11y、许可证、资产来源、secrets，`07-qa-audit.md`）→ 修 P0/P1 → 合 main → 部署 → `docs/handoff-context.md`（含未合入屏幕及阻塞问题） | 两份报告无 P0/P1（CHARTER 四道把关；未合入屏幕不计 P0/P1，复查轮只验上轮 P0/P1 + 回归）；本地全绿即合（公司规则：不依赖 CI） |
 
 ### 不允许的做法
 - 跳过 0–3 直接"选组件库 + 让 AI 生成页面"。
@@ -65,7 +65,12 @@ export FE01_MAX_CONCURRENT=12                        # 组织并发上限 100，
 export FE01_MAX_SCREENS=12                           # 单轮最多屏数；更多屏分轮
 export FE01_APP_DIR=apps/reference   # 工程目录（monorepo 时用；默认 . = 仓库根）
 export FE01_SKILL_URL=https://github.com/wookat/company-os/tree/main/skills/frontend-0to1-ai  # 子会话读模板的位置
+# 增量加屏（第 2 轮起）：复用已有 Brief/IA/令牌/地基，只追加新屏幕
+ export FE01_EXTEND=1
+ export FE01_EXISTING_SCREENS=login,dashboard   # 已上线屏幕，供回归与“不得改动”约束
 ```
+
+增量模式下阶段 0/1/2/4 仍运行但变为“追加”语义：brief 只输出新屏幕；IA 只加新线框；令牌只追加不改旧值（可无改动）；地基只补新组件并验证已上线屏幕 compare 不回退。
 
 会话数量：基础 12 个（阶段 0/1/2/4 各产出+审查，hifi-merge，ux/qa/release）+ 每屏 5 个（hifi、hifi-review、impl、impl-review、merge）+ 修复轮次；8 屏约 52 个。建议先用 `FE01_MAX_SCREENS=2` 在测试仓跑通。
 

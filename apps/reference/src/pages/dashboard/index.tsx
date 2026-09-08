@@ -15,7 +15,7 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { IconButton } from "@/components/ui/icon-button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { toast } from "@/components/ui/sonner"
+import { notYet, toast } from "@/components/ui/sonner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { orderStatus, t } from "@/data/content"
@@ -92,10 +92,7 @@ function itemsText(o: Order) {
   )
 }
 
-/** 菜单项本轮不接业务：选中即关菜单并以 Toast 给「后续轮次提供」反馈（与导航禁用项 Tooltip 同一文案） */
-const orderAction = (key: string) => () => {
-  toast.info(t(`dashboard.orders.action.${key}`), { description: t("shell.nav.disabled.tip"), duration: tokenMs("--timing-toast-stay") })
-}
+const orderAction = (key: string) => () => notYet(t(`dashboard.orders.action.${key}`))
 
 /** 始终受控：open 只能是 boolean，受控 / 非受控切换会让 Radix 内部状态残留 open */
 function OrderMenu({ order, open, onOpenChange }: { order: Order; open: boolean; onOpenChange: (o: boolean) => void }) {

@@ -3,6 +3,13 @@ import { Toaster as Sonner, toast, type ToasterProps } from "sonner"
 
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "@/components/theme-provider"
+import { t } from "@/data/content"
+import { tokenMs } from "@/lib/media"
+
+/** 本轮不接业务的按钮/菜单项：点击给 info Toast「后续轮次提供」，与导航禁用项 Tooltip 同一文案 */
+const notYet = (label: string) => {
+  toast.info(label, { description: t("shell.nav.disabled.tip"), duration: tokenMs("--timing-toast-stay") })
+}
 
 /**
  * Toast：hifi .toast —— surface-raised、hairline、radius.lg、shadow.lg、label 字体；成功 toast 的图标与关闭「×」均为 success 色（hifi .toast .icon），其余类型「×」为 fg-muted；
@@ -47,4 +54,4 @@ function Toaster(props: ToasterProps) {
   )
 }
 
-export { Toaster, toast }
+export { Toaster, toast, notYet }

@@ -37,6 +37,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuHeader, DropdownMenuItem
 import { IconButton } from "@/components/ui/icon-button"
 import { Popover, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { notYet } from "@/components/ui/sonner"
 import { t } from "@/data/content"
 import { mock, navBadge, navBadgeLabel, navBadgeTone, type NavItem as NavItemDef } from "@/data/mock"
 import { useMaxWidth } from "@/lib/media"
@@ -214,7 +215,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
               shortcut={isApple ? "⌘K" : "Ctrl K"}
               className="mr-2 w-popover tablet:w-sidebar-expanded mobile:hidden"
             />
-            <IconButton label={t("shell.search.aria")} className="hidden mobile:inline-flex">
+            <IconButton label={t("shell.search.aria")} className="hidden mobile:inline-flex" onClick={() => notYet(t("shell.search.aria"))}>
               <SearchIcon />
             </IconButton>
 
@@ -268,16 +269,16 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
                     <span className="block truncate text-role-caption text-fg-muted">{mock.user.email}</span>
                   </div>
                 </DropdownMenuHeader>
-                <DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.profile"))}>
                   <UserIcon /> {t("shell.account.menu.profile")}
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.security"))}>
                   <ShieldIcon /> {t("shell.account.menu.security")}
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.switch"))}>
                   <ArrowLeftRightIcon /> {t("shell.account.menu.switch")}
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.help"))}>
                   <CircleQuestionMarkIcon /> {t("shell.account.menu.help")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

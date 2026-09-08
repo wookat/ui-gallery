@@ -41,7 +41,7 @@ function SheetContent({
         className={cn(
           "fixed z-30 flex flex-col bg-surface text-fg shadow-lg outline-none",
           side === "bottom"
-            ? "inset-x-0 bottom-0 max-h-[calc(100vh-var(--size-topbar)-var(--space-10))] rounded-t-xl"
+            ? "inset-x-0 bottom-0 max-h-[88vh] rounded-t-xl"
             : "inset-y-0 w-sidebar-drawer max-w-[calc(100vw-var(--size-hit))]",
           side === "left" && "left-0 border-r",
           side === "right" && "right-0 border-l",

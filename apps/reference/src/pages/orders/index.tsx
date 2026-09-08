@@ -160,12 +160,30 @@ const fullTime = (iso: string) => `${iso.slice(0, 10)} ${formatTime(iso)}`
 /** 与 hifi mdhm 一致：本年份 `09-06 17:27`，非本年份补年 */
 const shortTime = (iso: string) => (iso.slice(0, 4) === asOf.slice(0, 4) ? formatDateTime(iso) : fullTime(iso))
 const qtySum = (o: OrderRow) => o.items.reduce((a, i) => a + i.qty, 0)
+/** hifi renderPager：样本可达页全列 + 下一页（不可达）+ 省略号 + 末页，如「1 2 3 4 … 37」 */
+const pagerPages = (reach: number, totalPages: number): (number | "…")[] => {
+  const items: (number | "…")[] = []
+  for (let i = 1; i <= Math.min(reach, totalPages); i++) items.push(i)
+  if (totalPages > reach) {
+    items.push(reach + 1)
+    if (totalPages > reach + 2) items.push("…")
+    if (totalPages > reach + 1) items.push(totalPages)
+  }
+  return items
+}
 const rowLabel = (o: OrderRow) => t("orders.mobile.card.aria", { id: o.id, status: orderStatus[o.status]?.label ?? o.status, amount: formatCurrency(o.amount) })
 
 const copyText = (s: string) => {
   navigator.clipboard?.writeText(s).catch(() => {})
   toast.success(t("orders.toast.copied"), { duration: tokenMs("--timing-toast-stay") })
 }
+
+/** hifi .chk / .rdo：视觉控件 icon.sm（16），热区仍由外层 size-hit 容器 / hit-area 保证 ≥ size.hit */
+const ctl16 = "size-icon-sm"
+/** hifi .rdo:checked：整圆 primary 实心 + on-primary 内点（而非共享 RadioGroupItem 的粗边空心） */
+const rdo16 = cn(ctl16, "data-[state=checked]:border data-[state=checked]:bg-primary [&_[data-slot=radio-group-indicator]]:bg-on-primary")
+/** hifi [disabled] 统一半透明（而非共享 Button secondary 的 surface-muted 实心） */
+const disabledGhost = "disabled:bg-surface disabled:text-fg disabled:disabled-look"
 
 const states = ["success", "loading", "empty-filtered", "empty-new", "error", "empty", "empty-filter"] as const
 type State = "success" | "loading" | "empty-filtered" | "empty-new" | "error"
@@ -295,7 +313,8 @@ function OrderMenu({
           <EllipsisIcon />
         </IconButton>
       </DropdownMenuTrigger>
-      <DropdownMenuContent compact aria-label={label} onClick={(e) => e.stopPropagation()}>
+      {/* hifi .popover-fixed：行内菜单各视口恒为 menu-w（192），不像 dashboard 那样在卡片化断点下通栏 */}
+      <DropdownMenuContent compact aria-label={label} onClick={(e) => e.stopPropagation()} className="max-md:w-[calc(var(--size-content-max)/4*0.6)]">
         <DropdownMenuItem onSelect={() => onAction("view")}>
           <EyeIcon /> {t("orders.rowMenu.view")}
         </DropdownMenuItem>
@@ -385,7 +404,7 @@ function OrdersToolbar({ filters, onChange, count, total, disabled, pop, setPop,
           placeholder={t("orders.search.placeholder")}
           aria-label={t("orders.search.aria")}
           autoComplete="off"
-          className="pr-10 pl-10 [&::-webkit-search-cancel-button]:hidden"
+          className="border-border pr-10 pl-10 [&::-webkit-search-cancel-button]:hidden"
         />
         {draft ? (
           <IconButton
@@ -408,7 +427,7 @@ function OrdersToolbar({ filters, onChange, count, total, disabled, pop, setPop,
         onChange={(e) => onChange({ ...filters, status: e.target.value })}
         wrapClassName="w-[calc(var(--size-sidebar-drawer)/2+var(--space-8))] mobile:hidden"
         leading={<span className="justify-self-start pl-3 text-role-body text-fg-muted whitespace-nowrap">{t("orders.filter.status")}：</span>}
-        className="pl-[calc(var(--space-3)+var(--font-size-md)*3)] font-medium"
+        className="border-border pl-13 font-medium"
       >
         <option value="all">{t("orders.filter.status.all")}</option>
         {STATUS_KEYS.map((k) => (
@@ -428,12 +447,12 @@ function OrdersToolbar({ filters, onChange, count, total, disabled, pop, setPop,
         </PopoverTrigger>
         <PopoverContent align="start" aria-label={t("orders.filter.dateRange")} className="w-[calc(var(--size-content-max)/4*0.75)]">
           <PopoverHeader>
-            <h3 className="text-role-title">{t("orders.filter.dateRange")}</h3>
+            <h2 className="text-role-title">{t("orders.filter.dateRange")}</h2>
           </PopoverHeader>
           <RadioGroup aria-label={t("orders.filter.dateRange.presets")} value={filters.date} onValueChange={(v) => onChange({ ...filters, date: v as DateKey })} className="gap-0">
             {DATE_KEYS.map((k) => (
               <CheckRow key={k} id={`date-${k}`} label={t(`orders.filter.dateRange.preset.${k}`)} count={formatInteger(SUM.byRange[k])}>
-                <RadioGroupItem id={`date-${k}`} value={k} />
+                <RadioGroupItem id={`date-${k}`} value={k} className={rdo16} />
               </CheckRow>
             ))}
           </RadioGroup>
@@ -459,6 +478,7 @@ function OrdersToolbar({ filters, onChange, count, total, disabled, pop, setPop,
               <CheckRow key={c.key} id={`chan-${c.key}`} label={c.label} count={formatInteger(SUM.byChannel[c.key as keyof typeof SUM.byChannel])}>
                 <Checkbox
                   id={`chan-${c.key}`}
+                  className={ctl16}
                   checked={filters.channels.includes(c.key)}
                   onCheckedChange={(on) => onChange({ ...filters, channels: on ? [...filters.channels, c.key] : filters.channels.filter((k) => k !== c.key) })}
                 />
@@ -479,8 +499,8 @@ function OrdersToolbar({ filters, onChange, count, total, disabled, pop, setPop,
         </Button>
       ) : null}
 
-      <span aria-hidden className="flex-1 mobile:hidden" />
-      <span aria-live="polite" className="text-fg-muted whitespace-nowrap tabular-nums mobile:ml-auto [&_strong]:font-semibold [&_strong]:text-fg">
+      {/* hifi .toolbar .spacer + .count：计数 flex-1 靠右（伸缩基准 0，不把自己挤到下一行，只有导出/列显示换行） */}
+      <span aria-live="polite" className="flex-1 text-right text-fg-muted whitespace-nowrap tabular-nums [&_strong]:font-semibold [&_strong]:text-fg">
         {filtered ? (
           <>
             {t("orders.countFiltered", { n: "{{n}}", total: "{{n}}" })
@@ -502,7 +522,7 @@ function OrdersToolbar({ filters, onChange, count, total, disabled, pop, setPop,
         )}
       </span>
 
-      <Button variant="secondary" className="mobile:hidden" disabled={disabled} onClick={onExport}>
+      <Button variant="secondary" className={cn("mobile:hidden", disabledGhost)} disabled={disabled} onClick={onExport}>
         <DownloadIcon className="size-icon-sm" />
         {t("orders.export")}
       </Button>
@@ -520,13 +540,14 @@ function OrdersToolbar({ filters, onChange, count, total, disabled, pop, setPop,
         </Tooltip>
         <PopoverContent aria-label={t("orders.columns.title")} className="w-[calc(var(--size-content-max)/4*0.75)] mobile:hidden">
           <PopoverHeader>
-            <h3 className="text-role-title">{t("orders.columns.title")}</h3>
+            <h2 className="text-role-title">{t("orders.columns.title")}</h2>
           </PopoverHeader>
           <div role="group" aria-label={t("orders.columns.title")}>
             {COLS.map((c) => (
               <CheckRow key={c.key} id={`col-${c.key}`} label={t(c.label)} disabled={c.fixed} count={c.fixed ? t("orders.columns.fixed") : undefined}>
                 <Checkbox
                   id={`col-${c.key}`}
+                  className={ctl16}
                   disabled={c.fixed}
                   checked={!hidden.includes(c.key)}
                   onCheckedChange={(on) => setHidden(on ? hidden.filter((k) => k !== c.key) : [...hidden, c.key])}
@@ -960,7 +981,7 @@ export default function Orders() {
                       aria-label={someChecked ? t("orders.col.selectSome.tip") : allChecked ? t("orders.col.selectNone") : t("orders.col.selectAll")}
                       checked={allChecked ? true : someChecked ? "indeterminate" : false}
                       onCheckedChange={(v) => toggleAll(v === true)}
-                      className="data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary [&[data-state=indeterminate]_svg]:hidden [&[data-state=indeterminate]]:after:h-[calc(var(--border-width-accent))] [&[data-state=indeterminate]]:after:w-2 [&[data-state=indeterminate]]:after:rounded-full [&[data-state=indeterminate]]:after:bg-current"
+                      className={cn(ctl16, "data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary [&[data-state=indeterminate]_svg]:hidden [&[data-state=indeterminate]]:after:h-[calc(var(--border-width-accent))] [&[data-state=indeterminate]]:after:w-2 [&[data-state=indeterminate]]:after:rounded-full [&[data-state=indeterminate]]:after:bg-current")}
                     />
                     </span>
                   </TableHead>
@@ -1007,7 +1028,7 @@ export default function Orders() {
                     >
                       <TableCell className="w-hit pr-0 first:pl-3" onClick={(e) => e.stopPropagation()}>
                         <span className="grid size-hit place-items-center">
-                          <Checkbox aria-label={t("orders.col.selectRow", { id: o.id })} checked={sel} onCheckedChange={(v) => toggle(o.id, v === true)} />
+                          <Checkbox className={ctl16} aria-label={t("orders.col.selectRow", { id: o.id })} checked={sel} onCheckedChange={(v) => toggle(o.id, v === true)} />
                         </span>
                       </TableCell>
                       <TableCell data-col="id">
@@ -1069,7 +1090,7 @@ export default function Orders() {
                   className={cn("grid grid-cols-[var(--size-hit)_1fr_var(--size-hit)] items-start border-b px-2 pt-2 pb-3 transition-colors duration-(--motion-fast) ease-std last:border-b-0", sel && "bg-primary-soft")}
                 >
                   <span className="grid size-hit place-items-center">
-                    <Checkbox aria-label={t("orders.col.selectRow", { id: o.id })} checked={sel} onCheckedChange={(v) => toggle(o.id, v === true)} />
+                    <Checkbox className={ctl16} aria-label={t("orders.col.selectRow", { id: o.id })} checked={sel} onCheckedChange={(v) => toggle(o.id, v === true)} />
                   </span>
                   <button
                     type="button"
@@ -1120,7 +1141,7 @@ export default function Orders() {
                 value={String(size)}
                 onChange={(e) => set({ size: e.target.value === String(SUM.pagination.defaultPageSize) ? null : e.target.value, page: null })}
                 wrapClassName="w-[calc(var(--size-hit)*2+var(--space-2))]"
-                className="pr-8 tabular-nums"
+                className="border-border pr-8 pl-2 tabular-nums"
               >
                 {SUM.pagination.pageSizes.map((n) => (
                   <option key={n} value={n}>
@@ -1139,8 +1160,8 @@ export default function Orders() {
                 page: (n) => (n === page ? t("orders.pagination.current", { n }) : n > reach ? `${t("orders.pagination.page", { n })}，${t("orders.pagination.sampleOnly", { n: reach })}` : t("orders.pagination.page", { n })),
               }}
               isPageDisabled={(n) => n > reach}
-              siblings={0}
-              className="ml-auto w-auto gap-1 mobile:[&>button[aria-label^='第']]:hidden mobile:[&>span]:hidden"
+              pages={pagerPages(reach, totalPages)}
+              className="ml-auto w-auto gap-1 mobile:[&>button[data-page]]:hidden mobile:[&>[data-slot=pagination-ellipsis]]:hidden"
             />
           </nav>
         </Card>
@@ -1175,16 +1196,15 @@ export default function Orders() {
           kind="empty"
           title={t("orders.empty.new.title")}
           body={t("orders.empty.new.description")}
-          className="mobile:px-4 mobile:py-12 [&>svg]:hidden"
+          className="mobile:px-4 mobile:py-20 mobile:[&>div]:w-full mobile:[&>div]:flex-col mobile:[&>div]:items-stretch"
+          figure={<NewFigure />}
           actions={
             <NotYetLink href="/settings/channels" className="mobile:w-full">
               <PlugIcon className="size-icon-sm" />
               {t("orders.empty.new.action")}
             </NotYetLink>
           }
-        >
-          <NewFigure />
-        </StateCard>
+        />
       ) : null}
 
       {view === "error" ? (
@@ -1224,10 +1244,10 @@ export default function Orders() {
             }
             onOpenAutoFocus={(e) => {
               e.preventDefault()
-              ;(e.target as HTMLElement | null)?.focus()
+              ;(e.target as HTMLElement | null)?.focus({ preventScroll: true })
             }}
             onCloseAutoFocus={returnFocusToRow}
-            className="bg-surface-raised [&>header>h2]:flex-none [&>header>button]:ml-auto [&>header]:gap-2 mobile:inset-y-auto mobile:top-auto mobile:bottom-0 mobile:max-h-[calc(100vh-var(--size-topbar)-var(--space-10))] mobile:rounded-t-xl mobile:border-l-0 [&>header]:h-auto [&>header]:min-h-topbar [&>header]:flex-wrap [&>header]:py-3 [&>header]:pl-6 mobile:[&>header]:min-h-hit mobile:[&>header]:py-2 mobile:[&>header]:pr-3 mobile:[&>header]:pl-4"
+            className="bg-surface-raised [&>header>h2]:flex-none [&>header>button]:ml-auto [&>header]:gap-2 mobile:inset-y-auto mobile:top-auto mobile:bottom-0 mobile:max-h-[88vh] mobile:rounded-t-xl mobile:border-l-0 [&>header]:h-auto [&>header]:min-h-topbar [&>header]:flex-wrap [&>header]:py-3 [&>header]:pl-6 mobile:[&>header]:min-h-hit mobile:[&>header]:py-2 mobile:[&>header]:pr-3 mobile:[&>header]:pl-4"
           >
             <span aria-hidden className="hidden mobile:-order-1 mobile:mx-auto mobile:mt-2 mobile:block mobile:h-1 mobile:w-10 mobile:rounded-full mobile:bg-border-strong" />
             <DrawerBody className="gap-5 px-6 pb-6 mobile:px-4">
@@ -1419,7 +1439,7 @@ export default function Orders() {
                     <Textarea id="remark-input" value={remark} onChange={(e) => setRemark(e.target.value)} placeholder={t("orders.drawer.remarks.placeholder")} maxLength={200} rows={3} className="min-h-[calc(var(--size-control-md)*2)]" />
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-role-caption text-fg-muted tabular-nums">{t("orders.drawer.remarks.counter", { max: 200, n: remark.length })}</span>
-                      <Button type="submit" variant="secondary" disabled={!remark.trim()}>
+                      <Button type="submit" variant="secondary" className={disabledGhost} disabled={!remark.trim()}>
                         {t("orders.drawer.remarks.submit")}
                       </Button>
                     </div>
@@ -1561,12 +1581,18 @@ function FilterSheet({ open, onClose, filters, orders, onApply }: { open: boolea
   }, [open, filters])
   const preview = countOf(orders, draft)
   const group = "grid grid-cols-2 gap-x-2 gap-y-0"
+  /** ref 里 .sheet-group .lbl 同时命中 .check-row .lbl：选项文案为 label 字体 + fg-muted + 左右 space-2 */
+  const lbl = (s: React.ReactNode) => <span className="px-2 text-role-label text-fg-muted">{s}</span>
   return (
     <Sheet open={open} onOpenChange={(o) => (o ? undefined : onClose())}>
       <SheetContent
         side="bottom"
         title={t("orders.mobile.filter.title")}
         closeLabel={t("orders.mobile.filter.close")}
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+          ;(e.target as HTMLElement | null)?.focus({ preventScroll: true })
+        }}
         className="bg-surface-raised [&>button]:top-2 [&>button]:right-3"
       >
         <div className="flex min-h-hit shrink-0 items-center gap-2 border-b py-2 pr-hit pl-6">
@@ -1580,12 +1606,12 @@ function FilterSheet({ open, onClose, filters, orders, onApply }: { open: boolea
               {t("orders.filter.status")}
             </span>
             <RadioGroup aria-labelledby="sheet-status" value={draft.status} onValueChange={(v) => setDraft({ ...draft, status: v })} className={group}>
-              <CheckRow id="sst-all" label={t("orders.filter.status.all")}>
-                <RadioGroupItem id="sst-all" value="all" />
+              <CheckRow id="sst-all" label={lbl(t("orders.filter.status.all"))}>
+                <RadioGroupItem id="sst-all" value="all" className={rdo16} />
               </CheckRow>
               {STATUS_KEYS.map((k) => (
-                <CheckRow key={k} id={`sst-${k}`} label={orderStatus[k]?.label ?? k} count={formatInteger(SUM.byStatus[k])}>
-                  <RadioGroupItem id={`sst-${k}`} value={k} />
+                <CheckRow key={k} id={`sst-${k}`} label={lbl(orderStatus[k]?.label ?? k)} count={formatInteger(SUM.byStatus[k])}>
+                  <RadioGroupItem id={`sst-${k}`} value={k} className={rdo16} />
                 </CheckRow>
               ))}
             </RadioGroup>
@@ -1596,8 +1622,8 @@ function FilterSheet({ open, onClose, filters, orders, onApply }: { open: boolea
             </span>
             <RadioGroup aria-labelledby="sheet-date" value={draft.date} onValueChange={(v) => setDraft({ ...draft, date: v as DateKey })} className={group}>
               {DATE_KEYS.map((k) => (
-                <CheckRow key={k} id={`sdt-${k}`} label={t(`orders.filter.dateRange.preset.${k}`)} count={formatInteger(SUM.byRange[k])}>
-                  <RadioGroupItem id={`sdt-${k}`} value={k} />
+                <CheckRow key={k} id={`sdt-${k}`} label={lbl(t(`orders.filter.dateRange.preset.${k}`))} count={formatInteger(SUM.byRange[k])}>
+                  <RadioGroupItem id={`sdt-${k}`} value={k} className={rdo16} />
                 </CheckRow>
               ))}
               <Button variant="ghost" className="col-span-full justify-start" onClick={() => toast.info(t("orders.toast.dateCustom"), { duration: tokenMs("--timing-toast-stay") })}>
@@ -1612,9 +1638,10 @@ function FilterSheet({ open, onClose, filters, orders, onApply }: { open: boolea
             </span>
             <div role="group" aria-labelledby="sheet-channel" className={group}>
               {mock.meta.channels.map((c) => (
-                <CheckRow key={c.key} id={`schan-${c.key}`} label={c.label} count={formatInteger(SUM.byChannel[c.key as keyof typeof SUM.byChannel])}>
+                <CheckRow key={c.key} id={`schan-${c.key}`} label={lbl(c.label)} count={formatInteger(SUM.byChannel[c.key as keyof typeof SUM.byChannel])}>
                   <Checkbox
                     id={`schan-${c.key}`}
+                    className={ctl16}
                     checked={draft.channels.includes(c.key)}
                     onCheckedChange={(on) => setDraft({ ...draft, channels: on ? [...draft.channels, c.key] : draft.channels.filter((k) => k !== c.key) })}
                   />

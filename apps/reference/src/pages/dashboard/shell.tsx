@@ -71,13 +71,19 @@ type ShellProps = {
   /** 当前导航项 key（mock/nav.json items[].key）与面包屑当前项文案 */
   current?: string
   currentLabel?: string
+  /** 面包屑：parent 为不可达上级（aria-disabled），current 为当前页（优先于 currentLabel） */
+  breadcrumb?: { parent?: string; current: string }
   /** ≤768 导航抽屉对应的 ?open= 值；订单页 `drawer` 已被详情抽屉占用，改用 `nav` */
   navOpenKey?: string
   /** 顶栏全局搜索（dashboard hifi 有、orders hifi 无） */
   search?: boolean
+  /** 提交中：侧栏与顶栏导航置 inert（hifi syncInert） */
+  busy?: boolean
+  /** 离开拦截：返回 false 则阻止导航（有未保存改动时弹「离开页面？」） */
+  beforeLeave?: (path: string) => boolean
 }
 
-function NavList({ rail, empty, current, onNavigate }: { rail: boolean; empty: boolean; current: string; onNavigate?: () => void }) {
+function NavList({ rail, empty, current, onNavigate, beforeLeave }: { rail: boolean; empty: boolean; current: string; onNavigate?: () => void; beforeLeave?: (path: string) => boolean }) {
   return (
     <nav aria-label={t("shell.nav.aria")} className={cn("flex flex-1 flex-col gap-4 overflow-y-auto pt-2 pb-4", rail ? "items-center px-2" : "px-3")}>
       {mock.nav.map((g) => (
@@ -100,7 +106,17 @@ function NavList({ rail, empty, current, onNavigate }: { rail: boolean; empty: b
                   count={empty ? 0 : navBadge(it)}
                   countTone={navBadgeTone(it)}
                   countLabel={navBadgeLabel(it)}
-                  onClick={it.implemented ? onNavigate : undefined}
+                  onClick={
+                    it.implemented
+                      ? (e) => {
+                          if (beforeLeave && !beforeLeave(it.path)) {
+                            e.preventDefault()
+                            return
+                          }
+                          onNavigate?.()
+                        }
+                      : undefined
+                  }
                 />
               </li>
             ))}
@@ -135,8 +151,11 @@ function AppShell({
   onSidebarToggle,
   current = "dashboard",
   currentLabel = t("shell.breadcrumb.current"),
+  breadcrumb,
   navOpenKey = "drawer",
   search = true,
+  busy = false,
+  beforeLeave,
 }: ShellProps) {
   const mobile = useMaxWidth("--breakpoint-md")
   const tablet = useMaxWidth("--breakpoint-lg")
@@ -164,7 +183,7 @@ function AppShell({
   const collapseLabel = rail ? t("shell.nav.expand") : t("shell.nav.collapse")
 
   return (
-    <div className="flex min-h-svh bg-bg text-fg">
+    <div data-slot="app-shell" data-sidebar={rail ? "rail" : "expanded"} className="flex min-h-svh bg-bg text-fg">
       <a
         href="#main"
         className="fixed top-2 left-2 z-50 inline-flex min-h-hit -translate-y-[calc(var(--size-topbar)+var(--space-8))] items-center rounded-md bg-primary px-4 py-2 text-role-label text-on-primary focus:translate-y-0"
@@ -174,10 +193,11 @@ function AppShell({
       <aside
         aria-label={t("shell.nav.aria")}
         data-sidebar={rail ? "rail" : "expanded"}
+        inert={busy || undefined}
         className={cn("sticky top-0 flex h-svh shrink-0 flex-col border-r bg-surface mobile:hidden", rail ? "w-sidebar-rail" : "w-sidebar-expanded")}
       >
         <Brand empty={empty} rail={rail} />
-        <NavList rail={rail} empty={empty} current={current} />
+        <NavList rail={rail} empty={empty} current={current} beforeLeave={beforeLeave} />
         <div className={cn("border-t p-3", rail && "flex justify-center px-2")}>
           <NavItem
             icon={rail ? PanelLeftOpenIcon : PanelLeftCloseIcon}
@@ -208,7 +228,7 @@ function AppShell({
           }}
         >
           <Brand empty={empty} className="pr-hit" />
-          <NavList rail={false} empty={empty} current={current} onNavigate={() => setOpen(null)} />
+          <NavList rail={false} empty={empty} current={current} onNavigate={() => setOpen(null)} beforeLeave={beforeLeave} />
         </SheetContent>
       </Sheet>
 
@@ -221,8 +241,18 @@ function AppShell({
             <BreadcrumbList>
               <BreadcrumbItem className="mobile:hidden">{t("shell.breadcrumb.root")}</BreadcrumbItem>
               <BreadcrumbSeparator className="mobile:hidden" />
+              {breadcrumb?.parent ? (
+                <>
+                  <BreadcrumbItem className="mobile:hidden">
+                    <span role="link" aria-disabled tabIndex={0} className="cursor-not-allowed rounded-xs">
+                      {breadcrumb.parent}
+                    </span>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="mobile:hidden" />
+                </>
+              ) : null}
               <BreadcrumbItem>
-                <BreadcrumbPage className="mobile:text-role-title">{currentLabel}</BreadcrumbPage>
+                <BreadcrumbPage className="mobile:text-role-title">{breadcrumb?.current ?? currentLabel}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -304,7 +334,13 @@ function AppShell({
                   <CircleQuestionMarkIcon /> {t("shell.account.menu.help")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="danger" onSelect={() => navigate("/login")}>
+                <DropdownMenuItem
+                  variant="danger"
+                  onSelect={() => {
+                    if (beforeLeave && !beforeLeave("/login")) return
+                    navigate("/login")
+                  }}
+                >
                   <LogOutIcon /> {t("shell.account.menu.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>

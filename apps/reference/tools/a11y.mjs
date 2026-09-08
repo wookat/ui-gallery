@@ -38,8 +38,10 @@ for (const [vpName, vp] of Object.entries(viewports)) {
       if (minor.length) console.log(`     info: axe minor/moderate ${minor.map((v) => `${v.id}(${v.nodes.length})`).join(", ")}`);
 
       // 热区：盒子 ≥ hit 直接通过；否则以元素中心为准，用 elementFromPoint 实测 hit×hit 范围四边是否仍命中该控件
-      // （伪元素撑出的热区、包裹它的 label 都算命中；被浮层盖住的控件跳过）
+      // （伪元素撑出的热区、包裹它的 label 都算命中；被浮层盖住的控件跳过；
+      //   scrollIntoView 后等两帧再取点，让 position:fixed 的浮层（Radix Popover autoUpdate）随锚点重定位，量到的是真实布局而非滚动瞬间）
       const m = await page.evaluate(async (min) => {
+        const nextFrames = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         const vis = (el) => {
           const r = el.getBoundingClientRect();
           const cs = getComputedStyle(el);
@@ -51,6 +53,7 @@ for (const [vpName, vp] of Object.entries(viewports)) {
           let r = el.getBoundingClientRect();
           if (r.width + 0.5 >= min && r.height + 0.5 >= min) continue;
           el.scrollIntoView({ block: "center", inline: "nearest" });
+          await nextFrames();
           r = el.getBoundingClientRect();
           const owner = el.closest("label") || el;
           const hits = (x, y) => {

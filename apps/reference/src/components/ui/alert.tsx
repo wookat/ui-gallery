@@ -25,25 +25,40 @@ type AlertProps = React.ComponentProps<"div"> &
   VariantProps<typeof alertVariants> & {
     closeLabel?: string
     onClose?: () => void
+    /** 右侧动作区（hifi .alert-actions）：与关闭按钮同行 */
+    actions?: React.ReactNode
+    /** ≤768 时动作区换行、右对齐（hifi .alert-stack） */
+    wrapActions?: boolean
   }
 
-function Alert({ className, variant, closeLabel, onClose, children, ...props }: AlertProps) {
+function Alert({ className, variant, closeLabel, onClose, actions, wrapActions, children, ...props }: AlertProps) {
   const Icon = icons[variant ?? "danger"]
   return (
-    <div role="alert" data-slot="alert" data-variant={variant ?? "danger"} className={cn(alertVariants({ variant }), className)} {...props}>
+    <div
+      role="alert"
+      data-slot="alert"
+      data-variant={variant ?? "danger"}
+      className={cn(alertVariants({ variant }), wrapActions && "mobile:grid-cols-[var(--size-icon-md)_1fr]", className)}
+      {...props}
+    >
       <Icon aria-hidden />
       <div data-slot="alert-body" className="grid gap-2 self-center">
         {children}
       </div>
-      {onClose ? (
-        <button
-          type="button"
-          aria-label={closeLabel}
-          onClick={onClose}
-          className="-my-2 grid size-hit place-items-center rounded-sm text-fg-muted transition-colors duration-(--motion-fast) ease-std hover:bg-surface hover:text-fg [&_svg]:size-icon-md"
-        >
-          <XIcon />
-        </button>
+      {onClose || actions ? (
+        <div data-slot="alert-actions" className={cn("-my-2 flex items-center gap-2", wrapActions && "mobile:col-span-2 mobile:my-0 mobile:justify-self-end")}>
+          {actions}
+          {onClose ? (
+            <button
+              type="button"
+              aria-label={closeLabel}
+              onClick={onClose}
+              className="grid size-hit place-items-center rounded-sm text-fg-muted transition-colors duration-(--motion-fast) ease-std hover:bg-surface hover:text-fg [&_svg]:size-icon-md"
+            >
+              <XIcon />
+            </button>
+          ) : null}
+        </div>
       ) : (
         <span aria-hidden />
       )}

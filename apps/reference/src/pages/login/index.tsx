@@ -154,7 +154,9 @@ export default function Login() {
     state === "invalid" ? { email: "login.error.email.format", password: "login.error.password.short" } : {},
   )
 
-  const busy = state === "loading"
+  /** 真实提交只作组件内瞬态，不写进 URL；?state=loading 仅供截图矩阵复现 */
+  const [submitting, setSubmitting] = React.useState(false)
+  const busy = state === "loading" || submitting
   const locked = busy || state === "success"
   const showAlert = state === "error"
 
@@ -191,9 +193,11 @@ export default function Login() {
       ;(next.email ? emailRef : passwordRef).current?.focus()
       return
     }
-    set({ state: "loading", alert: null })
+    setSubmitting(true)
+    if (state !== "default") set({ state: null, alert: null })
     timer.current = setTimeout(() => {
       timer.current = null
+      setSubmitting(false)
       if (!navigator.onLine) set({ state: "error", alert: "network" })
       else if (values.email === credentials.lockedEmail) set({ state: "error", alert: "locked" })
       else if (values.email === credentials.email) navigate("/?toast=login")
@@ -213,9 +217,10 @@ export default function Login() {
       </aside>
 
       <main className="flex items-center justify-center px-6 py-10 max-md:block max-md:min-h-dvh max-md:px-4 max-md:pt-6 max-md:pb-8">
+        {/* Card 自带 mobile:p-4（≤768，dashboard 稿）；login 稿 <768 为无卡片 p-0，用同变体叠加覆盖，768 整点仍取 p-8 */}
         <Card
           aria-labelledby="login-title"
-          className="w-full max-w-form-max p-8 max-md:max-w-none max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:shadow-none"
+          className="w-full max-w-form-max p-8 mobile:p-8 max-md:max-w-none max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 mobile:max-md:p-0 max-md:shadow-none"
         >
           <Brand className="mb-8 md:hidden" />
 
@@ -310,7 +315,8 @@ export default function Login() {
               </Button>
             </div>
 
-            <Button type="submit" variant="primary" block loading={busy} disabled={locked} className="mt-4">
+            {/* 按下不抢焦点：否则邮箱 onBlur 先插入错误行使表单位移，touchend / mouseup 落点离开按钮，click 丢失 */}
+            <Button type="submit" variant="primary" block loading={busy} disabled={locked} className="mt-4" onMouseDown={(e) => e.preventDefault()}>
               {busy ? t("login.submit.loading") : t("login.submit")}
             </Button>
           </form>

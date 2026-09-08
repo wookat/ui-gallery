@@ -6,7 +6,8 @@ import { useTheme } from "@/components/theme-provider"
 
 /**
  * Toast：hifi .toast —— surface-raised、hairline、radius.lg、shadow.lg、label 字体；成功 toast 的图标与关闭「×」均为 success 色（hifi .toast .icon），其余类型「×」为 fg-muted；
- * 宽度随内容（图标 + 文字 + 关闭），关闭紧随文案，右对齐于顶栏下，最宽不超出容器；≤600 sonner 自身把 toast 拉到通栏。
+ * 宽度随内容（图标 + 文字 + 关闭），关闭紧随文案，右对齐，最宽不超出容器；≤600 sonner 自身把 toast 拉到通栏。
+ * 顶部偏移由 theme.css 的 --toast-top 决定（有 [data-slot=topbar] 时落在顶栏下，否则贴边），login / dashboard 两稿共用一个 Toaster。
  * 采用 sonner unstyled，所有外观由 classNames 中的令牌工具类给出；关闭按钮 bg / color 加 `!` 压过 sonner 暗色主题对 [data-close-button] 的默认色。
  */
 function Toaster(props: ToasterProps) {
@@ -15,8 +16,8 @@ function Toaster(props: ToasterProps) {
     <Sonner
       theme={resolved}
       position="top-right"
-      offset={{ top: "calc(var(--size-topbar) + var(--space-4))", right: "var(--space-6)" }}
-      mobileOffset={{ top: "calc(var(--size-topbar) + var(--space-4))", left: "var(--space-4)", right: "var(--space-4)" }}
+      offset={{ top: "var(--toast-top)", right: "var(--space-6)" }}
+      mobileOffset={{ top: "var(--toast-top)", left: "var(--space-4)", right: "var(--space-4)" }}
       gap={8}
       closeButton
       icons={{

@@ -30,7 +30,8 @@ const router = createBrowserRouter(
     ...(fallback && fallback.path !== "/" ? [{ path: "/", element: <Navigate to={fallback.path} replace /> }] : []),
     { path: "*", element: <Navigate to={fallback?.path ?? "/"} replace /> },
   ],
-  { basename: import.meta.env.BASE_URL.replace(/\/$/, "") },
+  // 保留尾斜杠：react-router 对根路径返回 basename 本身，去掉斜杠会把 `/apps/reference/?…` 写成 `/apps/reference?…`（静态托管刷新 404）
+  { basename: import.meta.env.BASE_URL },
 )
 
 export default function App() {

@@ -23,6 +23,7 @@ import {
   UserIcon,
   WarehouseIcon,
 } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 import { Avatar } from "@/components/composed/avatar"
 import { BrandMark } from "@/components/composed/brand"
@@ -121,6 +122,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
   const mobile = useMaxWidth("--breakpoint-md")
   const tablet = useMaxWidth("--breakpoint-lg")
   const { resolved, toggle } = useTheme()
+  const navigate = useNavigate()
   const [collapsed, setCollapsed] = React.useState<boolean | null>(null)
   const rail = collapsed ?? (sidebar === "rail" || (sidebar !== "expanded" && tablet && !mobile))
 
@@ -192,7 +194,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-topbar shrink-0 items-center gap-3 border-b bg-surface px-6 mobile:gap-2 mobile:px-4">
+        <header data-slot="topbar" className="sticky top-0 z-20 flex h-topbar shrink-0 items-center gap-3 border-b bg-surface px-6 mobile:gap-2 mobile:px-4">
           <IconButton label={t("shell.nav.open")} aria-expanded={drawerOpen} className="hidden mobile:inline-flex" onClick={() => setOpen("drawer")}>
             <MenuIcon />
           </IconButton>
@@ -279,7 +281,7 @@ function AppShell({ children, empty = false, sidebar, open, setOpen, onSidebarTo
                   <CircleQuestionMarkIcon /> {t("shell.account.menu.help")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="danger">
+                <DropdownMenuItem variant="danger" onSelect={() => navigate("/login")}>
                   <LogOutIcon /> {t("shell.account.menu.logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>

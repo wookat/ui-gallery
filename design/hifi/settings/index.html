@@ -30,6 +30,15 @@
     - 通知卡头描述改为「按事件分别设置邮件、推送与站内三种接收方式」（content/settings.md notifications.description），不再声称站内始终显示。
     - 令牌影响面：tokens.json 仅追加 red.300 / red.700 / role.danger-hover / role.scan-bg / role.scan-fg，旧值零改动；login / dashboard 稿与已实现页面不受影响。
     - 未修项：无。ref 124 张全部重截（<300KB）。
+  · 独立审查第 2 轮修复（基于 e350006）：
+    - blocking 发票「下载 PDF」a.btn[aria-disabled]：新增 a.btn[aria-disabled="true"] { opacity:1; pointer-events:auto; color: fg-muted; cursor:not-allowed }（同 .nav-item[aria-disabled] 处理），不再叠加全局 opacity-disabled；375 卡片版补 data-tip「后续轮次提供」；check.mjs 新增 1440/375 × 亮/暗 对比度 ≥4.5 与 opacity=1 检查。
+    - blocking 顶栏「智能助理」a.iconbtn[aria-disabled]：移除（dashboard 高保真外壳无此按钮，二者外壳保持一致）；连同未再引用的 i-sparkles 精灵一并删除。check.mjs 校验顶栏 0 个 aria-disabled 项。
+    - blocking 暗色原生控件：html[data-theme="light"|"dark"] 声明 color-scheme（与 apps/reference/src/styles/theme.css 一致），time 拾取图标 / select 下拉随主题；check.mjs 校验 computed color-scheme。
+    - minor 1024 成员表：@media(max-width:1024px) 下 .ttable td.num 保留 white-space:nowrap（加入时间 / 最近活动 不再折行；.who 列仍 normal + anywhere 收容极值邮箱）。
+    - minor 375 折行：.plan-now .kv b 加 nowrap（下次续费日期 / 席位数）；成员卡与会话列表「加入 <日期>」「最近活动 <相对时间>」包 .nowrap。
+    - 未修项（数据层，非本稿）：mock/nav.json settings.implemented 仍为 false —— 翻为 true 会连带 dashboard 稿内联数据与已上线 dashboard 页面把「设置」渲染为指向尚不存在路由的实链接；应由 settings 实现阶段合入时同步翻为 true（本稿侧栏「设置」已按 current 渲染为实链接，不受影响）。
+    - 连带：375 发票卡 PDF 链接补 data-tip 后，居中提示气泡使 .bot scrollWidth 超 6px（极值金额检查失败），.icard .bot [data-tip]::after 改右对齐（right:0）。
+    - 门禁实跑：node design/hifi/settings/check.mjs → 912 PASS / 0 FAIL（--static 亦通过），ref 124 张全部重截（最大 180KB）；apps/reference: pnpm lint && pnpm typecheck && pnpm build 通过，node tools/no-hardcode.mjs 47 文件通过；tools/shoot|compare|a11y.mjs settings 不适用（settings 尚无实现页面，属实现阶段门禁）。
 -->
 <link rel="stylesheet" href="../../tokens.css">
 <link rel="stylesheet" href="../../../apps/shadcn-ui/node_modules/@fontsource-variable/inter/index.css">
@@ -60,6 +69,8 @@
 /* ---------- 基础 ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { background: var(--color-role-bg); color: var(--color-role-fg); -webkit-text-size-adjust: 100%; }
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
 body {
   margin: 0;
   font: var(--typography-body);
@@ -78,6 +89,7 @@ input, select, textarea { font: inherit; color: inherit; }
 [disabled], [aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; pointer-events: none; }
 [hidden] { display: none !important; }
 .num { font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; }
 .mono { font-family: var(--font-family-mono); }
 .sr-only {
   position: absolute; width: var(--border-width-hairline); height: var(--border-width-hairline);
@@ -145,6 +157,9 @@ input, select, textarea { font: inherit; color: inherit; }
 .btn .busy { display: none; }
 .btn[data-busy="true"] .busy { display: inline-flex; align-items: center; gap: var(--space-2); }
 .btn[data-busy="true"] .idle { display: none; }
+/* 可聚焦的 aria-disabled 链接（本轮不可达）：不半透明，保持 fg-muted + not-allowed（AGENTS 令牌契约） */
+a.btn[aria-disabled="true"] { opacity: 1; pointer-events: auto; cursor: not-allowed; color: var(--color-role-fg-muted); }
+a.btn[aria-disabled="true"]:hover, a.btn[aria-disabled="true"]:active { background: transparent; color: var(--color-role-fg-muted); }
 .iconbtn {
   display: inline-flex; align-items: center; justify-content: center; position: relative; flex: none;
   width: var(--size-hit); height: var(--size-hit); border-radius: var(--radius-md); color: var(--color-role-fg-muted);
@@ -536,7 +551,7 @@ html[data-channel="email"] .ntable .col-email, html[data-channel="push"] .ntable
 .plan-now { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
 .plan-now .big { font: var(--typography-heading); font-family: var(--font-family-sans); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .plan-now .kv { color: var(--color-role-fg-muted); margin-top: var(--space-2); overflow-wrap: anywhere; }
-.plan-now .kv b { color: var(--color-role-fg); font-weight: var(--font-weight-medium); }
+.plan-now .kv b { color: var(--color-role-fg); font-weight: var(--font-weight-medium); white-space: nowrap; }
 .plan-now .kv a { display: inline-flex; align-items: center; min-height: var(--size-hit); padding: 0 var(--space-1); margin: calc(-1 * var(--space-3)) 0; border-radius: var(--radius-xs); }
 .plan-now .kv a[aria-disabled="true"] { opacity: 1; pointer-events: auto; color: var(--color-role-fg-muted); cursor: not-allowed; }
 .plan-now .kv a.danger[aria-disabled="true"] { color: var(--color-role-danger); }
@@ -571,6 +586,7 @@ html[data-channel="email"] .ntable .col-email, html[data-channel="push"] .ntable
 .icard .mid { color: var(--color-role-fg-muted); font: var(--typography-caption); font-family: var(--font-family-sans); }
 .icard .bot { display: flex; align-items: center; gap: var(--space-2); }
 .icard .bot .amount { font: var(--typography-title); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; margin-right: auto; }
+.icard .bot [data-tip]::after { left: auto; right: 0; transform: none; }
 
 /* 危险区 */
 .danger-zone .card { border-color: var(--color-role-danger); }
@@ -622,6 +638,7 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
   .settings { gap: var(--space-6); }
   .form-grid { gap: var(--space-4); }
   .ttable td, .itable td { white-space: normal; }
+  .ttable td.num { white-space: nowrap; }
   .ttable .role-cell { width: auto; min-width: calc(var(--size-settings-tabs) * 0.6); }
   .itable .desc-col { min-width: 0; }
   .plans { gap: var(--space-4); }
@@ -753,7 +770,6 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></symbol>
   <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></symbol>
-  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></symbol>
   <symbol id="i-key-round" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
   <symbol id="i-loader-circle" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></symbol>
@@ -802,7 +818,6 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
           <kbd id="searchKbd">⌘K</kbd>
         </label>
         <button class="iconbtn only-mobile" type="button" aria-label="全局搜索"><svg class="icon"><use href="#i-search"/></svg></button>
-        <a class="iconbtn" href="#" role="link" aria-disabled="true" tabindex="0" aria-label="智能助理" data-tip="智能助理"><svg class="icon"><use href="#i-sparkles"/></svg></a>
         <div class="pop-anchor">
           <button class="iconbtn" id="bellBtn" type="button" aria-label="通知，3 条未读" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifPop">
             <svg class="icon"><use href="#i-bell"/></svg><span class="count-badge" id="bellBadge">3</span>
@@ -1449,7 +1464,7 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
     $('sessList').innerHTML = list.map(function (s) {
       return '<li data-id="' + s.id + '"><span class="ico">' + icon(DEV_ICON(s.device)) + '</span>' +
         '<div class="body"><span class="t">' + esc(s.device) + (s.current ? '<span class="tag tag-success tag-plain">当前设备</span>' : '') + '</span>' +
-        '<span class="m num">' + esc(s.location) + ' · ' + esc(s.ip) + ' · ' + (s.current ? '最近活动 现在' : '最近活动 ' + relTime(s.lastActiveAt)) + '</span></div>' +
+        '<span class="m num">' + esc(s.location) + ' · ' + esc(s.ip) + ' · <span class="nowrap">' + (s.current ? '最近活动 现在' : '最近活动 ' + relTime(s.lastActiveAt)) + '</span></span></div>' +
         '<div class="acts">' + (s.current ? '' : '<button class="btn btn-ghost-danger" type="button" data-revoke="' + s.id + '" aria-label="注销 ' + esc(s.device) + ' 的会话">注销</button>') + '</div></li>';
     }).join('');
     $('revokeAll').disabled = others === 0;
@@ -1529,7 +1544,7 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
     }).join('');
     $('memberCards').innerHTML = list.map(function (m) {
       var u = team[m.id], self = m.id === user.id;
-      return '<li class="tcard" data-id="' + m.id + '">' + avatar(u.initial, u.avatarHue) + '<div><span class="name">' + esc(u.name) + (self ? '<span class="tag tag-neutral tag-plain">你</span>' : '') + '</span><span class="m">' + esc(u.email) + '</span><span class="m num">' + esc(u.title) + ' · 加入 ' + esc(m.joinedAt) + ' · 最近活动 ' + (self ? '现在' : relTime(m.lastActiveAt)) + '</span></div>' +
+      return '<li class="tcard" data-id="' + m.id + '">' + avatar(u.initial, u.avatarHue) + '<div><span class="name">' + esc(u.name) + (self ? '<span class="tag tag-neutral tag-plain">你</span>' : '') + '</span><span class="m">' + esc(u.email) + '</span><span class="m num">' + esc(u.title) + ' · <span class="nowrap">加入 ' + esc(m.joinedAt) + '</span> · <span class="nowrap">最近活动 ' + (self ? '现在' : relTime(m.lastActiveAt)) + '</span></span></div>' +
         '<div class="acts">' + roleSelect(m) + (self ? '' : '<button class="btn btn-ghost-danger" type="button" data-remove="' + m.id + '" aria-label="移除成员 ' + esc(u.name) + '">移除</button>') + '</div></li>';
     }).join('');
     $('memberCards').nextElementSibling.classList.toggle('is-visible', list.length <= 1);
@@ -1664,7 +1679,7 @@ form[aria-busy="true"] .input, form[aria-busy="true"] .switch::before { color: v
     }).join('');
     $('invoiceCards').innerHTML = list.map(function (inv) {
       return '<li class="icard"><div class="top"><span class="mono num">' + esc(inv.id) + '</span><span class="tag tag-' + INV_TONE[inv.status] + '">' + esc(invStatus[inv.status]) + '</span></div>' +
-        '<div class="mid">' + esc(inv.description) + '</div><div class="bot"><span class="amount">' + fmtMoney(inv.amount) + '</span><span class="t-caption num">' + esc(inv.issuedAt) + '</span><a class="btn btn-ghost" href="#" role="link" aria-disabled="true" aria-label="下载发票 ' + esc(inv.id) + '">' + icon('download') + 'PDF</a></div></li>';
+        '<div class="mid">' + esc(inv.description) + '</div><div class="bot"><span class="amount">' + fmtMoney(inv.amount) + '</span><span class="t-caption num">' + esc(inv.issuedAt) + '</span><a class="btn btn-ghost" href="#" role="link" aria-disabled="true" aria-label="下载发票 ' + esc(inv.id) + '" data-tip="后续轮次提供">' + icon('download') + 'PDF</a></div></li>';
     }).join('');
     $$('#invoiceRows a, #invoiceCards a, #cancelSub, #planNow a').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
     $('invoiceCards').nextElementSibling.classList.toggle('is-visible', list.length === 0);

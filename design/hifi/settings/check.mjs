@@ -351,6 +351,52 @@ await browser.close();
     return { total: items.length, disabled: dis.length, withHref: dis.filter((a) => a.hasAttribute('href')).length, cursor: dis.every((a) => getComputedStyle(a).cursor === 'not-allowed'), focusable: dis.every((a) => a.tabIndex === 0) };
   });
   ok(navMeta.total === 8 && navMeta.disabled === 6 && navMeta.withHref === 0 && navMeta.cursor && navMeta.focusable, `未实现导航项 6/8 aria-disabled 无 href + cursor:not-allowed + 可聚焦（${navMeta.disabled}/${navMeta.total}）`);
+  // 顶栏与 dashboard 外壳一致：无 aria-disabled 项、无「智能助理」占位按钮
+  const topbarDis = await page.evaluate(() => document.querySelectorAll('.topbar [aria-disabled="true"], #i-sparkles').length);
+  ok(topbarDis === 0, `顶栏 0 个 aria-disabled 项 / 无 i-sparkles 精灵（${topbarDis}）`);
+
+  // 可聚焦 aria-disabled 链接（发票下载）：不半透明、fg-muted、cursor:not-allowed、有效对比度 ≥4.5；color-scheme 随主题（1440 / 375 × 亮/暗）
+  const CONTRAST_JS = `(() => {
+    const lum = (rgb) => { const [r, g, b] = rgb.match(/[\\d.]+/g).slice(0, 3).map((v) => { v = +v / 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    const bgOf = (el) => { for (let e = el; e; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor; if (c && !/rgba\\(\\d+, \\d+, \\d+, 0\\)|transparent/.test(c)) return c; } return getComputedStyle(document.documentElement).backgroundColor; };
+    const ratio = (fg, bg) => { const a = lum(fg), b = lum(bg); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); };
+    const links = [...document.querySelectorAll('#invoiceRows a[aria-disabled="true"], #invoiceCards a[aria-disabled="true"]')].filter((a) => a.getClientRects().length > 0);
+    const muted = getComputedStyle(document.documentElement).getPropertyValue('--color-role-fg-muted').trim();
+    const probe = document.createElement('span'); probe.style.color = muted; document.body.appendChild(probe); const mutedRgb = getComputedStyle(probe).color; probe.remove();
+    const rows = links.map((a) => { const cs = getComputedStyle(a); return { opacity: +cs.opacity, cursor: cs.cursor, color: cs.color, muted: cs.color === mutedRgb, contrast: ratio(cs.color, bgOf(a)), tip: a.getAttribute('data-tip'), focusable: a.tabIndex === 0 }; });
+    return { n: links.length, rows, minContrast: Math.min(...rows.map((r) => r.contrast)), scheme: getComputedStyle(document.documentElement).colorScheme, theme: document.documentElement.getAttribute('data-theme') };
+  })()`;
+  for (const [vpName, vp] of [['desktop', viewports.desktop], ['mobile', viewports.mobile]]) {
+    for (const theme of ['light', 'dark']) {
+      const bp = await b2.newPage({ viewport: vp, locale: 'zh-CN' });
+      await bp.goto(`${fileUrl}?tab=billing&state=default&theme=${theme}`);
+      await bp.evaluate(() => document.fonts.ready);
+      const inv = await bp.evaluate(CONTRAST_JS);
+      ok(inv.n === 4 && inv.rows.every((r) => r.opacity === 1 && r.cursor === 'not-allowed' && r.muted && r.focusable && r.tip === '后续轮次提供'), `${vpName}-${theme}: 发票下载 aria-disabled 链接 ${inv.n} 个：opacity=1 / fg-muted / cursor:not-allowed / 可聚焦 / 提示「后续轮次提供」`);
+      ok(inv.minContrast >= 4.5, `${vpName}-${theme}: 发票下载链接有效文字对比度 ${inv.minContrast.toFixed(2)}:1 ≥ 4.5`);
+      ok(inv.scheme === theme, `${vpName}-${theme}: html color-scheme = ${inv.scheme}（原生 time / select 随主题）`);
+      if (vpName === 'mobile') {
+        const kv = await bp.evaluate(() => [...document.querySelectorAll('#planNow .kv b')].map((b) => b.getClientRects().length));
+        ok(kv.length > 0 && kv.every((n) => n === 1), `375-${theme}: 当前计划 .kv <b>（席位 / 下次续费日期）均单行（${kv.join(',')}）`);
+        await bp.goto(`${fileUrl}?tab=team&state=default&theme=${theme}`); await bp.evaluate(() => document.fonts.ready);
+        const nw = await bp.evaluate(() => [...document.querySelectorAll('#memberCards .tcard .nowrap')].map((s) => s.getClientRects().length));
+        ok(nw.length === 10 && nw.every((n) => n === 1), `375-${theme}: 成员卡「加入 <日期>」「最近活动 <相对时间>」均不折行（${nw.length} 段）`);
+      }
+      await bp.close();
+    }
+  }
+  // 1024 成员表：加入时间 / 最近活动 列单行
+  for (const theme of ['light', 'dark']) {
+    const tp = await b2.newPage({ viewport: viewports.tablet, locale: 'zh-CN' });
+    await tp.goto(`${fileUrl}?tab=team&state=default&theme=${theme}`); await tp.evaluate(() => document.fonts.ready);
+    const td = await tp.evaluate(() => {
+      const cells = [...document.querySelectorAll('#memberRows td.num')];
+      const lines = cells.map((c) => { const r = document.createRange(); r.selectNodeContents(c); return r.getClientRects().length; });
+      return { n: cells.length, nowrap: cells.every((c) => getComputedStyle(c).whiteSpace === 'nowrap'), maxLines: Math.max(...lines), doc: document.documentElement.scrollWidth };
+    });
+    ok(td.n === 10 && td.nowrap && td.maxLines === 1 && td.doc <= viewports.tablet.width, `1024-${theme}: 成员表加入时间 / 最近活动 列 nowrap 且单行（最多 ${td.maxLines} 行，doc=${td.doc}）`);
+    await tp.close();
+  }
 
   // 文案极值：桌面成员表（1440 / 1024 × 亮/暗）长邮箱不压缩角色列、不产生横向滚动
   const LONG_MAIL = 'yuwei.ouyang.maria.von.strauss@customer-success-huadong.qimu-home.cn';

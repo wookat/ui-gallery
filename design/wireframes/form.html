@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="zh-CN" data-state="default" data-step="1">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>线框 · form（/form 新建采购单）· Acme Console</title>
+<style>
+  /* 低保真线框：纯灰阶（#000–#fff），无组件库、无图片、无字体文件。
+     灰阶变量只服务线框层级表达，不是阶段 2 的设计令牌。 */
+  :root {
+    --g0: #ffffff; --g5: #f4f4f4; --g10: #e6e6e6; --g20: #cccccc; --g40: #999999; --g60: #666666; --g80: #333333; --g100: #000000;
+    --unit: 8px; --hit: 40px;
+    --sidebar: 240px; --topbar: 56px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans SC", sans-serif; font-size: 14px; line-height: 1.5; color: var(--g80); background: var(--g0); }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: var(--g80); text-underline-offset: 2px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ico { display: inline-block; width: 24px; height: 24px; border: 1px dashed var(--g40); border-radius: 4px; flex: none; }
+  .ico-sm { width: 20px; height: 20px; }
+  .iconbtn { width: var(--hit); height: var(--hit); display: inline-grid; place-items: center; border: 0; background: transparent; border-radius: 8px; cursor: pointer; position: relative; flex: none; }
+  .iconbtn:hover { background: var(--g5); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--g80); color: var(--g0); display: inline-grid; place-items: center; font-size: 13px; font-weight: 600; flex: none; }
+  .avatar-sm { width: 28px; height: 28px; font-size: 12px; }
+  .badge { display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--g100); color: var(--g0); font-size: 11px; line-height: 18px; text-align: center; font-weight: 600; }
+  .badge-warn { background: var(--g0); color: var(--g100); border: 1.5px solid var(--g100); line-height: 15px; }
+
+  /* 线框标注栏 */
+  .wf-bar { display: flex; flex-wrap: wrap; gap: var(--unit) calc(var(--unit) * 2); align-items: center; padding: var(--unit) calc(var(--unit) * 2); font-size: 12px; color: var(--g60); border-bottom: 1px dashed var(--g20); background: var(--g5); }
+  .wf-bar strong { color: var(--g100); }
+  .wf-bar a { color: var(--g60); }
+  .wf-bar a[aria-current="true"] { color: var(--g100); font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--g100); }
+  [data-p] { position: relative; }
+  [data-p]::before { content: attr(data-p); position: absolute; left: -6px; top: -10px; z-index: 2; width: 18px; height: 18px; border-radius: 50%; background: var(--g100); color: var(--g0); font-size: 11px; line-height: 18px; text-align: center; font-weight: 600; }
+  .sidebar[data-p]::before { left: 4px; top: 4px; }
+
+  /* ===== 应用壳（与 dashboard.html 相同） ===== */
+  .shell { display: grid; grid-template-columns: var(--sidebar) 1fr; min-height: calc(100vh - 42px); }
+  .sidebar { border-right: 1px solid var(--g10); background: var(--g5); padding: calc(var(--unit) * 2) calc(var(--unit) * 1.5); display: flex; flex-direction: column; gap: calc(var(--unit) * 2); }
+  .brand { display: flex; align-items: center; gap: calc(var(--unit) * 1.25); padding: 0 var(--unit); min-height: var(--hit); }
+  .brand .mark { width: 28px; height: 28px; border: 2px solid var(--g100); border-radius: 7px; flex: none; }
+  .brand .txt { min-width: 0; line-height: 1.2; }
+  .brand .name { font-weight: 600; color: var(--g100); font-size: 14px; }
+  .brand .ws { font-size: 12px; color: var(--g60); }
+  .brand .collapse { margin-left: auto; }
+  .nav-group { margin: 0; padding: 0; list-style: none; }
+  .nav-group + .nav-group { margin-top: var(--unit); }
+  .nav-title { font-size: 11px; color: var(--g40); letter-spacing: .04em; padding: 0 var(--unit) 4px; }
+  .nav-item { display: flex; align-items: center; gap: calc(var(--unit) * 1.25); height: var(--hit); padding: 0 var(--unit); border-radius: 8px; color: var(--g80); text-decoration: none; }
+  .nav-item .ico { width: 20px; height: 20px; }
+  .nav-item .lbl { flex: 1; }
+  .nav-item[aria-current="page"] { background: var(--g0); color: var(--g100); font-weight: 600; border: 1px solid var(--g20); }
+  .nav-item[aria-disabled="true"] { color: var(--g60); }
+  .sidebar .disabled-tip { margin-top: auto; font-size: 11px; color: var(--g40); padding: 0 var(--unit); }
+
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar); border-bottom: 1px solid var(--g10); display: flex; align-items: center; gap: var(--unit); padding: 0 calc(var(--unit) * 3); position: sticky; top: 0; background: var(--g0); z-index: 3; }
+  .hamburger { display: none; }
+  .crumb { display: flex; align-items: center; gap: var(--unit); color: var(--g60); white-space: nowrap; }
+  .crumb .cur { color: var(--g100); font-weight: 600; }
+  .crumb .dis { color: var(--g40); }
+  .search { margin-left: auto; width: 320px; height: 36px; border: 1px solid var(--g20); border-radius: 8px; display: flex; align-items: center; gap: var(--unit); padding: 0 var(--unit) 0 calc(var(--unit) * 1.5); color: var(--g40); }
+  .search .ico { width: 16px; height: 16px; }
+  .search .ph { flex: 1; }
+  .search kbd { font: inherit; font-size: 11px; border: 1px solid var(--g20); border-radius: 4px; padding: 0 5px; color: var(--g60); }
+  .search-btn { display: none; }
+  .topbar .dot { position: absolute; top: 6px; right: 6px; }
+  .topbar .dot .badge { min-width: 16px; height: 16px; line-height: 16px; font-size: 10px; padding: 0 4px; }
+  .topbar .assist { border: 1px dashed var(--g40); }
+  .topbar .assist[aria-current="page"] { border-style: solid; border-color: var(--g100); }
+
+  .content { padding: calc(var(--unit) * 3); max-width: 1280px; width: 100%; margin: 0 auto; flex: 1; min-width: 0; }
+  .state { display: none; }
+
+  /* ===== 通用控件 ===== */
+  .card { border: 1px solid var(--g20); border-radius: 12px; background: var(--g0); padding: calc(var(--unit) * 2); min-width: 0; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: var(--hit); padding: 0 calc(var(--unit) * 2); border-radius: 8px; border: 1px solid var(--g100); background: var(--g100); color: var(--g0); font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn-secondary { background: var(--g0); color: var(--g80); border-color: var(--g20); font-weight: 500; }
+  .btn-ghost { background: transparent; color: var(--g80); border-color: transparent; font-weight: 500; }
+  .btn-danger { background: var(--g0); color: var(--g100); border: 2px solid var(--g100); }
+  .btn-danger.solid { background: var(--g100); color: var(--g0); }
+  .btn[aria-disabled="true"], .btn:disabled { background: var(--g10); color: var(--g40); border-color: var(--g10); cursor: not-allowed; }
+  .btn-sm { height: 32px; padding: 0 calc(var(--unit) * 1.5); font-size: 13px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label, .field .lbl { font-size: 13px; font-weight: 500; color: var(--g100); }
+  .field .opt { color: var(--g40); font-weight: 400; font-size: 12px; margin-left: 4px; }
+  .field .req { color: var(--g100); }
+  .field .hint { font-size: 12px; color: var(--g60); }
+  .field .err { display: none; font-size: 12px; color: var(--g100); font-weight: 600; }
+  .field .err::before { content: "▲ "; }
+  .ctl { height: var(--hit); border: 1px solid var(--g20); border-radius: 8px; padding: 0 calc(var(--unit) * 1.5); display: flex; align-items: center; gap: var(--unit); background: var(--g0); color: var(--g80); min-width: 0; }
+  .ctl .ph { color: var(--g40); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ctl .val { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ctl .ico { width: 16px; height: 16px; }
+  .ctl.ro { background: var(--g5); color: var(--g60); }
+  .ctl.sm { height: 32px; padding: 0 var(--unit); font-size: 13px; }
+  .textarea { min-height: 88px; align-items: flex-start; padding-top: var(--unit); }
+  .field.invalid .ctl { border: 2px solid var(--g100); }
+  .field.invalid .err { display: block; }
+  .check { display: flex; align-items: center; gap: var(--unit); min-height: var(--hit); }
+  .check input { width: 18px; height: 18px; margin: 0; accent-color: #000; }
+  .switch { display: inline-block; width: 40px; height: 22px; border-radius: 11px; border: 1px solid var(--g40); background: var(--g0); position: relative; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--g40); }
+  .switch[aria-checked="true"] { background: var(--g100); border-color: var(--g100); }
+  .switch[aria-checked="true"]::after { left: 20px; background: var(--g0); }
+  .tag { display: inline-block; font-size: 12px; line-height: 20px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--g40); color: var(--g80); background: var(--g0); white-space: nowrap; }
+  .tag-info { background: var(--g100); color: var(--g0); border-color: var(--g100); }
+  .tag-warning { border-style: dashed; border-color: var(--g100); color: var(--g100); }
+  .tag-success { background: var(--g10); border-color: var(--g10); }
+  .tag-danger { border: 2px solid var(--g100); color: var(--g100); line-height: 18px; font-weight: 600; }
+  .tag-neutral { color: var(--g60); border-color: var(--g20); }
+  .tag-mini { font-size: 10px; line-height: 16px; padding: 0 5px; vertical-align: 2px; }
+  .alert { border: 2px solid var(--g100); border-radius: 10px; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); display: flex; gap: var(--unit); align-items: flex-start; background: var(--g0); }
+  .alert .ico { width: 20px; height: 20px; border-style: solid; }
+  .alert strong { color: var(--g100); display: block; }
+  .alert .acts { margin-left: auto; display: flex; gap: var(--unit); flex: none; }
+  .alert.warn { border-style: dashed; }
+  .alert.info { border-width: 1px; border-color: var(--g40); }
+  .sk { background: var(--g10); border-radius: 6px; display: block; }
+  .center-block { max-width: 440px; margin: calc(var(--unit) * 8) auto; text-align: center; }
+  .center-block .fig { width: 96px; height: 96px; margin: 0 auto calc(var(--unit) * 2); border: 2px dashed var(--g20); border-radius: 50%; }
+  .center-block h2 { margin: 0; font-size: 18px; color: var(--g100); }
+  .center-block p { color: var(--g60); margin: var(--unit) 0 0; }
+  .center-block .acts { display: flex; gap: var(--unit); justify-content: center; margin-top: calc(var(--unit) * 3); flex-wrap: wrap; }
+  .center-block .help { font-size: 12px; color: var(--g40); margin-top: calc(var(--unit) * 2); }
+  .toast { display: none; position: fixed; top: calc(42px + var(--unit) * 2); right: calc(var(--unit) * 3); z-index: 9; border: 1px solid var(--g100); background: var(--g0); border-radius: 10px; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); box-shadow: 0 4px 16px rgba(0,0,0,.12); align-items: center; gap: var(--unit); font-weight: 500; color: var(--g100); max-width: 420px; }
+  .toast .undo { margin-left: var(--unit); text-decoration: underline; font-weight: 600; }
+  .toast .life { font-size: 11px; color: var(--g40); font-weight: 400; }
+  .tooltip { display: inline-block; background: var(--g100); color: var(--g0); font-size: 12px; padding: 4px 8px; border-radius: 6px; }
+
+  /* ===== 叠层清单（线框以平铺面板呈现；?open= 命中时该面板以真实叠层位置显示） ===== */
+  .overlays { border-top: 1px dashed var(--g20); background: var(--g5); padding: calc(var(--unit) * 3); }
+  .overlays h2 { margin: 0 0 var(--unit); font-size: 14px; color: var(--g60); font-weight: 600; }
+  .overlays .row { display: flex; gap: calc(var(--unit) * 2); flex-wrap: wrap; align-items: flex-start; }
+  .overlays .row > div { min-width: 0; max-width: 100%; }
+  .panel { border: 1px solid var(--g20); border-radius: 10px; background: var(--g0); padding: var(--unit); width: 320px; max-width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .panel-cap { font-size: 11px; color: var(--g40); margin: 0 0 var(--unit) 4px; }
+  .panel .ph { display: flex; justify-content: space-between; align-items: center; padding: var(--unit) var(--unit) 4px; font-weight: 600; color: var(--g100); gap: var(--unit); }
+  .menu { list-style: none; margin: 0; padding: 0; }
+  .menu li { display: flex; align-items: center; gap: var(--unit); min-height: var(--hit); padding: 0 var(--unit); border-radius: 6px; }
+  .menu li.danger { color: var(--g100); font-weight: 600; border-top: 1px solid var(--g10); }
+  .menu li[aria-disabled="true"] { color: var(--g40); }
+  .dialog { width: 440px; padding: calc(var(--unit) * 3); }
+  .dialog h3 { margin: 0 0 var(--unit); font-size: 17px; color: var(--g100); }
+  .dialog p { margin: 0 0 calc(var(--unit) * 2); color: var(--g60); }
+  .dialog .acts { display: flex; justify-content: flex-end; gap: var(--unit); margin-top: calc(var(--unit) * 3); }
+  .backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 7; }
+  .is-open { position: fixed; z-index: 8; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+  .is-open.dialog { left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: auto; }
+  .is-open.side { right: 0; top: 0; bottom: 0; border-radius: 0; width: 480px; max-width: 100vw; overflow: auto; }
+  .is-open.sheet { left: 0; top: 0; bottom: 0; border-radius: 0; width: 300px; overflow: auto; }
+
+  /* ===== 375：抽屉导航 + 单列（与 dashboard.html 相同断点） ===== */
+  @media (max-width: 767px) {
+    .shell { display: block; min-height: 0; }
+    .sidebar { display: none; }
+    .topbar { padding: 0 var(--unit); gap: 0; }
+    .hamburger { display: inline-grid; }
+    .crumb .root, .crumb .sep, .crumb .dis { display: none; }
+    .crumb { flex: 1; min-width: 0; margin-left: 4px; }
+    .crumb .cur { overflow: hidden; text-overflow: ellipsis; }
+    .search { display: none; }
+    .search-btn { display: inline-grid; }
+    .content { padding: calc(var(--unit) * 2); }
+    .card { padding: calc(var(--unit) * 1.5); border-radius: 10px; }
+    .toast { left: var(--unit); right: var(--unit); justify-content: center; max-width: none; }
+    .overlays .row { flex-direction: column; }
+    .panel, .dialog { width: 100%; }
+    .is-open.dialog { width: calc(100vw - 32px); }
+    .is-open.side { width: 100vw; top: 15vh; border-radius: 16px 16px 0 0; }
+    .is-open.sheet { width: 85vw; }
+    [data-p]::before { left: -4px; top: -8px; }
+  }
+
+  /* ===== 步骤 / 状态显示 ===== */
+  .step-panel { display: none; }
+  [data-step="1"] .step-1, [data-step="2"] .step-2, [data-step="3"] .step-3 { display: block; }
+  [data-state="success"] .step-panel, [data-state="success"] .stepper, [data-state="success"] .head, [data-state="success"] .foot { display: none !important; }
+  .state-success { display: none; }
+  [data-state="success"] .state-success { display: block; }
+  .only-invalid, .only-error, .only-loading { display: none; }
+  [data-state="invalid"] .only-invalid { display: flex; }
+  [data-state="error"] .only-error { display: flex; }
+  [data-state="invalid"] .field.v { }
+  [data-state="invalid"] .field.v .ctl { border: 2px solid var(--g100); }
+  [data-state="invalid"] .field.v .err { display: block; }
+  [data-state="invalid"] .field.v .hint { display: none; }
+  [data-state="loading"] .foot .btn { pointer-events: none; }
+  [data-state="loading"] .foot .submit .lbl { display: none; }
+  [data-state="loading"] .foot .submit .only-loading { display: inline-flex; }
+  [data-state="loading"] .foot .submit { background: var(--g60); border-color: var(--g60); }
+  [data-state="loading"] .form-card { opacity: .6; pointer-events: none; }
+  [data-state="loading"] .foot .btn-secondary, [data-state="loading"] .foot .btn-ghost { color: var(--g40); border-color: var(--g10); }
+
+  /* ===== 页头 ===== */
+  .head { display: flex; align-items: flex-start; justify-content: space-between; gap: calc(var(--unit) * 2); flex-wrap: wrap; }
+  .head h1 { margin: 0; font-size: 22px; font-weight: 600; color: var(--g100); line-height: 1.25; }
+  .head .sub { color: var(--g60); font-size: 12px; margin-top: 2px; }
+
+  /* ===== 步骤条 ===== */
+  .stepper { list-style: none; margin: calc(var(--unit) * 3) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--unit); counter-reset: st; }
+  .stepper li { display: flex; gap: calc(var(--unit) * 1.5); align-items: flex-start; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); border: 1px solid var(--g10); border-radius: 10px; }
+  .stepper .n { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--g40); display: grid; place-items: center; font-size: 13px; font-weight: 600; color: var(--g60); flex: none; }
+  .stepper .t { font-weight: 600; color: var(--g80); }
+  .stepper .d { font-size: 12px; color: var(--g60); }
+  .stepper li[aria-current="step"] { border-color: var(--g100); }
+  .stepper li[aria-current="step"] .n { background: var(--g100); border-color: var(--g100); color: var(--g0); }
+  .stepper li[aria-current="step"] .t { color: var(--g100); }
+  .stepper li.done .n { background: var(--g10); border-color: var(--g10); color: var(--g100); }
+  .stepper-m { display: none; }
+
+  /* ===== 表单布局 ===== */
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: calc(var(--unit) * 3); margin-top: calc(var(--unit) * 3); align-items: start; }
+  .form-card { padding: calc(var(--unit) * 3); }
+  .form-card h2 { margin: 0; font-size: 17px; color: var(--g100); }
+  .form-card .desc { margin: 2px 0 0; color: var(--g60); font-size: 13px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--unit) * 2) calc(var(--unit) * 3); margin-top: calc(var(--unit) * 3); }
+  .grid2 .full { grid-column: 1 / -1; }
+  .phone { display: grid; grid-template-columns: 110px 1fr; gap: var(--unit); }
+  .radios { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--unit); }
+  .radios label { display: flex; gap: var(--unit); align-items: flex-start; border: 1px solid var(--g20); border-radius: 8px; padding: calc(var(--unit) * 1.25) calc(var(--unit) * 1.5); min-height: var(--hit); cursor: pointer; font-weight: 400; }
+  .radios label.on { border-color: var(--g100); border-width: 2px; }
+  .radios input { margin: 3px 0 0; accent-color: #000; flex: none; }
+  .radios .rt { font-weight: 600; color: var(--g100); display: block; }
+  .radios .rh { font-size: 12px; color: var(--g60); }
+  .counter { text-align: right; }
+  .aside .card + .card { margin-top: calc(var(--unit) * 2); }
+  .aside h3 { margin: 0 0 var(--unit); font-size: 14px; color: var(--g100); }
+  .aside .dl { display: grid; grid-template-columns: 1fr auto; gap: 6px var(--unit); margin: 0; font-size: 13px; }
+  .aside .dl dt { color: var(--g60); }
+  .aside .dl dd { margin: 0; color: var(--g100); text-align: right; }
+  .aside .dl .tot { border-top: 1px solid var(--g10); padding-top: 6px; font-weight: 600; }
+  .aside .kv { font-size: 13px; color: var(--g60); }
+  .aside .kv b { color: var(--g100); font-weight: 600; }
+  .foot { display: flex; gap: var(--unit); align-items: center; margin-top: calc(var(--unit) * 3); padding-top: calc(var(--unit) * 2); border-top: 1px solid var(--g10); }
+  .foot .spacer { flex: 1; }
+
+  /* 商品行 */
+  .items-table { width: 100%; border-collapse: collapse; margin-top: calc(var(--unit) * 2); }
+  .items-table th, .items-table td { text-align: left; padding: var(--unit) var(--unit); border-top: 1px solid var(--g10); vertical-align: top; }
+  .items-table th { font-size: 12px; font-weight: 500; color: var(--g60); border-top: 0; padding-top: 0; }
+  .items-table th.r, .items-table td.r { text-align: right; }
+  .items-table .ctl { height: 36px; }
+  .items-table .qty { width: 96px; }
+  .items-table .price { width: 128px; }
+  .items-table .sub { font-size: 12px; color: var(--g60); display: block; }
+  .items-table tfoot td { font-weight: 600; color: var(--g100); border-top: 2px solid var(--g100); }
+  .items-table tfoot .sub { font-weight: 400; }
+  .items-cards { display: none; }
+  .sec { margin-top: calc(var(--unit) * 4); padding-top: calc(var(--unit) * 3); border-top: 1px dashed var(--g20); }
+  .sec h3 { margin: 0; font-size: 15px; color: var(--g100); }
+  .slider { position: relative; height: var(--hit); display: flex; align-items: center; }
+  .slider .track { height: 4px; background: var(--g10); border-radius: 2px; width: 100%; position: relative; }
+  .slider .fill { position: absolute; left: 20%; right: 60%; top: 0; bottom: 0; background: var(--g100); }
+  .slider .thumb { position: absolute; top: -8px; width: 20px; height: 20px; border-radius: 50%; background: var(--g0); border: 2px solid var(--g100); margin-left: -10px; }
+  .drop { border: 2px dashed var(--g20); border-radius: 10px; padding: calc(var(--unit) * 3); text-align: center; color: var(--g60); }
+  .drop strong { color: var(--g100); display: block; }
+  .drop .hint { font-size: 12px; color: var(--g40); }
+  .files { list-style: none; margin: var(--unit) 0 0; padding: 0; }
+  .files li { display: grid; grid-template-columns: 24px 1fr auto var(--hit); align-items: center; gap: var(--unit); min-height: var(--hit); padding: 4px 0; border-top: 1px solid var(--g10); font-size: 13px; }
+  .files .name { color: var(--g100); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .files .size { font-size: 12px; color: var(--g60); white-space: nowrap; }
+  .files .bar { height: 4px; background: var(--g10); border-radius: 2px; margin-top: 4px; position: relative; }
+  .files .bar::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 62%; background: var(--g100); }
+  .files li.fail .name { color: var(--g100); font-weight: 600; }
+  .files .ferr { font-size: 12px; color: var(--g100); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border-radius: 14px; border: 1px solid var(--g40); font-size: 13px; color: var(--g80); background: var(--g0); }
+  .chip.on { background: var(--g100); color: var(--g0); border-color: var(--g100); }
+  .chip .x { font-size: 14px; }
+  .chips .pre { font-size: 12px; color: var(--g60); }
+  .taginput { min-height: var(--hit); height: auto; padding: 6px var(--unit); flex-wrap: wrap; gap: 6px; }
+
+  /* 第 3 步核对 */
+  .summary { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 3); }
+  .summary .blk { border: 1px solid var(--g10); border-radius: 10px; padding: calc(var(--unit) * 2); }
+  .summary .blk.full { grid-column: 1 / -1; }
+  .summary .bh { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--unit); }
+  .summary .bh h3 { margin: 0; font-size: 14px; color: var(--g100); }
+  .summary .bh a { font-size: 13px; }
+  .sdl { display: grid; grid-template-columns: 96px 1fr; gap: 6px var(--unit); margin: 0; font-size: 13px; }
+  .sdl dt { color: var(--g60); }
+  .sdl dd { margin: 0; color: var(--g100); overflow-wrap: anywhere; }
+  .sum-items { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .sum-items td { padding: 6px 0; border-top: 1px solid var(--g10); }
+  .sum-items td.r { text-align: right; }
+  .sum-items tr:first-child td { border-top: 0; }
+  .totals { margin-top: calc(var(--unit) * 2); display: grid; grid-template-columns: 1fr auto; gap: 6px calc(var(--unit) * 2); font-size: 13px; max-width: 360px; margin-left: auto; }
+  .totals .k { color: var(--g60); }
+  .totals .v { text-align: right; color: var(--g100); }
+  .totals .g { font-weight: 700; font-size: 16px; border-top: 2px solid var(--g100); padding-top: 6px; }
+  .terms-line { margin-top: calc(var(--unit) * 3); }
+  .terms-line a { font-weight: 600; }
+
+  /* Result */
+  .result { max-width: 560px; margin: calc(var(--unit) * 6) auto; text-align: center; }
+  .result .fig { width: 88px; height: 88px; border-radius: 50%; border: 3px solid var(--g100); margin: 0 auto calc(var(--unit) * 2); display: grid; place-items: center; font-size: 36px; color: var(--g100); }
+  .result h2 { margin: 0; font-size: 22px; color: var(--g100); }
+  .result p { color: var(--g60); margin: var(--unit) 0 0; }
+  .result .acts { display: flex; justify-content: center; gap: var(--unit); margin-top: calc(var(--unit) * 3); flex-wrap: wrap; }
+  .result .card { text-align: left; margin-top: calc(var(--unit) * 3); }
+
+  /* 叠层 */
+  [data-open] .backdrop { display: block; }
+  [data-open="terms"] .ov-terms, [data-open="leave"] .ov-leave, [data-open="supplier"] .ov-supplier, [data-open="sku"] .ov-sku { position: fixed; z-index: 8; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+  [data-open="terms"] .ov-terms, [data-open="leave"] .ov-leave { left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: auto; }
+  [data-open="supplier"] .ov-supplier, [data-open="sku"] .ov-sku { left: 50%; top: 200px; transform: translateX(-50%); width: 440px; max-width: calc(100vw - 32px); }
+  .combo-list { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow: auto; }
+  .combo-list li { display: flex; align-items: center; gap: var(--unit); min-height: 48px; padding: 4px var(--unit); border-radius: 6px; font-size: 13px; }
+  .combo-list li[aria-selected="true"] { background: var(--g5); font-weight: 600; }
+  .combo-list .m { font-size: 12px; color: var(--g60); display: block; font-weight: 400; }
+  .combo-list .rgt { margin-left: auto; text-align: right; white-space: nowrap; }
+  .combo-list .warn { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--g100); margin-right: 4px; vertical-align: 1px; }
+  .terms-ol { margin: 0; padding-left: 20px; color: var(--g80); font-size: 13px; line-height: 1.7; }
+  [data-toast] .toast { display: flex; }
+  .toast span[data-t] { display: none; }
+  [data-toast="draft"] .toast [data-t="draft"], [data-toast="row"] .toast [data-t="row"] { display: inline; }
+
+  @media (max-width: 767px) {
+    .head h1 { font-size: 20px; }
+    .stepper { display: none; }
+    .stepper-m { display: block; margin-top: calc(var(--unit) * 2); }
+    .stepper-m .p { font-size: 12px; color: var(--g60); }
+    .stepper-m .t { font-size: 17px; font-weight: 600; color: var(--g100); }
+    .stepper-m .bar { height: 4px; background: var(--g10); border-radius: 2px; margin-top: 6px; position: relative; }
+    .stepper-m .bar::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--pct, 33%); background: var(--g100); border-radius: 2px; }
+    [data-step="2"] .stepper-m .bar { --pct: 66%; }
+    [data-step="3"] .stepper-m .bar { --pct: 100%; }
+    .layout { grid-template-columns: 1fr; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 2); }
+    .aside { order: -1; }
+    .aside .card.tips { display: none; }
+    .form-card { padding: calc(var(--unit) * 2); }
+    .grid2 { grid-template-columns: 1fr; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 2); }
+    .phone { grid-template-columns: 96px 1fr; }
+    .radios { grid-template-columns: 1fr; }
+    .items-table { display: none; }
+    .items-cards { display: block; list-style: none; margin: calc(var(--unit) * 2) 0 0; padding: 0; }
+    .items-cards li { border: 1px solid var(--g10); border-radius: 10px; padding: calc(var(--unit) * 1.5); margin-top: var(--unit); display: grid; grid-template-columns: 1fr 1fr; gap: var(--unit); }
+    .items-cards .full { grid-column: 1 / -1; }
+    .items-cards .row-h { display: flex; justify-content: space-between; align-items: center; gap: var(--unit); }
+    .items-cards .row-h b { color: var(--g100); }
+    .items-cards .sub { font-size: 12px; color: var(--g60); }
+    .items-cards .st { display: flex; justify-content: space-between; font-weight: 600; color: var(--g100); border-top: 1px solid var(--g10); padding-top: var(--unit); }
+    .items-cards .ctl { height: 36px; }
+    .files li { grid-template-columns: 20px 1fr var(--hit); }
+    .files .size { display: none; }
+    .summary { grid-template-columns: 1fr; gap: var(--unit); margin-top: calc(var(--unit) * 2); }
+    .sdl { grid-template-columns: 80px 1fr; }
+    .totals { max-width: none; }
+    .foot { position: sticky; bottom: 0; background: var(--g0); padding-bottom: var(--unit); flex-wrap: wrap; z-index: 2; }
+    .foot .btn-ghost { order: 3; width: 100%; height: 36px; }
+    .foot .spacer { display: none; }
+    .foot .btn-secondary, .foot .submit { flex: 1; }
+    .result { margin: calc(var(--unit) * 4) auto; }
+    [data-open="supplier"] .ov-supplier, [data-open="sku"] .ov-sku { top: auto; bottom: 0; left: 0; right: 0; transform: none; width: auto; max-width: none; border-radius: 16px 16px 0 0; max-height: 80vh; overflow: auto; }
+  }
+</style>
+</head>
+<body>
+  <nav class="wf-bar" aria-label="线框标注栏">
+    <strong>线框 · form（/form 新建采购单）</strong>
+    <span>步骤：</span>
+    <a href="?step=1" data-st="1">step=1 基本信息</a>
+    <a href="?step=2" data-st="2">step=2 商品与配送</a>
+    <a href="?step=3" data-st="3">step=3 确认提交</a>
+    <span>· 状态：</span>
+    <a href="?state=default" data-s="default">default</a>
+    <a href="?step=1&state=invalid" data-s="invalid">invalid（step1 供应商 / 电话 / 邮箱；step2 数量 / 到货日期；step3 条款）</a>
+    <a href="?step=3&state=loading" data-s="loading">loading（step3）</a>
+    <a href="?state=success" data-s="success">success（Result）</a>
+    <a href="?step=3&state=error" data-s="error">error（step3）</a>
+    <span>· 叠层：</span>
+    <a href="?step=3&open=terms" data-o="terms">open=terms</a>
+    <a href="?open=leave" data-o="leave">leave</a>
+    <a href="?open=supplier" data-o="supplier">supplier</a>
+    <a href="?step=2&open=sku" data-o="sku">sku</a>
+    <span>· 数据 = mock/purchase-form.json 草稿 PO-20260906-003（3 行 88 件 合计 ¥40,760.00 = 60×480 + 20×350 + 8×620）· 序号 = 01-ia.md §9.2</span>
+  </nav>
+
+  <div class="shell">
+    <!-- 侧边栏（1440 展开；1024 折叠为 icon rail；≤768 抽屉）——与 dashboard.html 相同，本轮仅「采购」变为当前项 -->
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <div class="txt">
+          <div class="name">Acme Console</div>
+          <div class="ws">栖木家居</div>
+        </div>
+        <button class="iconbtn collapse" type="button" aria-label="收起侧边栏"><span class="ico ico-sm" aria-hidden="true"></span></button>
+      </div>
+      <nav>
+        <div class="nav-title">概览</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="dashboard.html"><span class="ico" aria-hidden="true"></span><span class="lbl">仪表盘</span></a></li>
+        </ul>
+        <div class="nav-title">交易</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="orders.html" ><span class="ico" aria-hidden="true"></span><span class="lbl">订单</span><span class="badge num" aria-label="待发货 63">63</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">售后</span><span class="badge num" aria-label="待处理退款 7">7</span></a></li>
+        </ul>
+        <div class="nav-title">货品</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">商品</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">库存</span><span class="badge badge-warn num" aria-label="库存预警 12 SKU">12</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true" aria-current="page" title="采购组当前项（本轮 /purchasing 不可达，仅高亮所属分组）"><span class="ico" aria-hidden="true"></span><span class="lbl">采购</span></a></li>
+        </ul>
+        <div class="nav-title">经营</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">报表</span></a></li>
+          <li><a class="nav-item" href="settings.html" ><span class="ico" aria-hidden="true"></span><span class="lbl">设置</span></a></li>
+        </ul>
+      </nav>
+      <div class="disabled-tip">灰字项 aria-disabled，hover Tooltip「后续轮次提供」；本轮「订单」「设置」变为可达。/form、/chat 不在侧边栏 8 项内（brief §11.1 壳说明）</div>
+    </aside>
+
+    <div class="main">
+      <!-- 顶栏：与 dashboard 相同 + 新增「智能助理」IconButton（brief §11.10-E，位置见 01-ia.md §8） -->
+      <header class="topbar">
+        <button class="iconbtn hamburger" type="button" aria-label="打开导航"><span class="ico" aria-hidden="true"></span></button>
+        <nav class="crumb" aria-label="面包屑"><span class="root">栖木家居</span><span class="sep" aria-hidden="true">/</span><span class="dis" aria-disabled="true" title="本轮 /purchasing 不可达">采购</span><span class="sep" aria-hidden="true">›</span><span class="cur">新建采购单</span></nav>
+        <div class="search" role="search" aria-label="全局搜索"><span class="ico" aria-hidden="true"></span><span class="ph">搜索订单号、商品、客户</span><kbd>⌘K</kbd></div>
+        <button class="iconbtn search-btn" type="button" aria-label="全局搜索"><span class="ico" aria-hidden="true"></span></button>
+        <a class="iconbtn assist" href="chat.html" aria-label="智能助理" ><span class="ico" aria-hidden="true"></span></a>
+        <button class="iconbtn" type="button" aria-label="通知，3 条未读" aria-haspopup="dialog"><span class="ico" aria-hidden="true"></span><span class="dot"><span class="badge num">3</span></span></button>
+        <button class="iconbtn" type="button" aria-label="切换为暗色" aria-pressed="false"><span class="ico" aria-hidden="true"></span></button>
+        <button class="iconbtn" type="button" aria-label="账号菜单" aria-haspopup="menu"><span class="avatar" aria-hidden="true">琳</span></button>
+      </header>
+
+
+      <main class="content" id="main">
+        <div class="head">
+          <div data-p="①">
+            <h1>新建采购单</h1>
+            <div class="sub">采购单号 PO-20260906-003 将在提交后生成</div>
+          </div>
+          <div class="kv" style="font-size:12px;color:var(--g60)">创建人 沈若琳 · 自动保存草稿</div>
+        </div>
+
+        <ol class="stepper" aria-label="采购单填写步骤" data-p="②">
+          <li class="s1" aria-current="step"><span class="n" aria-hidden="true">1</span><div><div class="t">基本信息</div><div class="d">选择供应商并填写联系与结算方式</div></div></li>
+          <li class="s2"><span class="n" aria-hidden="true">2</span><div><div class="t">商品与配送</div><div class="d">添加采购商品，指定收货仓库与到货要求</div></div></li>
+          <li class="s3"><span class="n" aria-hidden="true">3</span><div><div class="t">确认提交</div><div class="d">核对信息并同意采购条款</div></div></li>
+        </ol>
+        <div class="stepper-m" role="status"><div class="p">第 <span class="stepnum">1</span> 步，共 3 步</div><div class="t steptitle">基本信息</div><div class="bar" aria-hidden="true"></div></div>
+
+        <div class="layout">
+          <div>
+            <!-- ===== 第 1 步 ===== -->
+            <section class="step-panel step-1 card form-card" aria-labelledby="s1t">
+              <div class="alert only-invalid" role="alert" style="margin-bottom:16px"><span class="ico" aria-hidden="true"></span><div><strong>还有 3 项需要修正</strong>供应商 · 联系电话 · 邮箱</div><div class="acts"><a href="#f-supplier">查看</a></div></div>
+              <h2 id="s1t">基本信息</h2>
+              <p class="desc">选择供应商并填写联系与结算方式</p>
+              <div class="grid2" data-p="③">
+                <div class="field v full" id="f-supplier"><label for="supplier">供应商 <span class="req" aria-hidden="true">*</span><span class="sr-only">必填</span></label><div class="ctl" id="supplier" role="combobox" aria-expanded="false" aria-haspopup="listbox"><span class="ico" aria-hidden="true"></span><span class="val">东阳樟里木艺</span><span style="font-size:12px;color:var(--g60)">浙江 · 东阳 · 常规交期 18 天</span><span class="ico" aria-hidden="true"></span></div><div class="hint">结算方式已按该供应商默认值填入，可修改</div><div class="err">请选择供应商</div></div>
+                <div class="field"><label for="contact">联系人 <span class="req" aria-hidden="true">*</span></label><div class="ctl"><input id="contact" value="吴丽华" aria-label="联系人" style="border:0;outline:0;background:transparent;width:100%" /></div></div>
+                <div class="field v"><label for="phone">联系电话 <span class="req" aria-hidden="true">*</span></label><div class="phone"><div class="ctl" role="button" aria-label="国家或地区代码" aria-haspopup="listbox"><span class="val">+86</span><span class="ico" aria-hidden="true"></span></div><div class="ctl"><input id="phone" value="13700003308" inputmode="numeric" aria-label="11 位手机号" style="border:0;outline:0;background:transparent;width:100%" /></div></div><div class="err">请输入 11 位手机号</div></div>
+                <div class="field v full"><label for="email">邮箱 <span class="req" aria-hidden="true">*</span></label><div class="ctl"><input id="email" type="email" value="sales@zhangli-wood.cn" aria-label="邮箱" style="border:0;outline:0;background:transparent;width:100%" /></div><div class="hint">采购单 PDF 会发送到该邮箱</div><div class="err">邮箱格式不正确，例如 name@company.cn</div></div>
+                <div class="field full"><label for="note">备注 <span class="opt">选填</span></label><div class="ctl textarea" id="note">床头柜 QM-NS-WAL-2D 杭州仓库存 18 低于安全线 40，本周已有 3 单待发货缺货；请按工艺确认图 v2 生产，抽屉滑轨换静音款。</div><div class="hint counter num">72 / 200</div></div>
+                <div class="field full" role="radiogroup" aria-labelledby="stl"><span class="lbl" id="stl">结算方式 <span class="req" aria-hidden="true">*</span></span>
+                  <div class="radios">
+                    <label><input type="radio" name="settle" /><span><span class="rt">全额预付</span><span class="rh">下单后 3 日内付清</span></span></label>
+                    <label class="on"><input type="radio" name="settle" checked /><span><span class="rt">预付 30%</span><span class="rh">余款到货验收后 7 日内</span></span></label>
+                    <label><input type="radio" name="settle" /><span><span class="rt">月结 30 天</span><span class="rh">次月对账后 30 日内</span></span></label>
+                    <label><input type="radio" name="settle" /><span><span class="rt">月结 60 天</span><span class="rh">次月对账后 60 日内</span></span></label>
+                    <label><input type="radio" name="settle" /><span><span class="rt">货到付款</span><span class="rh">验收合格当日付款</span></span></label>
+                  </div>
+                </div>
+                <div class="field"><label class="check"><input type="checkbox" checked /> 需要开具发票</label><div class="hint">开票信息见采购条款第 4 条</div></div>
+                <div class="field"><div class="check"><span class="switch" role="switch" aria-checked="true" aria-labelledby="urg"></span><span id="urg" class="lbl">加急采购</span></div><div class="hint">加急单会通知供应商优先排产，到货日期可早于常规交期</div></div>
+              </div>
+              <div class="foot" data-p="⑤">
+                <button class="btn btn-ghost" type="button">保存草稿</button>
+                <span class="spacer"></span>
+                <button class="btn btn-secondary" type="button" aria-disabled="true">上一步</button>
+                <button class="btn" type="button">下一步</button>
+              </div>
+            </section>
+
+            <!-- ===== 第 2 步 ===== -->
+            <section class="step-panel step-2 card form-card" aria-labelledby="s2t">
+              <div class="alert only-invalid" role="alert" style="margin-bottom:16px"><span class="ico" aria-hidden="true"></span><div><strong>还有 2 项需要修正</strong>第 2 行数量 · 期望到货日期</div><div class="acts"><a href="#f-items">查看</a></div></div>
+              <h2 id="s2t">商品与配送</h2>
+              <p class="desc">添加采购商品，指定收货仓库与到货要求</p>
+
+              <h3 style="margin:24px 0 0;font-size:15px;color:var(--g100)" id="f-items">采购商品</h3>
+              <table class="items-table" aria-label="采购商品行" data-p="③">
+                <thead><tr><th style="width:44%">商品</th><th>数量</th><th>采购单价</th><th class="r">小计</th><th><span class="sr-only">删除</span></th></tr></thead>
+                <tbody>
+                  <tr><td><div class="ctl" role="combobox" aria-expanded="false"><span class="val">胡桃木床头柜（双抽）</span><span class="ico" aria-hidden="true"></span></div><span class="sub mono">QM-NS-WAL-2D · 库存 18 / 安全线 40 · 库存预警</span></td><td><div class="ctl qty num">60</div></td><td><div class="ctl price num">¥ 480.00</div></td><td class="r num">¥28,800.00</td><td><button class="iconbtn" type="button" aria-label="删除第 1 行">×</button></td></tr>
+                  <tr><td><div class="ctl" role="combobox" aria-expanded="false"><span class="val">白橡木落地灯</span><span class="ico" aria-hidden="true"></span></div><span class="sub mono">QM-LP-OAK-01 · 库存 15 / 安全线 12</span></td><td><div class="field v"><div class="ctl qty num">20</div><div class="err">数量须为 1–9999 的整数</div></div></td><td><div class="ctl price num">¥ 350.00</div></td><td class="r num">¥7,000.00</td><td><button class="iconbtn" type="button" aria-label="删除第 2 行">×</button></td></tr>
+                  <tr><td><div class="ctl" role="combobox" aria-expanded="false"><span class="val">胡桃木置物架 1.2m</span><span class="ico" aria-hidden="true"></span></div><span class="sub mono">QM-SH-WAL-120 · 库存 12 / 安全线 10</span></td><td><div class="ctl qty num">8</div></td><td><div class="ctl price num">¥ 620.00</div></td><td class="r num">¥4,960.00</td><td><button class="iconbtn" type="button" aria-label="删除第 3 行">×</button></td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="3">商品合计 <span class="sub">3 种商品，88 件</span></td><td class="r num">¥40,760.00</td><td></td></tr></tfoot>
+              </table>
+              <ul class="items-cards" aria-label="采购商品行（375 卡片）">
+                <li><div class="row-h full"><b>第 1 行</b><button class="iconbtn" type="button" aria-label="删除第 1 行">×</button></div><div class="ctl full" role="combobox"><span class="val">胡桃木床头柜（双抽）</span><span class="ico" aria-hidden="true"></span></div><div class="sub full mono">QM-NS-WAL-2D · 库存 18 / 安全线 40 · 库存预警</div><div class="field"><span class="lbl">数量</span><div class="ctl num">60</div></div><div class="field"><span class="lbl">采购单价</span><div class="ctl num">¥ 480.00</div></div><div class="st full"><span>小计</span><span class="num">¥28,800.00</span></div></li>
+                <li><div class="row-h full"><b>第 2 行</b><button class="iconbtn" type="button" aria-label="删除第 2 行">×</button></div><div class="ctl full" role="combobox"><span class="val">白橡木落地灯</span><span class="ico" aria-hidden="true"></span></div><div class="sub full mono">QM-LP-OAK-01 · 库存 15 / 安全线 12</div><div class="field v"><span class="lbl">数量</span><div class="ctl num">20</div><div class="err">数量须为 1–9999 的整数</div></div><div class="field"><span class="lbl">采购单价</span><div class="ctl num">¥ 350.00</div></div><div class="st full"><span>小计</span><span class="num">¥7,000.00</span></div></li>
+                <li><div class="row-h full"><b>第 3 行</b><button class="iconbtn" type="button" aria-label="删除第 3 行">×</button></div><div class="ctl full" role="combobox"><span class="val">胡桃木置物架 1.2m</span><span class="ico" aria-hidden="true"></span></div><div class="sub full mono">QM-SH-WAL-120 · 库存 12 / 安全线 10</div><div class="field"><span class="lbl">数量</span><div class="ctl num">8</div></div><div class="field"><span class="lbl">采购单价</span><div class="ctl num">¥ 620.00</div></div><div class="st full"><span>小计</span><span class="num">¥4,960.00</span></div></li>
+                <li style="display:flex;justify-content:space-between;font-weight:600;color:var(--g100);border:0;border-top:2px solid var(--g100);border-radius:0;padding:12px 0 0"><span>商品合计 <span class="sub" style="font-weight:400">3 种商品，88 件</span></span><span class="num">¥40,760.00</span></li>
+              </ul>
+              <div style="margin-top:8px"><button class="btn btn-secondary btn-sm" type="button">+ 添加商品行</button></div>
+
+              <div class="sec">
+                <h3>配送</h3>
+                <div class="grid2" style="margin-top:16px">
+                  <div class="field"><label for="wh">收货仓库 <span class="req" aria-hidden="true">*</span></label><div class="ctl" id="wh" role="button" aria-haspopup="listbox"><span class="val">杭州仓</span><span class="ico" aria-hidden="true"></span></div><div class="hint">收货地址：浙江省杭州市余杭区仓前街道良睦路 1399 号 3 号库</div></div>
+                  <div class="field v"><label for="ad">期望到货日期 <span class="req" aria-hidden="true">*</span></label><div class="ctl" id="ad" role="button" aria-haspopup="dialog"><span class="ico" aria-hidden="true"></span><span class="val num">2026-09-24</span></div><div class="hint">供应商常规交期 18 天，建议不早于 2026-09-24</div><div class="err">早于供应商常规交期（18 天），请确认已与供应商沟通</div></div>
+                  <div class="field"><label for="slot">收货时段 <span class="req" aria-hidden="true">*</span></label><div class="ctl" id="slot" role="button" aria-haspopup="listbox"><span class="val">上午 09:00–12:00</span><span class="ico" aria-hidden="true"></span></div></div>
+                  <div class="field"><span class="lbl">运费预算区间 <span class="opt">¥400 – ¥800</span></span><div class="slider" role="group" aria-label="运费预算区间 ¥400 – ¥800"><div class="track"><div class="fill" aria-hidden="true"></div><span class="thumb" role="slider" aria-label="最低运费" aria-valuemin="0" aria-valuemax="2000" aria-valuenow="400" style="left:20%" tabindex="0"></span><span class="thumb" role="slider" aria-label="最高运费" aria-valuemin="0" aria-valuemax="2000" aria-valuenow="800" style="left:40%" tabindex="0"></span></div></div><div class="hint">大件家具走德邦物流，江浙沪整车约 ¥400–800</div></div>
+                  <div class="field full"><span class="lbl">附件 <span class="opt">选填</span></span>
+                    <div class="drop" role="button" tabindex="0"><strong>拖拽文件到此处，或点击选择</strong><span class="hint">支持 PDF / XLSX / JPG / PNG，单个不超过 10 MB，最多 5 个</span></div>
+                    <ul class="files">
+                      <li><span class="ico ico-sm" aria-hidden="true"></span><span class="name">樟里木艺-报价单-202609.pdf<span class="sr-only">已上传</span></span><span class="size num">386 KB</span><button class="iconbtn" type="button" aria-label="移除 樟里木艺-报价单-202609.pdf">×</button></li>
+                      <li><span class="ico ico-sm" aria-hidden="true"></span><span class="name">床头柜-工艺确认图.jpg<span class="sr-only">已上传</span></span><span class="size num">1.2 MB</span><button class="iconbtn" type="button" aria-label="移除 床头柜-工艺确认图.jpg">×</button></li>
+                      <li><span class="ico ico-sm" aria-hidden="true"></span><span><span class="name">采购明细-补货-0906.xlsx</span><span class="size">上传中 62%</span><div class="bar" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="上传进度"></div></span><span class="size num">48 KB</span><button class="iconbtn" type="button" aria-label="移除 采购明细-补货-0906.xlsx">×</button></li>
+                      <li class="fail"><span class="ico ico-sm" aria-hidden="true" style="border-style:solid"></span><span><span class="name">整柜装箱视频.mp4</span><span class="ferr">不支持的文件类型，仅限 PDF / XLSX / JPG / PNG</span></span><button class="btn btn-ghost btn-sm" type="button">重试</button><button class="iconbtn" type="button" aria-label="移除 整柜装箱视频.mp4">×</button></li>
+                    </ul>
+                    <p class="hint" style="margin:4px 0 0">失败行与上传中行仅为状态示例（mock.attachments.samples / errorSample）；草稿实际 2 个附件</p>
+                  </div>
+                  <div class="field full"><label for="tags">标签 <span class="opt">选填</span></label>
+                    <div class="ctl taginput" id="tags"><span class="chip on">补货 <span class="x" role="button" aria-label="移除标签 补货">×</span></span><span class="chip on">加急 <span class="x" role="button" aria-label="移除标签 加急">×</span></span><span class="ph" style="flex:1">输入后回车添加</span></div>
+                    <div class="chips"><span class="pre">常用：</span><span class="chip">双 11 备货</span><span class="chip">新品</span><span class="chip">样品</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="foot">
+                <button class="btn btn-ghost" type="button">保存草稿</button>
+                <span class="spacer"></span>
+                <button class="btn btn-secondary" type="button">上一步</button>
+                <button class="btn" type="button">下一步</button>
+              </div>
+            </section>
+
+            <!-- ===== 第 3 步 ===== -->
+            <section class="step-panel step-3 card form-card" aria-labelledby="s3t">
+              <div class="alert only-error" role="alert" style="margin-bottom:16px"><span class="ico" aria-hidden="true"></span><div><strong>提交失败</strong>提交失败：网络超时，采购单已保存为草稿，请重试</div><div class="acts"><button class="btn btn-sm" type="button">重新提交</button><button class="iconbtn" type="button" aria-label="关闭提示" style="width:32px;height:32px">×</button></div></div>
+              <div class="alert only-invalid" role="alert" style="margin-bottom:16px"><span class="ico" aria-hidden="true"></span><div><strong>还有 1 项需要修正</strong>请先阅读并同意《采购条款》</div><div class="acts"><a href="#terms">查看</a></div></div>
+              <h2 id="s3t">请核对采购单</h2>
+              <p class="desc">核对信息并同意采购条款</p>
+              <div class="summary" data-p="③">
+                <div class="blk"><div class="bh"><h3>基本信息</h3><a href="?step=1">修改</a></div>
+                  <dl class="sdl"><dt>供应商</dt><dd>东阳樟里木艺</dd><dt>联系人</dt><dd>吴丽华 · <span class="num">13700003308</span></dd><dt>邮箱</dt><dd>sales@zhangli-wood.cn</dd><dt>结算方式</dt><dd>预付 30%</dd><dt>开票</dt><dd>需要</dd><dt>加急</dt><dd>是</dd><dt>备注</dt><dd>床头柜 QM-NS-WAL-2D 杭州仓库存 18 低于安全线 40，本周已有 3 单待发货缺货；请按工艺确认图 v2 生产，抽屉滑轨换静音款。</dd></dl></div>
+                <div class="blk"><div class="bh"><h3>配送</h3><a href="?step=2">修改</a></div>
+                  <dl class="sdl"><dt>收货仓库</dt><dd>杭州仓</dd><dt>期望到货</dt><dd><span class="num">2026-09-24</span> 上午 09:00–12:00</dd><dt>运费预算</dt><dd class="num">¥400 – ¥800</dd><dt>附件</dt><dd>2 个文件</dd><dt>标签</dt><dd><span class="tag">补货</span> <span class="tag">加急</span></dd></dl></div>
+                <div class="blk full"><div class="bh"><h3>商品</h3><a href="?step=2">修改</a></div>
+                  <table class="sum-items" aria-label="采购商品汇总">
+                    <tr><td>胡桃木床头柜（双抽）<span class="mono" style="color:var(--g60)"> QM-NS-WAL-2D</span></td><td class="r num">60 × ¥480.00</td><td class="r num">¥28,800.00</td></tr>
+                    <tr><td>白橡木落地灯<span class="mono" style="color:var(--g60)"> QM-LP-OAK-01</span></td><td class="r num">20 × ¥350.00</td><td class="r num">¥7,000.00</td></tr>
+                    <tr><td>胡桃木置物架 1.2m<span class="mono" style="color:var(--g60)"> QM-SH-WAL-120</span></td><td class="r num">8 × ¥620.00</td><td class="r num">¥4,960.00</td></tr>
+                  </table>
+                  <div class="totals" data-p="④"><span class="k">商品合计（3 种商品，88 件）</span><span class="v num">¥40,760.00</span><span class="k">运费预算</span><span class="v num">¥400 – ¥800</span><span class="k g">预计总额</span><span class="v g num">¥41,560.00</span></div>
+                  <p class="hint" style="font-size:12px;color:var(--g40);margin:4px 0 0;text-align:right">预计总额 = 商品合计 + 运费上限（40,760 + 800）</p>
+                </div>
+              </div>
+              <div class="field v terms-line" id="terms"><label class="check"><input type="checkbox" /> 我已阅读并同意<a href="?step=3&open=terms">《采购条款》</a></label><div class="err">请先阅读并同意《采购条款》</div></div>
+              <div class="foot" data-p="⑤">
+                <button class="btn btn-ghost" type="button">保存草稿</button>
+                <span class="spacer"></span>
+                <button class="btn btn-secondary" type="button">上一步</button>
+                <button class="btn submit" type="button" style="min-width:132px"><span class="lbl">提交采购单</span><span class="only-loading"><span class="ico ico-sm" aria-hidden="true" style="border-radius:50%;width:16px;height:16px"></span> 提交中…</span></button>
+              </div>
+            </section>
+          </div>
+
+          <!-- 右栏：草稿摘要（375 移到顶部、精简） -->
+          <aside class="aside" aria-label="采购单摘要" data-p="④">
+            <div class="card">
+              <h3>草稿摘要</h3>
+              <dl class="dl">
+                <dt>供应商</dt><dd>东阳樟里木艺</dd>
+                <dt>商品</dt><dd>3 种 · 88 件</dd>
+                <dt>期望到货</dt><dd class="num">2026-09-24</dd>
+                <dt class="tot">商品合计</dt><dd class="tot num">¥40,760.00</dd>
+              </dl>
+              <p class="kv" style="margin:8px 0 0">草稿自动保存 · 上次 17:28 · <b>加急</b></p>
+            </div>
+            <div class="card tips">
+              <h3>供应商信息</h3>
+              <p class="kv" style="margin:0">东阳樟里木艺 · 浙江 · 东阳<br />常规交期 <b>18 天</b> · 默认 <b>预付 30%</b><br />在途采购单 1 张：PO-20260822-001 床头柜 40 件，预计 <b>09-09</b> 到仓</p>
+            </div>
+          </aside>
+        </div>
+
+        <!-- ===== success：Result ===== -->
+        <section class="state-success result" aria-label="采购单已提交" role="status">
+          <div class="fig" aria-hidden="true">✓</div>
+          <h2>采购单已提交</h2>
+          <p>PO-20260906-003 已发送给 东阳樟里木艺（吴丽华），预计 2026-09-24 上午到达杭州仓。</p>
+          <p style="font-size:12px;color:var(--g40)">已发送至 sales@zhangli-wood.cn</p>
+          <div class="acts"><a class="btn" href="#" aria-disabled="true" title="后续轮次提供">查看采购单</a><a class="btn btn-secondary" href="?step=1">再建一张</a></div>
+          <div class="card">
+            <dl class="sdl"><dt>采购单号</dt><dd class="mono">PO-20260906-003</dd><dt>供应商</dt><dd>东阳樟里木艺 · 吴丽华</dd><dt>商品</dt><dd>3 种商品，88 件 · ¥40,760.00</dd><dt>收货</dt><dd>杭州仓 · 2026-09-24 上午 09:00–12:00</dd><dt>标签</dt><dd><span class="tag">补货</span> <span class="tag">加急</span></dd></dl>
+          </div>
+          <p class="hint" style="font-size:12px;color:var(--g40)">Result 页替换整个内容区（步骤条与表单不再显示），焦点落到 h2；「查看采购单」本轮不可达 → Tooltip「后续轮次提供」</p>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" role="status"><span class="ico ico-sm" aria-hidden="true"></span><span data-t="draft">草稿已保存</span><span data-t="row">已添加商品行</span><span class="life">· 3 秒后消失</span></div>
+  <div class="backdrop" aria-hidden="true"></div>
+
+  <!-- ===== 叠层清单 ===== -->
+  <section class="overlays" aria-label="叠层元素">
+    <h2>叠层元素（?open= 命中时按真实位置显示；Combobox 下拉在 375 变为底部 Sheet）</h2>
+    <div class="row">
+      <div>
+        <p class="panel-cap">Dialog：采购条款（mock.terms 4 条；「我知道了」关闭并回到复选框）</p>
+        <div class="panel dialog ov-terms" role="dialog" aria-modal="true" aria-labelledby="t-t">
+          <h3 id="t-t">采购条款</h3>
+          <ol class="terms-ol">
+            <li>供应商须在约定到货日前 1 个工作日通知仓库预约卸货时段。</li>
+            <li>验收标准以双方确认的工艺图与样品为准，色差以实木自然纹理范围内为限。</li>
+            <li>运输破损由承运方与供应商协商理赔，栖木家居在验收单注明后 3 个工作日内反馈。</li>
+            <li>发票开具信息：杭州栖木家居有限公司，税号 91330106MA2B7XQ5XK（虚构）。</li>
+          </ol>
+          <div class="acts"><button class="btn" type="button">我知道了</button></div>
+        </div>
+      </div>
+      <div>
+        <p class="panel-cap">Dialog：离开页面？（有未保存改动时点侧边栏 / 面包屑 / 浏览器后退）</p>
+        <div class="panel dialog ov-leave" role="alertdialog" aria-modal="true" aria-labelledby="l-t">
+          <h3 id="l-t">离开页面？</h3>
+          <p>采购单尚未提交，离开后填写内容将丢失。</p>
+          <div class="acts"><button class="btn btn-secondary" type="button">继续填写</button><button class="btn btn-danger solid" type="button">放弃并离开</button></div>
+        </div>
+      </div>
+      <div>
+        <p class="panel-cap">供应商 Combobox 下拉（mock/suppliers.json 6 家；选中后自动填联系人 / 电话 / 邮箱 / 结算）</p>
+        <div class="panel ov-supplier" role="listbox" aria-label="供应商">
+          <div class="ctl" style="margin:4px"><span class="ico" aria-hidden="true"></span><span class="ph">搜索供应商名称</span></div>
+          <ul class="combo-list">
+            <li role="option" aria-selected="false">安吉林语木业<span class="m">浙江 · 安吉 · 常规交期 25 天</span></li>
+            <li role="option" aria-selected="true">东阳樟里木艺<span class="m">浙江 · 东阳 · 常规交期 18 天</span></li>
+            <li role="option" aria-selected="false">南通云织家纺<span class="m">江苏 · 南通 · 常规交期 12 天</span></li>
+            <li role="option" aria-selected="false">义乌竹里编艺<span class="m">浙江 · 义乌 · 常规交期 10 天</span></li>
+            <li role="option" aria-selected="false">嘉兴暖烛香氛<span class="m">浙江 · 嘉兴 · 常规交期 7 天</span></li>
+            <li role="option" aria-selected="false">绍兴柯桥麻纺<span class="m">浙江 · 绍兴 · 常规交期 15 天</span></li>
+          </ul>
+          <p class="panel-cap" style="margin:8px 4px 4px">无匹配：「没有匹配的供应商」</p>
+        </div>
+      </div>
+      <div>
+        <p class="panel-cap">SKU Combobox 下拉（mock/skus.json 18 个，示例 6 个；副文案「库存 / 安全线」，低于安全线加 Tag「库存预警」；单价默认 cost）</p>
+        <div class="panel ov-sku" role="listbox" aria-label="商品">
+          <div class="ctl" style="margin:4px"><span class="ico" aria-hidden="true"></span><span class="ph">搜索 SKU 或商品名</span></div>
+          <ul class="combo-list">
+            <li role="option" aria-selected="true"><span>胡桃木床头柜（双抽）<span class="m mono">QM-NS-WAL-2D · <span class="warn" aria-hidden="true"></span>库存 18 / 安全线 40</span></span><span class="rgt"><span class="tag tag-warning tag-mini">库存预警</span><span class="m num">¥480.00</span></span></li>
+            <li role="option" aria-selected="false"><span>白橡木落地灯<span class="m mono">QM-LP-OAK-01 · 库存 15 / 安全线 12</span></span><span class="rgt"><span class="m num">¥350.00</span></span></li>
+            <li role="option" aria-selected="false"><span>胡桃木置物架 1.2m<span class="m mono">QM-SH-WAL-120 · 库存 12 / 安全线 10</span></span><span class="rgt"><span class="m num">¥620.00</span></span></li>
+            <li role="option" aria-selected="false"><span>北欧白橡木餐桌 1.6m<span class="m mono">QM-TB-OAK-160 · <span class="warn" aria-hidden="true"></span>库存 9 / 安全线 12</span></span><span class="rgt"><span class="tag tag-warning tag-mini">库存预警</span><span class="m num">¥1,620.00</span></span></li>
+            <li role="option" aria-selected="false"><span>白橡木三门衣柜<span class="m mono">QM-WD-OAK-3 · <span class="warn" aria-hidden="true"></span>库存 4 / 安全线 5</span></span><span class="rgt"><span class="tag tag-warning tag-mini">库存预警</span><span class="m num">¥2,960.00</span></span></li>
+            <li role="option" aria-selected="false"><span>亚麻遮光窗帘 3.0m<span class="m mono">QM-CT-LIN-300 · <span class="warn" aria-hidden="true"></span>库存 41 / 安全线 50</span></span><span class="rgt"><span class="tag tag-warning tag-mini">库存预警</span><span class="m num">¥226.00</span></span></li>
+          </ul>
+          <p class="panel-cap" style="margin:8px 4px 4px">无匹配：「没有匹配的商品」</p>
+        </div>
+      </div>
+      <div>
+        <p class="panel-cap">Toast：<a href="?toast=draft">草稿已保存</a> · <a href="?toast=row">已添加商品行</a>；Tooltip：<span class="tooltip">后续轮次提供</span></p>
+        <p class="panel-cap">375：步骤条 → 文字「第 n 步，共 3 步」+ 进度条；商品行表格 → 卡片；右栏摘要移到表单上方（供应商卡隐藏）；底部操作条吸底</p>
+      </div>
+    </div>
+  </section>
+
+<script>
+  // 仅用于线框状态切换（?step= / ?state= / ?open= / ?toast=），无业务逻辑。
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var s = q.get('state') || 'default';
+    if (!/^(default|invalid|loading|success|error)$/.test(s)) s = 'default';
+    var st = q.get('step') || (s === 'loading' || s === 'error' ? '3' : '1');
+    if (!/^[123]$/.test(st)) st = '1';
+    var root = document.documentElement;
+    root.setAttribute('data-state', s); root.setAttribute('data-step', st);
+    var o = q.get('open'); if (/^(terms|leave|supplier|sku)$/.test(o || '')) root.setAttribute('data-open', o);
+    var t = q.get('toast'); if (/^(draft|row)$/.test(t || '')) root.setAttribute('data-toast', t);
+    var titles = { '1': '基本信息', '2': '商品与配送', '3': '确认提交' };
+    document.querySelector('.stepnum').textContent = st; document.querySelector('.steptitle').textContent = titles[st];
+    var lis = document.querySelectorAll('.stepper li');
+    lis.forEach(function (li, i) { li.removeAttribute('aria-current'); li.classList.remove('done'); if (i + 1 < +st) li.classList.add('done'); if (i + 1 === +st) li.setAttribute('aria-current', 'step'); });
+    var mark = function (sel) { var el = document.querySelector(sel); if (el) el.setAttribute('aria-current', 'true'); };
+    mark('.wf-bar a[data-st="' + st + '"]'); mark('.wf-bar a[data-s="' + s + '"]'); if (o) mark('.wf-bar a[data-o="' + o + '"]');
+  })();
+</script>
+</body>
+</html>

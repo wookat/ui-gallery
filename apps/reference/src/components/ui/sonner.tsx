@@ -39,7 +39,7 @@ function Toaster(props: ToasterProps) {
         unstyled: true,
         classNames: {
           toast:
-            "flex w-fit max-w-full items-center gap-3 rounded-lg border bg-surface-raised py-2 pr-2 pl-4 text-role-label text-fg shadow-lg",
+            "flex w-fit max-w-[calc(100vw-var(--space-12))] items-center gap-3 rounded-lg border bg-surface-raised py-2 pr-2 pl-4 text-role-label text-fg shadow-lg",
           content: "min-w-0",
           title: "text-role-label",
           description: "text-role-caption text-fg-muted",

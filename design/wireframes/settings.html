@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="zh-CN" data-tab="profile" data-state="default" data-cycle="yearly">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>线框 · settings（/settings）· Acme Console</title>
+<style>
+  /* 低保真线框：纯灰阶（#000–#fff），无组件库、无图片、无字体文件。
+     灰阶变量只服务线框层级表达，不是阶段 2 的设计令牌。 */
+  :root {
+    --g0: #ffffff; --g5: #f4f4f4; --g10: #e6e6e6; --g20: #cccccc; --g40: #999999; --g60: #666666; --g80: #333333; --g100: #000000;
+    --unit: 8px; --hit: 40px;
+    --sidebar: 240px; --topbar: 56px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans SC", sans-serif; font-size: 14px; line-height: 1.5; color: var(--g80); background: var(--g0); }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: var(--g80); text-underline-offset: 2px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ico { display: inline-block; width: 24px; height: 24px; border: 1px dashed var(--g40); border-radius: 4px; flex: none; }
+  .ico-sm { width: 20px; height: 20px; }
+  .iconbtn { width: var(--hit); height: var(--hit); display: inline-grid; place-items: center; border: 0; background: transparent; border-radius: 8px; cursor: pointer; position: relative; flex: none; }
+  .iconbtn:hover { background: var(--g5); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--g80); color: var(--g0); display: inline-grid; place-items: center; font-size: 13px; font-weight: 600; flex: none; }
+  .avatar-sm { width: 28px; height: 28px; font-size: 12px; }
+  .badge { display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--g100); color: var(--g0); font-size: 11px; line-height: 18px; text-align: center; font-weight: 600; }
+  .badge-warn { background: var(--g0); color: var(--g100); border: 1.5px solid var(--g100); line-height: 15px; }
+
+  /* 线框标注栏 */
+  .wf-bar { display: flex; flex-wrap: wrap; gap: var(--unit) calc(var(--unit) * 2); align-items: center; padding: var(--unit) calc(var(--unit) * 2); font-size: 12px; color: var(--g60); border-bottom: 1px dashed var(--g20); background: var(--g5); }
+  .wf-bar strong { color: var(--g100); }
+  .wf-bar a { color: var(--g60); }
+  .wf-bar a[aria-current="true"] { color: var(--g100); font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--g100); }
+  [data-p] { position: relative; }
+  [data-p]::before { content: attr(data-p); position: absolute; left: -6px; top: -10px; z-index: 2; width: 18px; height: 18px; border-radius: 50%; background: var(--g100); color: var(--g0); font-size: 11px; line-height: 18px; text-align: center; font-weight: 600; }
+  .sidebar[data-p]::before { left: 4px; top: 4px; }
+
+  /* ===== 应用壳（与 dashboard.html 相同） ===== */
+  .shell { display: grid; grid-template-columns: var(--sidebar) 1fr; min-height: calc(100vh - 42px); }
+  .sidebar { border-right: 1px solid var(--g10); background: var(--g5); padding: calc(var(--unit) * 2) calc(var(--unit) * 1.5); display: flex; flex-direction: column; gap: calc(var(--unit) * 2); }
+  .brand { display: flex; align-items: center; gap: calc(var(--unit) * 1.25); padding: 0 var(--unit); min-height: var(--hit); }
+  .brand .mark { width: 28px; height: 28px; border: 2px solid var(--g100); border-radius: 7px; flex: none; }
+  .brand .txt { min-width: 0; line-height: 1.2; }
+  .brand .name { font-weight: 600; color: var(--g100); font-size: 14px; }
+  .brand .ws { font-size: 12px; color: var(--g60); }
+  .brand .collapse { margin-left: auto; }
+  .nav-group { margin: 0; padding: 0; list-style: none; }
+  .nav-group + .nav-group { margin-top: var(--unit); }
+  .nav-title { font-size: 11px; color: var(--g40); letter-spacing: .04em; padding: 0 var(--unit) 4px; }
+  .nav-item { display: flex; align-items: center; gap: calc(var(--unit) * 1.25); height: var(--hit); padding: 0 var(--unit); border-radius: 8px; color: var(--g80); text-decoration: none; }
+  .nav-item .ico { width: 20px; height: 20px; }
+  .nav-item .lbl { flex: 1; }
+  .nav-item[aria-current="page"] { background: var(--g0); color: var(--g100); font-weight: 600; border: 1px solid var(--g20); }
+  .nav-item[aria-disabled="true"] { color: var(--g60); }
+  .sidebar .disabled-tip { margin-top: auto; font-size: 11px; color: var(--g40); padding: 0 var(--unit); }
+
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar); border-bottom: 1px solid var(--g10); display: flex; align-items: center; gap: var(--unit); padding: 0 calc(var(--unit) * 3); position: sticky; top: 0; background: var(--g0); z-index: 3; }
+  .hamburger { display: none; }
+  .crumb { display: flex; align-items: center; gap: var(--unit); color: var(--g60); white-space: nowrap; }
+  .crumb .cur { color: var(--g100); font-weight: 600; }
+  .crumb .dis { color: var(--g40); }
+  .search { margin-left: auto; width: 320px; height: 36px; border: 1px solid var(--g20); border-radius: 8px; display: flex; align-items: center; gap: var(--unit); padding: 0 var(--unit) 0 calc(var(--unit) * 1.5); color: var(--g40); }
+  .search .ico { width: 16px; height: 16px; }
+  .search .ph { flex: 1; }
+  .search kbd { font: inherit; font-size: 11px; border: 1px solid var(--g20); border-radius: 4px; padding: 0 5px; color: var(--g60); }
+  .search-btn { display: none; }
+  .topbar .dot { position: absolute; top: 6px; right: 6px; }
+  .topbar .dot .badge { min-width: 16px; height: 16px; line-height: 16px; font-size: 10px; padding: 0 4px; }
+  .topbar .assist { border: 1px dashed var(--g40); }
+  .topbar .assist[aria-current="page"] { border-style: solid; border-color: var(--g100); }
+
+  .content { padding: calc(var(--unit) * 3); max-width: 1280px; width: 100%; margin: 0 auto; flex: 1; min-width: 0; }
+  .state { display: none; }
+
+  /* ===== 通用控件 ===== */
+  .card { border: 1px solid var(--g20); border-radius: 12px; background: var(--g0); padding: calc(var(--unit) * 2); min-width: 0; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: var(--hit); padding: 0 calc(var(--unit) * 2); border-radius: 8px; border: 1px solid var(--g100); background: var(--g100); color: var(--g0); font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn-secondary { background: var(--g0); color: var(--g80); border-color: var(--g20); font-weight: 500; }
+  .btn-ghost { background: transparent; color: var(--g80); border-color: transparent; font-weight: 500; }
+  .btn-danger { background: var(--g0); color: var(--g100); border: 2px solid var(--g100); }
+  .btn-danger.solid { background: var(--g100); color: var(--g0); }
+  .btn[aria-disabled="true"], .btn:disabled { background: var(--g10); color: var(--g40); border-color: var(--g10); cursor: not-allowed; }
+  .btn-sm { height: 32px; padding: 0 calc(var(--unit) * 1.5); font-size: 13px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label, .field .lbl { font-size: 13px; font-weight: 500; color: var(--g100); }
+  .field .opt { color: var(--g40); font-weight: 400; font-size: 12px; margin-left: 4px; }
+  .field .req { color: var(--g100); }
+  .field .hint { font-size: 12px; color: var(--g60); }
+  .field .err { display: none; font-size: 12px; color: var(--g100); font-weight: 600; }
+  .field .err::before { content: "▲ "; }
+  .ctl { height: var(--hit); border: 1px solid var(--g20); border-radius: 8px; padding: 0 calc(var(--unit) * 1.5); display: flex; align-items: center; gap: var(--unit); background: var(--g0); color: var(--g80); min-width: 0; }
+  .ctl .ph { color: var(--g40); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ctl .val { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ctl .ico { width: 16px; height: 16px; }
+  .ctl.ro { background: var(--g5); color: var(--g60); }
+  .ctl.sm { height: 32px; padding: 0 var(--unit); font-size: 13px; }
+  .textarea { min-height: 88px; align-items: flex-start; padding-top: var(--unit); }
+  .field.invalid .ctl { border: 2px solid var(--g100); }
+  .field.invalid .err { display: block; }
+  .check { display: flex; align-items: center; gap: var(--unit); min-height: var(--hit); }
+  .check input { width: 18px; height: 18px; margin: 0; accent-color: #000; }
+  .switch { display: inline-block; width: 40px; height: 22px; border-radius: 11px; border: 1px solid var(--g40); background: var(--g0); position: relative; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--g40); }
+  .switch[aria-checked="true"] { background: var(--g100); border-color: var(--g100); }
+  .switch[aria-checked="true"]::after { left: 20px; background: var(--g0); }
+  .tag { display: inline-block; font-size: 12px; line-height: 20px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--g40); color: var(--g80); background: var(--g0); white-space: nowrap; }
+  .tag-info { background: var(--g100); color: var(--g0); border-color: var(--g100); }
+  .tag-warning { border-style: dashed; border-color: var(--g100); color: var(--g100); }
+  .tag-success { background: var(--g10); border-color: var(--g10); }
+  .tag-danger { border: 2px solid var(--g100); color: var(--g100); line-height: 18px; font-weight: 600; }
+  .tag-neutral { color: var(--g60); border-color: var(--g20); }
+  .tag-mini { font-size: 10px; line-height: 16px; padding: 0 5px; vertical-align: 2px; }
+  .alert { border: 2px solid var(--g100); border-radius: 10px; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); display: flex; gap: var(--unit); align-items: flex-start; background: var(--g0); }
+  .alert .ico { width: 20px; height: 20px; border-style: solid; }
+  .alert strong { color: var(--g100); display: block; }
+  .alert .acts { margin-left: auto; display: flex; gap: var(--unit); flex: none; }
+  .alert.warn { border-style: dashed; }
+  .alert.info { border-width: 1px; border-color: var(--g40); }
+  .sk { background: var(--g10); border-radius: 6px; display: block; }
+  .center-block { max-width: 440px; margin: calc(var(--unit) * 8) auto; text-align: center; }
+  .center-block .fig { width: 96px; height: 96px; margin: 0 auto calc(var(--unit) * 2); border: 2px dashed var(--g20); border-radius: 50%; }
+  .center-block h2 { margin: 0; font-size: 18px; color: var(--g100); }
+  .center-block p { color: var(--g60); margin: var(--unit) 0 0; }
+  .center-block .acts { display: flex; gap: var(--unit); justify-content: center; margin-top: calc(var(--unit) * 3); flex-wrap: wrap; }
+  .center-block .help { font-size: 12px; color: var(--g40); margin-top: calc(var(--unit) * 2); }
+  .toast { display: none; position: fixed; top: calc(42px + var(--unit) * 2); right: calc(var(--unit) * 3); z-index: 9; border: 1px solid var(--g100); background: var(--g0); border-radius: 10px; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); box-shadow: 0 4px 16px rgba(0,0,0,.12); align-items: center; gap: var(--unit); font-weight: 500; color: var(--g100); max-width: 420px; }
+  .toast .undo { margin-left: var(--unit); text-decoration: underline; font-weight: 600; }
+  .toast .life { font-size: 11px; color: var(--g40); font-weight: 400; }
+  .tooltip { display: inline-block; background: var(--g100); color: var(--g0); font-size: 12px; padding: 4px 8px; border-radius: 6px; }
+
+  /* ===== 叠层清单（线框以平铺面板呈现；?open= 命中时该面板以真实叠层位置显示） ===== */
+  .overlays { border-top: 1px dashed var(--g20); background: var(--g5); padding: calc(var(--unit) * 3); }
+  .overlays h2 { margin: 0 0 var(--unit); font-size: 14px; color: var(--g60); font-weight: 600; }
+  .overlays .row { display: flex; gap: calc(var(--unit) * 2); flex-wrap: wrap; align-items: flex-start; }
+  .overlays .row > div { min-width: 0; max-width: 100%; }
+  .panel { border: 1px solid var(--g20); border-radius: 10px; background: var(--g0); padding: var(--unit); width: 320px; max-width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .panel-cap { font-size: 11px; color: var(--g40); margin: 0 0 var(--unit) 4px; }
+  .panel .ph { display: flex; justify-content: space-between; align-items: center; padding: var(--unit) var(--unit) 4px; font-weight: 600; color: var(--g100); gap: var(--unit); }
+  .menu { list-style: none; margin: 0; padding: 0; }
+  .menu li { display: flex; align-items: center; gap: var(--unit); min-height: var(--hit); padding: 0 var(--unit); border-radius: 6px; }
+  .menu li.danger { color: var(--g100); font-weight: 600; border-top: 1px solid var(--g10); }
+  .menu li[aria-disabled="true"] { color: var(--g40); }
+  .dialog { width: 440px; padding: calc(var(--unit) * 3); }
+  .dialog h3 { margin: 0 0 var(--unit); font-size: 17px; color: var(--g100); }
+  .dialog p { margin: 0 0 calc(var(--unit) * 2); color: var(--g60); }
+  .dialog .acts { display: flex; justify-content: flex-end; gap: var(--unit); margin-top: calc(var(--unit) * 3); }
+  .backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 7; }
+  .is-open { position: fixed; z-index: 8; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+  .is-open.dialog { left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: auto; }
+  .is-open.side { right: 0; top: 0; bottom: 0; border-radius: 0; width: 480px; max-width: 100vw; overflow: auto; }
+  .is-open.sheet { left: 0; top: 0; bottom: 0; border-radius: 0; width: 300px; overflow: auto; }
+
+  /* ===== 375：抽屉导航 + 单列（与 dashboard.html 相同断点） ===== */
+  @media (max-width: 767px) {
+    .shell { display: block; min-height: 0; }
+    .sidebar { display: none; }
+    .topbar { padding: 0 var(--unit); gap: 0; }
+    .hamburger { display: inline-grid; }
+    .crumb .root, .crumb .sep, .crumb .dis { display: none; }
+    .crumb { flex: 1; min-width: 0; margin-left: 4px; }
+    .crumb .cur { overflow: hidden; text-overflow: ellipsis; }
+    .search { display: none; }
+    .search-btn { display: inline-grid; }
+    .content { padding: calc(var(--unit) * 2); }
+    .card { padding: calc(var(--unit) * 1.5); border-radius: 10px; }
+    .toast { left: var(--unit); right: var(--unit); justify-content: center; max-width: none; }
+    .overlays .row { flex-direction: column; }
+    .panel, .dialog { width: 100%; }
+    .is-open.dialog { width: calc(100vw - 32px); }
+    .is-open.side { width: 100vw; top: 15vh; border-radius: 16px 16px 0 0; }
+    .is-open.sheet { width: 85vw; }
+    [data-p]::before { left: -4px; top: -8px; }
+  }
+
+  /* ===== Tab / 状态显示 ===== */
+  .tabpane { display: none; }
+  [data-tab="profile"] .pane-profile, [data-tab="security"] .pane-security, [data-tab="notifications"] .pane-notifications, [data-tab="team"] .pane-team, [data-tab="billing"] .pane-billing { display: block; }
+  .stabs a[data-t]{ }
+  [data-tab="profile"] .stabs a[data-t="profile"], [data-tab="security"] .stabs a[data-t="security"], [data-tab="notifications"] .stabs a[data-t="notifications"], [data-tab="team"] .stabs a[data-t="team"], [data-tab="billing"] .stabs a[data-t="billing"] { background: var(--g0); color: var(--g100); font-weight: 600; border-color: var(--g20); }
+  .only-error, .only-saving, .only-empty { display: none; }
+  .not-empty { display: block; }
+  [data-state="error"] .only-error { display: flex; }
+  [data-state="saving"] .only-saving { display: inline-flex; }
+  [data-state="saving"] .savebar .btn .lbl { display: none; }
+  [data-state="saving"] .savebar .btn { background: var(--g60); border-color: var(--g60); pointer-events: none; }
+  [data-state="saving"] .savebar .btn-secondary { color: var(--g40); border-color: var(--g10); }
+  [data-state="saved"] .toast, [data-toast] .toast { display: flex; }
+  [data-state="empty"] .only-empty { display: block; }
+  [data-state="empty"] .not-empty { display: none; }
+  .danger-zone { display: none; }
+  [data-tab="team"] .danger-zone, [data-tab="billing"] .danger-zone { display: block; }
+  .cycle-m, .cycle-y { display: none; }
+  [data-cycle="monthly"] .cycle-m, [data-cycle="yearly"] .cycle-y { display: inline; }
+  [data-cycle="monthly"] .cyc-switch { --on: 0; }
+  [data-cycle="monthly"] .cyc-switch .switch { background: var(--g0); border-color: var(--g40); }
+  [data-cycle="monthly"] .cyc-switch .switch::after { left: 2px; background: var(--g40); }
+
+  /* ===== 布局：左竖向 Tabs 192 + 内容 ===== */
+  .head { display: flex; align-items: flex-start; justify-content: space-between; gap: calc(var(--unit) * 2); flex-wrap: wrap; }
+  .head h1 { margin: 0; font-size: 22px; font-weight: 600; color: var(--g100); line-height: 1.25; }
+  .head .sub { color: var(--g60); font-size: 12px; margin-top: 2px; }
+  .layout { display: grid; grid-template-columns: 192px minmax(0, 1fr); gap: calc(var(--unit) * 4); margin-top: calc(var(--unit) * 3); align-items: start; }
+  .stabs { display: flex; flex-direction: column; gap: 4px; position: sticky; top: calc(var(--topbar) + 24px); }
+  .stabs a { display: flex; align-items: center; gap: var(--unit); height: var(--hit); padding: 0 calc(var(--unit) * 1.5); border-radius: 8px; border: 1px solid transparent; color: var(--g60); text-decoration: none; }
+  .stabs a .ico { width: 18px; height: 18px; }
+  .pane > .card + .card, .pane > .card + .danger-zone { margin-top: calc(var(--unit) * 2); }
+  .card h2 { margin: 0; font-size: 17px; color: var(--g100); }
+  .card .desc { margin: 2px 0 0; color: var(--g60); font-size: 13px; }
+  .card .ch { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--unit); flex-wrap: wrap; }
+  .card .ch .meta { font-size: 13px; color: var(--g60); white-space: nowrap; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--unit) * 2) calc(var(--unit) * 3); margin-top: calc(var(--unit) * 3); }
+  .grid2 .full { grid-column: 1 / -1; }
+  .avatar-lg { width: 64px; height: 64px; font-size: 24px; }
+  .avatar-row { display: flex; align-items: center; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 3); }
+  .avatar-row .hint { font-size: 12px; color: var(--g60); }
+  .savebar { display: flex; align-items: center; gap: var(--unit); margin-top: calc(var(--unit) * 3); padding-top: calc(var(--unit) * 2); border-top: 1px solid var(--g10); }
+  .savebar .msg { color: var(--g60); font-size: 13px; margin-right: auto; }
+  .savebar .msg::before { content: "● "; color: var(--g100); }
+
+  /* 安全 */
+  .strength { display: flex; gap: 4px; margin-top: 6px; }
+  .strength span { height: 4px; flex: 1; background: var(--g10); border-radius: 2px; }
+  .strength span.on { background: var(--g100); }
+  .rules { list-style: none; margin: 6px 0 0; padding: 0; font-size: 12px; color: var(--g60); display: flex; gap: calc(var(--unit) * 2); flex-wrap: wrap; }
+  .rules li::before { content: "○ "; }
+  .rules li.ok { color: var(--g100); }
+  .rules li.ok::before { content: "● "; }
+  .twofa { display: grid; grid-template-columns: 160px 1fr; gap: calc(var(--unit) * 3); margin-top: calc(var(--unit) * 2); padding: calc(var(--unit) * 2); border: 1px dashed var(--g20); border-radius: 10px; }
+  .qr { width: 160px; height: 160px; fill: var(--g100); background: var(--g0); border: 1px solid var(--g10); padding: 8px; box-sizing: border-box; display: block; }
+  .otp { display: flex; gap: 6px; }
+  .otp span { width: 40px; height: 48px; border: 1px solid var(--g20); border-radius: 8px; display: grid; place-items: center; font-size: 20px; color: var(--g100); }
+  .otp span.f { border: 2px solid var(--g100); }
+  .list { list-style: none; margin: calc(var(--unit) * 2) 0 0; padding: 0; }
+  .list li { display: grid; grid-template-columns: 24px 1fr auto; gap: calc(var(--unit) * 1.5); align-items: center; padding: calc(var(--unit) * 1.5) 0; border-top: 1px solid var(--g10); font-size: 13px; }
+  .list li:first-child { border-top: 0; }
+  .list .t { color: var(--g100); font-weight: 500; }
+  .list .m { color: var(--g60); font-size: 12px; }
+
+  /* 通知 */
+  .seg { display: inline-flex; border: 1px solid var(--g20); border-radius: 8px; overflow: hidden; }
+  .seg button { height: 36px; padding: 0 calc(var(--unit) * 2); border: 0; background: transparent; cursor: pointer; color: var(--g60); }
+  .seg button[aria-pressed="true"] { background: var(--g100); color: var(--g0); font-weight: 600; }
+  .ntable { width: 100%; border-collapse: collapse; margin-top: calc(var(--unit) * 2); }
+  .ntable th, .ntable td { padding: calc(var(--unit) * 1.25) var(--unit); border-top: 1px solid var(--g10); text-align: left; font-size: 13px; vertical-align: middle; }
+  .ntable th { font-size: 12px; font-weight: 500; color: var(--g60); border-top: 0; }
+  .ntable th.c, .ntable td.c { text-align: center; width: 88px; }
+  .ntable .g td { background: var(--g5); font-weight: 600; color: var(--g100); }
+  .ntable .g td a { font-weight: 400; font-size: 12px; color: var(--g60); margin-left: var(--unit); }
+  .ntable .d { display: block; font-size: 12px; color: var(--g60); font-weight: 400; }
+
+  /* 团队 */
+  .ttable { width: 100%; border-collapse: collapse; margin-top: calc(var(--unit) * 2); }
+  .ttable th, .ttable td { padding: var(--unit); border-top: 1px solid var(--g10); text-align: left; font-size: 13px; white-space: nowrap; vertical-align: middle; }
+  .ttable th { font-size: 12px; font-weight: 500; color: var(--g60); border-top: 0; }
+  .ttable .who { display: flex; align-items: center; gap: var(--unit); }
+  .ttable .who .m { display: block; font-size: 12px; color: var(--g60); }
+  .ttable .ctl { height: 32px; font-size: 13px; width: 120px; }
+  .tcards { display: none; }
+  .invite { display: grid; grid-template-columns: 1fr 140px auto; gap: var(--unit); margin-top: calc(var(--unit) * 2); align-items: end; }
+  .seats { display: flex; align-items: center; gap: var(--unit); font-size: 13px; color: var(--g60); }
+  .seats .bar { width: 120px; height: 6px; background: var(--g10); border-radius: 3px; position: relative; }
+  .seats .bar::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: var(--g100); border-radius: 3px; }
+
+  /* 计费 */
+  .plan-now { display: grid; grid-template-columns: 1fr auto; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 2); align-items: start; }
+  .plan-now .big { font-size: 22px; font-weight: 600; color: var(--g100); }
+  .plan-now .kv { font-size: 13px; color: var(--g60); margin-top: 4px; }
+  .plan-now .kv b { color: var(--g100); font-weight: 500; }
+  .cyc-switch { display: inline-flex; align-items: center; gap: var(--unit); font-size: 13px; color: var(--g60); }
+  .cyc-switch .on { color: var(--g100); font-weight: 600; }
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 2); }
+  .plan { border: 1px solid var(--g20); border-radius: 12px; padding: calc(var(--unit) * 2); position: relative; display: flex; flex-direction: column; }
+  .plan.rec { border: 2px solid var(--g100); }
+  .plan .rb { position: absolute; top: -10px; left: 16px; background: var(--g100); color: var(--g0); font-size: 11px; padding: 1px 8px; border-radius: 9px; font-weight: 600; }
+  .plan h3 { margin: 0; font-size: 15px; color: var(--g100); }
+  .plan .price { font-size: 26px; font-weight: 700; color: var(--g100); margin-top: var(--unit); line-height: 1.1; }
+  .plan .price small { font-size: 13px; font-weight: 400; color: var(--g60); }
+  .plan .per { font-size: 12px; color: var(--g60); min-height: 18px; }
+  .plan ul { list-style: none; margin: calc(var(--unit) * 2) 0; padding: 0; font-size: 13px; flex: 1; }
+  .plan li { padding: 4px 0; color: var(--g100); }
+  .plan li::before { content: "● "; }
+  .plan li.no { color: var(--g40); text-decoration: line-through; }
+  .plan li.no::before { content: "○ "; }
+  .plan .btn { width: 100%; }
+  .itable { width: 100%; border-collapse: collapse; margin-top: calc(var(--unit) * 2); }
+  .itable th, .itable td { padding: var(--unit); border-top: 1px solid var(--g10); text-align: left; font-size: 13px; white-space: nowrap; }
+  .itable th { font-size: 12px; font-weight: 500; color: var(--g60); border-top: 0; }
+  .itable .r { text-align: right; }
+  .itable .desc-col { white-space: normal; }
+  .danger-zone .card { border: 2px solid var(--g100); }
+  .danger-zone .row { display: flex; justify-content: space-between; align-items: center; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 2); flex-wrap: wrap; }
+  .danger-zone .row p { margin: 0; color: var(--g60); font-size: 13px; max-width: 560px; }
+  .danger-zone .row b { display: block; color: var(--g100); }
+
+  /* 叠层 */
+  [data-open] .backdrop { display: block; }
+  [data-open="2fa"] .ov-2fa, [data-open="2fa-disable"] .ov-2fa-disable, [data-open="remove"] .ov-remove, [data-open="danger"] .ov-danger, [data-open="leave"] .ov-leave { position: fixed; z-index: 8; box-shadow: 0 12px 40px rgba(0,0,0,.25); left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: auto; }
+
+  @media (max-width: 767px) {
+    .head h1 { font-size: 20px; }
+    .layout { grid-template-columns: 1fr; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 2); }
+    .stabs { position: static; flex-direction: row; overflow-x: auto; gap: 4px; padding-bottom: 4px; margin: 0 calc(var(--unit) * -2); padding-left: calc(var(--unit) * 2); padding-right: calc(var(--unit) * 2); scrollbar-width: none; }
+    .stabs a { flex: none; height: 36px; border: 1px solid var(--g20); border-radius: 18px; }
+    .stabs a .ico { display: none; }
+    .grid2 { grid-template-columns: 1fr; gap: calc(var(--unit) * 2); margin-top: calc(var(--unit) * 2); }
+    .savebar { position: sticky; bottom: 0; background: var(--g0); padding-bottom: var(--unit); flex-wrap: wrap; z-index: 2; }
+    .savebar .msg { width: 100%; }
+    .savebar .btn { flex: 1; }
+    .twofa { grid-template-columns: 1fr; justify-items: center; }
+    .twofa > div { width: 100%; }
+    .otp span { width: 100%; }
+    .list li { grid-template-columns: 20px 1fr; }
+    .list li .act { grid-column: 2; justify-self: start; }
+    .ntable th.c, .ntable td.c { width: 56px; padding-left: 2px; padding-right: 2px; }
+    .ntable .seg-row { display: none; }
+    .ttable { display: none; }
+    .tcards { display: block; list-style: none; margin: calc(var(--unit) * 2) 0 0; padding: 0; }
+    .tcards li { border-top: 1px solid var(--g10); padding: calc(var(--unit) * 1.5) 0; display: grid; grid-template-columns: 32px 1fr; gap: 4px var(--unit); font-size: 13px; }
+    .tcards li:first-child { border-top: 0; }
+    .tcards .who { color: var(--g100); font-weight: 600; }
+    .tcards .m { color: var(--g60); font-size: 12px; grid-column: 2; overflow-wrap: anywhere; }
+    .tcards .acts { grid-column: 2; display: flex; gap: var(--unit); align-items: center; margin-top: 4px; }
+    .tcards .acts .ctl { height: 32px; font-size: 13px; flex: 1; }
+    .invite { grid-template-columns: 1fr; }
+    .plan-now { grid-template-columns: 1fr; }
+    .plans { grid-template-columns: 1fr; }
+    .itable thead { display: none; }
+    .itable tr { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--unit); padding: var(--unit) 0; border-top: 1px solid var(--g10); }
+    .itable td { border: 0; padding: 0; white-space: normal; }
+    .itable td.r { text-align: right; }
+    .itable td.desc-col { grid-column: 1 / -1; color: var(--g60); font-size: 12px; }
+    .itable td.dl { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+  <nav class="wf-bar" aria-label="线框标注栏">
+    <strong>线框 · settings（/settings）</strong>
+    <span>Tab：</span>
+    <a href="?tab=profile" data-wt="profile">profile</a>
+    <a href="?tab=security" data-wt="security">security</a>
+    <a href="?tab=notifications" data-wt="notifications">notifications</a>
+    <a href="?tab=team" data-wt="team">team</a>
+    <a href="?tab=billing" data-wt="billing">billing</a>
+    <span>· 状态：</span>
+    <a href="?tab=profile&state=default" data-s="default">default</a>
+    <a href="?tab=profile&state=saving" data-s="saving">saving</a>
+    <a href="?tab=profile&state=saved" data-s="saved">saved（Toast）</a>
+    <a href="?tab=profile&state=error" data-s="error">error</a>
+    <a href="?tab=security&state=empty" data-s="empty">empty（security 无其他会话 / team 仅自己 / billing 无发票）</a>
+    <span>· 叠层：</span>
+    <a href="?tab=security&open=2fa" data-o="2fa">open=2fa</a>
+    <a href="?tab=security&open=2fa-disable" data-o="2fa-disable">2fa-disable</a>
+    <a href="?tab=team&open=remove" data-o="remove">remove</a>
+    <a href="?tab=team&open=danger" data-o="danger">danger</a>
+    <a href="?tab=profile&open=leave" data-o="leave">leave</a>
+    <span>· 计费周期：</span>
+    <a href="?tab=billing&cycle=monthly" data-c="monthly">cycle=monthly</a>
+    <a href="?tab=billing&cycle=yearly" data-c="yearly">cycle=yearly</a>
+    <span>· 数据 = mock/settings.json（profile = user.json；成员 = team.json；定价 = landing.json）· 序号 = 01-ia.md §9.3</span>
+  </nav>
+
+  <div class="shell">
+    <!-- 侧边栏（1440 展开；1024 折叠为 icon rail；≤768 抽屉）——与 dashboard.html 相同，本轮仅「设置」变为当前项 -->
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <div class="txt">
+          <div class="name">Acme Console</div>
+          <div class="ws">栖木家居</div>
+        </div>
+        <button class="iconbtn collapse" type="button" aria-label="收起侧边栏"><span class="ico ico-sm" aria-hidden="true"></span></button>
+      </div>
+      <nav>
+        <div class="nav-title">概览</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="dashboard.html"><span class="ico" aria-hidden="true"></span><span class="lbl">仪表盘</span></a></li>
+        </ul>
+        <div class="nav-title">交易</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="orders.html" ><span class="ico" aria-hidden="true"></span><span class="lbl">订单</span><span class="badge num" aria-label="待发货 63">63</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">售后</span><span class="badge num" aria-label="待处理退款 7">7</span></a></li>
+        </ul>
+        <div class="nav-title">货品</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">商品</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">库存</span><span class="badge badge-warn num" aria-label="库存预警 12 SKU">12</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true" ><span class="ico" aria-hidden="true"></span><span class="lbl">采购</span></a></li>
+        </ul>
+        <div class="nav-title">经营</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">报表</span></a></li>
+          <li><a class="nav-item" href="settings.html" aria-current="page"><span class="ico" aria-hidden="true"></span><span class="lbl">设置</span></a></li>
+        </ul>
+      </nav>
+      <div class="disabled-tip">灰字项 aria-disabled，hover Tooltip「后续轮次提供」；本轮「订单」「设置」变为可达。/form、/chat 不在侧边栏 8 项内（brief §11.1 壳说明）</div>
+    </aside>
+
+    <div class="main">
+      <!-- 顶栏：与 dashboard 相同 + 新增「智能助理」IconButton（brief §11.10-E，位置见 01-ia.md §8） -->
+      <header class="topbar">
+        <button class="iconbtn hamburger" type="button" aria-label="打开导航"><span class="ico" aria-hidden="true"></span></button>
+        <nav class="crumb" aria-label="面包屑"><span class="root">栖木家居</span><span class="sep" aria-hidden="true">/</span><span class="cur">设置</span></nav>
+        <div class="search" role="search" aria-label="全局搜索"><span class="ico" aria-hidden="true"></span><span class="ph">搜索订单号、商品、客户</span><kbd>⌘K</kbd></div>
+        <button class="iconbtn search-btn" type="button" aria-label="全局搜索"><span class="ico" aria-hidden="true"></span></button>
+        <a class="iconbtn assist" href="chat.html" aria-label="智能助理" ><span class="ico" aria-hidden="true"></span></a>
+        <button class="iconbtn" type="button" aria-label="通知，3 条未读" aria-haspopup="dialog"><span class="ico" aria-hidden="true"></span><span class="dot"><span class="badge num">3</span></span></button>
+        <button class="iconbtn" type="button" aria-label="切换为暗色" aria-pressed="false"><span class="ico" aria-hidden="true"></span></button>
+        <button class="iconbtn" type="button" aria-label="账号菜单" aria-haspopup="menu"><span class="avatar" aria-hidden="true">琳</span></button>
+      </header>
+
+
+      <main class="content" id="main">
+        <div class="head"><div><h1>设置</h1><div class="sub">栖木家居 · 专业版 · 管理员 沈若琳</div></div></div>
+
+        <div class="layout">
+          <nav class="stabs" aria-label="设置分类" data-p="①">
+            <a href="?tab=profile" data-t="profile"><span class="ico" aria-hidden="true"></span>个人资料</a>
+            <a href="?tab=security" data-t="security"><span class="ico" aria-hidden="true"></span>账号安全</a>
+            <a href="?tab=notifications" data-t="notifications"><span class="ico" aria-hidden="true"></span>通知</a>
+            <a href="?tab=team" data-t="team"><span class="ico" aria-hidden="true"></span>团队</a>
+            <a href="?tab=billing" data-t="billing"><span class="ico" aria-hidden="true"></span>计费</a>
+          </nav>
+
+          <div class="pane">
+            <div class="alert only-error" role="alert" style="margin-bottom:16px"><span class="ico" aria-hidden="true"></span><div><strong>保存失败</strong>保存失败：网络超时，请重试</div><div class="acts"><button class="btn btn-sm" type="button">重试</button></div></div>
+
+            <!-- ===== 个人资料 ===== -->
+            <section class="tabpane pane-profile" aria-labelledby="pf">
+              <div class="card">
+                <div class="ch"><div><h2 id="pf">个人资料</h2><p class="desc">你的姓名与头像会显示在团队活动与备注中</p></div></div>
+                <div class="avatar-row" data-p="②"><span class="avatar avatar-lg" role="img" aria-label="沈若琳 的头像">琳</span><div><div style="font-weight:500;color:var(--g100)">头像</div><div class="hint">头像由姓名末字自动生成，不支持上传图片</div></div></div>
+                <div class="grid2">
+                  <div class="field"><label for="nm">姓名</label><div class="ctl"><span class="val">沈若琳</span></div></div>
+                  <div class="field"><label for="tt">职位</label><div class="ctl"><span class="val">运营主管</span></div></div>
+                  <div class="field full"><label for="em">邮箱</label><div class="ctl ro"><span class="val">ruolin.shen@qimu-home.cn</span><span class="ico" aria-hidden="true"></span></div><div class="hint">登录邮箱不可修改，如需变更请联系管理员</div></div>
+                  <div class="field full"><label for="bio">简介</label><div class="ctl textarea">负责栖木家居全渠道订单与库存运营，关注抖音直播转化与杭州仓发货时效。</div><div class="hint" style="text-align:right">38 / 160</div></div>
+                  <div class="field"><label>语言</label><div class="ctl" role="button" aria-haspopup="listbox"><span class="val">简体中文</span><span class="ico" aria-hidden="true"></span></div></div>
+                  <div class="field"><label>时区</label><div class="ctl" role="combobox" aria-expanded="false"><span class="val">(UTC+08:00) 北京、上海、香港</span><span class="ico" aria-hidden="true"></span></div></div>
+                </div>
+                <div class="savebar" data-p="③"><span class="msg">有未保存的修改</span><button class="btn btn-secondary" type="button">重置</button><button class="btn" type="button"><span class="lbl">保存</span><span class="only-saving">保存中…</span></button></div>
+              </div>
+            </section>
+
+            <!-- ===== 账号安全 ===== -->
+            <section class="tabpane pane-security" aria-labelledby="sc">
+              <div class="card">
+                <div class="ch"><div><h2 id="sc">修改密码</h2><p class="desc">上次修改于 2026-06-14</p></div></div>
+                <div class="grid2">
+                  <div class="field full" style="max-width:420px"><label>当前密码</label><div class="ctl"><span class="val">••••••••</span><button class="iconbtn" type="button" aria-label="显示密码" style="width:32px;height:32px"><span class="ico ico-sm" aria-hidden="true"></span></button></div></div>
+                  <div class="field full" style="max-width:420px"><label>新密码</label><div class="ctl"><span class="val">••••••••••</span><button class="iconbtn" type="button" aria-label="显示密码" style="width:32px;height:32px"><span class="ico ico-sm" aria-hidden="true"></span></button></div>
+                    <div class="strength" aria-hidden="true"><span class="on"></span><span class="on"></span><span></span></div>
+                    <div class="hint" aria-live="polite">密码强度：一般</div>
+                    <ul class="rules" aria-label="密码要求"><li class="ok">至少 8 位</li><li class="ok">包含大小写字母</li><li>包含数字或符号</li></ul>
+                  </div>
+                  <div class="field full invalid" style="max-width:420px"><label>确认新密码</label><div class="ctl"><span class="val">•••••••••</span></div><div class="err">两次输入的密码不一致</div></div>
+                </div>
+                <div class="savebar"><span class="msg" style="visibility:hidden">—</span><button class="btn" type="button">更新密码</button></div>
+                <p class="desc" style="margin-top:8px">成功 → Toast「密码已更新，其他设备需重新登录」；服务端「当前密码不正确」内联在当前密码下</p>
+              </div>
+
+              <div class="card">
+                <div class="ch"><div><h2>两步验证 <span class="tag tag-neutral">未启用</span></h2><p class="desc">登录时额外输入验证器应用生成的 6 位动态码</p></div><div class="check"><span class="switch" role="switch" aria-checked="false" aria-label="启用两步验证"></span></div></div>
+                <div class="twofa" data-p="②">
+                  <svg class="qr" viewBox="0 0 21 21" role="img" aria-label="两步验证二维码（示意）" shape-rendering="crispEdges"><rect x="0" y="0" width="7" height="7"/><rect x="1" y="1" width="5" height="5" fill="#fff"/><rect x="2" y="2" width="3" height="3"/><rect x="14" y="0" width="7" height="7"/><rect x="15" y="1" width="5" height="5" fill="#fff"/><rect x="16" y="2" width="3" height="3"/><rect x="0" y="14" width="7" height="7"/><rect x="1" y="15" width="5" height="5" fill="#fff"/><rect x="2" y="16" width="3" height="3"/><rect x="8" y="0" width="1" height="1"/><rect x="12" y="0" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="12" y="6" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="17" y="8" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="10" y="9" width="1" height="1"/><rect x="13" y="9" width="1" height="1"/><rect x="15" y="9" width="1" height="1"/><rect x="16" y="9" width="1" height="1"/><rect x="17" y="9" width="1" height="1"/><rect x="18" y="9" width="1" height="1"/><rect x="0" y="10" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="6" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="13" y="10" width="1" height="1"/><rect x="16" y="10" width="1" height="1"/><rect x="20" y="10" width="1" height="1"/><rect x="1" y="11" width="1" height="1"/><rect x="2" y="11" width="1" height="1"/><rect x="3" y="11" width="1" height="1"/><rect x="4" y="11" width="1" height="1"/><rect x="6" y="11" width="1" height="1"/><rect x="7" y="11" width="1" height="1"/><rect x="8" y="11" width="1" height="1"/><rect x="10" y="11" width="1" height="1"/><rect x="11" y="11" width="1" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="14" y="11" width="1" height="1"/><rect x="15" y="11" width="1" height="1"/><rect x="16" y="11" width="1" height="1"/><rect x="17" y="11" width="1" height="1"/><rect x="19" y="11" width="1" height="1"/><rect x="20" y="11" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="3" y="12" width="1" height="1"/><rect x="4" y="12" width="1" height="1"/><rect x="6" y="12" width="1" height="1"/><rect x="7" y="12" width="1" height="1"/><rect x="8" y="12" width="1" height="1"/><rect x="9" y="12" width="1" height="1"/><rect x="11" y="12" width="1" height="1"/><rect x="13" y="12" width="1" height="1"/><rect x="14" y="12" width="1" height="1"/><rect x="15" y="12" width="1" height="1"/><rect x="17" y="12" width="1" height="1"/><rect x="19" y="12" width="1" height="1"/><rect x="20" y="12" width="1" height="1"/><rect x="8" y="13" width="1" height="1"/><rect x="9" y="13" width="1" height="1"/><rect x="10" y="13" width="1" height="1"/><rect x="11" y="13" width="1" height="1"/><rect x="12" y="13" width="1" height="1"/><rect x="13" y="13" width="1" height="1"/><rect x="15" y="13" width="1" height="1"/><rect x="16" y="13" width="1" height="1"/><rect x="19" y="13" width="1" height="1"/><rect x="8" y="14" width="1" height="1"/><rect x="9" y="14" width="1" height="1"/><rect x="11" y="14" width="1" height="1"/><rect x="13" y="14" width="1" height="1"/><rect x="16" y="14" width="1" height="1"/><rect x="17" y="14" width="1" height="1"/><rect x="18" y="14" width="1" height="1"/><rect x="19" y="14" width="1" height="1"/><rect x="20" y="14" width="1" height="1"/><rect x="8" y="15" width="1" height="1"/><rect x="9" y="15" width="1" height="1"/><rect x="10" y="15" width="1" height="1"/><rect x="13" y="15" width="1" height="1"/><rect x="15" y="15" width="1" height="1"/><rect x="17" y="15" width="1" height="1"/><rect x="18" y="15" width="1" height="1"/><rect x="20" y="15" width="1" height="1"/><rect x="12" y="16" width="1" height="1"/><rect x="13" y="16" width="1" height="1"/><rect x="15" y="16" width="1" height="1"/><rect x="17" y="16" width="1" height="1"/><rect x="18" y="16" width="1" height="1"/><rect x="19" y="16" width="1" height="1"/><rect x="9" y="17" width="1" height="1"/><rect x="10" y="17" width="1" height="1"/><rect x="11" y="17" width="1" height="1"/><rect x="12" y="17" width="1" height="1"/><rect x="15" y="17" width="1" height="1"/><rect x="16" y="17" width="1" height="1"/><rect x="18" y="17" width="1" height="1"/><rect x="19" y="17" width="1" height="1"/><rect x="20" y="17" width="1" height="1"/><rect x="9" y="18" width="1" height="1"/><rect x="14" y="18" width="1" height="1"/><rect x="18" y="18" width="1" height="1"/><rect x="8" y="19" width="1" height="1"/><rect x="14" y="19" width="1" height="1"/><rect x="17" y="19" width="1" height="1"/><rect x="18" y="19" width="1" height="1"/><rect x="9" y="20" width="1" height="1"/><rect x="14" y="20" width="1" height="1"/><rect x="16" y="20" width="1" height="1"/><rect x="20" y="20" width="1" height="1"/></svg>
+                  <div>
+                    <p style="margin:0;font-size:13px;color:var(--g80)">用任意支持 TOTP 的验证器应用扫描，或手动输入密钥</p>
+                    <details style="margin-top:8px;font-size:13px"><summary style="cursor:pointer;color:var(--g60)">无法扫码？手动输入密钥</summary><code class="mono" style="display:block;margin-top:6px;padding:8px;background:var(--g5);border-radius:6px">QIMU HOME DEMO KEY 2026</code></details>
+                    <div class="field" style="margin-top:16px"><span class="lbl">输入 6 位验证码</span><div class="otp" role="group" aria-label="输入 6 位验证码"><span class="f">4</span><span>8</span><span>2</span><span></span><span></span><span></span></div><div class="err">验证码不正确或已过期</div></div>
+                    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button">验证并启用</button><span class="hint" style="align-self:center;font-size:12px;color:var(--g40)">Switch 开启时展开本面板（?open=2fa 为 Dialog 版）；成功 → Tag「已启用」+ Toast「两步验证已启用」；已启用时关 Switch → Dialog「关闭两步验证？」</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="ch"><div><h2>活跃会话</h2><p class="desc">以下设备当前已登录你的账号</p></div><button class="btn btn-ghost btn-sm not-empty" type="button" style="border:1px solid var(--g20)">注销其他所有会话</button></div>
+                <ul class="list not-empty" aria-label="活跃会话">
+                  <li><span class="ico" aria-hidden="true"></span><div><div class="t">Chrome · macOS <span class="tag tag-success tag-mini">当前设备</span></div><div class="m">浙江 杭州 · 115.196.xx.xx · 最近活动 今天 17:30</div></div><span class="act"></span></li>
+                  <li><span class="ico" aria-hidden="true"></span><div><div class="t">移动端内置浏览器 · iPhone</div><div class="m">浙江 杭州 · 39.174.xx.xx · 最近活动 今天 12:05</div></div><button class="btn btn-ghost btn-sm act" type="button" aria-label="注销 移动端内置浏览器 · iPhone 的会话">注销</button></li>
+                  <li><span class="ico" aria-hidden="true"></span><div><div class="t">Edge · Windows</div><div class="m">浙江 宁波 · 60.190.xx.xx · 最近活动 09-03 09:40</div></div><button class="btn btn-ghost btn-sm act" type="button" aria-label="注销 Edge · Windows 的会话">注销</button></li>
+                </ul>
+                <div class="only-empty">
+                  <ul class="list" aria-label="活跃会话"><li><span class="ico" aria-hidden="true"></span><div><div class="t">Chrome · macOS <span class="tag tag-success tag-mini">当前设备</span></div><div class="m">浙江 杭州 · 115.196.xx.xx · 最近活动 今天 17:30</div></div></li></ul>
+                  <div class="center-block" style="margin:16px auto"><p style="margin:0">没有其他活跃会话</p></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ===== 通知 ===== -->
+            <section class="tabpane pane-notifications" aria-labelledby="nt">
+              <div class="card">
+                <div class="ch"><div><h2 id="nt">通知偏好</h2><p class="desc">按事件选择接收方式，站内通知始终显示在铃铛中</p></div><div class="seg seg-row" role="group" aria-label="接收方式"><button type="button" aria-pressed="true">全部</button><button type="button" aria-pressed="false">邮件</button><button type="button" aria-pressed="false">推送</button><button type="button" aria-pressed="false">站内</button></div></div>
+                <table class="ntable" aria-label="通知偏好" data-p="②">
+                  <thead><tr><th>事件</th><th class="c">邮件</th><th class="c">推送</th><th class="c">站内</th></tr></thead>
+                  <tbody>
+                    <tr class="g"><td colspan="4">订单与售后<a href="#">全部开启</a><a href="#">全部关闭</a></td></tr>
+                    <tr><td>新订单<span class="d">各渠道同步到新订单时通知</span></td><td class="c"><span class="switch" role="switch" aria-checked="false" aria-label="新订单：邮件"></span></td><td class="c"><span class="switch" role="switch" aria-checked="false" aria-label="新订单：推送"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="新订单：站内"></span></td></tr>
+                    <tr><td>退款申请<span class="d">买家发起退款 / 退货</span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="退款申请：邮件"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="退款申请：推送"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="退款申请：站内"></span></td></tr>
+                    <tr><td>待发货超 48 小时<span class="d">每日 09:00 汇总提醒</span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="待发货超 48 小时：邮件"></span></td><td class="c"><span class="switch" role="switch" aria-checked="false" aria-label="待发货超 48 小时：推送"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="待发货超 48 小时：站内"></span></td></tr>
+                    <tr class="g"><td colspan="4">库存与采购<a href="#">全部开启</a><a href="#">全部关闭</a></td></tr>
+                    <tr><td>库存预警<span class="d">SKU 库存低于安全线</span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="库存预警：邮件"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="库存预警：推送"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="库存预警：站内"></span></td></tr>
+                    <tr><td>采购单到货<span class="d">仓库确认收货后通知</span></td><td class="c"><span class="switch" role="switch" aria-checked="false" aria-label="采购单到货：邮件"></span></td><td class="c"><span class="switch" role="switch" aria-checked="false" aria-label="采购单到货：推送"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="采购单到货：站内"></span></td></tr>
+                    <tr class="g"><td colspan="4">团队与系统<a href="#">全部开启</a><a href="#">全部关闭</a></td></tr>
+                    <tr><td>任务完成<span class="d">成员完成指派给你的任务</span></td><td class="c"><span class="switch" role="switch" aria-checked="false" aria-label="任务完成：邮件"></span></td><td class="c"><span class="switch" role="switch" aria-checked="false" aria-label="任务完成：推送"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="任务完成：站内"></span></td></tr>
+                    <tr><td>渠道同步失败<span class="d">抖音 / 天猫 / 京东同步异常</span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="渠道同步失败：邮件"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="渠道同步失败：推送"></span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="渠道同步失败：站内"></span></td></tr>
+                    <tr><td>账单与发票<span class="d">扣款成功、发票开具</span></td><td class="c"><span class="switch" role="switch" aria-checked="true" aria-label="账单与发票：邮件"></span></td><td class="c"><span class="switch" role="switch" aria-checked="false" aria-label="账单与发票：推送"></span></td><td class="c"><span class="switch" role="switch" aria-checked="false" aria-label="账单与发票：站内"></span></td></tr>
+                  </tbody>
+                </table>
+                <p class="desc" style="margin-top:8px">Segmented 切到单一方式时只显示该列；无项时「该接收方式下没有可配置的通知」</p>
+              </div>
+              <div class="card">
+                <div class="ch"><div><h2>免打扰时段</h2><p class="desc">该时段内推送通知静默，次日早上汇总</p></div><span class="switch" role="switch" aria-checked="true" aria-label="免打扰时段"></span></div>
+                <div class="grid2" style="max-width:420px;margin-top:16px"><div class="field"><label>开始</label><div class="ctl num"><span class="val">22:00</span></div></div><div class="field"><label>结束</label><div class="ctl num"><span class="val">08:00</span></div></div></div>
+                <div class="savebar"><span class="msg">有未保存的修改</span><button class="btn btn-secondary" type="button">重置</button><button class="btn" type="button"><span class="lbl">保存</span><span class="only-saving">保存中…</span></button></div>
+              </div>
+            </section>
+
+            <!-- ===== 团队 ===== -->
+            <section class="tabpane pane-team" aria-labelledby="tm">
+              <div class="card">
+                <div class="ch"><div><h2 id="tm">团队成员</h2><p class="desc">栖木家居</p></div><div class="seats" data-p="②">已用 <b class="num" style="color:var(--g100)">5 / 10</b> 席位<span class="bar" aria-hidden="true"></span></div></div>
+                <div class="invite">
+                  <div class="field"><label>邀请成员</label><div class="ctl"><span class="ph">输入邮箱，回车添加</span></div><div class="hint">输入邮箱，多个用逗号分隔；被邀请人 7 天内接受有效</div></div>
+                  <div class="field"><label>角色</label><div class="ctl" role="button" aria-haspopup="listbox"><span class="val">成员</span><span class="ico" aria-hidden="true"></span></div></div>
+                  <button class="btn" type="button" style="align-self:start;margin-top:24px">发送邀请</button>
+                </div>
+                <table class="ttable not-empty" aria-label="成员列表" data-p="③">
+                  <thead><tr><th>成员</th><th>角色</th><th>加入时间</th><th>最近活动</th><th><span class="sr-only">操作</span></th></tr></thead>
+                  <tbody>
+                    <tr><td><div class="who"><span class="avatar avatar-sm" aria-hidden="true">琳</span><div>沈若琳 <span class="tag tag-mini">你</span><span class="m">ruolin.shen@qimu-home.cn · 运营主管</span></div></div></td><td><div class="ctl ro" aria-disabled="true" title="不能修改自己的角色"><span class="val">管理员</span></div></td><td class="num">2025-03-12</td><td>今天 17:30</td><td></td></tr>
+                    <tr><td><div class="who"><span class="avatar avatar-sm" aria-hidden="true">鸣</span><div>蒋一鸣<span class="m">yiming.jiang@qimu-home.cn · 运营专员</span></div></div></td><td><div class="ctl" role="button" aria-haspopup="listbox"><span class="val">成员</span><span class="ico" aria-hidden="true"></span></div></td><td class="num">2025-05-08</td><td>今天 16:40</td><td><button class="btn btn-ghost btn-sm" type="button" aria-label="移除成员 蒋一鸣">移除</button></td></tr>
+                    <tr><td><div class="who"><span class="avatar avatar-sm" aria-hidden="true">豪</span><div>何嘉豪<span class="m">jiahao.he@qimu-home.cn · 仓储主管</span></div></div></td><td><div class="ctl" role="button" aria-haspopup="listbox"><span class="val">成员</span><span class="ico" aria-hidden="true"></span></div></td><td class="num">2025-03-20</td><td>今天 15:30</td><td><button class="btn btn-ghost btn-sm" type="button" aria-label="移除成员 何嘉豪">移除</button></td></tr>
+                    <tr><td><div class="who"><span class="avatar avatar-sm" aria-hidden="true">薇</span><div>唐雨薇<span class="m">yuwei.tang@qimu-home.cn · 客服主管</span></div></div></td><td><div class="ctl" role="button" aria-haspopup="listbox"><span class="val">成员</span><span class="ico" aria-hidden="true"></span></div></td><td class="num">2025-09-01</td><td>今天 17:22</td><td><button class="btn btn-ghost btn-sm" type="button" aria-label="移除成员 唐雨薇">移除</button></td></tr>
+                    <tr><td><div class="who"><span class="avatar avatar-sm" aria-hidden="true">博</span><div>郭文博<span class="m">wenbo.guo@qimu-home.cn · 财务</span></div></div></td><td><div class="ctl" role="button" aria-haspopup="listbox"><span class="val">只读</span><span class="ico" aria-hidden="true"></span></div></td><td class="num">2026-01-06</td><td>昨天 18:10</td><td><button class="btn btn-ghost btn-sm" type="button" aria-label="移除成员 郭文博">移除</button></td></tr>
+                  </tbody>
+                </table>
+                <ul class="tcards not-empty" aria-label="成员列表（375 卡片）">
+                  <li><span class="avatar avatar-sm" aria-hidden="true">琳</span><div class="who">沈若琳 <span class="tag tag-mini">你</span></div><div class="m">ruolin.shen@qimu-home.cn · 运营主管 · 2025-03-12 加入</div><div class="acts"><div class="ctl ro" aria-disabled="true"><span class="val">管理员</span></div></div></li>
+                  <li><span class="avatar avatar-sm" aria-hidden="true">鸣</span><div class="who">蒋一鸣</div><div class="m">yiming.jiang@qimu-home.cn · 运营专员 · 2025-05-08 加入 · 今天 16:40</div><div class="acts"><div class="ctl" role="button"><span class="val">成员</span><span class="ico" aria-hidden="true"></span></div><button class="btn btn-ghost btn-sm" type="button" aria-label="移除成员 蒋一鸣">移除</button></div></li>
+                  <li><span class="avatar avatar-sm" aria-hidden="true">豪</span><div class="who">何嘉豪</div><div class="m">jiahao.he@qimu-home.cn · 仓储主管 · 2025-03-20 加入 · 今天 15:30</div><div class="acts"><div class="ctl" role="button"><span class="val">成员</span><span class="ico" aria-hidden="true"></span></div><button class="btn btn-ghost btn-sm" type="button" aria-label="移除成员 何嘉豪">移除</button></div></li>
+                  <li><span class="avatar avatar-sm" aria-hidden="true">薇</span><div class="who">唐雨薇</div><div class="m">yuwei.tang@qimu-home.cn · 客服主管 · 2025-09-01 加入 · 今天 17:22</div><div class="acts"><div class="ctl" role="button"><span class="val">成员</span><span class="ico" aria-hidden="true"></span></div><button class="btn btn-ghost btn-sm" type="button" aria-label="移除成员 唐雨薇">移除</button></div></li>
+                  <li><span class="avatar avatar-sm" aria-hidden="true">博</span><div class="who">郭文博</div><div class="m">wenbo.guo@qimu-home.cn · 财务 · 2026-01-06 加入 · 昨天 18:10</div><div class="acts"><div class="ctl" role="button"><span class="val">只读</span><span class="ico" aria-hidden="true"></span></div><button class="btn btn-ghost btn-sm" type="button" aria-label="移除成员 郭文博">移除</button></div></li>
+                </ul>
+                <div class="only-empty">
+                  <ul class="list"><li><span class="avatar avatar-sm" aria-hidden="true">琳</span><div><div class="t">沈若琳 <span class="tag tag-mini">你</span></div><div class="m">ruolin.shen@qimu-home.cn · 管理员</div></div></li></ul>
+                  <div class="center-block" style="margin:16px auto"><p style="margin:0">还没有其他成员，邀请同事一起使用</p></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="ch"><div><h2>待接受邀请</h2></div></div>
+                <ul class="list not-empty">
+                  <li><span class="ico" aria-hidden="true"></span><div><div class="t">xinyi.lu@qimu-home.cn <span class="tag tag-mini">成员</span></div><div class="m">09-04 由 沈若琳 邀请</div></div><span class="act" style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm" type="button">重新发送</button><button class="btn btn-ghost btn-sm" type="button">撤回</button></span></li>
+                </ul>
+                <div class="only-empty"><div class="center-block" style="margin:16px auto"><p style="margin:0">没有待接受的邀请</p></div></div>
+              </div>
+            </section>
+
+            <!-- ===== 计费 ===== -->
+            <section class="tabpane pane-billing" aria-labelledby="bl">
+              <div class="card">
+                <div class="ch"><div><h2 id="bl">当前计划</h2></div></div>
+                <div class="plan-now" data-p="②">
+                  <div><div class="big">专业版 · 年付</div><div class="kv">下次续费 <b class="num">2027-03-12</b> · 含 <b>10</b> 个席位（已用 5）</div><div class="kv">付款方式 <b>企业对公转账</b> · finance@qimu-home.cn · <a href="#" aria-disabled="true">更换付款方式</a></div></div>
+                  <button class="btn btn-ghost" type="button" aria-disabled="true" style="border:1px solid var(--g20)">取消订阅</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="ch"><div><h2>更换计划</h2><p class="desc">3 档对比 · 与 /landing 定价同价</p></div>
+                  <a class="cyc-switch" href="?tab=billing&cycle=monthly" aria-label="切换计费周期"><span class="cycle-m on">按月付</span><span class="cycle-y">按月付</span><span class="switch" role="switch" aria-checked="true" aria-hidden="true"></span><span class="cycle-y on">按年付</span><span class="cycle-m">按年付</span><span class="tag tag-mini">省 2 个月</span></a>
+                </div>
+                <div class="plans" data-p="③">
+                  <div class="plan"><h3>入门版</h3><div class="price"><span class="cycle-m">¥99 <small>/ 月</small></span><span class="cycle-y">¥990 <small>/ 年</small></span></div><div class="per"><span class="cycle-y">折合 ¥82.50 / 月</span></div>
+                    <ul><li>3 个成员席位</li><li>2 个销售渠道</li><li>订单 / 库存基础看板</li><li class="no">智能助理</li><li class="no">自定义报表</li><li class="no">专属客户经理</li></ul>
+                    <button class="btn btn-secondary" type="button">降级到入门版</button></div>
+                  <div class="plan rec"><span class="rb">推荐</span><h3>专业版</h3><div class="price"><span class="cycle-m">¥299 <small>/ 月</small></span><span class="cycle-y">¥2,990 <small>/ 年</small></span></div><div class="per"><span class="cycle-y">折合 ¥249.17 / 月</span></div>
+                    <ul><li>10 个成员席位</li><li>不限销售渠道</li><li>订单 / 库存基础看板</li><li>智能助理</li><li>自定义报表</li><li class="no">专属客户经理</li></ul>
+                    <button class="btn" type="button" disabled>当前计划</button></div>
+                  <div class="plan"><h3>企业版</h3><div class="price"><span class="cycle-m">¥899 <small>/ 月</small></span><span class="cycle-y">¥8,990 <small>/ 年</small></span></div><div class="per"><span class="cycle-y">折合 ¥749.17 / 月</span></div>
+                    <ul><li>50 个成员席位</li><li>不限销售渠道</li><li>订单 / 库存基础看板</li><li>智能助理</li><li>自定义报表</li><li>专属客户经理</li></ul>
+                    <button class="btn btn-secondary" type="button">联系销售</button></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="ch"><div><h2>发票</h2></div></div>
+                <table class="itable not-empty" aria-label="发票">
+                  <thead><tr><th>编号</th><th>开具日期</th><th>说明</th><th class="r">金额</th><th>状态</th><th><span class="sr-only">下载</span></th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">INV-2026-0312</td><td class="num">2026-03-12</td><td class="desc-col">专业版 · 年付（2026-03-12 ~ 2027-03-11）</td><td class="r num">¥2,990.00</td><td><span class="tag tag-success">已支付</span></td><td class="dl"><button class="btn btn-ghost btn-sm" type="button" aria-label="下载发票 INV-2026-0312">下载 PDF</button></td></tr>
+                    <tr><td class="mono">INV-2025-0312</td><td class="num">2025-03-12</td><td class="desc-col">专业版 · 年付（2025-03-12 ~ 2026-03-11）</td><td class="r num">¥2,990.00</td><td><span class="tag tag-success">已支付</span></td><td class="dl"><button class="btn btn-ghost btn-sm" type="button" aria-label="下载发票 INV-2025-0312">下载 PDF</button></td></tr>
+                    <tr><td class="mono">INV-2025-0212</td><td class="num">2025-02-12</td><td class="desc-col">入门版 · 月付（2025-02-12 ~ 2025-03-11）</td><td class="r num">¥99.00</td><td><span class="tag tag-success">已支付</span></td><td class="dl"><button class="btn btn-ghost btn-sm" type="button" aria-label="下载发票 INV-2025-0212">下载 PDF</button></td></tr>
+                    <tr><td class="mono">INV-2025-0112</td><td class="num">2025-01-12</td><td class="desc-col">入门版 · 月付（2025-01-12 ~ 2025-02-11）</td><td class="r num">¥99.00</td><td><span class="tag tag-success">已支付</span></td><td class="dl"><button class="btn btn-ghost btn-sm" type="button" aria-label="下载发票 INV-2025-0112">下载 PDF</button></td></tr>
+                  </tbody>
+                </table>
+                <div class="only-empty"><div class="center-block" style="margin:16px auto"><p style="margin:0">还没有发票，首次扣款后会显示在这里</p></div></div>
+              </div>
+            </section>
+
+            <!-- ===== 危险区（仅 团队 / 计费 Tab 显示，阶段 1 定） ===== -->
+            <section class="danger-zone" aria-labelledby="dz" data-p="④">
+              <div class="card">
+                <h2 id="dz">危险区</h2>
+                <div class="row"><p><b>删除团队空间</b>将永久删除「栖木家居」的全部订单、库存、成员与账单数据，且不可恢复。</p><button class="btn btn-danger" type="button">删除团队空间</button></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" role="status"><span class="ico ico-sm" aria-hidden="true"></span><span class="toast-msg">个人资料已保存</span><span class="life">· 3 秒后消失</span></div>
+  <div class="backdrop" aria-hidden="true"></div>
+
+  <!-- ===== 叠层清单 ===== -->
+  <section class="overlays" aria-label="叠层元素">
+    <h2>叠层元素（?open= 命中时居中显示）</h2>
+    <div class="row">
+      <div>
+        <p class="panel-cap">Dialog：两步验证（375 下 Switch 开启后以 Dialog 承载面板；1440 为卡内展开）</p>
+        <div class="panel dialog ov-2fa" role="dialog" aria-modal="true" aria-labelledby="d2-t">
+          <h3 id="d2-t">两步验证</h3>
+          <p>用任意支持 TOTP 的验证器应用扫描，或手动输入密钥</p>
+          <div style="display:flex;justify-content:center"><svg class="qr" viewBox="0 0 21 21" role="img" aria-label="两步验证二维码（示意）" shape-rendering="crispEdges"><rect x="0" y="0" width="7" height="7"/><rect x="1" y="1" width="5" height="5" fill="#fff"/><rect x="2" y="2" width="3" height="3"/><rect x="14" y="0" width="7" height="7"/><rect x="15" y="1" width="5" height="5" fill="#fff"/><rect x="16" y="2" width="3" height="3"/><rect x="0" y="14" width="7" height="7"/><rect x="1" y="15" width="5" height="5" fill="#fff"/><rect x="2" y="16" width="3" height="3"/><rect x="8" y="0" width="1" height="1"/><rect x="12" y="0" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="12" y="6" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="17" y="8" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="10" y="9" width="1" height="1"/><rect x="13" y="9" width="1" height="1"/><rect x="15" y="9" width="1" height="1"/><rect x="16" y="9" width="1" height="1"/><rect x="17" y="9" width="1" height="1"/><rect x="18" y="9" width="1" height="1"/><rect x="0" y="10" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="6" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="13" y="10" width="1" height="1"/><rect x="16" y="10" width="1" height="1"/><rect x="20" y="10" width="1" height="1"/><rect x="1" y="11" width="1" height="1"/><rect x="2" y="11" width="1" height="1"/><rect x="3" y="11" width="1" height="1"/><rect x="4" y="11" width="1" height="1"/><rect x="6" y="11" width="1" height="1"/><rect x="7" y="11" width="1" height="1"/><rect x="8" y="11" width="1" height="1"/><rect x="10" y="11" width="1" height="1"/><rect x="11" y="11" width="1" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="14" y="11" width="1" height="1"/><rect x="15" y="11" width="1" height="1"/><rect x="16" y="11" width="1" height="1"/><rect x="17" y="11" width="1" height="1"/><rect x="19" y="11" width="1" height="1"/><rect x="20" y="11" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="3" y="12" width="1" height="1"/><rect x="4" y="12" width="1" height="1"/><rect x="6" y="12" width="1" height="1"/><rect x="7" y="12" width="1" height="1"/><rect x="8" y="12" width="1" height="1"/><rect x="9" y="12" width="1" height="1"/><rect x="11" y="12" width="1" height="1"/><rect x="13" y="12" width="1" height="1"/><rect x="14" y="12" width="1" height="1"/><rect x="15" y="12" width="1" height="1"/><rect x="17" y="12" width="1" height="1"/><rect x="19" y="12" width="1" height="1"/><rect x="20" y="12" width="1" height="1"/><rect x="8" y="13" width="1" height="1"/><rect x="9" y="13" width="1" height="1"/><rect x="10" y="13" width="1" height="1"/><rect x="11" y="13" width="1" height="1"/><rect x="12" y="13" width="1" height="1"/><rect x="13" y="13" width="1" height="1"/><rect x="15" y="13" width="1" height="1"/><rect x="16" y="13" width="1" height="1"/><rect x="19" y="13" width="1" height="1"/><rect x="8" y="14" width="1" height="1"/><rect x="9" y="14" width="1" height="1"/><rect x="11" y="14" width="1" height="1"/><rect x="13" y="14" width="1" height="1"/><rect x="16" y="14" width="1" height="1"/><rect x="17" y="14" width="1" height="1"/><rect x="18" y="14" width="1" height="1"/><rect x="19" y="14" width="1" height="1"/><rect x="20" y="14" width="1" height="1"/><rect x="8" y="15" width="1" height="1"/><rect x="9" y="15" width="1" height="1"/><rect x="10" y="15" width="1" height="1"/><rect x="13" y="15" width="1" height="1"/><rect x="15" y="15" width="1" height="1"/><rect x="17" y="15" width="1" height="1"/><rect x="18" y="15" width="1" height="1"/><rect x="20" y="15" width="1" height="1"/><rect x="12" y="16" width="1" height="1"/><rect x="13" y="16" width="1" height="1"/><rect x="15" y="16" width="1" height="1"/><rect x="17" y="16" width="1" height="1"/><rect x="18" y="16" width="1" height="1"/><rect x="19" y="16" width="1" height="1"/><rect x="9" y="17" width="1" height="1"/><rect x="10" y="17" width="1" height="1"/><rect x="11" y="17" width="1" height="1"/><rect x="12" y="17" width="1" height="1"/><rect x="15" y="17" width="1" height="1"/><rect x="16" y="17" width="1" height="1"/><rect x="18" y="17" width="1" height="1"/><rect x="19" y="17" width="1" height="1"/><rect x="20" y="17" width="1" height="1"/><rect x="9" y="18" width="1" height="1"/><rect x="14" y="18" width="1" height="1"/><rect x="18" y="18" width="1" height="1"/><rect x="8" y="19" width="1" height="1"/><rect x="14" y="19" width="1" height="1"/><rect x="17" y="19" width="1" height="1"/><rect x="18" y="19" width="1" height="1"/><rect x="9" y="20" width="1" height="1"/><rect x="14" y="20" width="1" height="1"/><rect x="16" y="20" width="1" height="1"/><rect x="20" y="20" width="1" height="1"/></svg></div>
+          <details style="margin-top:8px;font-size:13px"><summary style="cursor:pointer;color:var(--g60)">无法扫码？手动输入密钥</summary><code class="mono" style="display:block;margin-top:6px;padding:8px;background:var(--g5);border-radius:6px">QIMU HOME DEMO KEY 2026</code></details>
+          <div class="field" style="margin-top:16px"><span class="lbl">输入 6 位验证码</span><div class="otp" role="group" aria-label="输入 6 位验证码"><span class="f"></span><span></span><span></span><span></span><span></span><span></span></div></div>
+          <div class="acts"><button class="btn btn-secondary" type="button">取消</button><button class="btn" type="button">验证并启用</button></div>
+        </div>
+      </div>
+      <div>
+        <p class="panel-cap">Dialog：关闭两步验证？</p>
+        <div class="panel dialog ov-2fa-disable" role="alertdialog" aria-modal="true" aria-labelledby="d3-t">
+          <h3 id="d3-t">关闭两步验证？</h3>
+          <p>关闭后仅凭密码即可登录，账号安全性会降低。</p>
+          <div class="acts"><button class="btn btn-secondary" type="button">取消</button><button class="btn btn-danger solid" type="button">关闭</button></div>
+        </div>
+        <p class="panel-cap" style="margin-top:12px">Dialog：移除成员（样本 郭文博）</p>
+        <div class="panel dialog ov-remove" role="alertdialog" aria-modal="true" aria-labelledby="d4-t">
+          <h3 id="d4-t">移除 郭文博？</h3>
+          <p>移除后 郭文博 将立即失去访问权限，其名下任务将转给你。</p>
+          <div class="acts"><button class="btn btn-secondary" type="button">取消</button><button class="btn btn-danger solid" type="button">移除</button></div>
+        </div>
+      </div>
+      <div>
+        <p class="panel-cap">Dialog：删除团队空间（输入完全匹配前「永久删除」禁用）</p>
+        <div class="panel dialog ov-danger" role="alertdialog" aria-modal="true" aria-labelledby="d5-t">
+          <h3 id="d5-t">删除「栖木家居」？</h3>
+          <p>将永久删除全部订单、库存、成员与账单数据，且不可恢复。</p>
+          <div class="field"><label for="dzi">请输入「删除 栖木家居」以确认</label><div class="ctl" id="dzi"><span class="val">删除 栖木</span></div><div class="hint">输入内容不匹配</div></div>
+          <div class="acts"><button class="btn btn-secondary" type="button">取消</button><button class="btn btn-danger solid" type="button" disabled>永久删除</button></div>
+          <p class="panel-cap" style="margin:8px 0 0">确认 → Toast warning「已提交删除申请，24 小时内可在邮件中撤销」</p>
+        </div>
+      </div>
+      <div>
+        <p class="panel-cap">Dialog：离开页面？（Tab 有未保存修改时切 Tab / 导航）</p>
+        <div class="panel dialog ov-leave" role="alertdialog" aria-modal="true" aria-labelledby="d6-t">
+          <h3 id="d6-t">离开页面？</h3>
+          <p>修改尚未保存，离开后将丢失。</p>
+          <div class="acts"><button class="btn btn-secondary" type="button">继续编辑</button><button class="btn btn-danger solid" type="button">放弃并离开</button></div>
+        </div>
+        <p class="panel-cap" style="margin-top:12px">Toast 文案按 Tab：个人资料已保存 / 密码已更新，其他设备需重新登录 / 两步验证已启用 / 已注销 {device} / 通知偏好已保存 / 已向 1 位成员发送邀请 / 已移除 郭文博 / 郭文博 的角色已改为 成员</p>
+      </div>
+    </div>
+  </section>
+
+<script>
+  // 仅用于线框状态切换（?tab= / ?state= / ?open= / ?cycle=），无业务逻辑。
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var tab = q.get('tab') || 'profile';
+    if (!/^(profile|security|notifications|team|billing)$/.test(tab)) tab = 'profile';
+    var s = q.get('state') || 'default';
+    if (!/^(default|saving|saved|error|empty)$/.test(s)) s = 'default';
+    var c = q.get('cycle') || 'yearly';
+    if (!/^(monthly|yearly)$/.test(c)) c = 'yearly';
+    var root = document.documentElement;
+    root.setAttribute('data-tab', tab); root.setAttribute('data-state', s); root.setAttribute('data-cycle', c);
+    var o = q.get('open'); if (/^(2fa|2fa-disable|remove|danger|leave)$/.test(o || '')) root.setAttribute('data-open', o);
+    var toasts = { profile: '个人资料已保存', security: '密码已更新，其他设备需重新登录', notifications: '通知偏好已保存', team: '已向 1 位成员发送邀请', billing: '已保存' };
+    document.querySelector('.toast-msg').textContent = toasts[tab];
+    var sw = document.querySelector('.cyc-switch'); sw.href = '?tab=billing&cycle=' + (c === 'yearly' ? 'monthly' : 'yearly');
+    sw.querySelector('.switch').setAttribute('aria-checked', c === 'yearly' ? 'true' : 'false');
+    document.querySelectorAll('.stabs a').forEach(function (a) { if (a.dataset.t === tab) a.setAttribute('aria-current', 'page'); });
+    var mark = function (sel) { var el = document.querySelector(sel); if (el) el.setAttribute('aria-current', 'true'); };
+    mark('.wf-bar a[data-wt="' + tab + '"]'); mark('.wf-bar a[data-s="' + s + '"]'); if (o) mark('.wf-bar a[data-o="' + o + '"]'); if (tab === 'billing') mark('.wf-bar a[data-c="' + c + '"]');
+  })();
+</script>
+</body>
+</html>

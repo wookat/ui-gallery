@@ -1,0 +1,54 @@
+{
+ "note": "/orders 列表的服务端计数（同一口径来源：stats.json / series.json / skus.json，check.mjs 逐项断言相等）。页面上所有「共 n 单」「筛选出 n 单」「第 a–b 条，共 n 条」「查看 n 单」与页码总数只能从本文件取值；orders-all.json 只是渲染表格行与 Drawer 的 50 单样本，不得用样本行数当计数。",
+ "scope": {
+  "key": "week",
+  "label": "近 7 天",
+  "range": ["2026-08-31", "2026-09-06"],
+  "description": "列表默认日期范围 = meta.periods.week（与 dashboard「周」Tab、侧栏订单角标同窗口）；切换日期预设时 total 取 byRange 对应值"
+ },
+ "total": 731,
+ "byRange": {
+  "today": 108,
+  "week": 731,
+  "month": 2964
+ },
+ "byDay": {
+  "2026-08-31": 92,
+  "2026-09-01": 85,
+  "2026-09-02": 101,
+  "2026-09-03": 134,
+  "2026-09-04": 96,
+  "2026-09-05": 115,
+  "2026-09-06": 108
+ },
+ "byStatus": {
+  "pending_payment": 9,
+  "pending_shipment": 63,
+  "shipped": 268,
+  "completed": 336,
+  "refunding": 31,
+  "cancelled": 24
+ },
+ "byChannel": {
+  "tmall": 262,
+  "douyin": 231,
+  "jd": 118,
+  "miniapp": 89,
+  "offline": 31
+ },
+ "flags": {
+  "stockout": 40,
+  "stockoutPending": 5,
+  "pendingOver48h": 3,
+  "note": "stockout = 近 7 天缺货订单（= Σ skus.weekStockoutOrders，每单恰含 1 个缺货 SKU）；stockoutPending（缺货且仍待发货）与 pendingOver48h（asOf 时待发货已超 48 小时）两组订单在样本中是全集，因此 chat c_1「3 单待发货」、c_3「超 48 小时」表与采购草稿备注可直接由样本复算"
+ },
+ "pagination": {
+  "defaultPageSize": 20,
+  "pageSizes": [10, 20, 50]
+ },
+ "sample": {
+  "file": "orders-all.json",
+  "size": 50,
+  "description": "按日期 / 状态 / 渠道抽样，不是按 placedAt 倒序的连续切片（连续切片前 50 单会全部落在 09-06）；前 5 单 = orders.json（dashboard 最近订单）。任何视图（默认 / 筛选 / 排序）都渲染样本内匹配行，每页 ≤ pageSize 行；计数与页码总数按本文件（默认 20/页 → 共 37 页）；可达页 = ceil(样本匹配行数 ÷ pageSize)（默认视图 3 页），其余页码 aria-disabled + Tooltip `orders.pagination.sampleOnly`；range 文案的 to = min(from + 本页实际行数 − 1)，total 恒为服务端计数（首页「第 1–20 条，共 731 条」）"
+ }
+}

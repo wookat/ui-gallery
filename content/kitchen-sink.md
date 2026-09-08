@@ -43,6 +43,9 @@
 | section.list | 列表 | Timeline / TaskItem / NotificationItem |
 | section.chart | 图表 | TrendChart / DonutChart |
 | section.feedback | 反馈 | Skeleton / Spinner / Progress |
+| section.form-controls | 表单控件 | 第 2 轮：Textarea / NumberInput / Select / Combobox / Radio / Switch / Slider / DatePicker / TagInput / OTP / FileDropzone |
+| section.layout | 布局 | 第 2 轮：PageHeader / Toolbar |
+| section.composed | 复合组件 | 第 2 轮：Stepper / Result / PricingCard / ChatBubble / ToolCall / SourceChip / SuggestionChip / Composer / ConversationItem / CodeBlock |
 
 ## 示例控件文案
 | key | 文案 | 说明 |
@@ -79,3 +82,11 @@
 | sample.chart.gmv | 销售额 | 图例 |
 | sample.chart.total | 合计 | 环中心 |
 | sample.timeline.system | 系统 | 系统动态的 actor 名 |
+| sample.calendar.prev | 上个月 | Calendar 月份切换 aria-label（阶段 5 迁入 form.md） |
+| sample.calendar.next | 下个月 | |
+| sample.number.dec | 减少数量 | NumberInput 步进 aria-label |
+| sample.number.inc | 增加数量 | |
+| sample.dialog.close | 关闭对话框 | Dialog 右上角 |
+| sample.segmented.list | 列表 | Segmented 视图切换 |
+| sample.segmented.cards | 卡片 | |
+| sample.toolbar.aria | 订单工具条示例 | Toolbar aria-label |

@@ -4,17 +4,25 @@
  * 类型直接由 JSON 推导（resolveJsonModule），新增字段无需手写接口。
  */
 import activity from "@mock/activity.json"
+import chat from "@mock/chat.json"
+import landing from "@mock/landing.json"
 import meta from "@mock/meta.json"
 import nav from "@mock/nav.json"
 import notifications from "@mock/notifications.json"
 import orders from "@mock/orders.json"
+import ordersAll from "@mock/orders-all.json"
+import ordersSummary from "@mock/orders-summary.json"
+import purchaseForm from "@mock/purchase-form.json"
 import series from "@mock/series.json"
+import settings from "@mock/settings.json"
+import skus from "@mock/skus.json"
 import stats from "@mock/stats.json"
+import suppliers from "@mock/suppliers.json"
 import tasks from "@mock/tasks.json"
 import team from "@mock/team.json"
 import user from "@mock/user.json"
 
-export const mock = { activity, meta, nav, notifications, orders, series, stats, tasks, team, user }
+export const mock = { activity, chat, landing, meta, nav, notifications, orders, ordersAll, ordersSummary, purchaseForm, series, settings, skus, stats, suppliers, tasks, team, user }
 export type Mock = typeof mock
 
 export type Period = keyof typeof meta.periods

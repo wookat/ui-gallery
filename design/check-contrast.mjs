@@ -6,7 +6,7 @@ import { loadTokens, resolve } from "./build-tokens.mjs";
 
 const tokens = loadTokens();
 const MODES = ["light", "dark"];
-const SURFACES = ["bg", "surface", "surface-muted", "surface-raised"];
+const SURFACES = ["bg", "surface", "surface-muted", "surface-raised", "surface-brand"];
 const SOFTS = ["primary-soft", "success-soft", "warning-soft", "danger-soft", "neutral-soft"];
 
 // [前景, 背景] 组合；每组以 role 名书写，脚本自动加 color.role. 前缀（chart.* 除外）。
@@ -22,10 +22,12 @@ const TEXT_PAIRS = [
   ["on-danger", "danger"],
   ["on-neutral-soft", "neutral-soft"],
   ["fg-inverse", "bg-inverse"],
+  ["on-primary-muted", "primary"],
   ...SOFTS.flatMap((bg) => [["fg", bg], ["fg-muted", bg]]),
 ];
 const GRAPHIC_PAIRS = [
-  ...["border-strong", "focus-ring", "primary", "success", "warning", "danger", "info"].flatMap((fg) => ["bg", "surface", "surface-muted"].map((bg) => [fg, bg])),
+  ...["border-strong", "focus-ring", "primary", "success", "warning", "danger", "info"].flatMap((fg) => ["bg", "surface", "surface-muted", "surface-brand"].map((bg) => [fg, bg])),
+  ["focus-ring-on-primary", "primary"],
   ...["chart.1", "chart.2", "chart.3", "chart.4", "chart.5", "chart.line", "chart.bar"].flatMap((fg) => ["bg", "surface"].map((bg) => [fg, bg])),
 ];
 const EXEMPT_PAIRS = [["fg-disabled", "surface"], ["fg-disabled", "bg"], ["fg-disabled", "surface-muted"]];

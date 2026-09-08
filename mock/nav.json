@@ -23,7 +23,7 @@
     "icon": "receipt-text",
     "badge": 63,
     "badgeMeaning": "待发货",
-    "implemented": false
+    "implemented": true
    },
    {
     "key": "after-sales",

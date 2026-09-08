@@ -80,6 +80,25 @@ export FE01_SKILL_URL=https://github.com/wookat/company-os/tree/main/skills/fron
 run_workflow(script_path="<company-os>/skills/frontend-0to1-ai/workflow.py", workflow_name="fe01-<repo>-r1")
 ```
 
+失败处置（阶段 5/7，全部显式、不靠门禁兜底）：
+- 实现审查 2 轮仍不过 → tech-lead 升级修复一轮 → 终审；升级会话把根因在设计稿的条目以 `DESIGN:` 前缀写进 `unfixed` → 工作流派 ui-designer 在集成分支修稿并重截 ref → 实现者同步（`impl-*-sync-design`）→ 再终审一次；仍不过 = 该屏 UNMERGED，清单交给走查 / 审计 / release 写进 handoff。
+- 合入集成分支冲突（非 lockfile）→ 派实现者 `git merge origin/<integration>` 取两侧并集、复跑门禁与已上线屏 compare（`impl-*-sync`）→ 重试合入一次。
+
+补合轮（只处理上一轮未合入的屏幕，不重跑 brief/ia/tokens/foundation）：`FE01_REPAIR=<json 路径>`
+
+```json
+{"foundation": {"commit": "…", "base_library": "shadcn/ui", "components_doc": "docs/frontend/04-components.md", "ai_context_path": "AGENTS.md", "check_commands": ["pnpm lint && pnpm typecheck && pnpm build", "node tools/a11y.mjs <screen>"]},
+ "brief_path": "docs/frontend/00-brief.md",
+ "screens": [
+  {"id": "settings", "route": "/settings", "purpose": "…", "states": ["loading","empty","error","success"], "from": "hifi-fix",   "branch": "fe01/hifi-settings",   "commit": "…", "issues": ["…"]},
+  {"id": "landing",  "route": "/landing",  "purpose": "…", "states": ["…"],                                "from": "design-fix", "branch": "fe01/screen-landing",  "commit": "…", "issues": ["DESIGN: …"]},
+  {"id": "components", "route": "/components", "purpose": "…", "states": ["…"],                          "from": "impl-fix",   "branch": "fe01/screen-components", "commit": "…", "issues": ["…"]},
+  {"id": "chat",     "route": "/chat",     "purpose": "…", "states": ["…"],                                "from": "sync",       "branch": "fe01/screen-chat",     "commit": "…", "issues": ["shell.tsx 冲突"]}
+ ]}
+```
+
+`from`：`hifi-fix` 高保真未过审（修稿 ≤2 轮→审→合入集成→实现→审→…）；`design-fix` 实现正确但稿件有缺陷（修稿→同步→终审→合入）；`impl-fix` 实现未过审（修 ≤2 轮→审→升级→合入）；`sync` 实现已过审但合入冲突（同步→合入）。`FE01_EXISTING_SCREENS` 应补上上一轮已上线的屏幕。
+
 - 断点续跑：同一 `run_id` 重跑即可，已完成阶段自动回放。
 - 每阶段 prompt 内嵌上一阶段结构化输出（屏幕清单、令牌路径、分支名），不要手工粘贴。
 - 429（组织并发上限）由 `run_agent()` 指数退避重试，不视为代码失败。

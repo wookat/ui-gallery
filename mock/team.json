@@ -1,0 +1,52 @@
+[
+ {
+  "id": "u_ruolin",
+  "name": "沈若琳",
+  "initial": "琳",
+  "avatarHue": 210,
+  "title": "运营主管",
+  "role": "admin",
+  "roleLabel": "管理员",
+  "email": "ruolin.shen@qimu-home.cn"
+ },
+ {
+  "id": "u_yiming",
+  "name": "蒋一鸣",
+  "initial": "鸣",
+  "avatarHue": 25,
+  "title": "运营专员",
+  "role": "member",
+  "roleLabel": "成员",
+  "email": "yiming.jiang@qimu-home.cn"
+ },
+ {
+  "id": "u_jiahao",
+  "name": "何嘉豪",
+  "initial": "豪",
+  "avatarHue": 150,
+  "title": "仓储主管",
+  "role": "member",
+  "roleLabel": "成员",
+  "email": "jiahao.he@qimu-home.cn"
+ },
+ {
+  "id": "u_yuwei",
+  "name": "唐雨薇",
+  "initial": "薇",
+  "avatarHue": 340,
+  "title": "客服主管",
+  "role": "member",
+  "roleLabel": "成员",
+  "email": "yuwei.tang@qimu-home.cn"
+ },
+ {
+  "id": "u_wenbo",
+  "name": "郭文博",
+  "initial": "博",
+  "avatarHue": 275,
+  "title": "财务",
+  "role": "viewer",
+  "roleLabel": "只读",
+  "email": "wenbo.guo@qimu-home.cn"
+ }
+]

@@ -1,0 +1,16 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "paths": {
+      "cn": ["./src/lib/utils.ts"],
+      "@/*": ["./src/*"],
+      "@tokens/*": ["../../design/*"],
+      "@mock/*": ["../../mock/*"]
+    }
+  }
+}

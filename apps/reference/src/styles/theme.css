@@ -1,0 +1,354 @@
+/*
+ * theme.css —— 唯一的「令牌 → 基座主题」桥。
+ *
+ *   design/tokens.json ──(design/build-tokens.mjs)──▶ design/tokens.css ──(本文件)──▶ shadcn CSS 变量 + Tailwind @theme
+ *
+ * 规则：
+ *   1. 本文件之外禁止出现任何色值 / px 字号 / px 间距；页面与组件只用 Tailwind 主题类或 var(--token)。
+ *   2. 不允许在别处再声明 --background / --primary 等 shadcn 变量；改外观 = 改 tokens.json 重新生成。
+ *   3. @theme 使用 inline reference：不重复输出变量，工具类直接指向 tokens.css 的变量，
+ *      因此亮/暗切换（<html data-theme>）无需 dark: 变体即可生效。
+ *   4. 唯一允许的字面量：@theme 中的断点（@media 无法读 CSS 变量），值与 tokens.json breakpoint 一致，由 tools/no-hardcode.mjs 校验。
+ */
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-sc";
+@import "@fontsource-variable/jetbrains-mono";
+@import "../../../../design/tokens.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * 状态演示：/kitchen-sink 与 tools/shoot.mjs 需要在不真正悬停/聚焦的情况下截到 hover / focus 外观，
+ * 因此 hover / focus-visible / active 变体额外匹配 [data-demo~="hover|focus|active"]，仅用于演示元素。
+ */
+@custom-variant hover (&:where(:hover, [data-demo~="hover"]));
+@custom-variant focus-visible (&:where(:focus-visible, [data-demo~="focus"]));
+@custom-variant active (&:where(:active, [data-demo~="active"]));
+
+/*
+ * hifi 断点语义为「≤」（@media (max-width: 768px) / (max-width: 1024px)），与 Tailwind 的 max-md（< 768）差 1px；
+ * tablet / mobile 变体沿用 hifi 语义（1024 = rail + 双列统计卡，768 = 抽屉模式），断点值仍来自 @theme；
+ * mobile 后声明，二者同时命中时 mobile 覆盖 tablet。
+ */
+@custom-variant tablet (@media (width <= theme(--breakpoint-lg)));
+@custom-variant mobile (@media (width <= theme(--breakpoint-md)));
+
+@theme inline reference {
+  /* ---------- 颜色：清空默认调色板，只保留角色令牌 ---------- */
+  --color-*: initial;
+
+  /* 角色名（组合组件优先使用） */
+  --color-bg: var(--color-role-bg);
+  --color-surface: var(--color-role-surface);
+  --color-surface-muted: var(--color-role-surface-muted);
+  --color-surface-raised: var(--color-role-surface-raised);
+  --color-border: var(--color-role-border);
+  --color-border-strong: var(--color-role-border-strong);
+  --color-fg: var(--color-role-fg);
+  --color-fg-muted: var(--color-role-fg-muted);
+  --color-fg-disabled: var(--color-role-fg-disabled);
+  --color-fg-inverse: var(--color-role-fg-inverse);
+  --color-bg-inverse: var(--color-role-bg-inverse);
+  --color-primary: var(--color-role-primary);
+  --color-primary-hover: var(--color-role-primary-hover);
+  --color-primary-active: var(--color-role-primary-active);
+  --color-on-primary: var(--color-role-on-primary);
+  --color-primary-soft: var(--color-role-primary-soft);
+  --color-on-primary-soft: var(--color-role-on-primary-soft);
+  --color-link: var(--color-role-link);
+  --color-focus-ring: var(--color-role-focus-ring);
+  --color-success: var(--color-role-success);
+  --color-success-soft: var(--color-role-success-soft);
+  --color-on-success: var(--color-role-on-success);
+  --color-warning: var(--color-role-warning);
+  --color-warning-soft: var(--color-role-warning-soft);
+  --color-on-warning: var(--color-role-on-warning);
+  --color-danger: var(--color-role-danger);
+  --color-danger-soft: var(--color-role-danger-soft);
+  --color-on-danger: var(--color-role-on-danger);
+  --color-info: var(--color-role-info);
+  --color-neutral-soft: var(--color-role-neutral-soft);
+  --color-on-neutral-soft: var(--color-role-on-neutral-soft);
+  --color-skeleton: var(--color-role-skeleton);
+  --color-overlay: var(--color-role-overlay);
+  --color-chart-1: var(--color-chart-1);
+  --color-chart-2: var(--color-chart-2);
+  --color-chart-3: var(--color-chart-3);
+  --color-chart-4: var(--color-chart-4);
+  --color-chart-5: var(--color-chart-5);
+  --color-chart-line: var(--color-chart-line);
+  --color-chart-line-fill: var(--color-chart-line-fill);
+  --color-chart-bar: var(--color-chart-bar);
+  --color-chart-grid: var(--color-chart-grid);
+
+  /* shadcn/ui 变量名 → 角色令牌（保持 shadcn 生成组件零改动可用） */
+  --color-background: var(--color-role-bg);
+  --color-foreground: var(--color-role-fg);
+  --color-card: var(--color-role-surface);
+  --color-card-foreground: var(--color-role-fg);
+  --color-popover: var(--color-role-surface-raised);
+  --color-popover-foreground: var(--color-role-fg);
+  --color-primary-foreground: var(--color-role-on-primary);
+  --color-secondary: var(--color-role-surface);
+  --color-secondary-foreground: var(--color-role-fg);
+  --color-muted: var(--color-role-surface-muted);
+  --color-muted-foreground: var(--color-role-fg-muted);
+  --color-accent: var(--color-role-surface-muted);
+  --color-accent-foreground: var(--color-role-fg);
+  --color-destructive: var(--color-role-danger);
+  --color-destructive-foreground: var(--color-role-on-danger);
+  --color-input: var(--color-role-border-strong);
+  --color-ring: var(--color-role-focus-ring);
+
+  /* ---------- 字体 ---------- */
+  --font-*: initial;
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+
+  --text-*: initial;
+  --text-xs: var(--font-size-xs);
+  --text-xs--line-height: var(--font-line-height-snug);
+  --text-sm: var(--font-size-sm);
+  --text-sm--line-height: var(--font-line-height-body);
+  --text-md: var(--font-size-md);
+  --text-md--line-height: var(--font-line-height-snug);
+  --text-lg: var(--font-size-lg);
+  --text-lg--line-height: var(--font-line-height-tight);
+  --text-xl: var(--font-size-xl);
+  --text-xl--line-height: var(--font-line-height-tight);
+
+  --font-weight-*: initial;
+  --font-weight-regular: var(--font-weight-regular);
+  --font-weight-medium: var(--font-weight-medium);
+  --font-weight-semibold: var(--font-weight-semibold);
+
+  --leading-*: initial;
+  --leading-tight: var(--font-line-height-tight);
+  --leading-snug: var(--font-line-height-snug);
+  --leading-body: var(--font-line-height-body);
+
+  --tracking-*: initial;
+  --tracking-tight: var(--font-letter-spacing-tight);
+  --tracking-normal: var(--font-letter-spacing-normal);
+
+  /* ---------- 间距 / 尺寸：4px 网格 + 命名尺寸 ---------- */
+  --spacing: var(--space-1);
+  --spacing-hit: var(--size-hit);
+  --spacing-control-sm: var(--size-control-sm);
+  --spacing-control-md: var(--size-control-md);
+  --spacing-control-lg: var(--size-control-lg);
+  --spacing-icon-sm: var(--size-icon-sm);
+  --spacing-icon-md: var(--size-icon-md);
+  --spacing-avatar-sm: var(--size-avatar-sm);
+  --spacing-avatar-md: var(--size-avatar-md);
+  --spacing-badge: var(--size-badge);
+  --spacing-sidebar-expanded: var(--size-sidebar-expanded);
+  --spacing-sidebar-rail: var(--size-sidebar-rail);
+  --spacing-sidebar-drawer: var(--size-sidebar-drawer);
+  --spacing-topbar: var(--size-topbar);
+  --spacing-content-max: var(--size-content-max);
+  --spacing-form-max: var(--size-form-max);
+  --spacing-sparkline: var(--size-sparkline);
+  --spacing-chart-trend: var(--size-chart-trend);
+  --spacing-chart-trend-mobile: var(--size-chart-trend-mobile);
+  --spacing-chart-donut: var(--size-chart-donut);
+  /* 页面级派生量（与 design/hifi/dashboard 一致，仅由令牌运算得到） */
+  --spacing-popover: calc(var(--size-content-max) / 4);
+  --spacing-donut: calc(var(--size-chart-donut) * 2 / 3);
+  --spacing-sparkline-w: calc(var(--size-sparkline) * 2.5);
+  --spacing-empty-figure: calc(var(--size-sparkline) * 4);
+  --spacing-hairline: var(--border-width-hairline);
+  --spacing-focus: var(--border-width-focus);
+  --spacing-accent: var(--border-width-accent);
+
+  /* ---------- 圆角 / 阴影 / 描边 ---------- */
+  --radius-*: initial;
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+
+  --shadow-*: initial;
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  /* ---------- 断点：@media 不能读变量，字面量必须与 tokens.json 一致（tools/no-hardcode.mjs 校验） ---------- */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 375px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1440px;
+
+  /* ---------- 动效 ---------- */
+  --ease-*: initial;
+  --ease-std: var(--motion-ease);
+  --ease-out: var(--motion-ease-out);
+  --default-transition-duration: var(--motion-base);
+  --default-transition-timing-function: var(--motion-ease);
+  --animate-skeleton: skeleton-shine var(--motion-skeleton) linear infinite;
+  --animate-spin: spin var(--motion-base) linear infinite;
+}
+
+/* reference 模式下 @theme 内的 @keyframes 不会输出，故放在顶层 */
+@keyframes skeleton-shine {
+  to { transform: translateX(100%); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* shadcn 组件通过 var(--radius-…) / var(--background) 等旧名访问时的兜底别名（同样只指向令牌） */
+:root {
+  --radius: var(--radius-md);
+  --background: var(--color-role-bg);
+  --foreground: var(--color-role-fg);
+  --border: var(--color-role-border);
+  --ring: var(--color-role-focus-ring);
+  --primary: var(--color-role-primary);
+  --primary-foreground: var(--color-role-on-primary);
+  --muted: var(--color-role-surface-muted);
+  --muted-foreground: var(--color-role-fg-muted);
+  --destructive: var(--color-role-danger);
+  color-scheme: light;
+}
+/* Toast 顶部偏移：无顶栏页（login 稿）贴边 space-6 / <768 时 space-4；带顶栏的 AppShell（dashboard 稿）落在顶栏下 space-4 */
+:root {
+  --toast-top: var(--space-6);
+}
+:root:has([data-slot="topbar"]) {
+  --toast-top: calc(var(--size-topbar) + var(--space-4));
+}
+@media (width < theme(--breakpoint-md)) {
+  :root:not(:has([data-slot="topbar"])) {
+    --toast-top: var(--space-4);
+  }
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-role-border);
+  }
+  html {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-md);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-role-bg);
+    color: var(--color-role-fg);
+    font: var(--typography-body);
+    letter-spacing: var(--typography-body-letter-spacing);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* 键盘焦点环：与 design/hifi 一致，全站统一，组件不再各自定义 */
+  :where(a, button, input, select, textarea, summary, [tabindex]):where(:focus-visible, [data-demo~="focus"]) {
+    outline: var(--border-width-focus) solid var(--color-role-focus-ring);
+    outline-offset: var(--border-focus-offset);
+  }
+  :where(button, input, select, textarea) {
+    font: inherit;
+    letter-spacing: inherit;
+  }
+  ::selection {
+    background: var(--color-role-primary-soft);
+    color: var(--color-role-on-primary-soft);
+  }
+  /* 正文行内链接（无 class）：热区撑到 size.hit */
+  a:not([class]) {
+    position: relative;
+  }
+  a:not([class])::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, var(--size-hit));
+    height: max(100%, var(--size-hit));
+    translate: -50% -50%;
+  }
+}
+
+/* 排版角色（令牌 typography.*）：页面用 .text-role-* 或 Text 组件，不写字号 */
+@utility text-role-caption {
+  font: var(--typography-caption);
+  letter-spacing: var(--typography-caption-letter-spacing);
+  font-family: var(--font-family-sans);
+}
+@utility text-role-body {
+  font: var(--typography-body);
+  letter-spacing: var(--typography-body-letter-spacing);
+  font-family: var(--font-family-sans);
+}
+@utility text-role-label {
+  font: var(--typography-label);
+  letter-spacing: var(--typography-label-letter-spacing);
+  font-family: var(--font-family-sans);
+}
+@utility text-role-title {
+  font: var(--typography-title);
+  letter-spacing: var(--typography-title-letter-spacing);
+  font-family: var(--font-family-sans);
+}
+@utility text-role-heading {
+  font: var(--typography-heading);
+  letter-spacing: var(--typography-heading-letter-spacing);
+  font-family: var(--font-family-sans);
+}
+@utility text-role-display {
+  font: var(--typography-display);
+  letter-spacing: var(--typography-display-letter-spacing);
+  font-family: var(--font-family-sans);
+}
+
+/* 视觉高度 < size.hit 的控件（sm 按钮、复选框、行内链接）：用伪元素把点击热区撑到 size.hit（tokens size.control.sm 说明） */
+@utility hit-area {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, var(--size-hit));
+    height: max(100%, var(--size-hit));
+    translate: -50% -50%;
+  }
+}
+
+/* 禁用态统一：opacity 令牌 + 禁止交互 */
+@utility disabled-look {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* 骨架屏：hifi .sk —— 实心 skeleton 底色 + ::after 微光扫过；颜色、透明度与时长均来自令牌 */
+@utility skeleton-shine {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-role-skeleton);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    opacity: var(--opacity-skeleton-shine);
+    background: linear-gradient(90deg, transparent, var(--color-role-surface), transparent);
+    animation: skeleton-shine var(--motion-skeleton) var(--motion-ease) infinite;
+  }
+}
+
+/* 头像色：hue 由人名末字派生（Avatar 组件写入 --avatar-hue），饱和/明度来自令牌 */
+@utility avatar-tone {
+  background: hsl(var(--avatar-hue) calc(var(--color-avatar-bg-saturation) * 1%) calc(var(--color-avatar-bg-lightness) * 1%));
+  color: hsl(var(--avatar-hue) calc(var(--color-avatar-fg-saturation) * 1%) calc(var(--color-avatar-fg-lightness) * 1%));
+}

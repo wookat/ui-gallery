@@ -1,0 +1,47 @@
+{
+ "unreadCount": 3,
+ "items": [
+  {
+   "id": "n_1",
+   "at": "2026-09-06T17:18:00+08:00",
+   "relative": "12 分钟前",
+   "type": "refund",
+   "title": "订单 SO-20260906-0104 买家申请退款 ¥459.00",
+   "unread": true,
+   "link": "/orders/SO-20260906-0104"
+  },
+  {
+   "id": "n_2",
+   "at": "2026-09-06T16:52:00+08:00",
+   "relative": "38 分钟前",
+   "type": "inventory",
+   "title": "「胡桃木床头柜（双抽）」库存低于安全线，剩余 18 件",
+   "unread": true,
+   "link": "/inventory"
+  },
+  {
+   "id": "n_3",
+   "at": "2026-09-06T16:48:00+08:00",
+   "relative": "42 分钟前",
+   "type": "sync",
+   "title": "抖音小店 16:00 批次同步完成，新增 4 条订单",
+   "unread": true
+  },
+  {
+   "id": "n_4",
+   "at": "2026-09-06T15:30:00+08:00",
+   "relative": "2 小时前",
+   "type": "task",
+   "title": "何嘉豪 完成了杭州仓 A 区盘点",
+   "unread": false
+  },
+  {
+   "id": "n_5",
+   "at": "2026-09-05T10:00:00+08:00",
+   "relative": "昨天",
+   "type": "announcement",
+   "title": "系统公告：9 月 8 日 02:00–04:00 例行维护，期间订单同步将延迟",
+   "unread": false
+  }
+ ]
+}

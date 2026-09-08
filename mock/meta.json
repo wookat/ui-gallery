@@ -1,0 +1,79 @@
+{
+ "product": "Acme Console",
+ "tenant": {
+  "id": "ws_qimu",
+  "name": "栖木家居",
+  "legalName": "杭州栖木家居有限公司",
+  "industry": "家居用品（实木家具 / 软装）",
+  "warehouses": [
+   "杭州仓"
+  ],
+  "stores": [
+   "杭州湖滨店"
+  ]
+ },
+ "asOf": "2026-09-06T17:30:00+08:00",
+ "timezone": "Asia/Shanghai",
+ "currency": "CNY",
+ "periods": {
+  "day": {
+   "label": "今日",
+   "range": [
+    "2026-09-06T00:00:00+08:00",
+    "2026-09-06T17:30:00+08:00"
+   ],
+   "compareWith": "昨日同时段"
+  },
+  "week": {
+   "label": "近 7 天",
+   "range": [
+    "2026-08-31",
+    "2026-09-06"
+   ],
+   "compareWith": "再往前 7 天（08-24 ~ 08-30）"
+  },
+  "month": {
+   "label": "近 30 天",
+   "range": [
+    "2026-08-08",
+    "2026-09-06"
+   ],
+   "compareWith": "再往前 30 天（07-09 ~ 08-07）"
+  }
+ },
+ "channels": [
+  {
+   "key": "tmall",
+   "label": "天猫旗舰店"
+  },
+  {
+   "key": "douyin",
+   "label": "抖音小店"
+  },
+  {
+   "key": "jd",
+   "label": "京东旗舰店"
+  },
+  {
+   "key": "miniapp",
+   "label": "微信小程序"
+  },
+  {
+   "key": "offline",
+   "label": "线下门店"
+  }
+ ],
+ "orderStatuses": [
+  "pending_payment",
+  "pending_shipment",
+  "shipped",
+  "completed",
+  "refunding",
+  "cancelled"
+ ],
+ "notes": [
+  "量级：中小家居品牌，客单价约 ¥400，近 30 天销售额 ¥1,186,420 / 2,964 单；所有合计与分项、趋势最后一点、同比均可相互验算。",
+  "规律：周末上浮、周一回落；8/18–8/19 七夕礼赠（抱枕、香薰）上浮；9/3 抖音直播单日 ¥52,310。",
+  "人名、公司、邮箱域名 qimu-home.cn 均为虚构。头像不用图片，用姓名末字 + 色相索引 avatarHue 生成。"
+ ]
+}

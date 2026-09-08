@@ -1,0 +1,12 @@
+{
+  "slug": "reference",
+  "name": "Acme Console（参考应用）",
+  "framework": "react",
+  "version": "19.2.8",
+  "repo": "wookat/ui-gallery",
+  "license": { "github": "MIT", "npm": "MIT" },
+  "theme": { "dark": true, "nativeIcons": false },
+  "routes": ["/kitchen-sink"],
+  "externals": { "chart": "recharts", "icons": "lucide-react", "fonts": "@fontsource-variable/noto-sans-sc + @fontsource-variable/inter + @fontsource-variable/jetbrains-mono (OFL)" },
+  "notes": "按 docs/frontend/00-brief.md 的设计流程产出的唯一视觉标准：基座 shadcn/ui（radix-ui）+ Tailwind v4，外观全部由 design/tokens.json → design/tokens.css → src/styles/theme.css 注入；/kitchen-sink 是组件 × 变体 × 状态基准；屏幕路由随 fe01/screen-* 分支陆续加入，画廊首页本轮不接入（brief §6）。"
+}

@@ -1,0 +1,15 @@
+[
+  { "name": "success", "query": "state=success", "viewports": ["desktop", "mobile", "tablet", "tabletSm"] },
+  { "name": "loading", "query": "state=loading" },
+  { "name": "empty", "query": "state=empty" },
+  { "name": "error", "query": "state=error" },
+  { "name": "success-toast", "query": "state=success&toast=login&hold", "overlay": true },
+  { "name": "success-notifications", "query": "state=success&open=notifications", "overlay": true },
+  { "name": "success-account", "query": "state=success&open=account", "overlay": true },
+  { "name": "success-order-menu", "query": "state=success&open=order-menu", "overlay": true, "viewports": ["desktop", "mobile", "tablet", "tabletSm"] },
+  { "name": "success-week", "query": "state=success&period=week" },
+  { "name": "success-day", "query": "state=success&period=day" },
+  { "name": "success-rail", "query": "state=success&sidebar=rail" },
+  { "name": "success-expanded", "query": "state=success&sidebar=expanded", "viewports": ["tablet"] },
+  { "name": "success-drawer", "query": "state=success&open=drawer", "overlay": true, "viewports": ["mobile", "tabletSm"] }
+]

@@ -1,0 +1,89 @@
+[
+ {
+  "group": "overview",
+  "groupLabel": "概览",
+  "items": [
+   {
+    "key": "dashboard",
+    "label": "仪表盘",
+    "path": "/",
+    "icon": "layout-dashboard",
+    "implemented": true
+   }
+  ]
+ },
+ {
+  "group": "trade",
+  "groupLabel": "交易",
+  "items": [
+   {
+    "key": "orders",
+    "label": "订单",
+    "path": "/orders",
+    "icon": "receipt-text",
+    "badge": 63,
+    "badgeMeaning": "待发货",
+    "implemented": false
+   },
+   {
+    "key": "after-sales",
+    "label": "售后",
+    "path": "/after-sales",
+    "icon": "rotate-ccw",
+    "badge": 7,
+    "badgeMeaning": "待处理退款",
+    "implemented": false
+   }
+  ]
+ },
+ {
+  "group": "goods",
+  "groupLabel": "货品",
+  "items": [
+   {
+    "key": "products",
+    "label": "商品",
+    "path": "/products",
+    "icon": "package",
+    "implemented": false
+   },
+   {
+    "key": "inventory",
+    "label": "库存",
+    "path": "/inventory",
+    "icon": "warehouse",
+    "badge": 12,
+    "badgeMeaning": "库存预警 SKU",
+    "badgeTone": "warning",
+    "implemented": false
+   },
+   {
+    "key": "purchasing",
+    "label": "采购",
+    "path": "/purchasing",
+    "icon": "truck",
+    "implemented": false
+   }
+  ]
+ },
+ {
+  "group": "manage",
+  "groupLabel": "经营",
+  "items": [
+   {
+    "key": "reports",
+    "label": "报表",
+    "path": "/reports",
+    "icon": "chart-column",
+    "implemented": false
+   },
+   {
+    "key": "settings",
+    "label": "设置",
+    "path": "/settings",
+    "icon": "settings",
+    "implemented": false
+   }
+  ]
+ }
+]

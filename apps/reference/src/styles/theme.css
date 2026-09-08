@@ -331,6 +331,11 @@
   letter-spacing: var(--typography-lead-letter-spacing);
   font-family: var(--font-family-sans);
 }
+@utility text-role-code {
+  font: var(--typography-code);
+  letter-spacing: var(--typography-code-letter-spacing);
+  font-family: var(--font-family-mono);
+}
 @utility text-role-title {
   font: var(--typography-title);
   letter-spacing: var(--typography-title-letter-spacing);

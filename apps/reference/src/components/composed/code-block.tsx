@@ -22,8 +22,8 @@ function CodeBlock({ code, language, labels, className, ...props }: CodeBlockPro
   }, [copied])
   return (
     <figure data-slot="code-block" className={cn("relative min-w-0 overflow-hidden rounded-md border bg-surface-muted", className)} {...props}>
-      <figcaption className="flex h-hit items-center justify-between border-b pl-3">
-        <span className="font-mono text-role-caption text-fg-muted">{language}</span>
+      <figcaption className="flex min-h-hit items-center justify-between border-b pr-1 pl-3">
+        <span className="font-mono text-role-caption text-fg-muted uppercase">{language}</span>
         <IconButton
           label={copied ? labels.copied : labels.copy}
           onClick={() => {
@@ -37,7 +37,7 @@ function CodeBlock({ code, language, labels, className, ...props }: CodeBlockPro
           {copied ? labels.copied : ""}
         </span>
       </figcaption>
-      <pre tabIndex={0} className="overflow-x-auto p-3 font-mono text-role-caption leading-body text-fg">
+      <pre tabIndex={0} className="overflow-x-auto px-4 py-3 text-role-code text-fg">
         <code>{code}</code>
       </pre>
     </figure>

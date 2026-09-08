@@ -19,6 +19,7 @@ import {
   ThumbsDownIcon,
   ThumbsUpIcon,
   Trash2Icon,
+  TriangleAlertIcon,
   ZapIcon,
 } from "lucide-react"
 
@@ -69,6 +70,15 @@ type ModelKey = (typeof C.models)[number]["key"]
 
 const MAX_CHARS = 2000
 const COUNTER_FROM = MAX_CHARS - 200
+const MINUTE = 60000
+
+/* 演示用附件 / 追问：文案来自 content/chat.md，时间从当前会话末条消息派生（mock 不单列，与 hifi 内联数据保持一致） */
+const DEMO_ATTACHMENT = { name: t("chat.composer.attach.demo.name"), size: t("chat.composer.attach.demo.size") }
+const followUpOf = (last: Message | undefined): { id: string; at: string; text: string } => ({
+  id: "m_follow",
+  at: new Date(new Date(last?.at ?? mock.meta.asOf).getTime() + MINUTE).toISOString(),
+  text: t("chat.streaming.followUp"),
+})
 
 const SUGGESTION_ICON: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   "package-search": PackageSearchIcon,
@@ -215,9 +225,7 @@ function StreamingMessage() {
       <Markdown
         source={s.partialMarkdown}
         trailing={
-          <span aria-hidden className="ml-1 inline-block animate-blink text-primary">
-            {t("chat.streaming.cursor")}
-          </span>
+          <span aria-hidden className="ml-1 inline-block h-(--font-size-sm) w-(--border-width-focus) animate-blink rounded-(--border-width-hairline) bg-primary align-text-bottom" />
         }
       />
     </ChatBubble>
@@ -327,7 +335,7 @@ type ListProps = {
   loading?: boolean
 }
 
-const LIST_SKELETON: string[][] = [["w-1/3"], ["w-4/5", "w-2/5"], ["w-3/5", "w-2/5"], ["w-4/5", "w-1/3"], ["w-1/3"], ["w-3/5", "w-2/5"], ["w-4/5", "w-2/5"]]
+const LIST_SKELETON: string[][] = [["w-1/4"], ["w-4/5", "w-2/5"], ["w-3/5", "w-2/5"], ["w-4/5", "w-1/4"], ["w-1/4"], ["w-3/5", "w-2/5"], ["w-4/5", "w-2/5"]]
 
 function ConversationList({ conversations, current, query, onQuery, onSelect, onNew, menu, onMenu, onDelete, inSheet, loading }: ListProps) {
   const f = query.trim().toLowerCase()
@@ -363,7 +371,7 @@ function ConversationList({ conversations, current, query, onQuery, onSelect, on
           {LIST_SKELETON.map((lines, i) => (
             <div key={i} className="flex flex-col gap-2 px-3 py-2">
               {lines.map((w, j) => (
-                <Skeleton key={j} className={cn(j === 0 ? "h-5" : "h-4", w)} />
+                <Skeleton key={j} className={cn(j === 0 ? "h-4" : "h-3", w)} />
               ))}
             </div>
           ))}
@@ -501,7 +509,7 @@ export default function Chat() {
   /* 输入区 */
   const [draft, setDraft] = React.useState("")
   const [model, setModel] = React.useState<ModelKey>(C.models[0].key)
-  const [attachment, setAttachment] = React.useState<{ name: string; size: string } | null>(() => (params.has("attach") ? C.demo.attachment : null))
+  const [attachment, setAttachment] = React.useState<{ name: string; size: string } | null>(() => (params.has("attach") ? DEMO_ATTACHMENT : null))
   const [attachError, setAttachError] = React.useState(false)
   const modelOpen = open === "model"
   const [query, setQuery] = React.useState("")
@@ -527,7 +535,7 @@ export default function Chat() {
       window.setTimeout(() => setAttachError(false), tokenMs("--timing-toast-stay"))
       return
     }
-    setAttachment(C.demo.attachment)
+    setAttachment(DEMO_ATTACHMENT)
   }
 
   /* 会话菜单 / 删除：?open=menu|delete 作用于当前会话 */
@@ -557,9 +565,13 @@ export default function Chat() {
     }
   }
 
-  /* 移动端会话列表 Sheet：?open=sidebar（menu / delete 在 ≤768 也需先打开列表） */
+  /* 移动端会话列表 Sheet：?open=sidebar（menu / delete 在 ≤768 也需先打开列表；菜单关闭时回退到 sidebar，列表保持打开） */
   const convsOpen = mobile && (open === "sidebar" || open === "menu")
   const setConvsOpen = (o: boolean) => set({ open: o ? "sidebar" : null })
+  const onMenu = (k: string | null) => {
+    setMenu(k)
+    if (!k && open === "menu") set({ open: mobile ? "sidebar" : null })
+  }
 
   /* toast=urgent（改加急成功） */
   React.useEffect(() => {
@@ -606,8 +618,9 @@ export default function Chat() {
     thread.push(m.role === "user" ? <UserMessage key={m.id} m={{ at: m.at, text: m.text ?? "" }} /> : <AssistantMessage key={m.id} m={m} />)
   }
   if (view === "thread" && (state === "streaming" || state === "error")) {
-    pushDate(C.demo.followUp.at)
-    thread.push(<UserMessage key={C.demo.followUp.id} m={C.demo.followUp} />)
+    const followUp = followUpOf(messages[messages.length - 1])
+    pushDate(followUp.at)
+    thread.push(<UserMessage key={followUp.id} m={followUp} />)
   }
 
   const composer = (
@@ -658,10 +671,7 @@ export default function Chat() {
         go(null, "empty")
       }}
       menu={menu}
-      onMenu={(k) => {
-        setMenu(k)
-        if (!k && open === "menu") set({ open: null })
-      }}
+      onMenu={onMenu}
       onDelete={(id) => setDeleting(id)}
       inSheet={inSheet}
       loading={state === "loading"}
@@ -708,7 +718,7 @@ export default function Chat() {
             }}
             className="flex min-h-0 flex-1 flex-col overflow-y-auto scroll-smooth px-6 pt-6 pb-4 mobile:flex-none mobile:overflow-visible mobile:p-4"
           >
-            <div className={cn("mx-auto flex w-full max-w-thread-max flex-1 flex-col gap-6 mobile:gap-5", view !== "thread" && "justify-center")}>
+            <div className={cn("mx-auto flex w-full max-w-thread-max flex-1 flex-col gap-6 mobile:gap-5", (view === "empty" || view === "unavailable") && "justify-center")}>
               {view === "empty" ? <EmptyView onPick={pick} /> : null}
               {view === "loading" ? <LoadingView /> : null}
               {view === "unavailable" && conv ? <UnavailableView conv={conv} onBack={() => go(C.conversations[0].id)} /> : null}
@@ -717,7 +727,7 @@ export default function Chat() {
                   {thread}
                   {state === "streaming" ? <StreamingMessage /> : null}
                   {state === "error" ? (
-                    <Alert variant="danger" className="rounded-lg px-5 py-4 [&>svg]:mt-1">
+                    <Alert variant="danger" icon={TriangleAlertIcon} className="rounded-lg px-5 py-4 [&>svg]:mt-1">
                       <div className="grid gap-1">
                         <strong className="text-role-label text-danger">{t("chat.error.title")}</strong>
                         <AlertDescription>{C.errorState.message}</AlertDescription>
@@ -726,7 +736,7 @@ export default function Chat() {
                         <Button variant="secondary" onClick={() => go(convId, "streaming")}>
                           <RefreshCwIcon /> {C.errorState.retry}
                         </Button>
-                        <Button variant="ghost" onClick={() => go(convId, "success")}>
+                        <Button variant="ghost" onClick={() => go(convId, "success")} className="text-fg-muted hover:text-fg">
                           {t("chat.error.dismiss")}
                         </Button>
                       </div>
@@ -756,12 +766,13 @@ export default function Chat() {
       </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(o) => (o ? undefined : closeDelete())}>
-        <AlertDialogContent>
+        {/* hifi chat .dialog：≤768 仍居中浮层（宽 = 100vw - space.8、radius-lg），不用组件默认的贴底样式 */}
+        <AlertDialogContent className="gap-3 rounded-lg mobile:top-1/2 mobile:bottom-auto mobile:left-1/2 mobile:w-[calc(100vw-var(--space-8))] mobile:max-w-dialog mobile:-translate-1/2 mobile:rounded-lg mobile:pb-6">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("chat.sidebar.delete.title", { title: deleteId ? (byId.get(deleteId)?.title ?? "") : "" })}</AlertDialogTitle>
+            <AlertDialogTitle className="text-role-title">{t("chat.sidebar.delete.title", { title: deleteId ? (byId.get(deleteId)?.title ?? "") : "" })}</AlertDialogTitle>
             <AlertDialogDescription>{t("chat.sidebar.delete.description")}</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="mt-3 gap-2">
             <AlertDialogCancel>{t("chat.sidebar.delete.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete}>{t("chat.sidebar.delete.confirm")}</AlertDialogAction>
           </AlertDialogFooter>

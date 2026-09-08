@@ -259,11 +259,11 @@ function Composer({ value, onChange, onSubmit, onStop, onAttach, placeholder, hi
           {tools}
           {counter ? <span className="ml-auto px-2 text-role-caption whitespace-nowrap text-fg-muted tabular-nums">{counter}</span> : <span className="flex-1" />}
           {streaming ? (
-            <IconButton type="button" label={labels.stop} shape="round" onClick={onStop} className="bg-bg-inverse text-fg-inverse hover:not-disabled:bg-fg-muted hover:not-disabled:text-fg-inverse [&_svg]:size-icon-sm">
+            <IconButton type="button" label={labels.stop} onClick={onStop} className="bg-bg-inverse text-fg-inverse hover:not-disabled:bg-fg-muted hover:not-disabled:text-fg-inverse [&_svg]:size-icon-sm">
               <SquareIcon />
             </IconButton>
           ) : (
-            <IconButton type="submit" label={labels.send} shape="round" disabled={!canSend} className="bg-primary text-on-primary hover:not-disabled:bg-primary-hover hover:not-disabled:text-on-primary disabled:disabled-look">
+            <IconButton type="submit" label={labels.send} disabled={!canSend} className="bg-primary text-on-primary hover:not-disabled:bg-primary-hover hover:not-disabled:text-on-primary disabled:disabled-look">
               <ArrowUpIcon />
             </IconButton>
           )}

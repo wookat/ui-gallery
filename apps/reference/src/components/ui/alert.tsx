@@ -25,10 +25,12 @@ type AlertProps = React.ComponentProps<"div"> &
   VariantProps<typeof alertVariants> & {
     closeLabel?: string
     onClose?: () => void
+    /** 覆盖变体默认图标（lucide） */
+    icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>
   }
 
-function Alert({ className, variant, closeLabel, onClose, children, ...props }: AlertProps) {
-  const Icon = icons[variant ?? "danger"]
+function Alert({ className, variant, closeLabel, onClose, icon, children, ...props }: AlertProps) {
+  const Icon = icon ?? icons[variant ?? "danger"]
   return (
     <div role="alert" data-slot="alert" data-variant={variant ?? "danger"} className={cn(alertVariants({ variant }), className)} {...props}>
       <Icon aria-hidden />

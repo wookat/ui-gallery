@@ -3,7 +3,17 @@ import { cn } from "@/lib/cn"
 import { CheckIcon, ChevronDownIcon, SearchIcon } from "lucide-react"
 import { Popover as PopoverPrimitive } from "radix-ui"
 
-type ComboboxOption = { value: string; label: string; hint?: string; disabled?: boolean }
+type ComboboxOption = {
+  value: string
+  label: string
+  /** 副文案（选项第二行） */
+  hint?: React.ReactNode
+  /** 右侧附加内容（价格 / 标签） */
+  trailing?: React.ReactNode
+  /** 额外可搜索文本（SKU 编码、法定名等），不显示 */
+  keywords?: string
+  disabled?: boolean
+}
 
 type ComboboxProps = {
   id?: string
@@ -13,12 +23,21 @@ type ComboboxProps = {
   placeholder: string
   searchPlaceholder: string
   emptyText: string
+  /** button：触发器同 Select，面板顶部搜索行；input：hifi .ctl.combo —— 搜索图标 + 可输入框，面板紧贴其下 */
+  variant?: "button" | "input"
   disabled?: boolean
   invalid?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  onBlur?: React.FocusEventHandler<HTMLElement>
   className?: string
 } & Pick<React.ComponentProps<"button">, "aria-label" | "aria-labelledby" | "aria-describedby">
+
+const matches = (o: ComboboxOption, q: string) => {
+  const s = q.trim().toLowerCase()
+  if (!s) return true
+  return o.label.toLowerCase().includes(s) || (o.keywords?.toLowerCase().includes(s) ?? false)
+}
 
 /**
  * 搜索选择：hifi .select + .listbox / .combobox-head —— 触发器同 Select，面板顶部搜索行（size.hit 高、底部 hairline），
@@ -32,10 +51,12 @@ function Combobox({
   placeholder,
   searchPlaceholder,
   emptyText,
+  variant = "button",
   disabled,
   invalid,
   open: openProp,
   onOpenChange,
+  onBlur,
   className,
   ...aria
 }: ComboboxProps) {
@@ -46,29 +67,140 @@ function Combobox({
     onOpenChange?.(o)
   }
   const [query, setQuery] = React.useState("")
-  const [active, setActive] = React.useState(0)
+  const [editing, setEditing] = React.useState(false)
+  const inline = variant === "input"
+  /** hifi form .option.is-active：内联搜索框打开时不预选，方向键/悬停后才高亮；按钮式下拉保留预选首项 */
+  const initialActive = inline ? -1 : 0
+  const [active, setActive] = React.useState(initialActive)
   const listId = React.useId()
+  const anchorRef = React.useRef<HTMLDivElement>(null)
   const selected = options.find((o) => o.value === value) ?? null
-  const filtered = options.filter((o) => o.label.toLowerCase().includes(query.trim().toLowerCase()))
-  const pick = (o: ComboboxOption) => {
-    if (o.disabled) return
-    onChange(o.value === value ? null : o.value)
+  const filtered = options.filter((o) => matches(o, query))
+  const close = () => {
     setOpen(false)
     setQuery("")
+    setEditing(false)
+    setActive(initialActive)
+  }
+  const pick = (o: ComboboxOption) => {
+    if (o.disabled) return
+    onChange(inline || o.value !== value ? o.value : null)
+    close()
   }
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       e.preventDefault()
+      if (!open) setOpen(true)
       setActive((i) => Math.min(filtered.length - 1, i + 1))
     } else if (e.key === "ArrowUp") {
       e.preventDefault()
       setActive((i) => Math.max(0, i - 1))
     } else if (e.key === "Enter") {
+      if (!open) return
       e.preventDefault()
       if (filtered[active]) pick(filtered[active])
     } else if (e.key === "Escape") {
-      setOpen(false)
+      if (open) e.preventDefault()
+      close()
     }
+  }
+
+  const list = (
+    <ul id={listId} role="listbox" aria-label={placeholder} className="max-h-[calc(var(--size-hit)*6+var(--space-2))] overflow-y-auto">
+      {filtered.length === 0 ? (
+        <li data-slot="combobox-empty" className={cn("text-center text-fg-muted", inline ? "flex min-h-hit items-center justify-center px-3 text-role-caption" : "px-3 py-6")}>
+          {emptyText}
+        </li>
+      ) : (
+        filtered.map((o, i) => (
+          <li
+            key={o.value}
+            id={`${listId}-${o.value}`}
+            role="option"
+            aria-selected={o.value === value}
+            aria-disabled={o.disabled || undefined}
+            data-active={i === active ? "" : undefined}
+            onMouseEnter={() => setActive(i)}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => pick(o)}
+            className="flex min-h-hit w-full cursor-pointer items-center justify-between gap-3 rounded-sm px-3 py-2 text-left text-role-body select-none data-active:bg-surface-muted aria-selected:bg-primary-soft aria-selected:text-on-primary-soft aria-disabled:disabled-look [&_svg]:size-icon-md"
+          >
+            <span className="flex min-w-0 flex-1 flex-col gap-1">
+              <span className="truncate">{o.label}</span>
+              {o.hint ? <span className="flex flex-wrap items-center gap-2 text-role-caption text-fg-muted">{o.hint}</span> : null}
+            </span>
+            {o.trailing ? <span className="flex shrink-0 items-center gap-2 text-role-label tabular-nums">{o.trailing}</span> : null}
+            {o.value === value ? <CheckIcon aria-hidden className="shrink-0 text-primary [&]:size-icon-sm" /> : null}
+          </li>
+        ))
+      )}
+    </ul>
+  )
+
+  if (inline) {
+    return (
+      <PopoverPrimitive.Root open={open} onOpenChange={(o) => (o ? setOpen(true) : close())}>
+        <PopoverPrimitive.Anchor asChild>
+          <div ref={anchorRef} data-slot="combobox-input" className={cn("relative flex w-full min-w-0 items-center text-fg-muted [&_svg]:pointer-events-none", className)}>
+            <span aria-hidden className="absolute inset-y-0 left-0 grid w-hit place-items-center [&_svg]:size-icon-sm">
+              <SearchIcon />
+            </span>
+            <input
+              id={id}
+              type="text"
+              role="combobox"
+              autoComplete="off"
+              aria-expanded={open}
+              aria-controls={listId}
+              aria-haspopup="listbox"
+              aria-autocomplete="list"
+              aria-activedescendant={open && filtered[active] ? `${listId}-${filtered[active].value}` : undefined}
+              aria-invalid={invalid || undefined}
+              disabled={disabled}
+              placeholder={placeholder}
+              value={editing ? query : (selected?.label ?? "")}
+              onChange={(e) => {
+                setEditing(true)
+                setQuery(e.target.value)
+                setActive(initialActive)
+                if (!open) setOpen(true)
+              }}
+              onClick={() => {
+                if (!open) setOpen(true)
+              }}
+              onFocus={() => {
+                if (!open) setOpen(true)
+              }}
+              onBlur={onBlur}
+              onKeyDown={onKeyDown}
+              className="h-control-md w-full min-w-0 rounded-md border border-border-strong bg-surface pl-hit pr-hit text-role-body text-fg transition-colors duration-(--motion-fast) ease-std placeholder:text-fg-muted hover:not-disabled:border-fg-muted focus-visible:border-primary aria-expanded:border-primary aria-invalid:border-(length:--border-width-accent) aria-invalid:border-danger aria-invalid:focus-visible:outline-danger disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-fg-muted"
+              {...aria}
+            />
+            <span aria-hidden className="absolute inset-y-0 right-0 grid w-hit place-items-center [&_svg]:size-icon-md">
+              <ChevronDownIcon />
+            </span>
+          </div>
+        </PopoverPrimitive.Anchor>
+        <PopoverPrimitive.Portal>
+          <PopoverPrimitive.Content
+            data-slot="combobox-content"
+            align="start"
+            sideOffset={4}
+            avoidCollisions={false}
+            hideWhenDetached
+            onOpenAutoFocus={(e) => e.preventDefault()}
+            onCloseAutoFocus={(e) => e.preventDefault()}
+            onInteractOutside={(e) => {
+              if (e.target instanceof Node && anchorRef.current?.contains(e.target)) e.preventDefault()
+            }}
+            aria-label={aria["aria-label"] ?? placeholder}
+            className="z-40 flex w-(--radix-popover-trigger-width) flex-col rounded-md border bg-surface-raised p-1 text-fg shadow-lg outline-none"
+          >
+            {list}
+          </PopoverPrimitive.Content>
+        </PopoverPrimitive.Portal>
+      </PopoverPrimitive.Root>
+    )
   }
 
   return (
@@ -83,6 +215,7 @@ function Combobox({
           aria-haspopup="listbox"
           aria-invalid={invalid || undefined}
           disabled={disabled}
+          onBlur={onBlur}
           data-slot="combobox-trigger"
           data-placeholder={selected ? undefined : ""}
           className={cn(
@@ -125,33 +258,7 @@ function Combobox({
               className="h-hit min-w-0 flex-1 border-0 bg-transparent text-fg outline-none placeholder:text-fg-muted"
             />
           </div>
-          <ul id={listId} role="listbox" aria-label={placeholder} className="flex max-h-[calc(var(--size-hit)*6)] flex-col overflow-y-auto">
-            {filtered.length === 0 ? (
-              <li data-slot="combobox-empty" className="px-3 py-6 text-center text-fg-muted">
-                {emptyText}
-              </li>
-            ) : (
-              filtered.map((o, i) => (
-                <li
-                  key={o.value}
-                  id={`${listId}-${o.value}`}
-                  role="option"
-                  aria-selected={o.value === value}
-                  aria-disabled={o.disabled || undefined}
-                  data-active={i === active ? "" : undefined}
-                  onMouseEnter={() => setActive(i)}
-                  onClick={() => pick(o)}
-                  className="flex min-h-hit w-full cursor-pointer items-center gap-3 rounded-sm px-3 text-left text-role-body select-none data-active:bg-surface-muted aria-selected:bg-primary-soft aria-selected:text-on-primary-soft aria-disabled:disabled-look [&_svg]:size-icon-md"
-                >
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="truncate">{o.label}</span>
-                    {o.hint ? <span className="text-role-caption text-fg-muted">{o.hint}</span> : null}
-                  </span>
-                  {o.value === value ? <CheckIcon aria-hidden className="ml-auto text-primary" /> : null}
-                </li>
-              ))
-            )}
-          </ul>
+          {list}
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>
     </PopoverPrimitive.Root>

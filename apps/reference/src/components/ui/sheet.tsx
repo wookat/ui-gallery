@@ -27,7 +27,7 @@ function SheetContent({
   closeLabel,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
-  side?: "left" | "right"
+  side?: "left" | "right" | "bottom"
   title: string
   description?: string
   closeLabel: string
@@ -39,8 +39,12 @@ function SheetContent({
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 z-30 flex w-sidebar-drawer max-w-[calc(100vw-var(--size-hit))] flex-col bg-surface text-fg shadow-lg outline-none",
-          side === "left" ? "left-0 border-r" : "right-0 border-l",
+          "fixed z-30 flex flex-col bg-surface text-fg shadow-lg outline-none",
+          side === "bottom"
+            ? "inset-x-0 bottom-0 max-h-[88vh] rounded-t-xl"
+            : "inset-y-0 w-sidebar-drawer max-w-[calc(100vw-var(--size-hit))]",
+          side === "left" && "left-0 border-r",
+          side === "right" && "right-0 border-l",
           className,
         )}
         {...props}

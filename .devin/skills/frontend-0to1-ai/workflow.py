@@ -208,7 +208,7 @@ def hifi_prompt(screen, brief, tokens):
 输入：brief `{brief['brief_path']}`、线框 `design/wireframes/{sid}.html`、令牌 `{tokens['tokens_css']}`（commit {tokens['commit']}）。屏幕目的：{screen['purpose']}；必备状态：{', '.join(screen['states'])}。
 步骤：
 1. `git fetch && git checkout -b fe01/hifi-{sid} origin/{INT}`。
-2. 写 `design/hifi/{sid}/index.html`：只引用 `../../tokens.css` 变量（页面内 0 个硬编码色值/字号/间距，用 grep 自查）；真实文案与数据；覆盖全部状态（用 `?state=loading|empty|error|success` 或同页多区块）；1440 与 375 两断点；`data-theme=dark` 暗色完整；hover/focus-visible/disabled 样式；所有可点元素 ≥40px。
+2. 写 `design/hifi/{sid}/index.html`：只引用 `../../tokens.css` 变量（页面内 0 个硬编码色值/字号/间距，用 grep 自查）；真实文案与数据；覆盖全部状态（用 `?state=loading|empty|error|success` 或同页多区块）；1440 与 375 两断点（表格 / 表单 / 多列布局类屏幕再自查 1024 与 768：表格列不塌、卡片不破版）；`data-theme=dark` 暗色完整；表单控件的 placeholder 也要显式取色（勿留浏览器默认灰，对比度 ≥4.5:1）；hover/focus-visible/disabled 样式；所有可点元素 ≥40px。
 3. 用 Playwright 截基准图到 `design/hifi/{sid}/ref/`：{{desktop,mobile}}-{{light,dark}}-{{state}}.png，压缩后每张 <300KB。
 4. 自查：对齐、留白节奏（8pt）、层级（标题/正文/辅助三级清晰）、文案长度极值（最长名字/金额）、375 无溢出。
 5. commit + push `fe01/hifi-{sid}`。
@@ -278,8 +278,29 @@ def escalate_prompt(screen, impl, review):
 {COMMON}
 仍在阻塞的问题：
 {issues}
-要求：先用浏览器/脚本**复现**每一条，再修；怀疑审查判断有误的，用实测证据写进 unfixed 说明。修后重跑 `AGENTS.md` 列出的全部门禁 + `tools/compare.mjs {sid}` + `tools/a11y.mjs {sid}`，push 同一分支。
+要求：先用浏览器/脚本**复现**每一条，再修；怀疑审查判断有误的，用实测证据写进 unfixed 说明。根因在设计稿（design/hifi）而非实现的条目**不要改稿**：写进 unfixed，以 `DESIGN:` 开头，附实测证据（如临时改某条规则后 compare 相似度的变化），工作流会转交设计侧修稿。修后重跑 `AGENTS.md` 列出的全部门禁 + `tools/compare.mjs {sid}` + `tools/a11y.mjs {sid}`，push 同一分支。
 结构化输出：commit、fixed、unfixed。"""
+
+
+def design_fix_prompt(screen, design_issues, review):
+    sid = screen["id"]
+    return f"""你是 roles/design/ui-designer。屏幕 `{sid}` 的高保真稿 `design/hifi/{sid}/index.html`（在 `{INT}`）被实现侧用实测证据指出存在缺陷，导致实现无法与基准图对齐。
+{COMMON}
+实现侧证据：
+{json.dumps(design_issues, ensure_ascii=False, indent=1)}
+审查方当前 blocking：
+{json.dumps(review['blocking_issues'], ensure_ascii=False, indent=1)}
+要求：checkout `{INT}` 并 pull；先在浏览器复现，确认是稿件缺陷（若不是，写进 unfixed 附证据，不改稿）；只做最小修正（不改设计意图、不改令牌值），重跑 design/hifi/{sid}/check.mjs（如有）并重截 ref/*.png（同名覆盖，每张 <300KB）；commit + push `{INT}`。
+结构化输出：commit、fixed、unfixed。"""
+
+
+def sync_prompt(screen, impl, reason):
+    sid = screen["id"]
+    regress = ", ".join(EXISTING) or "无"
+    return f"""你是 roles/engineering/frontend-engineer。屏幕 `{sid}` 实现分支 `{impl['branch']}`（commit {impl['commit']}）需要先与集成分支 `{INT}` 同步才能合入。原因：{reason}
+{COMMON}
+步骤：`git fetch && git checkout {impl['branch']} && git merge origin/{INT}`；冲突取两侧功能的**并集**（共享文件如应用壳的 props 类型 / 签名默认值 / 渲染分支，一侧已上线的行为一行都不能丢，另一侧新增的也保留）；lockfile 冲突取 {INT} 版本后 `pnpm install`。然后实跑 `pnpm lint && pnpm typecheck && pnpm build`、`tools/compare.mjs {sid}`、`tools/a11y.mjs {sid}`，并对已上线屏幕（{regress}）各跑一次 `tools/compare.mjs` 确认不回退；push 同一分支。不改设计稿与令牌。
+结构化输出：screen、branch、commit、gates_passed、notes。"""
 
 
 def review_prompt(stage, target, checklist):
@@ -295,7 +316,7 @@ CHECKS = {
     "brief": "屏幕清单每屏含 loading/empty/error；核心任务 ≤5 且可被屏幕覆盖；content/ 与 mock/ 全是真实、量级合理的内容（无 lorem/随机数/占位名）；非目标与约束明确；老板原话中的每个要求都能在 brief 中找到对应行。",
     "ia": "每个线框在浏览器可打开；层级与主流程与 brief 一致；无色/无组件库；375 无横向滚动（实测 scrollWidth）；应用壳/无壳页面区分正确；错误与空态分支在流程图中存在。",
     "tokens": "DTCG 格式合法（$type/$value）；字阶 3–5 级、8pt 间距、role 层完整且 dark 覆盖；运行 design/check-contrast.mjs 复核正文 ≥4.5:1；tokens.css 与 tokens.json 一致（重新生成后 git diff 为空）；无照抄模板默认色而不说明。",
-    "hifi": "只引用 tokens.css 变量（grep 页面内 #hex/px 硬编码为 0，字号间距允许 calc/var）；全部状态、1440/375、亮/暗齐全；六项：布局骨架/间距节奏/字阶层级/色彩/组件形态/交互反馈；硬指标：375 无溢出、热区 ≥40px、对比度 ≥4.5:1、暗色无白块、文案极值不破版；ref/ 基准图与页面一致。",
+    "hifi": "只引用 tokens.css 变量（grep 页面内 #hex/px 硬编码为 0，字号间距允许 calc/var）；全部状态、1440/375、亮/暗齐全，表格/表单/多列类屏幕在 1024 与 768 实测不破版；placeholder 等次级文字对比度实测（不是浏览器默认灰）；六项：布局骨架/间距节奏/字阶层级/色彩/组件形态/交互反馈；硬指标：375 无溢出、热区 ≥40px、对比度 ≥4.5:1、暗色无白块、文案极值不破版；ref/ 基准图与页面一致。",
     "foundation": "lint/typecheck/build 实跑全绿；/kitchen-sink 每个组件外观来自令牌（对照 design/hifi 的控件形态，不是库默认蓝）；页面层 grep 无硬编码色值；AGENTS.md 与 04-components.md 与实际代码一致；tools/shoot|compare|a11y 三个脚本可运行；文件式路由生效。",
     "impl": "checkout 该分支并实跑 check_commands；对照 design/hifi/<screen>/ref 逐图六项打分（布局骨架/间距/字阶/色彩/组件形态/交互反馈）；全部状态存在且真实；硬指标：375 无溢出、热区 ≥40px、对比度 ≥4.5:1、暗色无白块、0 console error；页面层无硬编码色值/字号；数据来自 mock。",
 }
@@ -314,7 +335,7 @@ def fix_prompt(stage, target, branch, review):
 def merge_prompt(impl):
     return f"""你是 roles/orchestrators/project-lead。把实现分支 `{impl['branch']}`（屏幕 {impl['screen']}，commit {impl['commit']}）合入 `{INT}`。
 {COMMON}
-步骤：checkout `{INT}` 并 pull → `git merge --no-ff origin/{impl['branch']}`（冲突只应在 lockfile：取 {INT} 版本后 `pnpm install` 重生成；其他冲突 → merged=false 说明）→ `pnpm lint && pnpm typecheck && pnpm build` → push `{INT}`。
+步骤：checkout `{INT}` 并 pull → `git merge --no-ff origin/{impl['branch']}`（冲突只应在 lockfile：取 {INT} 版本后 `pnpm install` 重生成；其他冲突 → `git merge --abort`，merged=false，notes 写清冲突文件与两侧改动，工作流会派实现者同步后重试）→ `pnpm lint && pnpm typecheck && pnpm build` → push `{INT}`。
 结构化输出：merged、commit、notes。"""
 
 
@@ -416,6 +437,119 @@ def int_target(path_desc):
     return lambda out: f"分支 `{INT}` commit {out['commit']}：{path_desc(out)}"
 
 
+def impl_target(sid, out):
+    return f"分支 `{out['branch']}` commit {out['commit']}：src/pages/{sid}/ 对照 design/hifi/{sid}/ref"
+
+
+async def impl_review(sid, out, label):
+    return await run_agent(review_prompt("impl", impl_target(sid, out), CHECKS["impl"]), phase="implement", schema=REVIEW_SCHEMA, label=label, soft_time_limit_minutes=40)
+
+
+async def merge_screen(s, out, sync_first=None):
+    """合入集成分支；冲突 → 派实现者同步一次 → 重试。sync_first 非空时先同步（已知冲突）。"""
+    sid = s["id"]
+    m = None
+    if sync_first is None:
+        async with merge_lock:
+            m = await run_agent(merge_prompt(out), phase="integrate", schema=MERGE_SCHEMA, label=f"merge-{sid}", soft_time_limit_minutes=30)
+    if m is None or not m["merged"]:
+        reason = sync_first or f"合入 {INT} 时冲突：{m['notes']}"
+        log(f"[impl-{sid}] merge conflict → sync with {INT}")
+        sync = await run_agent(sync_prompt(s, out, reason), phase="implement", schema=IMPL_SCHEMA, label=f"impl-{sid}-sync", soft_time_limit_minutes=45)
+        out = {**out, "commit": sync["commit"]}
+        if not sync["gates_passed"]:
+            issues = ["同步集成分支后门禁未过：" + sync["notes"]]
+            log("UNMERGED " + json.dumps({"screen": sid, "branch": out["branch"], "issues": issues}, ensure_ascii=False))
+            return {"screen": sid, "state": "merge_failed", "branch": out["branch"], "issues": issues}
+        async with merge_lock:
+            m = await run_agent(merge_prompt(out), phase="integrate", schema=MERGE_SCHEMA, label=f"merge-{sid}-retry", soft_time_limit_minutes=30)
+    if m["merged"]:
+        return {"screen": sid, "state": "merged", "commit": m["commit"], "notes": m["notes"]}
+    issues = ["merge_failed: " + m["notes"]]
+    log("UNMERGED " + json.dumps({"screen": sid, "branch": out["branch"], "issues": issues}, ensure_ascii=False))
+    return {"screen": sid, "state": "merge_failed", "branch": out["branch"], "issues": issues}
+
+
+async def finish_impl(s, out, rev, fix_rounds=0, suffix=""):
+    """实现已产出并审过一次：修 ≤2 轮 → 显式升级 tech-lead → 终审（设计稿缺陷时转交设计修稿 + 同步再终审一次）→ 合入。"""
+    sid = s["id"]
+    while rev["verdict"] != "pass" and fix_rounds < 2:
+        log(f"[impl-{sid}] review=fix blocking={len(rev['blocking_issues'])}")
+        fixed = await run_agent(fix_prompt("impl", impl_target(sid, out), out["branch"], rev), phase="implement", schema=FIX_SCHEMA, label=f"impl-{sid}-fix{fix_rounds + 1}{suffix}", soft_time_limit_minutes=60)
+        out = {**out, "commit": fixed["commit"]}
+        fix_rounds += 1
+        rev = await impl_review(sid, out, f"impl-{sid}-review{fix_rounds + 1}{suffix}")
+    if rev["verdict"] != "pass" or not out["gates_passed"]:
+        if rev["verdict"] == "pass":
+            rev = {**rev, "blocking_issues": ["实现会话自报 gates_passed=false：" + out["notes"]]}
+        log("BLOCKING " + json.dumps({"stage": f"impl-{sid}", "issues": rev["blocking_issues"]}, ensure_ascii=False))
+        log(f"[impl-{sid}] escalate → tech-lead")
+        esc = await run_agent(escalate_prompt(s, out, rev), phase="implement", schema=FIX_SCHEMA, label=f"impl-{sid}-escalate{suffix}", soft_time_limit_minutes=60)
+        out = {**out, "commit": esc["commit"], "gates_passed": True}
+        rev = await impl_review(sid, out, f"impl-{sid}-review-final{suffix}")
+        design_issues = [u for u in esc["unfixed"] if u.strip().upper().startswith("DESIGN:")]
+        if rev["verdict"] != "pass" and design_issues:
+            log(f"[impl-{sid}] design defect → ui-designer refix hifi")
+            df = await run_agent(design_fix_prompt(s, design_issues, rev), phase="hifi", schema=FIX_SCHEMA, label=f"hifi-{sid}-refix{suffix}", soft_time_limit_minutes=40)
+            sync = await run_agent(sync_prompt(s, out, f"设计稿已修正（{INT}@{df['commit'][:8]}：{'；'.join(df['fixed'])[:300]}），需同步后复跑 compare/a11y"), phase="implement", schema=IMPL_SCHEMA, label=f"impl-{sid}-sync-design{suffix}", soft_time_limit_minutes=45)
+            out = {**out, "commit": sync["commit"]}
+            rev = await impl_review(sid, out, f"impl-{sid}-review-final2{suffix}")
+        if rev["verdict"] != "pass":
+            log("UNMERGED " + json.dumps({"screen": sid, "branch": out["branch"], "issues": rev["blocking_issues"]}, ensure_ascii=False))
+            return {"screen": sid, "state": "qa_failed", "branch": out["branch"], "issues": rev["blocking_issues"]}
+        log(f"[impl-{sid}] escalation passed")
+    return await merge_screen(s, out)
+
+
+def tally(screens, results):
+    merged, unmerged = [], []
+    for s, r in zip(screens, results):
+        if isinstance(r, Exception):
+            log(f"[impl-{s['id']}] agent error: {r}")
+            unmerged.append({"screen": s["id"], "branch": s.get("branch") or f"fe01/screen-{s['id']}", "issues": [f"agent error: {r}"]})
+        else:
+            log(f"[impl-{s['id']}] {r['state']}")
+            if r["state"] == "merged":
+                merged.append(r)
+            else:
+                unmerged.append({"screen": s["id"], "branch": r.get("branch", ""), "issues": r.get("issues") or [r.get("notes", r["state"])]})
+    return merged, unmerged
+
+
+async def integrate(brief, merged, unmerged, extra_summary):
+    """阶段 7：体验官走查 ‖ QA/合规审计 → 修 P0/P1（≤2 轮）→ 发布 → SUMMARY。"""
+    merged_ids = [m["screen"] for m in merged]
+    last = merged[-1]["commit"]
+
+    async def gates(commit, suffix, recheck=None):
+        ux, qa = await asyncio.gather(
+            run_agent(walkthrough_prompt(brief, commit, merged_ids, unmerged, recheck), phase="integrate", schema=WALK_SCHEMA, label=f"ux-walkthrough{suffix}", soft_time_limit_minutes=30 if recheck else 45),
+            run_agent(audit_prompt(brief, commit, merged_ids, unmerged, recheck), phase="integrate", schema=WALK_SCHEMA, label=f"qa-audit{suffix}", soft_time_limit_minutes=30 if recheck else 45),
+        )
+        return {
+            "verdict": "pass" if ux["verdict"] == "pass" and qa["verdict"] == "pass" else "fix",
+            "p0_p1": ux["p0_p1"] + qa["p0_p1"], "p2_p3": ux["p2_p3"] + qa["p2_p3"],
+            "report_path": f"{ux['report_path']} , {qa['report_path']}",
+        }
+
+    walk = await gates(last, "")
+    rounds = 0
+    while walk["verdict"] != "pass" and rounds < 2:
+        log(f"[gates] P0/P1={len(walk['p0_p1'])} → fix round {rounds + 1}")
+        fixed = await run_agent(walk_fix_prompt(walk), phase="integrate", schema=FIX_SCHEMA, label=f"gates-fix{rounds + 1}", soft_time_limit_minutes=60)
+        last = fixed["commit"]
+        rounds += 1
+        walk = await gates(last, str(rounds + 1), recheck=rounds + 1)
+    if walk["verdict"] != "pass":
+        return log("ABORT 体验走查仍有 P0/P1: " + json.dumps(walk["p0_p1"], ensure_ascii=False))
+    rel = await run_agent(release_prompt(last, merged_ids, unmerged), phase="integrate", schema=RELEASE_SCHEMA, label="release", soft_time_limit_minutes=45)
+    log("SUMMARY " + json.dumps({
+        **extra_summary, "merged": merged_ids, "unmerged": unmerged,
+        "main_commit": rel["main_commit"], "deployed_url": rel["deployed_url"], "handoff": rel["handoff_path"],
+        "ux_p2_p3": walk["p2_p3"],
+    }, ensure_ascii=False))
+
+
 async def main():
     await register_workflow(META)
     log(f"fe01 {REPO_SLUG}: base={BASE} int={INT} max_screens={MAX_SCREENS} extend={EXTEND} existing={EXISTING}")
@@ -465,69 +599,76 @@ async def main():
     # 5+6 implement（每屏并行）→ 独立视觉 QA → 串行合入集成分支
     async def one_impl(s):
         sid = s["id"]
-        target_of = lambda o: f"分支 `{o['branch']}` commit {o['commit']}：src/pages/{sid}/ 对照 design/hifi/{sid}/ref"
-        out, passed, rev = await reviewed("impl", "implement", f"impl-{sid}", impl_prompt(s, foundation), IMPL_SCHEMA, lambda o: o["branch"], target_of, minutes=60, review_minutes=40)
-        if not passed or not out["gates_passed"]:
-            # 显式升级：tech-lead 接手一轮 → 再审一次；仍不过则该屏本轮不合入
-            if rev["verdict"] == "pass":
-                rev = {**rev, "blocking_issues": ["实现会话自报 gates_passed=false：" + out["notes"]]}
-            log(f"[impl-{sid}] escalate → tech-lead")
-            esc = await run_agent(escalate_prompt(s, out, rev), phase="implement", schema=FIX_SCHEMA, label=f"impl-{sid}-escalate", soft_time_limit_minutes=60)
-            out = {**out, "commit": esc["commit"], "gates_passed": True}
-            rev = await run_agent(review_prompt("impl", target_of(out), CHECKS["impl"]), phase="implement", schema=REVIEW_SCHEMA, label=f"impl-{sid}-review-final", soft_time_limit_minutes=40)
-            if rev["verdict"] != "pass":
-                log("UNMERGED " + json.dumps({"screen": sid, "branch": out["branch"], "issues": rev["blocking_issues"]}, ensure_ascii=False))
-                return {"screen": sid, "state": "qa_failed", "branch": out["branch"], "issues": rev["blocking_issues"]}
-            log(f"[impl-{sid}] escalation passed")
-        async with merge_lock:
-            m = await run_agent(merge_prompt(out), phase="integrate", schema=MERGE_SCHEMA, label=f"merge-{s['id']}", soft_time_limit_minutes=30)
-        return {"screen": s["id"], "state": "merged" if m["merged"] else "merge_failed", "commit": m["commit"], "notes": m["notes"]}
+        # 产出 + 首审 + ≤2 轮修（reviewed 内部）→ 升级/设计转交/合入（finish_impl；fix_rounds=2 表示常规修复已用尽）
+        out, _passed, rev = await reviewed("impl", "implement", f"impl-{sid}", impl_prompt(s, foundation), IMPL_SCHEMA, lambda o: o["branch"], lambda o: impl_target(sid, o), minutes=60, review_minutes=40)
+        return await finish_impl(s, out, rev, fix_rounds=2)
 
     impl_results = await asyncio.gather(*(one_impl(s) for s in screens_ok), return_exceptions=True)
-    merged, unmerged = [], []
-    for s, r in zip(screens_ok, impl_results):
-        if isinstance(r, Exception):
-            log(f"[impl-{s['id']}] agent error: {r}")
-            unmerged.append({"screen": s["id"], "branch": f"fe01/screen-{s['id']}", "issues": [f"agent error: {r}"]})
-        else:
-            log(f"[impl-{s['id']}] {r['state']}")
-            if r["state"] == "merged":
-                merged.append(r)
-            else:
-                unmerged.append({"screen": s["id"], "branch": r.get("branch", ""), "issues": r.get("issues") or [r.get("notes", r["state"])]})
+    merged, unmerged = tally(screens_ok, impl_results)
     if not merged:
         return log("ABORT 没有任何屏幕合入集成分支")
-    merged_ids = [m["screen"] for m in merged]
-
-    # 7 integrate：体验官走查 → 修 P0/P1（≤2 轮）→ 发布
-    last = merged[-1]["commit"]
-    async def gates(commit, suffix, recheck=None):
-        ux, qa = await asyncio.gather(
-            run_agent(walkthrough_prompt(brief, commit, merged_ids, unmerged, recheck), phase="integrate", schema=WALK_SCHEMA, label=f"ux-walkthrough{suffix}", soft_time_limit_minutes=30 if recheck else 45),
-            run_agent(audit_prompt(brief, commit, merged_ids, unmerged, recheck), phase="integrate", schema=WALK_SCHEMA, label=f"qa-audit{suffix}", soft_time_limit_minutes=30 if recheck else 45),
-        )
-        return {
-            "verdict": "pass" if ux["verdict"] == "pass" and qa["verdict"] == "pass" else "fix",
-            "p0_p1": ux["p0_p1"] + qa["p0_p1"], "p2_p3": ux["p2_p3"] + qa["p2_p3"],
-            "report_path": f"{ux['report_path']} , {qa['report_path']}",
-        }
-
-    walk = await gates(last, "")
-    rounds = 0
-    while walk["verdict"] != "pass" and rounds < 2:
-        log(f"[gates] P0/P1={len(walk['p0_p1'])} → fix round {rounds + 1}")
-        fixed = await run_agent(walk_fix_prompt(walk), phase="integrate", schema=FIX_SCHEMA, label=f"gates-fix{rounds + 1}", soft_time_limit_minutes=60)
-        last = fixed["commit"]
-        rounds += 1
-        walk = await gates(last, str(rounds + 1), recheck=rounds + 1)
-    if walk["verdict"] != "pass":
-        return log("ABORT 体验走查仍有 P0/P1: " + json.dumps(walk["p0_p1"], ensure_ascii=False))
-    rel = await run_agent(release_prompt(last, merged_ids, unmerged), phase="integrate", schema=RELEASE_SCHEMA, label="release", soft_time_limit_minutes=45)
-    log("SUMMARY " + json.dumps({
-        "screens_total": len(screens), "hifi_passed": len(hifis), "merged": merged_ids, "unmerged": unmerged,
-        "main_commit": rel["main_commit"], "deployed_url": rel["deployed_url"], "handoff": rel["handoff_path"],
-        "ux_p2_p3": walk["p2_p3"],
-    }, ensure_ascii=False))
+    await integrate(brief, merged, unmerged, {"screens_total": len(screens), "hifi_passed": len(hifis)})
 
 
-asyncio.run(main())
+# ---------- 补合轮（repair）：只处理上一轮未合入的屏幕，不重跑 brief/ia/tokens/foundation ----------
+# FE01_REPAIR 指向 JSON：{"foundation": {commit, base_library, components_doc, ai_context_path, check_commands},
+#   "brief_path": "docs/frontend/00-brief.md",
+#   "screens": [{id, route, purpose, states, from, branch, commit?, issues[]}]}
+# from ∈ hifi-fix（高保真未过审：修稿→审→合入→实现→…）| design-fix（实现正确但稿件缺陷：修稿→同步→终审→合入）
+#        | impl-fix（实现未过审：修→审→升级→合入）| sync（实现已过审、合入冲突：同步→合入）
+async def repair_main(cfg):
+    await register_workflow({**META, "name": META["name"] + "-repair", "description": "补合轮：只处理上一轮未合入的屏幕（修稿 / 修实现 / 同步冲突），过审后合入 → 走查 ‖ 审计 → 发布"})
+    foundation = cfg["foundation"]
+    screens = cfg["screens"]
+    brief = {"brief_path": cfg.get("brief_path", "docs/frontend/00-brief.md"), "screens": screens}
+    log(f"fe01 repair {REPO_SLUG}: " + ", ".join(f"{s['id']}({s['from']})" for s in screens) + f"; existing={EXISTING}")
+
+    async def one(s):
+        sid, mode = s["id"], s["from"]
+        rev0 = {"verdict": "fix", "blocking_issues": s.get("issues", []), "minor_issues": []}
+        out = {"screen": sid, "branch": s.get("branch", f"fe01/screen-{sid}"), "commit": s.get("commit", "HEAD"), "gates_passed": True, "notes": ""}
+        if mode == "hifi-fix":
+            branch = s["branch"]
+            target = lambda c: f"分支 `{branch}` commit {c}：`design/hifi/{sid}/index.html` 与 ref/"
+            rev, rounds, commit = rev0, 0, s.get("commit", "HEAD")
+            while rev["verdict"] != "pass" and rounds < 2:
+                fixed = await run_agent(fix_prompt("hifi", target(commit), branch, rev), phase="hifi", schema=FIX_SCHEMA, label=f"hifi-{sid}-fix{rounds + 1}", soft_time_limit_minutes=45)
+                commit, rounds = fixed["commit"], rounds + 1
+                rev = await run_agent(review_prompt("hifi", target(commit), CHECKS["hifi"]), phase="hifi", schema=REVIEW_SCHEMA, label=f"hifi-{sid}-review{rounds}", soft_time_limit_minutes=40)
+            if rev["verdict"] != "pass":
+                log("UNMERGED " + json.dumps({"screen": sid, "branch": branch, "issues": rev["blocking_issues"]}, ensure_ascii=False))
+                return {"screen": sid, "state": "hifi_failed", "branch": branch, "issues": rev["blocking_issues"]}
+            log(f"[hifi-{sid}] pass after {rounds} fix rounds")
+            async with merge_lock:
+                hm = await run_agent(hifi_merge_prompt([{"branch": branch}]), phase="hifi", schema=MERGE_SCHEMA, label=f"hifi-merge-{sid}", soft_time_limit_minutes=30)
+            if not hm["merged"]:
+                return {"screen": sid, "state": "hifi_merge_failed", "branch": branch, "issues": [hm["notes"]]}
+            impl = await run_agent(impl_prompt(s, foundation), phase="implement", schema=IMPL_SCHEMA, label=f"impl-{sid}", soft_time_limit_minutes=60)
+            log(f"[impl-{sid}] produced {impl['branch']}@{impl['commit'][:8]}")
+            rev = await impl_review(sid, impl, f"impl-{sid}-review")
+            return await finish_impl(s, impl, rev)
+        if mode == "design-fix":
+            df = await run_agent(design_fix_prompt(s, s["issues"], rev0), phase="hifi", schema=FIX_SCHEMA, label=f"hifi-{sid}-refix", soft_time_limit_minutes=40)
+            sync = await run_agent(sync_prompt(s, out, f"设计稿已修正（{INT}@{df['commit'][:8]}：{'；'.join(df['fixed'])[:300]}），需同步后复跑 compare/a11y"), phase="implement", schema=IMPL_SCHEMA, label=f"impl-{sid}-sync-design", soft_time_limit_minutes=45)
+            out = {**out, "commit": sync["commit"], "gates_passed": sync["gates_passed"], "notes": sync["notes"]}
+            rev = await impl_review(sid, out, f"impl-{sid}-review-postdesign")
+            return await finish_impl(s, out, rev, fix_rounds=2, suffix="-r")
+        if mode == "impl-fix":
+            return await finish_impl(s, out, rev0)
+        if mode == "sync":
+            return await merge_screen(s, out, sync_first="；".join(s.get("issues", [])) or f"上一轮合入 {INT} 冲突")
+        raise ValueError(f"{sid}: unknown from={mode}")
+
+    results = await asyncio.gather(*(one(s) for s in screens), return_exceptions=True)
+    merged, unmerged = tally(screens, results)
+    if not merged:
+        return log("ABORT 补合轮没有任何屏幕合入集成分支")
+    await integrate(brief, merged, unmerged, {"screens_total": len(screens), "repair": True})
+
+
+_repair = os.environ.get("FE01_REPAIR", "").strip()
+if _repair:
+    with open(_repair, encoding="utf-8") as f:
+        asyncio.run(repair_main(json.load(f)))
+else:
+    asyncio.run(main())

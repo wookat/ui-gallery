@@ -56,10 +56,12 @@ type FileItemProps = React.ComponentProps<"li"> & {
   error?: string
   onRemove?: () => void
   removeLabel?: string
+  /** 移除前的附加动作（error 态「重试」等） */
+  actions?: React.ReactNode
 }
 
 /** 文件行：hifi .file —— 图标 + 名称 / 大小、uploading 显示进度条、error 显示 danger 文案、右侧移除 */
-function FileItem({ name, size, status, progress = 0, error, onRemove, removeLabel, className, ...props }: FileItemProps) {
+function FileItem({ name, size, status, progress = 0, error, onRemove, removeLabel, actions, className, ...props }: FileItemProps) {
   return (
     <li data-slot="file-item" data-status={status} className={cn("flex items-center gap-3 rounded-md border px-3 py-2", status === "error" && "border-danger", className)} {...props}>
       <span className={cn("grid size-icon-lg shrink-0 place-items-center [&_svg]:size-icon-md", status === "error" ? "text-danger" : "text-fg-muted")}>
@@ -73,6 +75,7 @@ function FileItem({ name, size, status, progress = 0, error, onRemove, removeLab
           <span className={cn("text-role-caption", status === "error" ? "text-danger" : "text-fg-muted")}>{status === "error" && error ? error : size}</span>
         )}
       </span>
+      {actions}
       {onRemove && removeLabel ? (
         <IconButton label={removeLabel} onClick={onRemove}>
           <XIcon />

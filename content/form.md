@@ -11,7 +11,8 @@
 | stepper.step | 第 {n} 步，共 3 步 | 375 下用文字代替横向步骤条 |
 | stepper.status.done | 已完成 | 步骤图标视觉隐藏文字 |
 | stepper.status.current | 当前步骤 | |
-| stepper.status.todo | 未开始 | |
+| stepper.status.todo | 未开始 |
+| stepper.status.error | 有待修正项 | 当前步存在校验错误时的读屏后缀 |
 | step1.title | 基本信息 | 与 `mock.steps[0].label` 一致 |
 | step1.description | 选择供应商并填写联系与结算方式 | |
 | step2.title | 商品与配送 | |
@@ -65,6 +66,8 @@
 | items.sku.empty | 没有匹配的商品 | |
 | items.sku.meta | 库存 {stock} / 安全线 {safety} | 选项副文案；`lowStock` 时加 warning 点 |
 | items.sku.lowStock | 库存预警 | 选项 Tag |
+| items.sku.required | 请选择商品 | 商品行未选 SKU 的行内错误（hifi 行内写死，此处补 key） |
+| items.row.aria | 第 {n} 行{field} | 表格内控件 aria-label（hifi「第 1 行商品」「第 1 行数量」） |
 | items.add | 添加商品行 | |
 | items.total | 商品合计 | 表尾 |
 | items.count | {n} 种商品，{qty} 件 | 表尾副文案 |
@@ -73,9 +76,13 @@
 | arrivalDate.label | 期望到货日期 | DatePicker |
 | arrivalDate.placeholder | 选择日期 | |
 | arrivalDate.hint | 供应商常规交期 {days} 天，建议不早于 {date} | |
+| arrivalDate.prevMonth | 上个月 | Calendar 月份切换 aria-label |
+| arrivalDate.nextMonth | 下个月 | |
 | slot.label | 收货时段 | Select，选项来自 mock.deliverySlots |
 | freight.label | 运费预算区间 | 双滑块 Slider |
 | freight.value | ¥{min} – ¥{max} | 滑块当前值 |
+| freight.min | 运费预算下限 | 左滑块 aria-label |
+| freight.max | 运费预算上限 | 右滑块 aria-label |
 | freight.hint | 大件家具走德邦物流，江浙沪整车约 ¥400–800 | |
 | attachments.label | 附件 | 拖拽区 |
 | attachments.dropzone | 拖拽文件到此处，或点击选择 | |
@@ -108,13 +115,16 @@
 | summary.field.arrival | 期望到货 | 「{date} {slot}」 |
 | summary.field.freight | 运费预算 | |
 | summary.field.attachments | 附件 | 「{n} 个文件」 |
-| summary.field.tags | 标签 | |
+| summary.field.tags | 标签 |
+| summary.attachmentsCount | {n} 个文件 | 摘要「附件」取值（只计已上传） |
+| aside.aria | 采购单摘要 | 右侧摘要卡 aria-label | |
 | summary.total.goods | 商品合计 | |
 | summary.total.freight | 运费预算 | 显示区间 |
 | summary.total.grand | 预计总额 | 商品合计 + 运费上限，加粗 |
 | terms.label | 我已阅读并同意《采购条款》 | Checkbox；书名号部分为链接按钮，打开 Dialog |
 | terms.dialog.title | 采购条款 | |
 | terms.dialog.close | 我知道了 | |
+| terms.dialog.closeAria | 关闭 | Dialog 右上角 × 的可访问名 |
 | yes | 需要 | |
 | no | 不需要 | |
 | bool.true | 是 | |
@@ -133,7 +143,8 @@
 | success.title | 采购单已提交 | Result 图形 + 标题，数据见 `mock.success` |
 | success.primary | 查看采购单 | 主按钮（本轮不可达，Toast `shell.nav.disabled.tip`） |
 | success.secondary | 再建一张 | 次级按钮，回到第 1 步并清空 |
-| success.sentTo | 已发送至 {email} | 副文案 |
+| success.sentTo | 已发送至 {email} |
+| success.description | {po} 已发送给 {supplier}（{contact}），预计 {date} {slot}到达{warehouse}。 | 按当前填写值拼出的结果描述（mock.success.description 为默认值样例） | 副文案 |
 | leave.title | 离开页面？ | 有未保存改动时切换导航的 Dialog |
 | leave.description | 采购单尚未提交，离开后填写内容将丢失。 | |
 | leave.stay | 继续填写 | |

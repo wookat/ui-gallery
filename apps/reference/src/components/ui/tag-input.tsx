@@ -71,7 +71,7 @@ function TagInput({ value, onChange, removeLabel, max, invalid, className, disab
               onChange(value.slice(0, -1))
             }
           }}
-          className="h-full w-full min-w-0 border-0 bg-transparent text-role-body text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed"
+          className="h-full w-full min-w-0 rounded-sm border-0 bg-transparent text-role-body text-fg placeholder:text-fg-muted focus-visible:outline-offset-0 disabled:cursor-not-allowed"
           {...props}
         />
       </label>

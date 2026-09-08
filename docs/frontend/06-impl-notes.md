@@ -16,7 +16,7 @@
 | `node tools/a11y.mjs settings` | exit 0，**436 PASS / 0 FAIL / ALL PASS**（基线 14 FAIL：`SPAN[data-radix-focus-guard]` 焦点环缺失）；console error = 0，375 scrollWidth ≤ 375，热区不足 0 处 |
 | `node tools/no-hardcode.mjs` | exit 0（78 个文件通过） |
 
-仓库根：`pnpm lint` exit 0（turbo 23/23）、`pnpm typecheck` exit 0（25/25）、`pnpm build` 见提交信息（写 notes 时仍在跑，结果以提交信息为准）。
+仓库根：`pnpm lint` exit 0（turbo 23/23）、`pnpm typecheck` exit 0（25/25）；`pnpm build` 两次实跑均未全绿——`reference:build ✓ built in 5.63s`，但并行的 `tdesign-react#build` 被本机 OOM 杀掉（`Killed`，exit 137，11/24 任务完成后 turbo 中止），该包本次未改动；单独 `pnpm --filter tdesign-react build` exit 0（✓ built）。判定为本机内存限制而非代码回退，需在内存更充裕的机器上复跑根 build 确认。
 
 ### 2. blocking 项处理
 

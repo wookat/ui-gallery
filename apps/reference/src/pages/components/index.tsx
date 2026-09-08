@@ -314,7 +314,7 @@ function OnboardingDemo() {
               const Icon = SUGGESTION_ICONS[sg.icon]
               const st = SUGGESTION_STATES[i] ?? "default"
               return (
-                <SuggestionChip key={sg.key} disabled={st === "disabled"} data-demo={st === "hover" || st === "focus" ? st : undefined} className="[&_svg]:text-primary">
+                <SuggestionChip key={sg.key} appearance="suggestion" disabled={st === "disabled"} data-demo={st === "hover" || st === "focus" ? st : undefined}>
                   {Icon ? <Icon aria-hidden /> : null}
                   {sg.label}
                 </SuggestionChip>

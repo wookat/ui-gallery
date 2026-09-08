@@ -792,9 +792,13 @@ export function ComposedSection({ part }: { part: ComposedPart }) {
       <Row label="SuggestionChip / SourceChip" wide cols={["SuggestionChip", "SourceChip"]}>
         <div role="group" aria-label={t("chat.suggestions.aria")} className="flex flex-wrap gap-2">
           {mock.chat.suggestions.slice(0, 3).map((s) => (
-            <SuggestionChip key={s.key}>{s.label}</SuggestionChip>
+            <SuggestionChip key={s.key} appearance="suggestion">
+              {s.label}
+            </SuggestionChip>
           ))}
-          <SuggestionChip disabled>{mock.chat.suggestions[3].label}</SuggestionChip>
+          <SuggestionChip appearance="suggestion" disabled>
+            {mock.chat.suggestions[3].label}
+          </SuggestionChip>
         </div>
         <div role="group" aria-label={t("chat.sources.aria")} className="flex flex-wrap gap-x-2 gap-y-3">
           {(assistant.sources ?? []).map((s) => (

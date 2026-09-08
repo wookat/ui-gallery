@@ -161,8 +161,29 @@ function SourceChip({ type, label, className, ...props }: SourceChipProps) {
   )
 }
 
+type SuggestionChipProps = React.ComponentProps<"button"> & {
+  /** chip：chat hifi .chip.is-suggest（单行、size.control.sm 胶囊 + 热区外层）；suggestion：components hifi .suggestion（min-height size.hit、可换行、hover primary-soft） */
+  appearance?: "chip" | "suggestion"
+}
+
 /** 建议 Chip：hifi .chip.is-suggest —— 图标 primary */
-function SuggestionChip({ className, children, ...props }: React.ComponentProps<"button">) {
+function SuggestionChip({ appearance = "chip", className, children, ...props }: SuggestionChipProps) {
+  if (appearance === "suggestion") {
+    return (
+      <button
+        type="button"
+        data-slot="suggestion-chip"
+        data-appearance="suggestion"
+        className={cn(
+          "inline-flex min-h-hit max-w-full items-center gap-2 rounded-full border bg-surface px-4 text-left text-role-label text-fg transition-colors duration-(--motion-fast) ease-std hover:not-disabled:border-primary hover:not-disabled:bg-primary-soft hover:not-disabled:text-on-primary-soft disabled:disabled-look [&_svg]:size-icon-sm [&_svg]:shrink-0 [&_svg]:text-primary",
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </button>
+    )
+  }
   return (
     <button type="button" data-slot="suggestion-chip" className={cn(chipOuter, "text-left disabled:disabled-look", className)} {...props}>
       <span className={cn(chipBody, "[&_svg]:text-primary")}>{children}</span>

@@ -2,10 +2,17 @@ import * as React from "react"
 import { cn } from "@/lib/cn"
 import { XIcon } from "lucide-react"
 
-/** 可移除的标签片：hifi .chip —— h size.chip、neutral-soft、右侧 size.hit 热区的 × */
-function Chip({ children, onRemove, removeLabel, disabled, className, ...props }: React.ComponentProps<"span"> & { onRemove?: () => void; removeLabel?: string; disabled?: boolean }) {
+type ChipTone = "neutral" | "primary"
+
+const CHIP_TONE: Record<ChipTone, string> = {
+  neutral: "bg-neutral-soft text-on-neutral-soft",
+  primary: "bg-primary-soft text-on-primary-soft",
+}
+
+/** 可移除的标签片：hifi .chip —— h size.chip、neutral-soft（表单稿为 primary-soft，由 tone 选）、右侧 size.hit 热区的 × */
+function Chip({ children, onRemove, removeLabel, disabled, tone = "neutral", className, ...props }: React.ComponentProps<"span"> & { onRemove?: () => void; removeLabel?: string; disabled?: boolean; tone?: ChipTone }) {
   return (
-    <span data-slot="chip" className={cn("inline-flex h-chip max-w-full items-center gap-1 rounded-full bg-neutral-soft pl-3 text-role-caption font-medium text-on-neutral-soft", onRemove ? "pr-1" : "pr-3", className)} {...props}>
+    <span data-slot="chip" className={cn("inline-flex h-chip max-w-full items-center gap-1 rounded-full pl-3 text-role-caption font-medium", CHIP_TONE[tone], onRemove ? "pr-1" : "pr-3", className)} {...props}>
       <span className="truncate">{children}</span>
       {onRemove ? (
         <button
@@ -29,10 +36,12 @@ type TagInputProps = Omit<React.ComponentProps<"input">, "value" | "onChange"> &
   removeLabel: (tag: string) => string
   max?: number
   invalid?: boolean
+  /** chip 色调：缺省 neutral-soft；表单稿（hifi form .chip）为 primary-soft */
+  chipTone?: ChipTone
 }
 
-/** 标签输入：hifi .taginput —— 与 Input 同边框，chip 换行 + 内联输入；Enter / 逗号确认，Backspace 删末项 */
-function TagInput({ value, onChange, removeLabel, max, invalid, className, disabled, placeholder, ...props }: TagInputProps) {
+/** 标签输入：hifi .taginput —— 与 Input 同边框，chip 换行 + 内联输入（已有标签时仍显示占位）；Enter / 逗号确认，Backspace 删末项 */
+function TagInput({ value, onChange, removeLabel, max, invalid, chipTone, className, disabled, placeholder, ...props }: TagInputProps) {
   const [draft, setDraft] = React.useState("")
   const full = max !== undefined && value.length >= max
   const commit = () => {
@@ -51,7 +60,7 @@ function TagInput({ value, onChange, removeLabel, max, invalid, className, disab
       )}
     >
       {value.map((tag) => (
-        <Chip key={tag} removeLabel={removeLabel(tag)} disabled={disabled} onRemove={() => onChange(value.filter((v) => v !== tag))}>
+        <Chip key={tag} tone={chipTone} removeLabel={removeLabel(tag)} disabled={disabled} onRemove={() => onChange(value.filter((v) => v !== tag))}>
           {tag}
         </Chip>
       ))}
@@ -60,7 +69,7 @@ function TagInput({ value, onChange, removeLabel, max, invalid, className, disab
           type="text"
           value={draft}
           disabled={disabled || full}
-          placeholder={value.length === 0 ? placeholder : undefined}
+          placeholder={placeholder}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
           onKeyDown={(e) => {
@@ -79,4 +88,4 @@ function TagInput({ value, onChange, removeLabel, max, invalid, className, disab
   )
 }
 
-export { TagInput, Chip, type TagInputProps }
+export { TagInput, Chip, type TagInputProps, type ChipTone }

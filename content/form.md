@@ -149,3 +149,4 @@
 | leave.description | 采购单尚未提交，离开后填写内容将丢失。 | |
 | leave.stay | 继续填写 | |
 | leave.leave | 放弃并离开 | 危险按钮 |
+| leave.closeAria | 关闭 | 离开确认对话框右上角 × 的可访问名（hifi leaveDialog .iconbtn，初始焦点） |

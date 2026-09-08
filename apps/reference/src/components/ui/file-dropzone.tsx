@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/cn"
-import { CircleAlertIcon, CircleCheckIcon, FileIcon, UploadCloudIcon, XIcon } from "lucide-react"
+import { CircleAlertIcon, CircleCheckIcon, FileIcon, UploadIcon, XIcon } from "lucide-react"
 
 import { IconButton } from "@/components/ui/icon-button"
 import { Progress } from "@/components/ui/progress"
@@ -13,7 +13,7 @@ type FileDropzoneProps = Omit<React.ComponentProps<"input">, "type" | "onChange"
   invalid?: boolean
 }
 
-/** 拖放上传：hifi .dropzone —— 虚线 border-strong、radius.lg、居中图标 + 文案；dragover 转 primary + primary-soft 底；整块是 label 包住 input[type=file] */
+/** 拖放上传：hifi .dropzone —— 虚线 border-strong、radius.lg、居中 #i-upload（托盘上箭头）+ 文案；dragover 转 primary + primary-soft 底；整块是 label 包住 input[type=file] */
 function FileDropzone({ title, hint, onFiles, invalid, className, disabled, id, ...props }: FileDropzoneProps) {
   const [over, setOver] = React.useState(false)
   const inputId = React.useId()
@@ -39,7 +39,7 @@ function FileDropzone({ title, hint, onFiles, invalid, className, disabled, id, 
         className,
       )}
     >
-      <UploadCloudIcon aria-hidden />
+      <UploadIcon aria-hidden />
       <span className="text-role-label">{title}</span>
       <span className="text-role-caption text-fg-muted">{hint}</span>
       <input id={finalId} type="file" className="sr-only" disabled={disabled} onChange={(e) => onFiles(Array.from(e.target.files ?? []))} {...props} />
@@ -60,13 +60,15 @@ type FileItemProps = React.ComponentProps<"li"> & {
   actions?: React.ReactNode
   /** 状态文案：uploading 为进度文字（已带百分比），done 为勾图标的可访问名 */
   statusLabels?: { uploading?: string; done?: string }
+  /** 图标块内的图标（按文件类型区分时由调用方传入，如 FileTextIcon / ImageIcon）；缺省 done/uploading 为 FileIcon、error 为 CircleAlertIcon */
+  icon?: React.ReactNode
 }
 
 /**
  * 文件行：hifi .file —— 分隔线列表行（avatar-md 图标块 / 名称 + 元信息 / 右侧动作）；
  * done 元信息为 success 勾 + 大小，uploading 为进度文字 + 轨道，error 为 danger 文案（图标块转 danger-soft）。
  */
-function FileItem({ name, size, status, progress = 0, error, onRemove, removeLabel, actions, statusLabels, className, ...props }: FileItemProps) {
+function FileItem({ name, size, status, progress = 0, error, onRemove, removeLabel, actions, statusLabels, icon, className, ...props }: FileItemProps) {
   return (
     <li
       data-slot="file-item"
@@ -75,7 +77,7 @@ function FileItem({ name, size, status, progress = 0, error, onRemove, removeLab
       {...props}
     >
       <span className={cn("grid size-avatar-md place-items-center rounded-sm [&_svg]:size-icon-sm", status === "error" ? "bg-danger-soft text-danger" : "bg-surface-muted text-fg-muted")}>
-        {status === "error" ? <CircleAlertIcon aria-hidden /> : <FileIcon aria-hidden />}
+        {icon ?? (status === "error" ? <CircleAlertIcon aria-hidden /> : <FileIcon aria-hidden />)}
       </span>
       <span className="flex min-w-0 flex-col gap-1">
         <span className="truncate text-role-label">{name}</span>

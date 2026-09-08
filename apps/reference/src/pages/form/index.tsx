@@ -4,6 +4,10 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   EyeIcon,
+  FileSpreadsheetIcon,
+  FileTextIcon,
+  FilmIcon,
+  ImageIcon,
   InfoIcon,
   PencilIcon,
   PlusIcon,
@@ -13,6 +17,7 @@ import {
   Trash2Icon,
   TriangleAlertIcon,
   WarehouseIcon,
+  type LucideIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -89,8 +94,23 @@ const STEP_KEYS = ["step1", "step2", "step3"] as const
 
 type Local = "terms" | "leave" | null
 
+/** hifi form .dialog：无边框、radius.lg，375 下仍居中（不走组件的底部弹层） */
 const CENTERED_DIALOG =
-  "mobile:top-1/2 mobile:bottom-auto mobile:left-1/2 mobile:w-[calc(100vw-var(--space-4)*2)] mobile:max-w-dialog mobile:-translate-1/2 mobile:rounded-xl mobile:px-4 mobile:py-5"
+  "rounded-lg border-0 mobile:top-1/2 mobile:bottom-auto mobile:left-1/2 mobile:w-[calc(100vw-var(--space-4)*2)] mobile:max-w-dialog mobile:-translate-1/2 mobile:rounded-lg mobile:px-4 mobile:py-5"
+/** hifi openDialog：初始焦点给对话框内第一个 button（头部 ×） */
+const focusDialogClose = (e: Event) => {
+  const close = e.currentTarget instanceof HTMLElement ? e.currentTarget.querySelector<HTMLElement>("[data-slot=dialog-close-icon],[data-slot=alert-dialog-close-icon]") : null
+  if (close) {
+    e.preventDefault()
+    close.focus()
+  }
+}
+/** hifi FICON：按扩展名选文件图标（缺省 file-text） */
+const FILE_ICONS: Record<string, LucideIcon> = { pdf: FileTextIcon, xlsx: FileSpreadsheetIcon, jpg: ImageIcon, png: ImageIcon, mp4: FilmIcon }
+const FileTypeIcon = ({ name }: { name: string }) => {
+  const Icon = FILE_ICONS[name.split(".").pop()?.toLowerCase() ?? ""] ?? FileTextIcon
+  return <Icon aria-hidden />
+}
 const CARD = "min-w-0 rounded-lg border bg-surface p-6 text-fg shadow-sm tablet:p-4"
 /** hifi .aside .row：桌面左右对齐；≤1024 非 rail 与 ≤768 改为上下堆叠的 2 列网格单元 */
 const ASIDE_ROW = "flex items-baseline justify-between gap-4 tablet:flex-col tablet:items-start tablet:gap-1 rail:tablet:flex-row rail:tablet:items-baseline rail:tablet:gap-4 mobile:flex-col! mobile:items-start! mobile:gap-1!"
@@ -431,7 +451,16 @@ export default function FormPage() {
           <h1 className="sr-only">{t("form.title")}</h1>
         <Result
           status="success"
-          className="gap-3 py-16 mobile:px-4 mobile:py-12 [&>h2]:text-role-display mobile:[&>h2]:text-role-heading [&>span]:size-[calc(var(--size-sparkline)*4)] [&>span_svg]:size-[calc(var(--size-sparkline)*2)] [&>div:not(:last-child)]:mt-0 mobile:[&>div:last-child]:w-full mobile:[&>div:last-child]:flex-col mobile:[&>div:last-child]:items-stretch"
+          className="gap-3 py-16 mobile:px-4 mobile:py-12 [&>h2]:text-role-display mobile:[&>h2]:text-role-heading [&>div:not(:last-child)]:mt-0 mobile:[&>div:last-child]:w-full mobile:[&>div:last-child]:flex-col mobile:[&>div:last-child]:items-stretch"
+          figure={
+            <svg aria-hidden viewBox="0 0 128 128" className="mb-4 size-empty-figure shrink-0">
+              <circle cx="64" cy="64" r="48" className="fill-success-soft" />
+              <circle cx="64" cy="64" r="60" fill="none" strokeWidth={1.5} strokeDasharray="4 6" className="stroke-success opacity-60" />
+              <path d="M44 66 58 80 86 50" fill="none" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" className="stroke-success" />
+              <circle cx="108" cy="30" r="4" className="fill-primary" />
+              <circle cx="20" cy="96" r="3" className="fill-warning" />
+            </svg>
+          }
           title={t("form.success.title")}
           description={(() => {
             const desc =
@@ -863,6 +892,7 @@ export default function FormPage() {
                             min={TOMORROW}
                             placeholder={t("form.arrivalDate.placeholder")}
                             labels={{ prevMonth: t("form.arrivalDate.prevMonth"), nextMonth: t("form.arrivalDate.nextMonth") }}
+                            iconPosition="leading"
                             invalid={!!errorOf("arrival")}
                             aria-describedby={cn(supplier && "arrivalHint", errorOf("arrival") && "arrivalErr") || undefined}
                           />
@@ -934,6 +964,7 @@ export default function FormPage() {
                             multiple
                             onFiles={addFiles}
                             aria-labelledby="attachLabel"
+                            className="bg-bg [&_svg]:text-primary"
                           />
                           {model.attachments.length ? (
                             <ul aria-label={t("form.attachments.label")} className="mt-2 grid">
@@ -945,6 +976,7 @@ export default function FormPage() {
                                   status={a.status}
                                   progress={a.progress}
                                   error={a.error}
+                                  icon={<FileTypeIcon name={a.name} />}
                                   statusLabels={{ uploading: t("form.attachments.uploading", { percent: a.progress ?? 0 }), done: t("form.attachments.done") }}
                                   removeLabel={t("form.attachments.remove", { name: a.name })}
                                   onRemove={() => update({ attachments: model.attachments.filter((x) => x.id !== a.id) })}
@@ -965,7 +997,7 @@ export default function FormPage() {
                             {t("form.tags.label")}
                             <Optional />
                           </FieldLabel>
-                          <TagInput id="tagInput" value={model.tags} onChange={(tags) => update({ tags })} removeLabel={(tag) => t("form.tags.remove", { tag })} placeholder={t("form.tags.placeholder")} />
+                          <TagInput id="tagInput" value={model.tags} onChange={(tags) => update({ tags })} removeLabel={(tag) => t("form.tags.remove", { tag })} placeholder={t("form.tags.placeholder")} chipTone="primary" />
                           {restTags.length ? (
                             <div className="flex min-h-hit flex-wrap items-center gap-x-2 gap-y-3 py-1.5 text-role-caption text-fg-muted">
                               <span>{t("form.tags.suggestions")}</span>
@@ -1100,7 +1132,7 @@ export default function FormPage() {
                             <dd className="text-role-heading whitespace-nowrap">{formatCurrency(grandTotal(model))}</dd>
                           </div>
                         </dl>
-                        <Field id="fTerms">
+                        <Field id="fTerms" className="mt-2">
                           <label htmlFor="terms" className="flex min-h-hit cursor-pointer items-center gap-3 text-role-body select-none has-disabled:cursor-not-allowed">
                             <Checkbox
                               id="terms"
@@ -1212,7 +1244,7 @@ export default function FormPage() {
       )}
 
       <Dialog {...overlay("terms")}>
-        <DialogContent closeLabel={t("form.terms.dialog.closeAria")} aria-describedby={undefined} className={CENTERED_DIALOG}>
+        <DialogContent closeLabel={t("form.terms.dialog.closeAria")} aria-describedby={undefined} onOpenAutoFocus={focusDialogClose} className={CENTERED_DIALOG}>
           <DialogHeader>
             <DialogTitle>{t("form.terms.dialog.title")}</DialogTitle>
           </DialogHeader>
@@ -1235,8 +1267,8 @@ export default function FormPage() {
       </Dialog>
 
       <AlertDialog {...overlay("leave")}>
-        <AlertDialogContent className={CENTERED_DIALOG}>
-          <AlertDialogHeader className="gap-4">
+        <AlertDialogContent closeLabel={t("form.leave.closeAria")} onOpenAutoFocus={focusDialogClose} className={CENTERED_DIALOG}>
+          <AlertDialogHeader className="gap-4 pr-hit">
             <AlertDialogTitle>{t("form.leave.title")}</AlertDialogTitle>
             <AlertDialogDescription>{t("form.leave.description")}</AlertDialogDescription>
           </AlertDialogHeader>

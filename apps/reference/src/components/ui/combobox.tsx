@@ -25,6 +25,8 @@ type ComboboxProps = {
   emptyText: string
   /** button：触发器同 Select，面板顶部搜索行；input：hifi .ctl.combo —— 搜索图标 + 可输入框，面板紧贴其下 */
   variant?: "button" | "input"
+  /** input 变体的前导图标（默认 search；settings 时区稿为 globe） */
+  leadingIcon?: React.ReactNode
   disabled?: boolean
   invalid?: boolean
   open?: boolean
@@ -52,6 +54,7 @@ function Combobox({
   searchPlaceholder,
   emptyText,
   variant = "button",
+  leadingIcon = <SearchIcon />,
   disabled,
   invalid,
   open: openProp,
@@ -144,7 +147,7 @@ function Combobox({
         <PopoverPrimitive.Anchor asChild>
           <div ref={anchorRef} data-slot="combobox-input" className={cn("relative flex w-full min-w-0 items-center text-fg-muted [&_svg]:pointer-events-none", className)}>
             <span aria-hidden className="absolute inset-y-0 left-0 grid w-hit place-items-center [&_svg]:size-icon-sm">
-              <SearchIcon />
+              {leadingIcon}
             </span>
             <input
               id={id}

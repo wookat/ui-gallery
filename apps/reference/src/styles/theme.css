@@ -62,6 +62,7 @@
   --color-surface-brand: var(--color-role-surface-brand);
   --color-link: var(--color-role-link);
   --color-focus-ring: var(--color-role-focus-ring);
+  --color-focus-ring-on-primary: var(--color-role-focus-ring-on-primary);
   --color-success: var(--color-role-success);
   --color-success-soft: var(--color-role-success-soft);
   --color-on-success: var(--color-role-on-success);
@@ -352,6 +353,33 @@
   font: var(--typography-display);
   letter-spacing: var(--typography-display-letter-spacing);
   font-family: var(--font-family-sans);
+}
+/* 营销页字阶（landing 稿）：display-lg / hero / lead / eyebrow；code 为等宽 caption（chat / landing chip） */
+@utility text-role-display-lg {
+  font: var(--typography-display-lg);
+  letter-spacing: var(--typography-display-lg-letter-spacing);
+  font-family: var(--font-family-sans);
+}
+@utility text-role-hero {
+  font: var(--typography-hero);
+  letter-spacing: var(--typography-hero-letter-spacing);
+  font-family: var(--font-family-sans);
+}
+@utility text-role-lead {
+  font: var(--typography-lead);
+  letter-spacing: var(--typography-lead-letter-spacing);
+  font-family: var(--font-family-sans);
+}
+@utility text-role-eyebrow {
+  font: var(--typography-eyebrow);
+  letter-spacing: var(--typography-eyebrow-letter-spacing);
+  font-family: var(--font-family-sans);
+  text-transform: uppercase;
+}
+@utility text-role-code {
+  font: var(--typography-code);
+  letter-spacing: var(--typography-code-letter-spacing);
+  font-family: var(--font-family-mono);
 }
 
 /* 视觉高度 < size.hit 的控件（sm 按钮、复选框、行内链接）：用伪元素把点击热区撑到 size.hit（tokens size.control.sm 说明） */

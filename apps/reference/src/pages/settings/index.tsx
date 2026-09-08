@@ -9,6 +9,7 @@ import {
   CopyIcon,
   CreditCardIcon,
   DownloadIcon,
+  GlobeIcon,
   LaptopIcon,
   InfoIcon,
   LoaderCircleIcon,
@@ -695,6 +696,7 @@ export default function SettingsPage() {
                           <Combobox
                             id="sTz"
                             variant="input"
+                            leadingIcon={<GlobeIcon />}
                             aria-labelledby="sTzLabel"
                             aria-describedby="sTzHint"
                             value={profile.timezone}
@@ -964,7 +966,7 @@ export default function SettingsPage() {
                       )
                     })}
                   </ul>
-                  {others.length === 0 ? <EmptyInline className="mt-3">{t("settings.security.sessions.empty")}</EmptyInline> : null}
+                  {others.length === 0 ? <EmptyInline>{t("settings.security.sessions.empty")}</EmptyInline> : null}
                 </CardContent>
               </Card>
             </section>
@@ -1481,7 +1483,7 @@ export default function SettingsPage() {
                       recommendedLabel={t("settings.billing.plan.recommended")}
                       current={isCurrent}
                       className={cn(
-                        "p-5 mobile:p-5 [&>[data-pricing-badge]]:left-5",
+                        "gap-4 p-5 mobile:p-5 [&_header]:gap-0 [&_header>p:first-of-type]:mt-4 [&>[data-pricing-badge]]:left-5 [&_ul_svg]:mt-[calc(var(--space-1)/2)]",
                         isCurrent ? "border-primary shadow-[0_0_0_var(--border-width-hairline)_var(--color-role-primary)]" : "border-border shadow-none",
                       )}
                       action={

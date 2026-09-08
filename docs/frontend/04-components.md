@@ -57,7 +57,7 @@
 | 设计稿控件 | 代码组件 | 变体 | 尺寸 | 状态 | 来源 |
 | --- | --- | --- | --- | --- | --- |
 | `.avatar` / `.avatar-sm` / `.avatar-system`（姓名末字 + 色相） | `Avatar` | `size`: md · sm；`system` | `size.avatar.md` / `size.avatar.sm` | hue 来自 mock `avatarHue`，饱和/明度用 `color.avatar.*` 令牌；`role="img"` | composed |
-| `.brand-mark` / `.brand-name`（栖木家居） | `BrandMark` | — | `size.brand` | 纯几何 SVG，无位图 | composed |
+| `.brand-mark` / `.brand-name`（栖木家居） | `BrandMark` | `variant`: lines（login 稿）· house（dashboard 稿）· a（landing 稿） | `size.brand` | 纯几何 SVG，无位图；三屏 hifi 图形各异，待设计侧统一后收敛为单一 variant | composed |
 | `.nav-item` / `.nav-group-label`（侧栏 4 组 8 项；rail 模式） | `NavItem` `NavGroupLabel` | `rail`；`count` / `tone` 角标；`disabled`（aria-disabled + Tooltip） | 高 `size.hit`，`radius.md` | active → `primary-soft` / `on-primary-soft`；rail 模式补 `aria-label` | composed |
 | `.stat` / `.delta` / `.sparkline`（4 统计卡） | `StatCard` `StatCardSkeleton` `Delta` `Sparkline` | Delta `tone`: success · danger · neutral；`direction`: up · down · flat | 主数字 `typography.display` | loading 用 `StatCardSkeleton` | composed |
 | `.state-card`（空态 / 错误态） | `StateCard` `EmptyFigure` | `kind`: empty · error | 插图 `size.empty-figure` | 动作区放 `Button` | composed |

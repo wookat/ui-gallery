@@ -1,5 +1,5 @@
 {
- "note": "form 屏「供应商」Combobox 选项；均为虚构公司（安吉林语木业已在 activity.json 出现）。settlement 取 meta.settlementMethods。leadTimeDays 用于期望到货日期的默认值与校验提示（不得早于 今天 + leadTimeDays）。",
+ "note": "form 屏「供应商」Combobox 选项；均为虚构公司（安吉林语木业已在 activity.json 出现）。settlement 取 meta.settlementMethods。leadTimeDays 用于期望到货日期的默认值与校验提示（不得早于 今天 + leadTimeDays）。openPurchaseOrders ≥ 1 时用 inTransit 显式列出最近一张在途单（下单日 + leadTimeDays = expectedAt）；orders-all 备注与 chat c_2 的「预计 09-09 到仓」就是樟里的 PO-20260822-001，与 purchase-form 草稿 PO-20260906-003（期望到货 09-24）是两张不同的采购单（brief §11.10-J）。",
  "items": [
   {
    "id": "sup_linyu",
@@ -29,7 +29,14 @@
    "settlement": "prepay_30",
    "leadTimeDays": 18,
    "openPurchaseOrders": 1,
-   "lastOrderAt": "2026-08-27T10:05:00+08:00"
+   "lastOrderAt": "2026-08-22T10:05:00+08:00",
+   "inTransit": {
+    "poNumber": "PO-20260822-001",
+    "placedAt": "2026-08-22T10:05:00+08:00",
+    "expectedAt": "2026-09-09",
+    "warehouse": "hz",
+    "items": [{ "sku": "QM-NS-WAL-2D", "name": "胡桃木床头柜（双抽）", "qty": 40 }]
+   }
   },
   {
    "id": "sup_yunzhi",

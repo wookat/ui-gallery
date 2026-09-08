@@ -132,13 +132,13 @@
 壳：orders / form / settings / chat 复用 dashboard 的 AppShell（面包屑分别为 订单 / 采购 › 新建采购单 / 设置 / 智能助理）；landing 无壳；components 轻壳（仅顶部工具条 + 主题切换）。`mock/nav.json` 的 `orders` 与 `settings` 在实现阶段置 `implemented: true` 并去掉「后续轮次提供」禁用态；`form` / `chat` / `components` / `landing` 不在侧边栏 8 项内（form 从「采购」组进入的路径本轮不做，直接路由可达；chat 入口为顶栏助理按钮，阶段 1 定；landing / components 为独立入口）。
 
 ### 11.2 orders 细则
-- 数据源：`mock/orders-all.json`（50 单，含第 1 轮 `orders.json` 5 单原样在内；时间跨 08-31 ~ 09-06，状态 待发货 15 / 待付款 2 / 已发货 13 / 已完成 13 / 退款中 4 / 已取消 3，5 渠道均有），每单在第 1 轮字段之上追加 `warehouse|store`、`address`、`paidAt|expiresAt|shippedAt|completedAt|cancelledAt|refundRequestedAt`、`carrier` + `trackingNo` + `logistics[]`（物流 Tab）、`remarks[]`（备注 Tab，作者为 team 成员）、`urgent`、`stockout`、`refundReason|cancelReason`。列表页默认按 `placedAt` 倒序，与 dashboard「最近订单」前 5 行完全一致。
-- 工具栏：搜索匹配订单号 / 买家名 / 商品名；状态 Select（全部 + 6 态，标签复用 `dashboard.status.*`）；日期范围（DateRangePicker，预设 今天 / 近 7 天 / 近 30 天）；渠道多选 Popover（5 项 Checkbox，触发文案「渠道 · n」）；导出（Toast「正在导出 n 单…」）；列显示 Popover（每列 Checkbox，订单号 / 状态 / 操作不可隐藏）。有任一筛选时显示「清除筛选」与「筛选出 n 单，共 50 单」。
+- 数据源分两层，口径只有一套（§11.10-A）：**计数** = `mock/orders-summary.json`（服务端计数：默认范围「近 7 天」共 731 单、待发货 63、今日 108，按状态 / 渠道 / 日期的分组数，全部与 `stats.json` / `series.json` / `skus.json` 相等）；**行** = `mock/orders-all.json`（近 7 天列表的 50 单服务端分页样本，含第 1 轮 `orders.json` 5 单原样在内；时间跨 08-31 ~ 09-06，状态 待发货 15 / 待付款 2 / 已发货 13 / 已完成 13 / 退款中 4 / 已取消 3，5 渠道均有；样本内任一分组数 ≤ summary 同组数）。页面上出现的任何「n 单 / n 条」都取 summary，不得用样本行数。每单在第 1 轮字段之上追加 `warehouse|store`、`address`、`paidAt|expiresAt|shippedAt|completedAt|cancelledAt|refundRequestedAt`、`carrier` + `trackingNo` + `logistics[]`（物流 Tab）、`remarks[]`（备注 Tab，作者为 team 成员）、`urgent`、`stockout`、`refundReason|cancelReason`。列表页默认按 `placedAt` 倒序，与 dashboard「最近订单」前 5 行完全一致。
+- 工具栏：搜索匹配订单号 / 买家名 / 商品名；状态 Select（全部 + 6 态，标签复用 `dashboard.status.*`）；日期范围（DateRangePicker，预设 今天 / 近 7 天 / 近 30 天）；渠道多选 Popover（5 项 Checkbox，触发文案「渠道 · n」）；导出（Toast「正在导出 n 单…」）；列显示 Popover（每列 Checkbox，订单号 / 状态 / 操作不可隐藏）。有任一筛选时显示「清除筛选」与「筛选出 n 单，共 731 单」（n = summary 对应分组数：状态 = 待发货 → 63、渠道 = 天猫 → 262、日期 = 今天 → 108；多条件叠加时 n 由阶段 5 在 summary 分组上按比例估算并在实现 notes 写明公式，不得直接用样本行数；表格只渲染样本内匹配行）。
 - 表格：列 = 选择 / 订单号（mono，旁带「加急」「缺货」小 Tag）/ 买家（姓名 + 脱敏手机）/ 商品（首件名 + 等 n 件）/ 渠道 / 状态 Tag / 金额（右对齐 tabular-nums）/ 下单时间 / 操作。可排序：订单号、金额、下单时间（三态 aria-sort）。全选 Checkbox 半选态；选中 ≥1 行显示批量操作条（批量发货 / 导出所选 / 取消选择）。行菜单按状态出项（见 `content/orders.md` rowMenu.*）。
-- 分页：每页 10 / 20 / 50（默认 20 → 50 单共 3 页），页码 + 上一页 / 下一页 + 「第 1–20 条，共 50 条」。
+- 分页：每页 10 / 20 / 50（默认 20 → 731 单共 37 页），页码 + 上一页 / 下一页 + 「第 1–20 条，共 731 条」。可达页 = ceil(样本匹配行数 ÷ 每页)（默认 3 页），其余页码 `aria-disabled` + Tooltip `orders.pagination.sampleOnly`（演示样本仅前 n 页）；range 的 to 取本页实际末行序号，total 恒为 summary 计数。
 - Drawer（右侧，1440 宽 `size.drawer`，375 全宽底部上滑）：标题「订单 SO-…」+ 关闭；描述列表（状态 / 渠道 / 买家 / 手机号 / 收货地址或门店 / 发货仓 / 下单 / 付款或付款截止 / 金额）；Tabs 商品（行 + 小计 + 合计 = amount）/ 物流（承运商 + 运单号复制 + 事件时间线；未发货显示空态；退款中 / 已取消在顶部显示原因）/ 备注（列表 + 添加 Textarea ≤200 字；无备注空态）；底部操作按钮随状态。焦点圈定、Esc 关闭、关闭后焦点回到触发行。
 - Dialog：取消订单（说明退款金额 + 取消原因 Select + 危险按钮「确认取消」）；删除订单（仅已取消）。确认后 Toast（success，删除含「撤销」）；模拟失败 → Toast danger「操作失败，请重试」。
-- 375：每单一张卡（订单号 + 状态 Tag / 买家 / 商品 / 金额 / 时间 / ⋯），无横向滚动；工具栏收成 搜索 + 「筛选」按钮（Sheet 内含状态 / 日期 / 渠道，底部「查看 n 单」）。
+- 375：每单一张卡（订单号 + 状态 Tag / 买家 / 商品 / 金额 / 时间 / ⋯），无横向滚动；工具栏收成 搜索 + 「筛选」按钮（Sheet 内含状态 / 日期 / 渠道，底部「查看 n 单」，n 同 countFiltered 取 summary）。
 - 状态切换：`?state=loading|empty-filtered|empty-new|error|success`、`?open=drawer|dialog-cancel|dialog-delete|filter-sheet`、`?toast=cancelled|deleted|shipped|copied|export`、`?theme=`。
 
 ### 11.3 form 细则
@@ -158,12 +158,12 @@
 - 账号安全：改密码（当前 / 新 / 确认；强度条 弱 / 一般 / 强 + 3 条规则逐条打勾；两次不一致内联）；两步验证（Switch 开启 → 面板：纯 CSS/SVG 二维码位 `role=img` + 手动密钥折叠 + 6 位 OTP 输入 + 「验证并启用」；关闭 → Dialog 确认）；活跃会话 3 条（当前设备 Tag、注销按钮、「注销其他所有会话」），空态「没有其他活跃会话」。
 - 通知：Segmented 邮件 / 推送 / 站内 切换当前列；3 分组 8 项 Switch（每项 label + description）；分组「全部开启 / 关闭」；免打扰 22:00–08:00。保存 → Toast。
 - 团队：席位「已用 5 / 10」；邀请 TagInput（邮箱格式、重复检测）+ 角色 Select + 发送；待接受邀请 1 条（重新发送 / 撤回）；成员表 5 行（头像 + 姓名 + 邮箱 / 角色 Select（自己禁用）/ 加入时间 / 最近活动 / 移除）；移除 → Dialog（正文 `removeConfirm`）→ Toast。
-- 计费：当前计划卡（专业版 · 年付、下次续费 2027-03-12、10 席位、支付宝企业账户）；月 / 年 Switch（年付 Tag「省 2 个月」，价格与「折合 ¥n / 月」随切换）；3 档卡（入门 ¥99 / 990、专业 ¥299 / 2,990 推荐 + 当前、企业 ¥899 / 8,990 联系销售），6 条功能勾 / 叉；发票表 4 行（编号 / 日期 / 说明 / 金额右对齐 / 状态 Tag / 下载），空态「还没有发票…」。
+- 计费：当前计划卡（专业版 · 年付、下次续费 2027-03-12、10 席位、企业对公转账）；月 / 年 Switch（年付 Tag「省 2 个月」，价格与「折合 ¥n / 月」随切换）；3 档卡（入门 ¥99 / 990、专业 ¥299 / 2,990 推荐 + 当前、企业 ¥899 / 8,990 联系销售），6 条功能勾 / 叉；发票表 4 行（编号 / 日期 / 说明 / 金额右对齐 / 状态 Tag / 下载；全部为计划价发票：专业版年付 ¥2,990 × 2、入门版月付 ¥99 × 2），空态「还没有发票…」。
 - 危险区：页面底部（所有 Tab 下都显示，或仅团队 / 计费 Tab，阶段 1 定）danger 边框 Card「删除团队空间」→ Dialog 需输入「删除 栖木家居」完全匹配才可点「永久删除」→ Toast warning。
 - 状态切换：`?tab=`、`?state=default|saving|saved|error|empty`（empty = 当前 Tab 空态：security 无其他会话、team 仅自己且无邀请、billing 无发票、notifications 当前渠道无项）、`?open=2fa|2fa-disable|remove|danger|leave`、`?cycle=monthly|yearly`、`?theme=`。
 
 ### 11.5 components 细则
-- 取代 `/kitchen-sink`：路由 `/kitchen-sink` → `/components`（静态站点用客户端 `<Navigate replace>` + `_redirects`/Worker 301 二选一，阶段 4 定；两者都要保证旧链接不 404）。`content/kitchen-sink.md` 的 key 迁入 `content/components.md`（前缀改 `components.`，文案不变），实现阶段删除旧文件与旧页面目录。
+- 取代 `/kitchen-sink`：路由 `/kitchen-sink` → `/components`（静态站点用客户端 `<Navigate replace>` + `_redirects`/Worker 301 二选一，阶段 4 定；两者都要保证旧链接不 404）。`content/kitchen-sink.md` 的 key 迁入 `content/components.md`（前缀改 `components.`，文案不变），阶段 5 实现 `/components` 时**同一提交**完成三件事：① 新增 `content/components.md` 全部 key 的消费方；② 删除 `content/kitchen-sink.md` 与 `src/pages/kitchen-sink/`；③ 落地 `/kitchen-sink` → `/components` 重定向（客户端 `<Navigate replace>` 必做，静态 `_redirects` / Worker 301 按阶段 4 决定叠加）。不允许「先加新页、旧文件留待以后删」的中间态——否则 `t()` 长期存在 `kitchen-sink.*` / `components.*` 两套同文案。阶段 5 门禁：`grep -r "kitchen-sink\." apps/reference/src` 为空，且 `/kitchen-sink` 直达不 404。
 - 结构：页头（标题 / 副标题 / 令牌版本与组件数 / 搜索 / 主题 亮 · 暗 · 跟随系统）→ 粘性锚点导航（10 类；375 折叠为 Select「跳转到类别」）→ 10 个区块 → 回到顶部按钮。每个组件一张卡：名称 + 来源标记（shadcn / composed）+ 状态矩阵（行 = variant × size，列 = state；不适用格「—」`aria-hidden` + 视觉隐藏「不适用」）+ 右上「代码」折叠按钮（`aria-expanded`）→ 展开等宽纯文本 `tsx` 用法 + Props 表（属性 / 类型 / 默认值）+ 复制按钮。
 - 覆盖面（= `04-components.md` §1 §2 全部 + 本轮新增）：新增控件 Textarea、NumberInput、Select、Combobox、RadioGroup、Switch、Slider（双滑块）、DatePicker / DateRangePicker、TimePicker、TagInput、OTPInput、FileDropzone + FileItem、Pagination、Dialog、Drawer（右侧）、Accordion、Segmented、Stepper、DescriptionList、Result、Markdown（含表格 / 代码块）、CodeBlock、SourceChip、ToolCallCard、ChatBubble、Composer、ConversationItem、PlanCard、PricingToggle、AnchorNav、Hero 抽象图。每件都在本页出现全部状态后才允许在业务页使用（AGENTS.md 规则）。
 - 主题区：语义色板（每个 token 名 + 亮 / 暗两格 + 对比度数值）、字阶样张、间距标尺、圆角 / 阴影样张、动效时长表——全部读取 `design/tokens.css` 变量渲染，不写死值。
@@ -178,26 +178,27 @@
 - 状态切换：`?state=default|scrolled`、`?cycle=monthly|yearly`、`?open=menu`（375 Sheet）、`?theme=`。
 
 ### 11.7 chat 细则
-- 数据源：`mock/chat.json`：7 个会话（今天 3 / 本周 2 / 更早 2，1 个未读），5 个会话有完整消息（c_1 缺货 SKU 表 + CSV 代码块；c_2 改加急，两次工具调用；c_3 待发货超 48 小时表；c_4 直播复盘；c_5 退款话术），`streamingSample`（正在创建采购单草稿的半截回复 + running 工具卡），4 条建议，2 个模型，空态 / 错误文案。所有数字可回溯：缺货表 = `skus.json.weekStockoutOrders`（6 SKU 合计 40）、库存 / 安全线 = `skus.json`；订单表与来源 Chip 的订单号均存在于 `orders-all.json` 且金额一致；直播复盘 ¥52,310 / 134 单 与 09-02 ¥39,760 / 101 单 = `series.month`；改加急的对象为真实存在的待发货缺货单 SO-20260903-0087（见 §11.10-D）。
+- 数据源：`mock/chat.json`：7 个会话（今天 3 / 本周 2 / 更早 2，1 个未读），5 个会话有完整消息（c_1 缺货 SKU 表 + CSV 代码块；c_2 改加急，两次工具调用；c_3 待发货超 48 小时表；c_4 直播复盘；c_5 退款话术）；c_6 / c_7（「更早」分组）只有会话头 + `messageCount`，`historyAvailable: false`——列表中正常渲染、可聚焦可点击，点击后 URL 变为 `?conversation=c_6`，主区显示 `loading` 历史骨架（3 组气泡，`aria-busy`）并在 `motion.duration.slow` 后**停留为**「历史消息未包含在演示数据中」空态（`chat.history.unavailable` + 「返回今天的会话」按钮），不 disabled、不报错；`?state=loading` 截图态即复用这一骨架。`streamingSample`（正在创建采购单草稿的半截回复 + running 工具卡），4 条建议，2 个模型，空态 / 错误文案。所有数字可回溯：缺货表 = `skus.json.weekStockoutOrders`（6 SKU 合计 40）、库存 / 安全线 = `skus.json`；订单表与来源 Chip 的订单号均存在于 `orders-all.json` 且金额一致；直播复盘 ¥52,310 / 134 单 与 09-02 ¥39,760 / 101 单 = `series.month`；改加急的对象为真实存在的待发货缺货单 SO-20260903-0087（见 §11.10-D）。
 - 布局：应用壳内；主区 = 左栏会话列表（1440 宽 `size.sidebar.expanded`，1024 可折叠，≤768 为左侧 Sheet，顶部「打开会话列表」按钮）+ 右侧消息流 + 底部输入区。会话列表：搜索、「新建会话」主按钮、分组标题、每项标题 / 相对时间 / 未读点 / 悬停 ⋯（重命名 / 删除 → Dialog）。
 - 消息流 `role=log aria-live=polite`：日期分隔（今天 / 昨天 / 09-04）；用户气泡右对齐 primary-soft，助手气泡左对齐 surface + 品牌标头像 + 「Acme 助理」+ 时间戳；助手消息下方操作（复制 / 重新生成 / 有帮助 / 没帮助）；Markdown 渲染：段落 / 列表 / 引用 / 表格（375 横向滚动 + 提示）/ 代码块（语言标签 + 复制）；来源 Chip 组（订单 → `/orders/SO-…`，文档，数据快照）；工具调用折叠卡（名称 + 参数摘要 + 状态 running / done / failed + 耗时；展开显示参数 / 结果）；流式态：文字逐段出现 + 光标 + `aria-busy`，输入区发送按钮变「停止生成」。
 - 输入区：Textarea 自增至 8 行；附件按钮（CSV / XLSX / PDF / PNG / JPG ≤10 MB，已选文件 Chip 可移除，超限内联错误）；模型 Select（标准 / 深度分析）；发送（空内容禁用）；建议 Chip 4 条（有历史时横向一行，375 可滚）；提示「Enter 发送，Shift + Enter 换行」（375 隐藏）；接近 2000 字显示计数。
 - 状态：empty = 新会话（欢迎「你好，若琳」+ 说明 + 4 建议卡，无消息）；loading = 会话切换时历史骨架（3 组气泡）+ 左栏骨架；streaming = c_1 末尾追加 `streamingSample`；success = c_1 完整；error = 最后一条助手消息替换为 Alert「回复失败：…（504）」+ 重试 / 忽略；工具调用成功后 Toast「已把 SO-20260903-0087 标记为加急」（c_2）。
-- 状态切换：`?state=empty|loading|streaming|success|error`、`?conversation=c_1|c_2|c_3|c_4|c_5`、`?open=sidebar|delete`、`?toast=urgent`、`?theme=`。
+- 状态切换：`?state=empty|loading|streaming|success|error`、`?conversation=c_1|c_2|c_3|c_4|c_5|c_6|c_7`（c_6 / c_7 = 骨架 → 历史不可用空态）、`?open=sidebar|delete`、`?toast=urgent`、`?theme=`。
 
 ### 11.8 真实内容与数据资产（本轮新增文件）
 | 文件 | 用途 | 与已有口径的关系 |
 |---|---|---|
-| `mock/orders-all.json` | orders 全量 50 单；chat 引用 | 含 `orders.json` 5 单原样；同 `SO-YYYYMMDD-NNNN`、同 6 状态 5 渠道、金额 = Σ qty × unitPrice、`placedAt ≤ asOf`、倒序；单日序号 ≤ `series.month` 当日订单数（09-06 108、09-05 115、09-04 96、09-03 134、09-02 101、09-01 85、08-31 由 series 给出） |
+| `mock/orders-summary.json` | orders 全部计数（共 n 单 / 筛选出 n 单 / 分页 total / 查看 n 单） | 近 7 天 731 = `stats.week.orders`；待发货 63 = `stats.month.pendingShipment` = `nav.json` 订单角标；今日 108 = `stats.day.orders`；`byDay` = `series.week`；`byStatus` / `byChannel` 各加总 = 731；`flags.stockout` 40 = Σ `skus.weekStockoutOrders`；`check.mjs` 逐项断言 |
+| `mock/orders-all.json` | orders 表格 / Drawer 的 50 单服务端分页样本（近 7 天）；chat 引用 | 含 `orders.json` 5 单原样；同 `SO-YYYYMMDD-NNNN`、同 6 状态 5 渠道、金额 = Σ qty × unitPrice、`placedAt ≤ asOf`、倒序；单日序号 ≤ `series.month` 当日订单数（09-06 108、09-05 115、09-04 96、09-03 134、09-02 101、09-01 85、08-31 由 series 给出）；任一状态 / 渠道 / 日期分组行数 ≤ summary 同组计数（待发货 15 ≤ 63、今日 19 ≤ 108、缺货 5 ≤ 40）；缺货待发货 5 单与 asOf 时待发货超 48 小时 3 单在样本中是全集（chat c_1 / c_3、采购草稿备注据此复算） |
 | `mock/skus.json` | orders 商品行、form SKU 选项、chat 缺货表 | 18 个 SKU，名称 / 售价与 `orders.json` 完全一致；`lowStock` 6 个 ⊂ `stats.lowStock` 12；床头柜 `stock 18 / safetyStock 40` 与 `notifications.json` n_2「剩余 18 件」、抱枕 `safetyStock 200` 与 `activity.json` act_3「150 → 200」一致 |
-| `mock/suppliers.json` | form 供应商 Combobox；chat 补货建议 | 6 家虚构公司，含第 1 轮已出现的安吉林语木业；每个 SKU 的 `supplier` 均在其中 |
+| `mock/suppliers.json` | form 供应商 Combobox；chat 补货建议 | 6 家虚构公司，含第 1 轮已出现的安吉林语木业；每个 SKU 的 `supplier` 均在其中；樟里 `openPurchaseOrders 1` 显式落为 `inTransit`（PO-20260822-001，床头柜 40 件，08-22 下单 + 18 天交期 = 09-09 到仓），是 orders-all 备注与 chat c_2「预计 09-09 到仓」的唯一出处（§11.10-J） |
 | `mock/purchase-form.json` | form 全部选项 / 校验 / 草稿 / 成功页 | 仓库 = `meta.tenant.warehouses` + 门店；草稿单价 = `skus.cost`，合计可验算 |
-| `mock/settings.json` | settings 5 Tab | profile = `user.json`；members = `team.json` 5 人；plan = `user.workspace.plan`；发票金额 = 计划价 |
-| `mock/landing.json` | landing 全部内容 | 客户 / 评价人 / 公司均虚构（含栖木家居 沈若琳 一条评价，引用 9/3 直播 134 单）；定价与 `settings.billing.plans` 同价；平台数字（1,200+ 团队等）为 Acme 平台口径，与租户经营数据无关 |
+| `mock/settings.json` | settings 5 Tab | profile = `user.json`；members = `team.json` 5 人；plan = `user.workspace.plan`；发票说明一律「计划 · 年付/月付」格式且金额 = 计划价（`check.mjs` 对每张发票断言，不允许跳过）；无席位加购（专业版 10 席 > 团队 5 人） |
+| `mock/landing.json` | landing 全部内容 | 客户 / 评价人 / 公司均虚构（含栖木家居 沈若琳 一条评价，引用 9/3 直播 134 单）；定价与 `settings.billing.plans` 同价；平台数字（1,200+ 团队等）为 Acme 平台口径，与租户经营数据无关；营销文案（Hero 副标题 / 特性卡 / FAQ / 社交）不出现真实平台或产品名，只用「主流电商平台 / 直播电商 / 小程序 / 门店」等中性词或 `meta.channels` 已有渠道名（§11.10-K） |
 | `mock/chat.json` | chat 会话 / 消息 / 建议 / 模型 | 见 §11.7；订单号 / 金额 / 库存 / 趋势全部由 `check.mjs` 交叉断言 |
 | `content/orders.md` `form.md` `settings.md` `components.md` `landing.md` `chat.md` | 六屏文案（结构标签 / aria / 状态语） | 内容型文案（标题、说明、评价、FAQ、校验语、Toast 语）放在对应 mock 的随附字段，一处维护；`components.md` 吸收 `kitchen-sink.md` 全部 key |
 - `mock/meta.json` 只追加 `carriers`（承运商枚举）与本轮 notes，不改旧字段；`mock/nav.json` 本阶段不改（`implemented` 在实现阶段翻转）。
-- 校验：`node mock/check.mjs` 在第 1 轮断言之上追加 orders-all（含首 5 单 = orders.json、序号 ≤ 当日订单数、状态 ↔ 时间字段、物流 / 备注引用）、skus（售价 ↔ orders、库存 ↔ 通知 / 动态、lowStock ≤ stats）、suppliers ↔ skus、purchase-form 草稿合计、settings ↔ user / team、landing ↔ settings 定价、chat 来源订单号存在 / 缺货表 ↔ skus / 复盘数字 ↔ series。
+- 校验：`node mock/check.mjs` 在第 1 轮断言之上追加 orders-summary ↔ stats / series / skus / nav（含样本各分组 ≤ 计数、缺货待发货 / 超 48 小时全集）、orders-all（含首 5 单 = orders.json、序号 ≤ 当日订单数、状态 ↔ 时间字段、物流 / 备注引用）、suppliers 在途单日期 ↔ 备注 / chat「预计 09-09」、settings 每张发票 = 计划价、settings / landing 无真实品牌词、chat c_6 / c_7 `historyAvailable=false` 且无消息体、skus（售价 ↔ orders、库存 ↔ 通知 / 动态、lowStock ≤ stats）、suppliers ↔ skus、purchase-form 草稿合计、settings ↔ user / team、landing ↔ settings 定价、chat 来源订单号存在 / 缺货表 ↔ skus / 复盘数字 ↔ series。
 - 零位图、Lucide 图标、OFL 字体、虚构人名 / 公司 / 域名：与 §5 相同。二维码位、Hero 插画、分屏示意图全部为令牌色纯 CSS/SVG。
 
 ### 11.9 老板原话逐条对照（第 2 轮）
@@ -205,7 +206,7 @@
 |---|---|---|
 | 1 | 增量轮：复用 Brief / IA / 令牌 / 工程地基，只追加 6 屏；最终 8 屏齐全，作为「按稿还原」唯一标准 | §11 导语；§11.1 |
 | 2 | 已有实体与文案口径必须沿用，不得重造第二套人名 / 订单号 / 金额 | §11.8 全表；`mock/check.mjs` 交叉断言；chat / form / settings 只引用 `team.json` / `user.json` / `orders.json` 已有人物与订单 |
-| 3 | orders：工具栏 6 件、表格（排序 / 全选半选 / Tag / 金额右对齐 / 行菜单）、分页（页码 + 每页条数）、行点开右侧 Drawer（描述列表 + 商品 / 物流 / 备注 Tabs）、删除 / 取消 Dialog → Toast、移动端卡片化、4 类状态含两种 empty、数据 ≥40 单 | §11.1 orders 行；§11.2；`mock/orders-all.json`（50 单）；`content/orders.md` |
+| 3 | orders：工具栏 6 件、表格（排序 / 全选半选 / Tag / 金额右对齐 / 行菜单）、分页（页码 + 每页条数）、行点开右侧 Drawer（描述列表 + 商品 / 物流 / 备注 Tabs）、删除 / 取消 Dialog → Toast、移动端卡片化、4 类状态含两种 empty、数据 ≥40 单 | §11.1 orders 行；§11.2；`mock/orders-all.json`（50 单样本）+ `mock/orders-summary.json`（计数）；`content/orders.md` |
 | 4 | form：3 步；步 1 供应商 Combobox / 联系人 / 电话国家码 / 邮箱 / 备注计数 / 结算单选 / 开票复选 / 加急 Switch；步 2 商品行增删（SKU / 数量 / 单价 / 小计）/ 仓库 / 到货日期 / 时段 / 运费 Slider / 附件拖拽 + 列表 / 标签；步 3 摘要 + 合计 + 条款 + 提交；全字段校验内联；提交 loading → Result；5 态 | §11.1 form 行；§11.3；`mock/purchase-form.json` `suppliers.json` `skus.json`；`content/form.md` |
 | 5 | settings：左侧（375 顶部）5 Tabs；个人资料（首字母头像 / 姓名 / 简介 / 语言 / 时区 / 保存重置）；账号安全（改密码强度 / 两步验证 Switch + CSS/SVG 二维码位 / 会话列表 + 注销）；通知（分组 Switch + Segmented）；团队（成员表 + 邀请）；计费（当前计划 + 3 档月 / 年 + 推荐 + 发票表）；危险区输入确认；4 态 + 各 Tab 空态 | §11.1 settings 行；§11.4；`mock/settings.json`；`content/settings.md` |
 | 6 | components：设计系统全集页，10 类别，全部 variant × size × state，锚点索引，亮 / 暗即时切换，取代 /kitchen-sink（301），无业务状态，有代码片段折叠（纯文本等宽） | §11.1 components 行；§11.5；`content/components.md` |
@@ -220,7 +221,7 @@
 | 15 | 部署：`pnpm assemble && pnpm exec wrangler deploy` | 阶段 7；本阶段不部署 |
 
 ### 11.10 解释与取舍（第 2 轮，如无异议按此执行）
-- **A. 订单量与 mock 规模**：orders 列表数据 50 单（≥40），放在新文件 `mock/orders-all.json` 而非直接扩充 `orders.json`——dashboard 的「最近订单 5 行」与其 hifi / compare 基准图依赖 `orders.json` 恰好 5 条，扩充会造成已上线屏回退。`check.mjs` 断言 `orders-all` 前 5 条与 `orders.json` 逐字段相同（追加字段除外），保证同一口径。
+- **A. 订单量与 mock 规模（计数与行分层，口径只有一套）**：dashboard 统计卡 / 侧栏角标已定义 近 7 天 731 单、待发货 63、今日 108、近 7 天缺货 40（`stats.json` / `series.json` / `skus.json`）。orders 列表若把 50 单样本当全量，页面会同时出现「共 50 单」与「待发货 63」两套口径，违反 §11.9 #2。因此：① `mock/orders-all.json` 定义为**近 7 天列表的服务端分页样本**（50 单 ≥ 40，按日期 / 状态 / 渠道抽样，前 5 单 = `orders.json`），只负责渲染表格行与 Drawer；② 新增 `mock/orders-summary.json` 作为**服务端计数**（total / byRange / byDay / byStatus / byChannel / flags），值全部等于第 1 轮已有数字，页面上的「共 n 单」「筛选出 n 单」「第 a–b 条，共 n 条」「查看 n 单」与页码总数只能从它取；③ 样本内任一分组行数 ≤ summary 同组计数，且缺货待发货 5 单、asOf 时待发货超 48 小时 3 单在样本中是全集（chat c_1 / c_3 与采购草稿备注据此复算，`flags` 记录），床头柜 `weekStockoutOrders 14` 中样本只含仍待发货的 3 单，其余 11 单已在近 7 天内补货发出、不在缺货待发货集合；④ 样本填不满的页码 `aria-disabled` + Tooltip，不伪造行。不扩充 `orders.json`——dashboard 的「最近订单 5 行」与其 hifi / compare 基准图依赖 `orders.json` 恰好 5 条，扩充会造成已上线屏回退。`check.mjs` 断言以上全部关系。
 - **B. 截图与审查矩阵**：orders / form / settings 属表格 / 表单类，视觉 QA 视口在 1440 / 375 之外加 768 / 1024（`shots.json` 4 视口）；其余 3 屏 1440 / 375。
 - **C. 华东仓 = 杭州仓**：租户目前只有一个仓（`meta.tenant.warehouses`），chat 里「华东仓」按用户口语理解为杭州仓，助理回答中写「杭州仓（华东）」，不新增第二个仓。
 - **D. 老板示例订单号 `SO-20260903-0412`**：9/3 全天 134 单（`series.month`），序号 0412 超出当日订单数，与「订单号 = 当日序号」口径冲突；改用真实存在的待发货缺货单 `SO-20260903-0087`（抖音、苏婉婷、床头柜 ×2、¥1,798.00）作为「改加急」示例，其余场景不变。
@@ -228,7 +229,9 @@
 - **F. 会话 / 发票 / 成员的「空态」**：settings 用 `?state=empty` 在当前 Tab 上模拟（不另造第二套账号数据）；orders 的 `empty-new` 复用第 1 轮 dashboard 空态约定（团队空间名「未命名团队」，铃铛无角标）。
 - **G. 非目标**：不接真实后端 / AI / 支付（chat 的流式与工具调用均为 mock 播放；form 提交为本地模拟；settings 保存为本地模拟）；不做订单详情独立页（`/orders/:id` 仅作为来源 Chip 与通知 link 的目标，实现为打开 `/orders?open=drawer&id=…`）；不做 `/purchasing` `/after-sales` `/products` `/inventory` `/reports`；不改其他 `apps/<库>/` 与 `gallery/`；不做国际化（语言 Select 仅视觉）。
 - **H. components 的「代码片段」**：纯文本（`<pre><code>` 等宽），不引入语法高亮库，避免新依赖与 minimumReleaseAge 风险。
-- **I. landing 定价与 settings 计费同价**：避免同一产品两套价格；平台统计（1,200+ 团队、3,800 万订单等）为 Acme 平台口径，与栖木家居经营数据分层，脚注注明。
+- **I. landing 定价与 settings 计费同价**：避免同一产品两套价格；平台统计（1,200+ 团队、3,800 万订单等）为 Acme 平台口径，与栖木家居经营数据分层，脚注注明。发票 4 张全部为计划价发票（专业版年付 ¥2,990 ×2、入门版月付 ¥99 ×2，体现 入门月付 → 专业年付 的升级路径），不引入席位加购单价：专业版含 10 席而团队仅 5 人，加购无动机。
+- **J. 樟里两个到货日期（09-09 与 09-24）不冲突**：`suppliers.json` 樟里 `openPurchaseOrders: 1` 显式落为 `inTransit`：PO-20260822-001，床头柜 QM-NS-WAL-2D 40 件，08-22 下单，`lastOrderAt` 同日，+ 常规交期 18 天 = **09-09 到仓**——这是 orders-all 备注（SO-20260905-0115 / SO-20260903-0087）与 chat c_2「预计 09-09 到仓」的唯一出处，指的是**已在途的补货单**。`purchase-form.json` 草稿 PO-20260906-003 是 09-06 新建的**第二张**采购单（床头柜 60 + 落地灯 20 + 置物架 8），09-06 + 18 天 = **09-24** 是它的期望到货日。两个日期分别属于两张 PO；hifi / 实现阶段不得把任何一个改成另一个，`check.mjs` 断言 `inTransit.expectedAt` = 下单日 + 交期，且所有「预计 09-09」文本与之一致、早于草稿到货日。
+- **K. 真实品牌词边界**：`meta.channels` 的渠道名（天猫 / 抖音 / 京东 / 小程序 / 门店）是第 1 轮已定的租户销售渠道枚举，属数据口径，沿用；但 landing 营销文案、settings 提示语、社交入口不得出现真实平台 / 产品 / 公司名（Hero 副标题改「主流电商平台、直播电商、小程序和门店」，2FA 提示改「任意支持 TOTP 的验证器应用」，Footer 社交改 公众号 / 社区 / 开源 / 邮件 四个中性入口，图标只用 Lucide 通用图标不用品牌图标）。支付方式改「企业对公转账」，活跃会话设备名改「移动端内置浏览器」。`check.mjs` 对 `settings.json` / `landing.json` 全文做禁词断言（Google / 1Password / GitHub / 微博 / 淘宝 / 支付宝 / 微信 … 一律禁；天猫 / 抖音 / 京东 只允许出现在引用租户经营数据的字段——landing 分屏案例「抖音直播 134 单」、评价、settings 个人简介与「渠道同步失败」通知描述；Hero / 特性卡 / FAQ / 社交 / 安全提示禁）。第 1 轮 login 的 Google / GitHub / 微信登录入口（§10-E，老板原话保留）与 `meta.carriers` 承运商枚举与渠道同理，不动。
 
 ### 11.11 阶段 0 门禁与交付说明（2026-09-08）
 - 起点：`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → `Already up to date`（集成分支已含 main 已发布内容，基线 `e2ab886`）。
@@ -238,3 +241,7 @@
   - `node mock/check.mjs` → `mock ok (2026-09-06T17:30:00+08:00) — orders.json 5 · orders-all 50 · skus 18 · suppliers 6 · chat 7 会话`（第 1 轮全部断言 + §11.8 新增断言全部通过；中途修正 4 处数据口径：orders-all 首 5 单与 orders.json 一字不差、chat c_3「超 48 小时」表按消息时间复算为 2 单、c_4「峰值」改为「第二高，仅次于 8/19 七夕 ¥52,380」、采购草稿备注安全线 30 → 40）。
   - `pnpm install --frozen-lockfile` 后 `pnpm lint && pnpm typecheck && pnpm build`（`apps/reference/`）→ eslint 0 问题、`no-hardcode: 47 个文件通过`、tsc 无错误、vite 构建成功。运行原因：`src/data/content.ts` 以 `import.meta.glob` 急切加载 `content/*.md`，新增 6 份文案会进入现有构建，须确认不破坏已上线页；未改任何 `src/` 文件，`dist/` 不入库。
   - 未运行：`shoot / compare / a11y`（无实现改动、hifi 未出）。
+- 第 2 次独立审查修正（2026-09-08，基线 `3efc478`）：
+  - Blocking「两套订单量口径」→ §11.10-A：新增 `mock/orders-summary.json` 作 `/orders` 唯一计数源（731 / 63 / 108 / 40，逐项 = stats / series / skus / nav），`orders-all.json` 改定义为近 7 天列表的 50 单服务端分页样本；§11.2 / §11.8 / `content/orders.md`（`count` / `countFiltered` / `pagination.range` / `pagination.sampleOnly` / 移动端「查看 n 单」）/ `mock/README.md` / `mock/meta.json` notes 同步改口径。
+  - Minor：发票改为 4 张计划价发票且 `check.mjs` 对不匹配格式 FAIL（不再静默跳过）；2FA 提示 / 会话设备 / 支付方式 / landing Hero · 特性 · FAQ · Footer 社交 全部中性化并由 `check.mjs` 禁词断言守住（§11.10-K）；c_6 / c_7 加 `historyAvailable: false` + 点击呈现（§11.7、`content/chat.md` `history.unavailable.*`）；樟里在途单显式落为 `suppliers.inTransit`（09-09）与草稿 09-24 分两张 PO 说明（§11.10-J，`check.mjs` 断言 `expectedAt = placedAt + leadTimeDays` 且所有「预计 MM-DD」= 在途单）；§11.5 明确阶段 5 同一提交删旧文件 + `/kitchen-sink` → `/components` 重定向 + 门禁。
+  - 运行记录：`node mock/check.mjs` → `mock ok (2026-09-06T17:30:00+08:00) — orders.json 5 · orders-all 样本 50 / summary 731 · skus 18 · suppliers 6 · chat 7 会话`；另用 7 组临时变异数据（席位加购发票、Hero 加「天猫」、2FA 加「Google」、删 `historyAvailable`、在途单日期改 09-10、summary.total 改 50、待发货改 15）逐一验证新断言会 FAIL。`apps/reference/`：`pnpm install --frozen-lockfile` → `pnpm lint`（eslint 0 问题、`no-hardcode: 47 个文件通过`）、`pnpm typecheck`（tsc 无错误）、`pnpm build`（vite 构建成功）全部退出码 0。未运行 `shoot / compare / a11y`（本轮仅改 brief / content / mock，无 `src/` 与 hifi 改动）。

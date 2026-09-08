@@ -91,6 +91,9 @@
 | empty.aria | 欢迎 | 欢迎区 section aria-label；标题与说明在 mock.emptyState |
 | loading.aria | 正在加载历史消息 | 骨架屏（3 组气泡）`aria-busy` |
 | loading.sidebar | 正在加载会话 | 左栏骨架 |
+| history.unavailable.title | 历史消息未包含在演示数据中 | `historyAvailable: false` 的会话（c_6 / c_7）：骨架 `motion.duration.slow` 后停留为此空态 |
+| history.unavailable.description | 这条会话共 {n} 条消息，最后更新于 {time}；演示站点只保留今天与本周的会话内容。 | n = `messageCount`，time = `updatedAt` 相对时间 |
+| history.unavailable.back | 返回今天的会话 | 次级按钮 → `?conversation=c_1` |
 | error.title | 回复失败 | Alert（danger）标题；正文 mock.errorState.message |
 | error.retry | 重试 | |
 | error.dismiss | 忽略 | |

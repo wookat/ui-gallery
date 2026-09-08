@@ -129,6 +129,7 @@ for (const a of activity) {
 
 // ======== 第 2 轮（orders / form / settings / landing / chat）========
 const ordersAll = read("orders-all.json");
+const ordersSummary = read("orders-summary.json");
 const skus = read("skus.json");
 const suppliers = read("suppliers.json");
 const purchaseForm = read("purchase-form.json");
@@ -141,8 +142,8 @@ const orderById = Object.fromEntries(ordersAll.map((o) => [o.id, o]));
 const dayOrders = Object.fromEntries(series.month.points.map((p) => [p.date, p.orders]));
 const money = (n) => `¥${n.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-// ---- orders-all：≥40、倒序、首 5 单 = orders.json、与第 1 轮同口径、状态 ↔ 时间字段、序号 ≤ 当日订单数
-check(ordersAll.length >= 40, `orders-all 须 ≥ 40 单（现 ${ordersAll.length}）`);
+// ---- orders-all：服务端分页样本 ≥40、倒序、首 5 单 = orders.json、与第 1 轮同口径、状态 ↔ 时间字段、序号 ≤ 当日订单数
+check(ordersAll.length >= 40, `orders-all 样本须 ≥ 40 单（现 ${ordersAll.length}）`);
 check(ordersAll.every((o, i) => !i || o.placedAt < ordersAll[i - 1].placedAt), "orders-all 须按 placedAt 倒序");
 check(new Set(ordersAll.map((o) => o.id)).size === ordersAll.length, "orders-all 订单号重复");
 orders.forEach((o, i) => {
@@ -190,6 +191,33 @@ check(Object.values(statusCount).every((n) => n > 0), `orders-all 须覆盖全�
 check(meta.channels.every((c) => ordersAll.some((o) => o.channel === c.key)), "orders-all 须覆盖全部 5 个渠道");
 check(ordersAll.some((o) => o.urgent) && ordersAll.some((o) => o.stockout), "orders-all 须含 urgent 与 stockout 样例");
 
+// ---- orders-summary：/orders 的唯一计数来源，全部 = 第 1 轮 stats / series / skus / nav；样本任一分组 ≤ 计数；缺货待发货 / 超 48h 在样本中是全集
+{
+  const S = ordersSummary;
+  const weekRange = meta.periods.week.range;
+  check(S.scope.key === "week" && S.scope.range[0] === weekRange[0] && S.scope.range[1] === weekRange[1], "orders-summary.scope 须 = meta.periods.week");
+  check(S.total === stats.byPeriod.week.orders.value && S.byRange.week === S.total, `orders-summary.total 须 = stats.week.orders ${stats.byPeriod.week.orders.value}`);
+  check(S.byRange.today === stats.byPeriod.day.orders.value && S.byRange.month === stats.byPeriod.month.orders.value, "orders-summary.byRange today / month ≠ stats");
+  check(S.byStatus.pending_shipment === stats.byPeriod.month.pendingShipment.value && S.byStatus.pending_shipment === navItems.find((n) => n.key === "orders").badge, "orders-summary 待发货 ≠ stats.pendingShipment / nav 角标");
+  const weekPts = series.week.points;
+  check(weekPts.length === 7 && weekPts.every((p) => S.byDay[p.date] === p.orders) && Object.keys(S.byDay).length === 7, "orders-summary.byDay ≠ series.week");
+  check(Object.values(S.byDay).reduce((a, n) => a + n, 0) === S.total, "orders-summary.byDay 合计 ≠ total");
+  check(meta.orderStatuses.every((k) => Number.isInteger(S.byStatus[k]) && S.byStatus[k] > 0) && Object.keys(S.byStatus).length === meta.orderStatuses.length && Object.values(S.byStatus).reduce((a, n) => a + n, 0) === S.total, "orders-summary.byStatus 须覆盖 6 状态且合计 = total");
+  check(meta.channels.every((c) => Number.isInteger(S.byChannel[c.key]) && S.byChannel[c.key] > 0) && Object.keys(S.byChannel).length === meta.channels.length && Object.values(S.byChannel).reduce((a, n) => a + n, 0) === S.total, "orders-summary.byChannel 须覆盖 5 渠道且合计 = total");
+  const gmvRank = series.week.channels.items.map((c) => c.key);
+  check(gmvRank.every((k, i) => !i || S.byChannel[k] <= S.byChannel[gmvRank[i - 1]]), "orders-summary.byChannel 单量排序须与 series.week.channels GMV 排序一致");
+  check(S.flags.stockout === sum(skus.items, "weekStockoutOrders"), `orders-summary.flags.stockout 须 = Σ skus.weekStockoutOrders ${sum(skus.items, "weekStockoutOrders")}`);
+  for (const k of meta.orderStatuses) check(statusCount[k] <= S.byStatus[k], `样本 ${k} ${statusCount[k]} 单 > summary ${S.byStatus[k]}`);
+  for (const c of meta.channels) { const n = ordersAll.filter((o) => o.channel === c.key).length; check(n <= S.byChannel[c.key], `样本渠道 ${c.key} ${n} 单 > summary ${S.byChannel[c.key]}`); }
+  for (const o of ordersAll) check(o.placedAt.slice(0, 10) >= weekRange[0] && o.placedAt.slice(0, 10) <= weekRange[1], `${o.id}: 样本单须落在近 7 天窗口内`);
+  for (const [d, n] of Object.entries(S.byDay)) { const m = ordersAll.filter((o) => o.placedAt.slice(0, 10) === d).length; check(m <= n, `样本 ${d} ${m} 单 > summary ${n}`); }
+  check(ordersAll.filter((o) => o.stockout).length <= S.flags.stockout, "样本缺货单数 > summary.flags.stockout");
+  check(ordersAll.filter((o) => o.stockout && o.status === "pending_shipment").length === S.flags.stockoutPending, "summary.flags.stockoutPending 须 = 样本中缺货且待发货单数（样本为全集）");
+  const cutoffAsOf = new Date(new Date(asOf).getTime() - 48 * 3600e3).toISOString();
+  check(ordersAll.filter((o) => o.status === "pending_shipment" && new Date(o.placedAt).toISOString() < cutoffAsOf).length === S.flags.pendingOver48h, "summary.flags.pendingOver48h 须 = 样本中 asOf 时待发货超 48h 单数（样本为全集）");
+  check(S.pagination.pageSizes.includes(S.pagination.defaultPageSize) && S.sample.file === "orders-all.json" && S.sample.size === ordersAll.length, "orders-summary.pagination / sample 与 orders-all 不符");
+}
+
 // ---- skus：lowStock 口径、供应商存在、与通知 / 动态 / stats 一致
 for (const s of skus.items) {
   check(s.lowStock === s.stock < s.safetyStock, `${s.sku}: lowStock ≠ stock < safetyStock`);
@@ -223,6 +251,27 @@ for (const s of suppliers.items) {
   check(/^\d{3}\*{4}\d{4}$/.test(s.phoneMasked) && s.phoneDemo.length === 11 && s.phoneDemo.startsWith(s.phoneMasked.slice(0, 3)) && s.phoneDemo.endsWith(s.phoneMasked.slice(-4)), `${s.id}: phoneMasked 与 phoneDemo 不一致`);
 }
 check(suppliers.items.some((s) => s.name === "安吉林语木业"), "suppliers 须含第 1 轮已出现的安吉林语木业");
+// 在途单：樟里 PO-20260822-001 是「预计 09-09 到仓」的唯一出处（与 purchase-form 草稿 09-24 为两张 PO）
+{
+  const zl = supplierById.sup_zhangli;
+  const it = zl?.inTransit;
+  check(zl && zl.openPurchaseOrders >= 1 && it, "樟里须有 inTransit 在途单（openPurchaseOrders ≥ 1）");
+  if (it) {
+    const placedYmd = it.placedAt.slice(0, 10);
+    check(new RegExp(`^PO-${placedYmd.replaceAll("-", "")}-\\d{3}$`).test(it.poNumber), "inTransit.poNumber 须为下单日的 PO-YYYYMMDD-NNN");
+    check(zl.lastOrderAt === it.placedAt && it.placedAt <= asOf, "inTransit.placedAt 须 = lastOrderAt 且不晚于 asOf");
+    check(it.expectedAt === addDays(placedYmd, zl.leadTimeDays) && it.expectedAt > asOf.slice(0, 10), `inTransit.expectedAt 须 = 下单日 + 交期 ${zl.leadTimeDays} 天且晚于 asOf`);
+    check(it.expectedAt < purchaseForm.draft.arrivalDate, "在途单到仓日须早于新草稿到货日");
+    check(purchaseForm.warehouses.some((w) => w.key === it.warehouse), "inTransit.warehouse 未登记");
+    check(it.items.length > 0 && it.items.every((x) => skuById[x.sku]?.name === x.name && skuById[x.sku]?.supplier === zl.id && x.qty > 0), "inTransit.items 须为樟里供货的 SKU");
+    check(it.items.some((x) => x.sku === "QM-NS-WAL-2D"), "在途单须含缺货的床头柜");
+    const eta = mmdd(it.expectedAt);
+    const texts = [...ordersAll.flatMap((o) => o.remarks.map((r) => `${o.id}: ${r.text}`)), ...Object.values(chat.messages).flat().map((m) => `chat: ${m.markdown ?? m.text ?? ""}`)];
+    const mentions = texts.filter((t) => /预计 \d{2}-\d{2}/.test(t));
+    check(mentions.length >= 2 && mentions.every((t) => t.includes(`预计 ${eta}`)), `所有「预计 MM-DD」须 = 在途单 expectedAt ${eta}`);
+    check(texts.some((t) => t.includes(it.poNumber)), "orders-all 备注须引用在途单 PO 号");
+  }
+}
 
 // ---- purchase-form：草稿可验算
 {
@@ -276,11 +325,19 @@ check(suppliers.items.some((s) => s.name === "安吉林语木业"), "suppliers �
   for (const pl of b.plans) check(pl.yearly === pl.monthly * 10 && pl.features.length === b.plans[0].features.length, `${pl.key}: 年付须 = 月付 × 10，功能条数一致`);
   check(b.plans.every((pl, i) => !i || pl.monthly > b.plans[i - 1].monthly), "billing.plans 须按价格升序");
   check(b.invoices.every((inv, i) => (!i || inv.issuedAt <= b.invoices[i - 1].issuedAt) && inv.issuedAt <= asOf.slice(0, 10) && b.invoiceStatuses.some((s) => s.key === inv.status)), "invoices 须倒序、不晚于 asOf、状态登记");
+  const periodEnd = (start, cycle) => {
+    const d = new Date(start + "T00:00:00Z");
+    if (cycle === "年付") d.setUTCFullYear(d.getUTCFullYear() + 1); else d.setUTCMonth(d.getUTCMonth() + 1);
+    d.setUTCDate(d.getUTCDate() - 1);
+    return d.toISOString().slice(0, 10);
+  };
   for (const inv of b.invoices) {
-    const m = inv.description.match(/^(.+?) · (年付|月付)/);
+    const m = inv.description.match(/^(.+?) · (年付|月付)（(\d{4}-\d{2}-\d{2}) ~ (\d{4}-\d{2}-\d{2})）$/);
+    check(!!m, `${inv.id}: 发票说明须为「计划 · 年付|月付（起 ~ 止）」，不允许席位加购等未定价项（现「${inv.description}」）`);
     if (!m) continue;
     const pl = b.plans.find((x) => x.label === m[1]);
     check(pl && inv.amount === (m[2] === "年付" ? pl.yearly : pl.monthly), `${inv.id}: 金额 ≠ ${m[1]}${m[2]}价`);
+    check(m[3] === inv.issuedAt && m[4] === periodEnd(m[3], m[2]), `${inv.id}: 服务期须从开票日起整 1 年 / 1 个月`);
   }
   check(b.renewsAt > asOf.slice(0, 10) && b.invoices[0].description.includes(b.planLabel) && b.invoices[0].description.includes(b.cycle === "yearly" ? "年付" : "月付"), "renewsAt / 最新发票与当前计划周期不符");
   check(settings.dangerZone.confirmHint.includes(settings.dangerZone.confirmPhrase) && settings.dangerZone.confirmPhrase.includes(user.workspace.name), "dangerZone 确认文字须含空间名");
@@ -303,6 +360,19 @@ check(suppliers.items.some((s) => s.name === "安吉林语木业"), "suppliers �
   check(landing.footer.copyright.includes("虚构"), "footer.copyright 须注明虚构");
 }
 
+// ---- 真实品牌词（brief §11.10-K）：settings / landing 全文禁非渠道品牌；渠道名只允许在引用租户经营数据的字段
+{
+  const banned = /Google|1Password|Authy|Microsoft|Apple|GitHub|微博|淘宝|支付宝|微信|拼多多|小红书|快手|得物|Shopify|Slack|Notion/i;
+  const channelWords = /天猫|抖音|京东/;
+  const walk = (v, p, fn) => (typeof v === "string" ? fn(v, p) : v && typeof v === "object" && Object.entries(v).forEach(([k, x]) => walk(x, `${p}.${k}`, fn)));
+  const tenantDataFields = ["landing.solutions", "landing.testimonials", "settings.profile.bio", "settings.notifications.groups"];
+  for (const [name, data] of [["settings", settings], ["landing", landing]]) {
+    walk(data, name, (s, p) => check(!banned.test(s), `${p}: 含真实品牌词「${s.match(banned)?.[0]}」`));
+    walk(data, name, (s, p) => check(!channelWords.test(s) || tenantDataFields.some((f) => p.startsWith(f)), `${p}: 营销 / 提示文案不得出现平台名「${s.match(channelWords)?.[0]}」`));
+  }
+  check(landing.footer.social.every((s) => !/github|twitter|weibo|wechat|facebook|linkedin/i.test(`${s.key} ${s.icon}`)), "footer.social 不得用品牌 key / 图标");
+}
+
 // ---- chat：会话倒序、消息时序、来源订单存在、缺货表 = skus、复盘数字 = series、待发货表 = orders-all
 {
   const groupOf = (iso) => (iso.slice(0, 10) === asOf.slice(0, 10) ? "today" : iso.slice(0, 10) >= meta.periods.week.range[0] ? "week" : "earlier");
@@ -310,6 +380,8 @@ check(suppliers.items.some((s) => s.name === "安吉林语木业"), "suppliers �
   for (const c of chat.conversations) {
     check(groupKeys.includes(c.group) && groupOf(c.updatedAt) === c.group && c.updatedAt <= asOf, `${c.id}: group 与 updatedAt 不符`);
     const msgs = chat.messages[c.id];
+    check(typeof c.historyAvailable === "boolean" && c.historyAvailable === !!msgs, `${c.id}: historyAvailable 须与是否有消息体一致`);
+    if (!msgs) check(c.group === "earlier" && c.messageCount >= 2 && !c.unread, `${c.id}: 无消息体的会话只能在「更早」分组、不得未读`);
     if (msgs) {
       check(msgs.length === c.messageCount, `${c.id}: messageCount ≠ 实际条数`);
       check(msgs.every((m, i) => m.at <= asOf && (!i || m.at >= msgs[i - 1].at)), `${c.id}: 消息须正序且不晚于 asOf`);
@@ -369,4 +441,4 @@ if (failures.length) {
   for (const f of failures) console.error("FAIL", f);
   process.exit(1);
 }
-console.log(`mock ok (${asOf}) — orders.json ${orders.length} · orders-all ${ordersAll.length} · skus ${skus.items.length} · suppliers ${suppliers.items.length} · chat ${chat.conversations.length} 会话`);
+console.log(`mock ok (${asOf}) — orders.json ${orders.length} · orders-all 样本 ${ordersAll.length} / summary ${ordersSummary.total} · skus ${skus.items.length} · suppliers ${suppliers.items.length} · chat ${chat.conversations.length} 会话`);

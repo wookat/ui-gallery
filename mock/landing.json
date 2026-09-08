@@ -11,7 +11,7 @@
  "cta": { "login": "登录", "trial": "免费试用 14 天", "loginHref": "/login", "trialHref": "/login" },
  "hero": {
   "title": "把全渠道订单和库存，装进一个后台",
-  "subtitle": "Acme Console 帮中小品牌把天猫、抖音、京东、小程序和门店的订单同步到一处，库存预警、采购补货、售后处理一站完成。",
+  "subtitle": "Acme Console 帮中小品牌把主流电商平台、直播电商、小程序和门店的订单同步到一处，库存预警、采购补货、售后处理一站完成。",
   "primary": "免费试用 14 天",
   "secondary": "预约演示",
   "socialProof": {
@@ -35,7 +35,7 @@
   { "name": "小满母婴", "wordmark": "小满" }
  ],
  "features": [
-  { "icon": "refresh-cw", "title": "五大渠道自动同步", "description": "天猫、抖音、京东、微信小程序、线下门店订单 15 分钟内汇总，不再手抄表格。" },
+  { "icon": "refresh-cw", "title": "五大渠道自动同步", "description": "主流电商平台、直播电商小店、小程序、线下门店订单 15 分钟内汇总，不再手抄表格。" },
   { "icon": "receipt-text", "title": "订单一屏处理", "description": "筛选、批量发货、改地址、退款受理，待发货超 48 小时自动提醒。" },
   { "icon": "warehouse", "title": "库存预警与安全线", "description": "按 SKU 设置安全库存，低于阈值即时通知，避免直播爆单后缺货。" },
   { "icon": "truck", "title": "采购补货闭环", "description": "从预警直接生成采购单，跟踪供应商交期与到货验收。" },
@@ -89,7 +89,7 @@
   { "name": "高书瑶", "initial": "瑶", "hue": 20, "title": "供应链主管", "company": "小满母婴", "quote": "问助理「上周缺货最多的 SKU」直接给出数字和订单号，开会不用再翻报表。" }
  ],
  "faq": [
-  { "q": "支持哪些销售渠道？", "a": "天猫、抖音小店、京东、微信小程序与线下门店 POS；专业版起不限渠道数量。" },
+  { "q": "支持哪些销售渠道？", "a": "主流电商平台旗舰店、直播电商小店、小程序商城与线下门店 POS；专业版起不限渠道数量。" },
   { "q": "数据同步多久一次？", "a": "各渠道每 15 分钟自动同步一次，也可在订单页手动触发。" },
   { "q": "免费试用需要绑卡吗？", "a": "不需要。14 天试用期内可使用专业版全部功能，到期后自行选择是否付费。" },
   { "q": "可以随时更换或取消计划吗？", "a": "可以。升级即时生效并按剩余天数折算；降级或取消在当前周期结束后生效。" },
@@ -105,9 +105,9 @@
    { "title": "公司", "links": ["关于我们", "联系销售", "隐私政策", "服务条款"] }
   ],
   "social": [
-   { "key": "wechat", "label": "微信公众号", "icon": "message-circle" },
-   { "key": "weibo", "label": "微博", "icon": "at-sign" },
-   { "key": "github", "label": "GitHub", "icon": "github" },
+   { "key": "official", "label": "公众号", "icon": "message-circle" },
+   { "key": "community", "label": "用户社区", "icon": "users" },
+   { "key": "opensource", "label": "开源仓库", "icon": "code" },
    { "key": "mail", "label": "邮件", "icon": "mail" }
   ],
   "languages": [

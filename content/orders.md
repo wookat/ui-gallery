@@ -1,14 +1,14 @@
 # orders（/orders）文案
 
-> 引用方式：`orders.<key>`。应用壳文案复用 `dashboard.md` 的 `shell.*`；订单状态标签复用 `dashboard.status.*`；渠道标签来自 `mock/meta.json.channels`。数据来自 `mock/orders-all.json`（50 单），此处只有标签与状态语。
+> 引用方式：`orders.<key>`。应用壳文案复用 `dashboard.md` 的 `shell.*`；订单状态标签复用 `dashboard.status.*`；渠道标签来自 `mock/meta.json.channels`。表格行 / Drawer 数据来自 `mock/orders-all.json`（近 7 天列表的 50 单服务端分页样本）；所有计数（`count.n`、`countFiltered.n/total`、`pagination.range.total`、`mobile.filter.apply.n`）来自 `mock/orders-summary.json`（默认「近 7 天」共 731 单、待发货 63、今日 108），不得用样本行数（brief §11.10-A）。此处只有标签与状态语。
 
 ## 页面与工具栏
 | key | 文案 | 说明 |
 |---|---|---|
 | title | 订单 | h1 / 面包屑当前项 |
 | subtitle | 全渠道订单，数据更新于 {time} | `{time}` 形如「今天 17:30」 |
-| count | 共 {n} 单 | 工具栏右侧 / 表头上方 |
-| countFiltered | 筛选出 {n} 单，共 {total} 单 | 有筛选条件时 |
+| count | 共 {n} 单 | 工具栏右侧 / 表头上方；n = `orders-summary.byRange[当前日期预设]`（默认 731） |
+| countFiltered | 筛选出 {n} 单，共 {total} 单 | 有筛选条件时；n = summary 对应分组数（待发货 63 / 天猫 262 / 今天 108），total 同 count |
 | search.placeholder | 搜索订单号、买家、商品 | 搜索框 |
 | search.aria | 搜索订单 | |
 | filter.status | 状态 | 筛选 Select，含「全部状态」 |
@@ -65,7 +65,8 @@
 | key | 文案 | 说明 |
 |---|---|---|
 | pagination.aria | 分页 | nav aria-label |
-| pagination.range | 第 {from}–{to} 条，共 {total} 条 | |
+| pagination.range | 第 {from}–{to} 条，共 {total} 条 | total = summary 计数（默认 731 → 37 页）；to = 本页实际末行序号 |
+| pagination.sampleOnly | 演示样本只包含前 {n} 页 | 样本填不满的页码 `aria-disabled` + Tooltip；n = ceil(样本匹配行数 ÷ 每页) |
 | pagination.pageSize | 每页 {n} 条 | Select：10 / 20 / 50 |
 | pagination.prev | 上一页 | |
 | pagination.next | 下一页 | |
@@ -146,4 +147,4 @@
 | mobile.card.aria | 订单 {id}，{status}，{amount} | 375 卡片可点击区域 aria-label |
 | mobile.filter | 筛选 | 375 工具栏折叠为「筛选」按钮 → Sheet |
 | mobile.filter.title | 筛选订单 | Sheet 标题 |
-| mobile.filter.apply | 查看 {n} 单 | Sheet 底部主按钮 |
+| mobile.filter.apply | 查看 {n} 单 | Sheet 底部主按钮；n 同 countFiltered，取 summary |

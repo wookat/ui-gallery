@@ -1,5 +1,5 @@
 {
- "note": "chat 屏（/chat 智能助理）数据。所有答案数字来自 skus.json / orders-all.json / series.json / stats.json，check.mjs 交叉校验 sources 引用的订单号存在、缺货表与 skus.weekStockoutOrders 一致。华东仓 = 杭州仓（meta.tenant.warehouses 唯一仓）。老板原话示例订单号 SO-20260903-0412 超出 9/3 当日 134 单，改用真实存在的 SO-20260903-0087。",
+ "note": "chat 屏（/chat 智能助理）数据。所有答案数字来自 skus.json / orders-all.json / series.json / stats.json，check.mjs 交叉校验 sources 引用的订单号存在、缺货表与 skus.weekStockoutOrders 一致。华东仓 = 杭州仓（meta.tenant.warehouses 唯一仓）。老板原话示例订单号 SO-20260903-0412 超出 9/3 当日 134 单，改用真实存在的 SO-20260903-0087。c_2「预计 09-09 到仓」指 suppliers.json 樟里 inTransit（PO-20260822-001），与 purchase-form 草稿 09-24 是两张不同的采购单。historyAvailable=false 的会话（c_6 / c_7）无消息体：列表可点，点后主区骨架 → 停留为 content chat.history.unavailable.* 空态（brief §11.7）。",
  "assistant": {
   "name": "Acme 助理",
   "avatar": "brand-mark",
@@ -83,7 +83,8 @@
    "title": "上周缺货最多的 SKU",
    "updatedAt": "2026-09-06T17:05:00+08:00",
    "unread": false,
-   "messageCount": 4
+   "messageCount": 4,
+   "historyAvailable": true
   },
   {
    "id": "c_2",
@@ -91,7 +92,8 @@
    "title": "SO-20260903-0087 改加急",
    "updatedAt": "2026-09-06T16:12:00+08:00",
    "unread": false,
-   "messageCount": 3
+   "messageCount": 3,
+   "historyAvailable": true
   },
   {
    "id": "c_3",
@@ -99,7 +101,8 @@
    "title": "待发货超 48 小时的订单",
    "updatedAt": "2026-09-06T09:08:00+08:00",
    "unread": true,
-   "messageCount": 2
+   "messageCount": 2,
+   "historyAvailable": true
   },
   {
    "id": "c_5",
@@ -107,7 +110,8 @@
    "title": "退款话术：亚麻色差",
    "updatedAt": "2026-09-05T14:20:00+08:00",
    "unread": false,
-   "messageCount": 2
+   "messageCount": 2,
+   "historyAvailable": true
   },
   {
    "id": "c_4",
@@ -115,7 +119,8 @@
    "title": "9/3 抖音直播复盘",
    "updatedAt": "2026-09-04T10:30:00+08:00",
    "unread": false,
-   "messageCount": 2
+   "messageCount": 2,
+   "historyAvailable": true
   },
   {
    "id": "c_6",
@@ -123,7 +128,8 @@
    "title": "双 11 预售上架清单",
    "updatedAt": "2026-08-28T15:40:00+08:00",
    "unread": false,
-   "messageCount": 6
+   "messageCount": 6,
+   "historyAvailable": false
   },
   {
    "id": "c_7",
@@ -131,7 +137,8 @@
    "title": "杭州仓盘点进度",
    "updatedAt": "2026-08-22T11:10:00+08:00",
    "unread": false,
-   "messageCount": 4
+   "messageCount": 4,
+   "historyAvailable": false
   }
  ],
  "messages": {

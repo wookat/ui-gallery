@@ -49,11 +49,11 @@
    "otpauth": "otpauth://totp/Acme%20Console:ruolin.shen%40qimu-home.cn?secret=DEMO-NOT-A-REAL-SECRET&issuer=Acme%20Console",
    "manualKey": "QIMU HOME DEMO KEY 2026",
    "codeLength": 6,
-   "hint": "用 Google Authenticator / 1Password 等应用扫描，或手动输入密钥"
+   "hint": "用任意支持 TOTP 的验证器应用扫描，或手动输入密钥"
   },
   "sessions": [
    { "id": "s_1", "device": "Chrome · macOS", "location": "浙江 杭州", "ip": "115.196.xx.xx", "lastActiveAt": "2026-09-06T17:30:00+08:00", "current": true },
-   { "id": "s_2", "device": "微信内置浏览器 · iPhone", "location": "浙江 杭州", "ip": "39.174.xx.xx", "lastActiveAt": "2026-09-06T12:05:00+08:00", "current": false },
+   { "id": "s_2", "device": "移动端内置浏览器 · iPhone", "location": "浙江 杭州", "ip": "39.174.xx.xx", "lastActiveAt": "2026-09-06T12:05:00+08:00", "current": false },
    { "id": "s_3", "device": "Edge · Windows", "location": "浙江 宁波", "ip": "60.190.xx.xx", "lastActiveAt": "2026-09-03T09:40:00+08:00", "current": false }
   ],
   "sessionsEmpty": "没有其他活跃会话",
@@ -125,7 +125,7 @@
   "cycle": "yearly",
   "renewsAt": "2027-03-12",
   "seatsIncluded": 10,
-  "paymentMethod": { "type": "alipay", "label": "支付宝 · 企业账户", "account": "finance@qimu-home.cn" },
+  "paymentMethod": { "type": "bank_transfer", "label": "企业对公转账", "account": "finance@qimu-home.cn" },
   "yearlyDiscountLabel": "年付省 2 个月",
   "plans": [
    {
@@ -179,9 +179,9 @@
   ],
   "invoices": [
    { "id": "INV-2026-0312", "issuedAt": "2026-03-12", "description": "专业版 · 年付（2026-03-12 ~ 2027-03-11）", "amount": 2990.0, "status": "paid" },
-   { "id": "INV-2025-1206", "issuedAt": "2025-12-06", "description": "增购 2 席位 · 3 个月", "amount": 180.0, "status": "paid" },
    { "id": "INV-2025-0312", "issuedAt": "2025-03-12", "description": "专业版 · 年付（2025-03-12 ~ 2026-03-11）", "amount": 2990.0, "status": "paid" },
-   { "id": "INV-2025-0212", "issuedAt": "2025-02-12", "description": "入门版 · 月付", "amount": 99.0, "status": "paid" }
+   { "id": "INV-2025-0212", "issuedAt": "2025-02-12", "description": "入门版 · 月付（2025-02-12 ~ 2025-03-11）", "amount": 99.0, "status": "paid" },
+   { "id": "INV-2025-0112", "issuedAt": "2025-01-12", "description": "入门版 · 月付（2025-01-12 ~ 2025-02-11）", "amount": 99.0, "status": "paid" }
   ],
   "invoiceStatuses": [
    { "key": "paid", "label": "已支付" },

@@ -15,6 +15,19 @@
 | `tasks.json` | 任务进度 5 条 | `percent` = round(done/total) |
 | `notifications.json` | 铃铛 Popover 5 条，3 条未读 | `unreadCount` = 未读条数 |
 
+### 第 2 轮追加（orders / form / settings / landing / chat，Brief §11）
+| 文件 | 用途 | 关键约束 |
+|---|---|---|
+| `orders-all.json` | `/orders` 全量 50 单（08-31 ~ 09-06），覆盖 6 状态 × 5 渠道；前 5 单与 `orders.json` 逐字段相同（追加字段除外） | 在第 1 轮字段上追加 `warehouse|store`、`address`、`paidAt|expiresAt|shippedAt|completedAt|cancelledAt|refundRequestedAt`、`carrier`+`trackingNo`+`logistics[]`（Drawer 物流 Tab）、`remarks[]`（备注 Tab，作者 = team 成员）、`urgent`、`stockout`、`refundReason|cancelReason`；订单号序号 ≤ `series.month` 当日订单数；状态 ↔ 时间字段必须自洽 |
+| `skus.json` | 18 个 SKU（`/form` SKU 选项、`/chat` 缺货表、orders 商品行） | `name` / `unitPrice` 与订单商品行一致；`cost` 为采购价（< 售价）；`lowStock` = stock < safetyStock，`lowStock` 数 ≤ `stats.lowStock`；床头柜库存 = 通知 n_2「剩余 18 件」，抱枕安全线 = 动态「调整为 200」；`weekStockoutOrders` 为近 7 天缺货订单数 |
+| `suppliers.json` | 6 家虚构供应商（含第 1 轮已出现的安吉林语木业） | 每个 SKU 的 `supplier` 在此登记且品类匹配；`settlement` 在 `purchase-form.settlementMethods` 登记；`phoneMasked` 与 `phoneDemo` 首 3 末 4 一致 |
+| `purchase-form.json` | `/form` 步骤、国家码、结算方式、仓库、时段、运费区间、标签建议、附件样例、校验文案、示例草稿 `draft`、成功页 | `draft`：联系人 / 电话 / 邮箱 = 供应商；每行 `unitPrice` = `skus.cost` 且 SKU 属该供应商；`subtotal` = Σ qty×unitPrice；`poNumber` = `poNumberNext` = asOf 当日 `PO-YYYYMMDD-NNN`；备注中的库存 / 安全线 / 待发货缺货单数与 skus / orders-all 一致 |
+| `settings.json` | `/settings` 5 Tab：个人资料 / 账号安全 / 通知 / 团队 / 计费 + 危险区 | `profile` = `user.json`；`team.members` = `team.json` 5 人，`seats.used` = 成员数；`billing.plan` = `user.workspace.plan`，年付 = 月付 × 10，恰 1 个推荐档，发票金额 = 计划价；当前会话 / 当前用户 `lastActiveAt` = asOf；危险区确认文字含空间名 |
+| `landing.json` | `/landing` 全部内容：导航 5、Hero、客户 6、特性 6、分屏 3、数字 4、定价 3、评价 6、FAQ 6、CTA、Footer 4 列 | 定价与 `settings.billing.plans` 同价；客户 / 评价人 / 公司全部虚构且评价公司 ∈ 客户名单；Hero 头像群取自 team；沈若琳评价与 user.json 身份一致；版权注明虚构 |
+| `chat.json` | `/chat` 会话 7 个（今天 / 本周 / 更早）、5 个会话完整消息、`streamingSample`、4 建议、2 模型、空态 / 错误文案 | 会话分组由 `updatedAt` 决定且组内倒序；消息正序、末条 = `updatedAt`；来源 Chip 与正文的订单号必须存在于 orders-all；c_1 缺货表 / CSV = `skus.weekStockoutOrders` 降序；c_2 买家 / 金额 = orders-all；c_3 超 48h 表由 orders-all 复算；c_4 复盘数字 = `series.month`；`streamingSample` = `purchase-form.draft` |
+
+`meta.json` 第 2 轮只追加 `carriers`（承运商枚举）与 notes；`nav.json` 的 `implemented` 在实现阶段翻转，本阶段不改。
+
 ## 统计卡口径（`stats.json`）
 - `previous` = 等长的前一窗口（`meta.periods.*.compareWith`）；`trend` 7 点 = 连续 7 个等长窗口，故 `trend[-2] === previous`、`trend[-1] === value`，每个周期都成立。
   - `day`：7 点为 08-31~09-06 各日 **00:00–17:30 同时段**值（与「昨日同时段」同口径，今日不会因半日而显得偏低）；整日值看 `series.week`。
@@ -42,3 +55,11 @@ node mock/check.mjs   # 仓库根执行；通过输出 `mock ok (<asOf>)`，失�
 - tasks：`percent` = round(done/total)、owner 在 team、`done` ⇔ done = total。notifications：`unreadCount`、倒序、不晚于 asOf。
 - nav：8 项；订单角标 = 待发货、库存角标 = 库存预警。user 在 team。
 - activity：倒序、不晚于 asOf、actor 在 team；退款类动态所引用订单须满足 **下单 < 买家申请退款（通知）< 受理（动态）**。
+
+第 2 轮追加断言：
+- orders-all：≥40、倒序、无重复；前 5 单 = `orders.json`；金额 / 状态 / 渠道 / 日期与第 1 轮同规则；序号 ≤ 当日订单数；`initial` = 姓名末字；商品名 / 售价 = skus；线下单有 `store`、线上单有 `warehouse`；6 状态各自的时间字段自洽（待付款 `expiresAt > asOf`、已发货有承运商 + 运单号、已完成 `shippedAt < completedAt`、退款中有原因 + 申请时间、已取消有原因 + 时间）；`carrier` 在 meta 登记；`logistics` 以 `shippedAt` 开头、正序、末条 = `completedAt`；备注作者在 team、≤200 字；6 状态与 5 渠道全覆盖；含 `urgent` 与 `stockout` 样例，`stockout` 单至少含 1 个 lowStock SKU 且其 `weekStockoutOrders` ≥ 涉及单数。
+- skus / suppliers：`lowStock` 口径、供应商存在且品类匹配、`cost < unitPrice`、lowStock 数 ≤ stats；床头柜库存 = 通知、抱枕安全线 = 动态；供应商结算方式已登记、`lastOrderAt ≤ asOf`、脱敏电话一致。
+- purchase-form：草稿联系人 = 供应商、采购价 = `skus.cost`、SKU 属该供应商、`subtotal` 复算、仓库 / 时段登记、到货日 > asOf、运费区间在范围内、附件为已上传样例、备注 ≤ `noteMax` 且库存 / 安全线 / 缺货单数一致、创建人在 team、成功页含 PO 号 / 供应商 / 到货日、PO 号格式。
+- settings：profile = user（含 `timezone` = meta）；恰 1 个当前会话且 = asOf；通知项对每个渠道给布尔值；团队空间 = user.workspace、成员 = team、席位、待邀请合法、角色标签 = team `roleLabel`；计费当前计划 = `user.workspace.plan`、恰 1 推荐、年付 = 月付 × 10、按价格升序、发票倒序且金额 = 计划价、`renewsAt` 在未来；危险区确认文字；5 个 Tab。
+- landing：定价 = settings；各区块条数（5 / 6 / 6 / 3 / 4 / 6 / 6 / 4）；含示例租户；评价 `initial` = 姓名末字且公司 ∈ 客户；沈若琳评价 = user 身份；Hero 头像群 ⊂ team；「1,200+」= `stats[0]`；版权注明虚构。
+- chat：分组 / 倒序 / 消息时序 / `messageCount`；来源与正文订单号存在且 `href` = `/orders/<id>`；toolCall 状态合法；4 条建议含改加急示例；空态称呼当前用户；c_1 缺货表与 CSV = skus（降序）+ 供应商名、合计 40、床头柜待发货缺货单号；c_2 订单为待发货 + 缺货 + 未加急、买家 / 金额一致、操作人 = 当前用户；c_3 超 48h 表 = orders-all 复算；c_4 = `series.month`（9/3 第二高、仅次于 8/19）；`streamingSample` = 采购草稿 + 供应商交期，工具卡 running。

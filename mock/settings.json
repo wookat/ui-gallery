@@ -1,0 +1,200 @@
+{
+ "note": "settings 屏五个 Tab 的数据。profile 与 user.json 同源（id/name/email/avatarHue 必须一致）；team.members 引用 team.json；billing.plan 与 user.workspace.plan 一致；发票金额 = 计划年付/月付价。twoFactor.otpauth 仅为二维码位（纯 SVG 图形）的文本源，不放位图。",
+ "tabs": [
+  { "key": "profile", "label": "个人资料" },
+  { "key": "security", "label": "账号安全" },
+  { "key": "notifications", "label": "通知" },
+  { "key": "team", "label": "团队" },
+  { "key": "billing", "label": "计费" }
+ ],
+ "profile": {
+  "userId": "u_ruolin",
+  "name": "沈若琳",
+  "initial": "琳",
+  "avatarHue": 210,
+  "email": "ruolin.shen@qimu-home.cn",
+  "title": "运营主管",
+  "bio": "负责栖木家居全渠道订单与库存运营，关注抖音直播转化与杭州仓发货时效。",
+  "bioMax": 160,
+  "language": "zh-CN",
+  "languages": [
+   { "key": "zh-CN", "label": "简体中文" },
+   { "key": "zh-TW", "label": "繁體中文" },
+   { "key": "en-US", "label": "English (US)" },
+   { "key": "ja-JP", "label": "日本語" }
+  ],
+  "timezone": "Asia/Shanghai",
+  "timezones": [
+   { "key": "Asia/Shanghai", "label": "(UTC+08:00) 北京、上海、香港" },
+   { "key": "Asia/Taipei", "label": "(UTC+08:00) 台北" },
+   { "key": "Asia/Singapore", "label": "(UTC+08:00) 新加坡" },
+   { "key": "Asia/Tokyo", "label": "(UTC+09:00) 东京" },
+   { "key": "Europe/London", "label": "(UTC+00:00) 伦敦" },
+   { "key": "America/Los_Angeles", "label": "(UTC-07:00) 洛杉矶" },
+   { "key": "America/New_York", "label": "(UTC-04:00) 纽约" }
+  ],
+  "savedToast": "个人资料已保存",
+  "errorMessage": "保存失败：网络超时，请重试"
+ },
+ "security": {
+  "passwordUpdatedAt": "2026-06-14T10:20:00+08:00",
+  "passwordRules": ["至少 8 位", "包含大小写字母", "包含数字或符号"],
+  "strengthLevels": [
+   { "key": "weak", "label": "弱", "score": 1 },
+   { "key": "fair", "label": "一般", "score": 2 },
+   { "key": "strong", "label": "强", "score": 3 }
+  ],
+  "twoFactor": {
+   "enabled": false,
+   "otpauth": "otpauth://totp/Acme%20Console:ruolin.shen%40qimu-home.cn?secret=DEMO-NOT-A-REAL-SECRET&issuer=Acme%20Console",
+   "manualKey": "QIMU HOME DEMO KEY 2026",
+   "codeLength": 6,
+   "hint": "用 Google Authenticator / 1Password 等应用扫描，或手动输入密钥"
+  },
+  "sessions": [
+   { "id": "s_1", "device": "Chrome · macOS", "location": "浙江 杭州", "ip": "115.196.xx.xx", "lastActiveAt": "2026-09-06T17:30:00+08:00", "current": true },
+   { "id": "s_2", "device": "微信内置浏览器 · iPhone", "location": "浙江 杭州", "ip": "39.174.xx.xx", "lastActiveAt": "2026-09-06T12:05:00+08:00", "current": false },
+   { "id": "s_3", "device": "Edge · Windows", "location": "浙江 宁波", "ip": "60.190.xx.xx", "lastActiveAt": "2026-09-03T09:40:00+08:00", "current": false }
+  ],
+  "sessionsEmpty": "没有其他活跃会话",
+  "revokeAllLabel": "注销其他所有会话"
+ },
+ "notifications": {
+  "channels": [
+   { "key": "email", "label": "邮件" },
+   { "key": "push", "label": "推送" },
+   { "key": "inapp", "label": "站内" }
+  ],
+  "groups": [
+   {
+    "key": "orders",
+    "label": "订单与售后",
+    "items": [
+     { "key": "new_order", "label": "新订单", "description": "各渠道同步到新订单时通知", "email": false, "push": false, "inapp": true },
+     { "key": "refund", "label": "退款申请", "description": "买家发起退款 / 退货", "email": true, "push": true, "inapp": true },
+     { "key": "overdue_shipment", "label": "待发货超 48 小时", "description": "每日 09:00 汇总提醒", "email": true, "push": false, "inapp": true }
+    ]
+   },
+   {
+    "key": "inventory",
+    "label": "库存与采购",
+    "items": [
+     { "key": "low_stock", "label": "库存预警", "description": "SKU 库存低于安全线", "email": true, "push": true, "inapp": true },
+     { "key": "po_arrival", "label": "采购单到货", "description": "仓库确认收货后通知", "email": false, "push": false, "inapp": true }
+    ]
+   },
+   {
+    "key": "team",
+    "label": "团队与系统",
+    "items": [
+     { "key": "task_done", "label": "任务完成", "description": "成员完成指派给你的任务", "email": false, "push": false, "inapp": true },
+     { "key": "sync_failed", "label": "渠道同步失败", "description": "抖音 / 天猫 / 京东同步异常", "email": true, "push": true, "inapp": true },
+     { "key": "billing", "label": "账单与发票", "description": "扣款成功、发票开具", "email": true, "push": false, "inapp": false }
+    ]
+   }
+  ],
+  "quietHours": { "enabled": true, "from": "22:00", "to": "08:00" },
+  "savedToast": "通知偏好已保存"
+ },
+ "team": {
+  "workspaceId": "ws_qimu",
+  "workspaceName": "栖木家居",
+  "seats": { "used": 5, "total": 10 },
+  "roles": [
+   { "key": "admin", "label": "管理员", "description": "管理成员、计费与全部数据" },
+   { "key": "member", "label": "成员", "description": "处理订单、库存与采购" },
+   { "key": "viewer", "label": "只读", "description": "仅查看报表与订单" }
+  ],
+  "members": [
+   { "id": "u_ruolin", "joinedAt": "2025-03-12", "lastActiveAt": "2026-09-06T17:30:00+08:00", "status": "active" },
+   { "id": "u_yiming", "joinedAt": "2025-05-08", "lastActiveAt": "2026-09-06T16:40:00+08:00", "status": "active" },
+   { "id": "u_jiahao", "joinedAt": "2025-03-20", "lastActiveAt": "2026-09-06T15:30:00+08:00", "status": "active" },
+   { "id": "u_yuwei", "joinedAt": "2025-09-01", "lastActiveAt": "2026-09-06T17:22:00+08:00", "status": "active" },
+   { "id": "u_wenbo", "joinedAt": "2026-01-06", "lastActiveAt": "2026-09-05T18:10:00+08:00", "status": "active" }
+  ],
+  "pendingInvites": [
+   { "email": "xinyi.lu@qimu-home.cn", "role": "member", "invitedAt": "2026-09-04T11:00:00+08:00", "invitedBy": "u_ruolin" }
+  ],
+  "inviteHint": "输入邮箱，多个用逗号分隔；被邀请人 7 天内接受有效",
+  "removeConfirm": "移除后 {name} 将立即失去访问权限，其名下任务将转给你。",
+  "cannotRemoveSelf": "不能移除自己，请先转让管理员"
+ },
+ "billing": {
+  "plan": "pro",
+  "planLabel": "专业版",
+  "cycle": "yearly",
+  "renewsAt": "2027-03-12",
+  "seatsIncluded": 10,
+  "paymentMethod": { "type": "alipay", "label": "支付宝 · 企业账户", "account": "finance@qimu-home.cn" },
+  "yearlyDiscountLabel": "年付省 2 个月",
+  "plans": [
+   {
+    "key": "starter",
+    "label": "入门版",
+    "monthly": 99,
+    "yearly": 990,
+    "seats": 3,
+    "recommended": false,
+    "features": [
+     { "label": "3 个成员席位", "included": true },
+     { "label": "2 个销售渠道", "included": true },
+     { "label": "订单 / 库存基础看板", "included": true },
+     { "label": "智能助理", "included": false },
+     { "label": "自定义报表", "included": false },
+     { "label": "专属客户经理", "included": false }
+    ]
+   },
+   {
+    "key": "pro",
+    "label": "专业版",
+    "monthly": 299,
+    "yearly": 2990,
+    "seats": 10,
+    "recommended": true,
+    "features": [
+     { "label": "10 个成员席位", "included": true },
+     { "label": "不限销售渠道", "included": true },
+     { "label": "订单 / 库存基础看板", "included": true },
+     { "label": "智能助理", "included": true },
+     { "label": "自定义报表", "included": true },
+     { "label": "专属客户经理", "included": false }
+    ]
+   },
+   {
+    "key": "business",
+    "label": "企业版",
+    "monthly": 899,
+    "yearly": 8990,
+    "seats": 50,
+    "recommended": false,
+    "features": [
+     { "label": "50 个成员席位", "included": true },
+     { "label": "不限销售渠道", "included": true },
+     { "label": "订单 / 库存基础看板", "included": true },
+     { "label": "智能助理", "included": true },
+     { "label": "自定义报表", "included": true },
+     { "label": "专属客户经理", "included": true }
+    ]
+   }
+  ],
+  "invoices": [
+   { "id": "INV-2026-0312", "issuedAt": "2026-03-12", "description": "专业版 · 年付（2026-03-12 ~ 2027-03-11）", "amount": 2990.0, "status": "paid" },
+   { "id": "INV-2025-1206", "issuedAt": "2025-12-06", "description": "增购 2 席位 · 3 个月", "amount": 180.0, "status": "paid" },
+   { "id": "INV-2025-0312", "issuedAt": "2025-03-12", "description": "专业版 · 年付（2025-03-12 ~ 2026-03-11）", "amount": 2990.0, "status": "paid" },
+   { "id": "INV-2025-0212", "issuedAt": "2025-02-12", "description": "入门版 · 月付", "amount": 99.0, "status": "paid" }
+  ],
+  "invoiceStatuses": [
+   { "key": "paid", "label": "已支付" },
+   { "key": "pending", "label": "待支付" },
+   { "key": "failed", "label": "支付失败" }
+  ],
+  "invoicesEmpty": "还没有发票，首次扣款后会显示在这里"
+ },
+ "dangerZone": {
+  "title": "删除团队空间",
+  "description": "将永久删除「栖木家居」的全部订单、库存、成员与账单数据，且不可恢复。",
+  "confirmPhrase": "删除 栖木家居",
+  "confirmHint": "请输入「删除 栖木家居」以确认",
+  "buttonLabel": "删除团队空间"
+ }
+}

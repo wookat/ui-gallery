@@ -1,0 +1,32 @@
+{
+ "note": "本轮涉及的 18 个 SKU（全目录 2,560 SKU，见 tasks.json 杭州仓盘点）。stock / safetyStock 为 asOf 时杭州仓快照；lowStock = stock < safetyStock，本子集 6 个，全目录合计 12 个（= stats.lowStock）。weekStockoutOrders = 近 7 天因缺货延迟发货的订单数（chat 屏引用）。unitPrice = 售价，cost = 采购单价（form 屏商品行默认单价）。",
+ "categories": [
+  { "key": "dining", "label": "餐厅" },
+  { "key": "bedroom", "label": "卧室" },
+  { "key": "living", "label": "客厅" },
+  { "key": "textile", "label": "布艺" },
+  { "key": "storage", "label": "收纳" },
+  { "key": "fragrance", "label": "香氛" },
+  { "key": "lighting", "label": "灯具" }
+ ],
+ "items": [
+  { "sku": "QM-TB-OAK-140", "name": "北欧白橡木餐桌 1.4m", "category": "dining", "unitPrice": 2680.0, "cost": 1460.0, "supplier": "sup_linyu", "stock": 26, "safetyStock": 20, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-TB-OAK-160", "name": "北欧白橡木餐桌 1.6m", "category": "dining", "unitPrice": 2980.0, "cost": 1620.0, "supplier": "sup_linyu", "stock": 9, "safetyStock": 12, "lowStock": true, "weekStockoutOrders": 4 },
+  { "sku": "QM-CH-WIN-01", "name": "温莎实木餐椅", "category": "dining", "unitPrice": 399.0, "cost": 205.0, "supplier": "sup_zhangli", "stock": 143, "safetyStock": 80, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-NS-WAL-2D", "name": "胡桃木床头柜（双抽）", "category": "bedroom", "unitPrice": 899.0, "cost": 480.0, "supplier": "sup_zhangli", "stock": 18, "safetyStock": 40, "lowStock": true, "weekStockoutOrders": 14 },
+  { "sku": "QM-BD-WAL-180", "name": "胡桃木实木床 1.8m", "category": "bedroom", "unitPrice": 4580.0, "cost": 2540.0, "supplier": "sup_linyu", "stock": 7, "safetyStock": 6, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-WD-OAK-3", "name": "白橡木三门衣柜", "category": "bedroom", "unitPrice": 5280.0, "cost": 2960.0, "supplier": "sup_linyu", "stock": 4, "safetyStock": 5, "lowStock": true, "weekStockoutOrders": 2 },
+  { "sku": "QM-SF-LIN-3", "name": "亚麻三人沙发", "category": "living", "unitPrice": 3960.0, "cost": 2180.0, "supplier": "sup_zhangli", "stock": 11, "safetyStock": 8, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-CT-LIN-250", "name": "亚麻遮光窗帘 2.5m", "category": "textile", "unitPrice": 459.0, "cost": 198.0, "supplier": "sup_yunzhi", "stock": 62, "safetyStock": 60, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-CT-LIN-300", "name": "亚麻遮光窗帘 3.0m", "category": "textile", "unitPrice": 529.0, "cost": 226.0, "supplier": "sup_yunzhi", "stock": 41, "safetyStock": 50, "lowStock": true, "weekStockoutOrders": 6 },
+  { "sku": "QM-PL-CLD-45", "name": "云朵羊羔绒抱枕 45×45", "category": "textile", "unitPrice": 89.0, "cost": 34.0, "supplier": "sup_yunzhi", "stock": 165, "safetyStock": 200, "lowStock": true, "weekStockoutOrders": 11 },
+  { "sku": "QM-PL-LIN-50", "name": "亚麻素色抱枕 50×50", "category": "textile", "unitPrice": 79.0, "cost": 29.0, "supplier": "sup_yunzhi", "stock": 240, "safetyStock": 150, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-RG-WL-160", "name": "新西兰羊毛地毯 1.6×2.3m", "category": "textile", "unitPrice": 1290.0, "cost": 690.0, "supplier": "sup_yunzhi", "stock": 23, "safetyStock": 15, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-ST-RTN-3", "name": "藤编收纳篓三件套", "category": "storage", "unitPrice": 168.0, "cost": 72.0, "supplier": "sup_zhuli", "stock": 88, "safetyStock": 60, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-ST-RTN-L", "name": "藤编脏衣篓（带盖）", "category": "storage", "unitPrice": 139.0, "cost": 58.0, "supplier": "sup_zhuli", "stock": 34, "safetyStock": 40, "lowStock": true, "weekStockoutOrders": 3 },
+  { "sku": "QM-CD-SOY-200", "name": "大豆蜡香薰蜡烛 200g", "category": "fragrance", "unitPrice": 129.0, "cost": 41.0, "supplier": "sup_nuanzhu", "stock": 210, "safetyStock": 120, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-DF-RD-100", "name": "无火香薰藤条 100ml", "category": "fragrance", "unitPrice": 98.0, "cost": 33.0, "supplier": "sup_nuanzhu", "stock": 176, "safetyStock": 100, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-LP-OAK-01", "name": "白橡木落地灯", "category": "lighting", "unitPrice": 699.0, "cost": 350.0, "supplier": "sup_zhangli", "stock": 15, "safetyStock": 12, "lowStock": false, "weekStockoutOrders": 0 },
+  { "sku": "QM-SH-WAL-120", "name": "胡桃木置物架 1.2m", "category": "living", "unitPrice": 1180.0, "cost": 620.0, "supplier": "sup_zhangli", "stock": 12, "safetyStock": 10, "lowStock": false, "weekStockoutOrders": 0 }
+ ]
+}

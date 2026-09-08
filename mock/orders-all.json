@@ -1,0 +1,1834 @@
+[
+ {
+  "id": "SO-20260906-0108",
+  "placedAt": "2026-09-06T17:26:00+08:00",
+  "customer": {
+   "name": "周雅婷",
+   "phoneMasked": "138****2046",
+   "initial": "婷",
+   "avatarHue": 340
+  },
+  "items": [
+   {
+    "sku": "QM-TB-OAK-140",
+    "name": "北欧白橡木餐桌 1.4m",
+    "qty": 1,
+    "unitPrice": 2680
+   },
+   {
+    "sku": "QM-CH-WIN-01",
+    "name": "温莎实木餐椅",
+    "qty": 4,
+    "unitPrice": 399
+   }
+  ],
+  "amount": 4276,
+  "channel": "tmall",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T17:27:00+08:00",
+  "address": "浙江省杭州市 西湖区",
+  "urgent": false,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0107",
+  "placedAt": "2026-09-06T17:21:00+08:00",
+  "customer": {
+   "name": "陈志豪",
+   "phoneMasked": "159****8813",
+   "initial": "豪",
+   "avatarHue": 25
+  },
+  "items": [
+   {
+    "sku": "QM-PL-CLD-45",
+    "name": "云朵羊羔绒抱枕 45×45",
+    "qty": 2,
+    "unitPrice": 89
+   }
+  ],
+  "amount": 178,
+  "channel": "douyin",
+  "status": "pending_payment",
+  "warehouse": "杭州仓",
+  "expiresAt": "2026-09-07T17:21:00+08:00",
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0104",
+  "placedAt": "2026-09-06T17:09:00+08:00",
+  "customer": {
+   "name": "刘启铭",
+   "phoneMasked": "136****5527",
+   "initial": "铭",
+   "avatarHue": 150
+  },
+  "items": [
+   {
+    "sku": "QM-CT-LIN-250",
+    "name": "亚麻遮光窗帘 2.5m",
+    "qty": 1,
+    "unitPrice": 459
+   }
+  ],
+  "amount": 459,
+  "channel": "miniapp",
+  "status": "refunding",
+  "refundReason": "尺寸拍错",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T17:10:00+08:00",
+  "address": "浙江省杭州市 西湖区",
+  "refundRequestedAt": "2026-09-06T17:18:00+08:00",
+  "remarks": [
+   {
+    "by": "u_yuwei",
+    "byName": "唐雨薇",
+    "at": "2026-09-06T17:22:00+08:00",
+    "text": "受理退款：尺寸拍错，未发货，全额退款 ¥459.00。"
+   }
+  ]
+ },
+ {
+  "id": "SO-20260906-0099",
+  "placedAt": "2026-09-06T16:52:00+08:00",
+  "customer": {
+   "name": "黄晓芸",
+   "phoneMasked": "137****3390",
+   "initial": "芸",
+   "avatarHue": 275
+  },
+  "items": [
+   {
+    "sku": "QM-ST-RTN-3",
+    "name": "藤编收纳篓三件套",
+    "qty": 1,
+    "unitPrice": 168
+   },
+   {
+    "sku": "QM-CD-SOY-200",
+    "name": "大豆蜡香薰蜡烛 200g",
+    "qty": 1,
+    "unitPrice": 129
+   }
+  ],
+  "amount": 297,
+  "channel": "offline",
+  "store": "杭州湖滨店",
+  "status": "completed",
+  "completedAt": "2026-09-06T16:52:00+08:00",
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0095",
+  "placedAt": "2026-09-06T16:38:00+08:00",
+  "customer": {
+   "name": "吴梦洁",
+   "phoneMasked": "150****7702",
+   "initial": "洁",
+   "avatarHue": 45
+  },
+  "items": [
+   {
+    "sku": "QM-NS-WAL-2D",
+    "name": "胡桃木床头柜（双抽）",
+    "qty": 2,
+    "unitPrice": 899
+   }
+  ],
+  "amount": 1798,
+  "channel": "jd",
+  "status": "shipped",
+  "carrier": "顺丰速运",
+  "trackingNo": "SF1436 5528 7031",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T16:39:00+08:00",
+  "shippedAt": "2026-09-06T17:15:00+08:00",
+  "address": "浙江省杭州市 西湖区",
+  "logistics": [
+   {
+    "at": "2026-09-06T17:15:00+08:00",
+    "text": "杭州仓已出库，顺丰速运已揽收"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0092",
+  "placedAt": "2026-09-06T16:31:00+08:00",
+  "customer": {
+   "name": "林婉清",
+   "phoneMasked": "138****7719",
+   "initial": "清",
+   "avatarHue": 200
+  },
+  "items": [
+   {
+    "sku": "QM-CT-LIN-300",
+    "name": "亚麻遮光窗帘 3.0m",
+    "qty": 2,
+    "unitPrice": 529
+   }
+  ],
+  "amount": 1058,
+  "channel": "tmall",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T16:32:00+08:00",
+  "address": "浙江省宁波市 鄞州区",
+  "urgent": false,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0090",
+  "placedAt": "2026-09-06T16:20:00+08:00",
+  "customer": {
+   "name": "赵子轩",
+   "phoneMasked": "177****4402",
+   "initial": "轩",
+   "avatarHue": 30
+  },
+  "items": [
+   {
+    "sku": "QM-DF-RD-100",
+    "name": "无火香薰藤条 100ml",
+    "qty": 3,
+    "unitPrice": 98
+   }
+  ],
+  "amount": 294,
+  "channel": "douyin",
+  "status": "pending_payment",
+  "warehouse": "杭州仓",
+  "expiresAt": "2026-09-07T16:20:00+08:00",
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0086",
+  "placedAt": "2026-09-06T15:58:00+08:00",
+  "customer": {
+   "name": "孙雨桐",
+   "phoneMasked": "135****6083",
+   "initial": "桐",
+   "avatarHue": 300
+  },
+  "items": [
+   {
+    "sku": "QM-NS-WAL-2D",
+    "name": "胡桃木床头柜（双抽）",
+    "qty": 1,
+    "unitPrice": 899
+   },
+   {
+    "sku": "QM-LP-OAK-01",
+    "name": "白橡木落地灯",
+    "qty": 1,
+    "unitPrice": 699
+   }
+  ],
+  "amount": 1598,
+  "channel": "jd",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T15:59:00+08:00",
+  "address": "江苏省苏州市 工业园区",
+  "urgent": false,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0081",
+  "placedAt": "2026-09-06T15:40:00+08:00",
+  "customer": {
+   "name": "郑浩然",
+   "phoneMasked": "152****9127",
+   "initial": "然",
+   "avatarHue": 120
+  },
+  "items": [
+   {
+    "sku": "QM-PL-LIN-50",
+    "name": "亚麻素色抱枕 50×50",
+    "qty": 4,
+    "unitPrice": 79
+   }
+  ],
+  "amount": 316,
+  "channel": "miniapp",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T15:41:00+08:00",
+  "address": "浙江省杭州市 拱墅区",
+  "urgent": false,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0077",
+  "placedAt": "2026-09-06T15:12:00+08:00",
+  "customer": {
+   "name": "许静怡",
+   "phoneMasked": "139****2231",
+   "initial": "怡",
+   "avatarHue": 260
+  },
+  "items": [
+   {
+    "sku": "QM-CD-SOY-200",
+    "name": "大豆蜡香薰蜡烛 200g",
+    "qty": 2,
+    "unitPrice": 129
+   }
+  ],
+  "amount": 258,
+  "channel": "douyin",
+  "status": "cancelled",
+  "warehouse": "杭州仓",
+  "cancelledAt": "2026-09-06T15:15:00+08:00",
+  "cancelReason": "买家取消：重复下单",
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0070",
+  "placedAt": "2026-09-06T14:35:00+08:00",
+  "customer": {
+   "name": "王一诺",
+   "phoneMasked": "186****5560",
+   "initial": "诺",
+   "avatarHue": 90
+  },
+  "items": [
+   {
+    "sku": "QM-SF-LIN-3",
+    "name": "亚麻三人沙发",
+    "qty": 1,
+    "unitPrice": 3960
+   }
+  ],
+  "amount": 3960,
+  "channel": "tmall",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T14:36:00+08:00",
+  "address": "上海市 闵行区",
+  "urgent": true,
+  "remarks": [
+   {
+    "by": "u_ruolin",
+    "byName": "沈若琳",
+    "at": "2026-09-06T14:50:00+08:00",
+    "text": "客户要求 9 月 10 日前送达，已备注德邦大件加急。"
+   }
+  ]
+ },
+ {
+  "id": "SO-20260906-0064",
+  "placedAt": "2026-09-06T13:50:00+08:00",
+  "customer": {
+   "name": "陈思远",
+   "phoneMasked": "133****8846",
+   "initial": "远",
+   "avatarHue": 15
+  },
+  "items": [
+   {
+    "sku": "QM-RG-WL-160",
+    "name": "新西兰羊毛地毯 1.6×2.3m",
+    "qty": 1,
+    "unitPrice": 1290
+   }
+  ],
+  "amount": 1290,
+  "channel": "tmall",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T13:51:00+08:00",
+  "shippedAt": "2026-09-06T16:40:00+08:00",
+  "trackingNo": "SF1436 5602 1184",
+  "address": "浙江省杭州市 滨江区",
+  "carrier": "顺丰速运",
+  "logistics": [
+   {
+    "at": "2026-09-06T16:40:00+08:00",
+    "text": "杭州仓已出库，顺丰速运已揽收"
+   },
+   {
+    "at": "2026-09-07T02:40:00+08:00",
+    "text": "到达 杭州 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0058",
+  "placedAt": "2026-09-06T12:44:00+08:00",
+  "customer": {
+   "name": "李佳蕾",
+   "phoneMasked": "158****3395",
+   "initial": "蕾",
+   "avatarHue": 330
+  },
+  "items": [
+   {
+    "sku": "QM-PL-CLD-45",
+    "name": "云朵羊羔绒抱枕 45×45",
+    "qty": 4,
+    "unitPrice": 89
+   },
+   {
+    "sku": "QM-PL-LIN-50",
+    "name": "亚麻素色抱枕 50×50",
+    "qty": 2,
+    "unitPrice": 79
+   }
+  ],
+  "amount": 514,
+  "channel": "douyin",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T12:45:00+08:00",
+  "address": "安徽省合肥市 蜀山区",
+  "urgent": false,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0051",
+  "placedAt": "2026-09-06T11:30:00+08:00",
+  "customer": {
+   "name": "周立群",
+   "phoneMasked": "136****0718",
+   "initial": "群",
+   "avatarHue": 60
+  },
+  "items": [
+   {
+    "sku": "QM-ST-RTN-L",
+    "name": "藤编脏衣篓（带盖）",
+    "qty": 1,
+    "unitPrice": 139
+   },
+   {
+    "sku": "QM-CD-SOY-200",
+    "name": "大豆蜡香薰蜡烛 200g",
+    "qty": 1,
+    "unitPrice": 129
+   }
+  ],
+  "amount": 268,
+  "channel": "offline",
+  "status": "completed",
+  "store": "杭州湖滨店",
+  "completedAt": "2026-09-06T11:30:00+08:00",
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0043",
+  "placedAt": "2026-09-06T10:52:00+08:00",
+  "customer": {
+   "name": "杨舒涵",
+   "phoneMasked": "150****6624",
+   "initial": "涵",
+   "avatarHue": 280
+  },
+  "items": [
+   {
+    "sku": "QM-TB-OAK-160",
+    "name": "北欧白橡木餐桌 1.6m",
+    "qty": 1,
+    "unitPrice": 2980
+   },
+   {
+    "sku": "QM-CH-WIN-01",
+    "name": "温莎实木餐椅",
+    "qty": 6,
+    "unitPrice": 399
+   }
+  ],
+  "amount": 5374,
+  "channel": "jd",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T10:53:00+08:00",
+  "address": "江苏省南京市 建邺区",
+  "urgent": false,
+  "remarks": [
+   {
+    "by": "u_jiahao",
+    "byName": "何嘉豪",
+    "at": "2026-09-06T11:20:00+08:00",
+    "text": "1.6m 餐桌杭州仓仅剩 9 张，本单已锁定 1 张，明早随德邦大件出。"
+   }
+  ]
+ },
+ {
+  "id": "SO-20260906-0036",
+  "placedAt": "2026-09-06T10:05:00+08:00",
+  "customer": {
+   "name": "何静文",
+   "phoneMasked": "131****4470",
+   "initial": "文",
+   "avatarHue": 190
+  },
+  "items": [
+   {
+    "sku": "QM-CT-LIN-250",
+    "name": "亚麻遮光窗帘 2.5m",
+    "qty": 2,
+    "unitPrice": 459
+   }
+  ],
+  "amount": 918,
+  "channel": "tmall",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T10:06:00+08:00",
+  "address": "浙江省温州市 鹿城区",
+  "urgent": false,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0027",
+  "placedAt": "2026-09-06T09:20:00+08:00",
+  "customer": {
+   "name": "吴天宇",
+   "phoneMasked": "187****2058",
+   "initial": "宇",
+   "avatarHue": 45
+  },
+  "items": [
+   {
+    "sku": "QM-ST-RTN-3",
+    "name": "藤编收纳篓三件套",
+    "qty": 2,
+    "unitPrice": 168
+   }
+  ],
+  "amount": 336,
+  "channel": "tmall",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T09:21:00+08:00",
+  "shippedAt": "2026-09-06T14:05:00+08:00",
+  "trackingNo": "ZT7538 1290 6647",
+  "address": "福建省福州市 鼓楼区",
+  "carrier": "中通快递",
+  "logistics": [
+   {
+    "at": "2026-09-06T14:05:00+08:00",
+    "text": "杭州仓已出库，中通快递已揽收"
+   },
+   {
+    "at": "2026-09-07T00:05:00+08:00",
+    "text": "到达 福州 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0018",
+  "placedAt": "2026-09-06T08:47:00+08:00",
+  "customer": {
+   "name": "朱敏敏",
+   "phoneMasked": "137****9013",
+   "initial": "敏",
+   "avatarHue": 240
+  },
+  "items": [
+   {
+    "sku": "QM-PL-CLD-45",
+    "name": "云朵羊羔绒抱枕 45×45",
+    "qty": 2,
+    "unitPrice": 89
+   },
+   {
+    "sku": "QM-DF-RD-100",
+    "name": "无火香薰藤条 100ml",
+    "qty": 1,
+    "unitPrice": 98
+   }
+  ],
+  "amount": 276,
+  "channel": "miniapp",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T08:48:00+08:00",
+  "address": "浙江省杭州市 西湖区",
+  "urgent": false,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260906-0009",
+  "placedAt": "2026-09-06T07:31:00+08:00",
+  "customer": {
+   "name": "徐嘉良",
+   "phoneMasked": "159****7726",
+   "initial": "良",
+   "avatarHue": 105
+  },
+  "items": [
+   {
+    "sku": "QM-LP-OAK-01",
+    "name": "白橡木落地灯",
+    "qty": 1,
+    "unitPrice": 699
+   }
+  ],
+  "amount": 699,
+  "channel": "douyin",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-06T07:32:00+08:00",
+  "shippedAt": "2026-09-06T11:50:00+08:00",
+  "trackingNo": "SF1436 5591 0032",
+  "address": "湖北省武汉市 武昌区",
+  "carrier": "顺丰速运",
+  "logistics": [
+   {
+    "at": "2026-09-06T11:50:00+08:00",
+    "text": "杭州仓已出库，顺丰速运已揽收"
+   },
+   {
+    "at": "2026-09-06T21:50:00+08:00",
+    "text": "到达 武汉 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260905-0115",
+  "placedAt": "2026-09-05T22:48:00+08:00",
+  "customer": {
+   "name": "马晓彤",
+   "phoneMasked": "135****3120",
+   "initial": "彤",
+   "avatarHue": 320
+  },
+  "items": [
+   {
+    "sku": "QM-NS-WAL-2D",
+    "name": "胡桃木床头柜（双抽）",
+    "qty": 2,
+    "unitPrice": 899
+   }
+  ],
+  "amount": 1798,
+  "channel": "tmall",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-05T22:49:00+08:00",
+  "address": "浙江省绍兴市 越城区",
+  "urgent": false,
+  "stockout": true,
+  "remarks": [
+   {
+    "by": "u_jiahao",
+    "byName": "何嘉豪",
+    "at": "2026-09-06T09:10:00+08:00",
+    "text": "床头柜缺货，等 PO-20260906-003 之前的樟里补货到仓（预计 09-09）。"
+   }
+  ]
+ },
+ {
+  "id": "SO-20260905-0109",
+  "placedAt": "2026-09-05T21:30:00+08:00",
+  "customer": {
+   "name": "高雅琪",
+   "phoneMasked": "186****8834",
+   "initial": "琪",
+   "avatarHue": 350
+  },
+  "items": [
+   {
+    "sku": "QM-CT-LIN-250",
+    "name": "亚麻遮光窗帘 2.5m",
+    "qty": 1,
+    "unitPrice": 459
+   },
+   {
+    "sku": "QM-PL-LIN-50",
+    "name": "亚麻素色抱枕 50×50",
+    "qty": 2,
+    "unitPrice": 79
+   }
+  ],
+  "amount": 617,
+  "channel": "douyin",
+  "status": "refunding",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-05T21:31:00+08:00",
+  "address": "浙江省杭州市 西湖区",
+  "refundReason": "颜色与图片不符",
+  "refundRequestedAt": "2026-09-06T09:42:00+08:00",
+  "remarks": [
+   {
+    "by": "u_yuwei",
+    "byName": "唐雨薇",
+    "at": "2026-09-06T10:05:00+08:00",
+    "text": "已向买家说明亚麻色差范围，买家坚持退货，同意退货退款。"
+   }
+  ]
+ },
+ {
+  "id": "SO-20260905-0102",
+  "placedAt": "2026-09-05T20:15:00+08:00",
+  "customer": {
+   "name": "罗志强",
+   "phoneMasked": "138****6602",
+   "initial": "强",
+   "avatarHue": 20
+  },
+  "items": [
+   {
+    "sku": "QM-SH-WAL-120",
+    "name": "胡桃木置物架 1.2m",
+    "qty": 1,
+    "unitPrice": 1180
+   }
+  ],
+  "amount": 1180,
+  "channel": "jd",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-05T20:16:00+08:00",
+  "shippedAt": "2026-09-06T10:20:00+08:00",
+  "trackingNo": "JDV0193 2746 5528",
+  "address": "江苏省无锡市 滨湖区",
+  "carrier": "京东物流",
+  "logistics": [
+   {
+    "at": "2026-09-06T10:20:00+08:00",
+    "text": "杭州仓已出库，京东物流已揽收"
+   },
+   {
+    "at": "2026-09-06T20:20:00+08:00",
+    "text": "到达 无锡 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260905-0094",
+  "placedAt": "2026-09-05T18:40:00+08:00",
+  "customer": {
+   "name": "黄可欣",
+   "phoneMasked": "150****2275",
+   "initial": "欣",
+   "avatarHue": 285
+  },
+  "items": [
+   {
+    "sku": "QM-PL-CLD-45",
+    "name": "云朵羊羔绒抱枕 45×45",
+    "qty": 6,
+    "unitPrice": 89
+   }
+  ],
+  "amount": 534,
+  "channel": "douyin",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-05T18:41:00+08:00",
+  "address": "广东省广州市 天河区",
+  "urgent": true,
+  "stockout": true,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260905-0083",
+  "placedAt": "2026-09-05T16:22:00+08:00",
+  "customer": {
+   "name": "张沐阳",
+   "phoneMasked": "133****1190",
+   "initial": "阳",
+   "avatarHue": 70
+  },
+  "items": [
+   {
+    "sku": "QM-TB-OAK-140",
+    "name": "北欧白橡木餐桌 1.4m",
+    "qty": 1,
+    "unitPrice": 2680
+   },
+   {
+    "sku": "QM-CH-WIN-01",
+    "name": "温莎实木餐椅",
+    "qty": 4,
+    "unitPrice": 399
+   }
+  ],
+  "amount": 4276,
+  "channel": "tmall",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-05T16:23:00+08:00",
+  "shippedAt": "2026-09-06T09:35:00+08:00",
+  "trackingNo": "DB3106 7742 0911",
+  "address": "浙江省嘉兴市 南湖区",
+  "carrier": "德邦快递",
+  "logistics": [
+   {
+    "at": "2026-09-06T09:35:00+08:00",
+    "text": "杭州仓已出库，德邦快递已揽收"
+   },
+   {
+    "at": "2026-09-06T19:35:00+08:00",
+    "text": "到达 嘉兴 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260905-0071",
+  "placedAt": "2026-09-05T14:05:00+08:00",
+  "customer": {
+   "name": "宋佩珊",
+   "phoneMasked": "139****5548",
+   "initial": "珊",
+   "avatarHue": 10
+  },
+  "items": [
+   {
+    "sku": "QM-DF-RD-100",
+    "name": "无火香薰藤条 100ml",
+    "qty": 2,
+    "unitPrice": 98
+   },
+   {
+    "sku": "QM-CD-SOY-200",
+    "name": "大豆蜡香薰蜡烛 200g",
+    "qty": 1,
+    "unitPrice": 129
+   }
+  ],
+  "amount": 325,
+  "channel": "offline",
+  "status": "completed",
+  "store": "杭州湖滨店",
+  "completedAt": "2026-09-05T14:05:00+08:00",
+  "remarks": []
+ },
+ {
+  "id": "SO-20260905-0062",
+  "placedAt": "2026-09-05T12:30:00+08:00",
+  "customer": {
+   "name": "邓凯文",
+   "phoneMasked": "155****7032",
+   "initial": "文",
+   "avatarHue": 215
+  },
+  "items": [
+   {
+    "sku": "QM-ST-RTN-3",
+    "name": "藤编收纳篓三件套",
+    "qty": 1,
+    "unitPrice": 168
+   }
+  ],
+  "amount": 168,
+  "channel": "tmall",
+  "status": "cancelled",
+  "warehouse": "杭州仓",
+  "cancelledAt": "2026-09-06T12:30:00+08:00",
+  "cancelReason": "超时未付款，系统自动取消",
+  "remarks": []
+ },
+ {
+  "id": "SO-20260905-0049",
+  "placedAt": "2026-09-05T10:48:00+08:00",
+  "customer": {
+   "name": "曹雨欣",
+   "phoneMasked": "136****9908",
+   "initial": "欣",
+   "avatarHue": 305
+  },
+  "items": [
+   {
+    "sku": "QM-CT-LIN-300",
+    "name": "亚麻遮光窗帘 3.0m",
+    "qty": 1,
+    "unitPrice": 529
+   }
+  ],
+  "amount": 529,
+  "channel": "miniapp",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-05T10:49:00+08:00",
+  "shippedAt": "2026-09-05T17:10:00+08:00",
+  "trackingNo": "ZT7538 1188 4420",
+  "address": "浙江省杭州市 余杭区",
+  "carrier": "中通快递",
+  "logistics": [
+   {
+    "at": "2026-09-05T17:10:00+08:00",
+    "text": "杭州仓已出库，中通快递已揽收"
+   },
+   {
+    "at": "2026-09-06T03:10:00+08:00",
+    "text": "到达 杭州 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260905-0031",
+  "placedAt": "2026-09-05T09:12:00+08:00",
+  "customer": {
+   "name": "谭子墨",
+   "phoneMasked": "188****4461",
+   "initial": "墨",
+   "avatarHue": 140
+  },
+  "items": [
+   {
+    "sku": "QM-ST-RTN-L",
+    "name": "藤编脏衣篓（带盖）",
+    "qty": 2,
+    "unitPrice": 139
+   }
+  ],
+  "amount": 278,
+  "channel": "jd",
+  "status": "completed",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-05T09:13:00+08:00",
+  "shippedAt": "2026-09-05T15:30:00+08:00",
+  "trackingNo": "JDV0193 2701 8836",
+  "completedAt": "2026-09-06T14:20:00+08:00",
+  "address": "浙江省杭州市 上城区",
+  "carrier": "京东物流",
+  "logistics": [
+   {
+    "at": "2026-09-05T15:30:00+08:00",
+    "text": "杭州仓已出库，京东物流已揽收"
+   },
+   {
+    "at": "2026-09-06T01:30:00+08:00",
+    "text": "到达 杭州 转运中心"
+   },
+   {
+    "at": "2026-09-06T11:20:00+08:00",
+    "text": "派送中，快递员已联系收件人"
+   },
+   {
+    "at": "2026-09-06T14:20:00+08:00",
+    "text": "已签收，本人签收"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260905-0016",
+  "placedAt": "2026-09-05T08:05:00+08:00",
+  "customer": {
+   "name": "袁梓萌",
+   "phoneMasked": "137****3364",
+   "initial": "萌",
+   "avatarHue": 255
+  },
+  "items": [
+   {
+    "sku": "QM-RG-WL-160",
+    "name": "新西兰羊毛地毯 1.6×2.3m",
+    "qty": 1,
+    "unitPrice": 1290
+   },
+   {
+    "sku": "QM-PL-LIN-50",
+    "name": "亚麻素色抱枕 50×50",
+    "qty": 2,
+    "unitPrice": 79
+   }
+  ],
+  "amount": 1448,
+  "channel": "tmall",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-05T08:06:00+08:00",
+  "shippedAt": "2026-09-05T16:00:00+08:00",
+  "trackingNo": "SF1436 5470 2299",
+  "address": "山东省青岛市 市南区",
+  "carrier": "顺丰速运",
+  "logistics": [
+   {
+    "at": "2026-09-05T16:00:00+08:00",
+    "text": "杭州仓已出库，顺丰速运已揽收"
+   },
+   {
+    "at": "2026-09-06T02:00:00+08:00",
+    "text": "到达 青岛 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260904-0096",
+  "placedAt": "2026-09-04T21:50:00+08:00",
+  "customer": {
+   "name": "冯启航",
+   "phoneMasked": "152****8801",
+   "initial": "航",
+   "avatarHue": 175
+  },
+  "items": [
+   {
+    "sku": "QM-SF-LIN-3",
+    "name": "亚麻三人沙发",
+    "qty": 1,
+    "unitPrice": 3960
+   },
+   {
+    "sku": "QM-PL-LIN-50",
+    "name": "亚麻素色抱枕 50×50",
+    "qty": 4,
+    "unitPrice": 79
+   }
+  ],
+  "amount": 4276,
+  "channel": "douyin",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-04T21:51:00+08:00",
+  "address": "江西省南昌市 红谷滩区",
+  "urgent": false,
+  "remarks": [
+   {
+    "by": "u_jiahao",
+    "byName": "何嘉豪",
+    "at": "2026-09-05T09:30:00+08:00",
+    "text": "沙发走德邦大件，需预约客户收货时间，客户 9 月 7 日前不在家。"
+   }
+  ]
+ },
+ {
+  "id": "SO-20260904-0088",
+  "placedAt": "2026-09-04T19:12:00+08:00",
+  "customer": {
+   "name": "杜雪莹",
+   "phoneMasked": "135****2207",
+   "initial": "莹",
+   "avatarHue": 35
+  },
+  "items": [
+   {
+    "sku": "QM-NS-WAL-2D",
+    "name": "胡桃木床头柜（双抽）",
+    "qty": 1,
+    "unitPrice": 899
+   }
+  ],
+  "amount": 899,
+  "channel": "tmall",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-04T19:13:00+08:00",
+  "shippedAt": "2026-09-05T10:40:00+08:00",
+  "trackingNo": "SF1436 5433 7701",
+  "address": "浙江省湖州市 吴兴区",
+  "carrier": "顺丰速运",
+  "logistics": [
+   {
+    "at": "2026-09-05T10:40:00+08:00",
+    "text": "杭州仓已出库，顺丰速运已揽收"
+   },
+   {
+    "at": "2026-09-05T20:40:00+08:00",
+    "text": "到达 湖州 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260904-0075",
+  "placedAt": "2026-09-04T16:30:00+08:00",
+  "customer": {
+   "name": "蒋乐怡",
+   "phoneMasked": "186****6690",
+   "initial": "怡",
+   "avatarHue": 225
+  },
+  "items": [
+   {
+    "sku": "QM-NS-WAL-2D",
+    "name": "胡桃木床头柜（双抽）",
+    "qty": 2,
+    "unitPrice": 899
+   },
+   {
+    "sku": "QM-LP-OAK-01",
+    "name": "白橡木落地灯",
+    "qty": 1,
+    "unitPrice": 699
+   }
+  ],
+  "amount": 2497,
+  "channel": "jd",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-04T16:31:00+08:00",
+  "address": "上海市 浦东新区",
+  "urgent": false,
+  "stockout": true,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260904-0060",
+  "placedAt": "2026-09-04T13:45:00+08:00",
+  "customer": {
+   "name": "沈天翔",
+   "phoneMasked": "131****7745",
+   "initial": "翔",
+   "avatarHue": 115
+  },
+  "items": [
+   {
+    "sku": "QM-CH-WIN-01",
+    "name": "温莎实木餐椅",
+    "qty": 2,
+    "unitPrice": 399
+   }
+  ],
+  "amount": 798,
+  "channel": "offline",
+  "status": "completed",
+  "store": "杭州湖滨店",
+  "completedAt": "2026-09-04T13:45:00+08:00",
+  "remarks": []
+ },
+ {
+  "id": "SO-20260904-0047",
+  "placedAt": "2026-09-04T11:20:00+08:00",
+  "customer": {
+   "name": "程琳琳",
+   "phoneMasked": "158****0016",
+   "initial": "琳",
+   "avatarHue": 345
+  },
+  "items": [
+   {
+    "sku": "QM-PL-CLD-45",
+    "name": "云朵羊羔绒抱枕 45×45",
+    "qty": 3,
+    "unitPrice": 89
+   }
+  ],
+  "amount": 267,
+  "channel": "douyin",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-04T11:21:00+08:00",
+  "shippedAt": "2026-09-04T17:20:00+08:00",
+  "trackingNo": "ZT7538 1052 3378",
+  "address": "四川省成都市 武侯区",
+  "carrier": "中通快递",
+  "logistics": [
+   {
+    "at": "2026-09-04T17:20:00+08:00",
+    "text": "杭州仓已出库，中通快递已揽收"
+   },
+   {
+    "at": "2026-09-05T03:20:00+08:00",
+    "text": "到达 成都 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260904-0033",
+  "placedAt": "2026-09-04T09:58:00+08:00",
+  "customer": {
+   "name": "汪浩宇",
+   "phoneMasked": "137****5529",
+   "initial": "宇",
+   "avatarHue": 65
+  },
+  "items": [
+   {
+    "sku": "QM-CH-WIN-01",
+    "name": "温莎实木餐椅",
+    "qty": 4,
+    "unitPrice": 399
+   }
+  ],
+  "amount": 1596,
+  "channel": "tmall",
+  "status": "refunding",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-04T09:59:00+08:00",
+  "shippedAt": "2026-09-04T16:30:00+08:00",
+  "trackingNo": "DB3106 7690 2244",
+  "address": "浙江省杭州市 临平区",
+  "refundReason": "少发 1 件（实收 3 把）",
+  "refundRequestedAt": "2026-09-06T11:05:00+08:00",
+  "carrier": "德邦快递",
+  "logistics": [
+   {
+    "at": "2026-09-04T16:30:00+08:00",
+    "text": "杭州仓已出库，德邦快递已揽收"
+   },
+   {
+    "at": "2026-09-05T02:30:00+08:00",
+    "text": "到达 杭州 转运中心"
+   }
+  ],
+  "remarks": [
+   {
+    "by": "u_yuwei",
+    "byName": "唐雨薇",
+    "at": "2026-09-06T11:30:00+08:00",
+    "text": "核对出库单确为 3 把，补发 1 把并退运费差额 ¥0，买家同意。"
+   }
+  ]
+ },
+ {
+  "id": "SO-20260904-0021",
+  "placedAt": "2026-09-04T08:40:00+08:00",
+  "customer": {
+   "name": "姜依依",
+   "phoneMasked": "150****8890",
+   "initial": "依",
+   "avatarHue": 295
+  },
+  "items": [
+   {
+    "sku": "QM-CD-SOY-200",
+    "name": "大豆蜡香薰蜡烛 200g",
+    "qty": 3,
+    "unitPrice": 129
+   }
+  ],
+  "amount": 387,
+  "channel": "tmall",
+  "status": "completed",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-04T08:41:00+08:00",
+  "shippedAt": "2026-09-04T15:10:00+08:00",
+  "trackingNo": "ZT7538 1009 7756",
+  "completedAt": "2026-09-06T10:12:00+08:00",
+  "address": "浙江省金华市 婺城区",
+  "carrier": "中通快递",
+  "logistics": [
+   {
+    "at": "2026-09-04T15:10:00+08:00",
+    "text": "杭州仓已出库，中通快递已揽收"
+   },
+   {
+    "at": "2026-09-05T01:10:00+08:00",
+    "text": "到达 金华 转运中心"
+   },
+   {
+    "at": "2026-09-06T07:12:00+08:00",
+    "text": "派送中，快递员已联系收件人"
+   },
+   {
+    "at": "2026-09-06T10:12:00+08:00",
+    "text": "已签收，本人签收"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260903-0131",
+  "placedAt": "2026-09-03T23:20:00+08:00",
+  "customer": {
+   "name": "刘星辰",
+   "phoneMasked": "138****4419",
+   "initial": "辰",
+   "avatarHue": 5
+  },
+  "items": [
+   {
+    "sku": "QM-PL-CLD-45",
+    "name": "云朵羊羔绒抱枕 45×45",
+    "qty": 2,
+    "unitPrice": 89
+   },
+   {
+    "sku": "QM-CD-SOY-200",
+    "name": "大豆蜡香薰蜡烛 200g",
+    "qty": 1,
+    "unitPrice": 129
+   }
+  ],
+  "amount": 307,
+  "channel": "douyin",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-03T23:21:00+08:00",
+  "shippedAt": "2026-09-04T15:40:00+08:00",
+  "trackingNo": "ZT7538 0987 2210",
+  "address": "河南省郑州市 金水区",
+  "carrier": "中通快递",
+  "logistics": [
+   {
+    "at": "2026-09-04T15:40:00+08:00",
+    "text": "杭州仓已出库，中通快递已揽收"
+   },
+   {
+    "at": "2026-09-05T01:40:00+08:00",
+    "text": "到达 郑州 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260903-0118",
+  "placedAt": "2026-09-03T22:05:00+08:00",
+  "customer": {
+   "name": "钟晓萱",
+   "phoneMasked": "159****3372",
+   "initial": "萱",
+   "avatarHue": 265
+  },
+  "items": [
+   {
+    "sku": "QM-PL-CLD-45",
+    "name": "云朵羊羔绒抱枕 45×45",
+    "qty": 5,
+    "unitPrice": 89
+   }
+  ],
+  "amount": 445,
+  "channel": "douyin",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-03T22:06:00+08:00",
+  "address": "湖南省长沙市 岳麓区",
+  "urgent": false,
+  "stockout": true,
+  "remarks": []
+ },
+ {
+  "id": "SO-20260903-0102",
+  "placedAt": "2026-09-03T21:30:00+08:00",
+  "customer": {
+   "name": "石俊杰",
+   "phoneMasked": "133****6058",
+   "initial": "杰",
+   "avatarHue": 180
+  },
+  "items": [
+   {
+    "sku": "QM-DF-RD-100",
+    "name": "无火香薰藤条 100ml",
+    "qty": 2,
+    "unitPrice": 98
+   }
+  ],
+  "amount": 196,
+  "channel": "douyin",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-03T21:31:00+08:00",
+  "shippedAt": "2026-09-04T14:20:00+08:00",
+  "trackingNo": "ZT7538 0962 4483",
+  "address": "江苏省常州市 武进区",
+  "carrier": "中通快递",
+  "logistics": [
+   {
+    "at": "2026-09-04T14:20:00+08:00",
+    "text": "杭州仓已出库，中通快递已揽收"
+   },
+   {
+    "at": "2026-09-05T00:20:00+08:00",
+    "text": "到达 常州 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260903-0087",
+  "placedAt": "2026-09-03T20:44:00+08:00",
+  "customer": {
+   "name": "苏婉婷",
+   "phoneMasked": "136****2214",
+   "initial": "婷",
+   "avatarHue": 235
+  },
+  "items": [
+   {
+    "sku": "QM-NS-WAL-2D",
+    "name": "胡桃木床头柜（双抽）",
+    "qty": 2,
+    "unitPrice": 899
+   }
+  ],
+  "amount": 1798,
+  "channel": "douyin",
+  "status": "pending_shipment",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-03T20:45:00+08:00",
+  "address": "浙江省杭州市 萧山区",
+  "urgent": false,
+  "stockout": true,
+  "remarks": [
+   {
+    "by": "u_yuwei",
+    "byName": "唐雨薇",
+    "at": "2026-09-05T16:20:00+08:00",
+    "text": "客户催单两次，说明缺货预计 09-09 到货后优先发出。"
+   }
+  ]
+ },
+ {
+  "id": "SO-20260903-0066",
+  "placedAt": "2026-09-03T19:52:00+08:00",
+  "customer": {
+   "name": "潘思颖",
+   "phoneMasked": "187****9931",
+   "initial": "颖",
+   "avatarHue": 210
+  },
+  "items": [
+   {
+    "sku": "QM-ST-RTN-3",
+    "name": "藤编收纳篓三件套",
+    "qty": 1,
+    "unitPrice": 168
+   },
+   {
+    "sku": "QM-ST-RTN-L",
+    "name": "藤编脏衣篓（带盖）",
+    "qty": 1,
+    "unitPrice": 139
+   }
+  ],
+  "amount": 307,
+  "channel": "douyin",
+  "status": "completed",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-03T19:53:00+08:00",
+  "shippedAt": "2026-09-04T10:30:00+08:00",
+  "trackingNo": "ZT7538 0911 6640",
+  "completedAt": "2026-09-06T09:48:00+08:00",
+  "address": "浙江省台州市 椒江区",
+  "carrier": "中通快递",
+  "logistics": [
+   {
+    "at": "2026-09-04T10:30:00+08:00",
+    "text": "杭州仓已出库，中通快递已揽收"
+   },
+   {
+    "at": "2026-09-04T20:30:00+08:00",
+    "text": "到达 台州 转运中心"
+   },
+   {
+    "at": "2026-09-06T06:48:00+08:00",
+    "text": "派送中，快递员已联系收件人"
+   },
+   {
+    "at": "2026-09-06T09:48:00+08:00",
+    "text": "已签收，本人签收"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260903-0045",
+  "placedAt": "2026-09-03T18:10:00+08:00",
+  "customer": {
+   "name": "范文轩",
+   "phoneMasked": "135****8127",
+   "initial": "轩",
+   "avatarHue": 50
+  },
+  "items": [
+   {
+    "sku": "QM-TB-OAK-140",
+    "name": "北欧白橡木餐桌 1.4m",
+    "qty": 1,
+    "unitPrice": 2680
+   }
+  ],
+  "amount": 2680,
+  "channel": "tmall",
+  "status": "shipped",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-03T18:11:00+08:00",
+  "shippedAt": "2026-09-04T09:50:00+08:00",
+  "trackingNo": "DB3106 7602 1138",
+  "address": "安徽省芜湖市 镜湖区",
+  "carrier": "德邦快递",
+  "logistics": [
+   {
+    "at": "2026-09-04T09:50:00+08:00",
+    "text": "杭州仓已出库，德邦快递已揽收"
+   },
+   {
+    "at": "2026-09-04T19:50:00+08:00",
+    "text": "到达 芜湖 转运中心"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260903-0029",
+  "placedAt": "2026-09-03T15:30:00+08:00",
+  "customer": {
+   "name": "卢梓涵",
+   "phoneMasked": "152****4405",
+   "initial": "涵",
+   "avatarHue": 315
+  },
+  "items": [
+   {
+    "sku": "QM-CT-LIN-250",
+    "name": "亚麻遮光窗帘 2.5m",
+    "qty": 2,
+    "unitPrice": 459
+   }
+  ],
+  "amount": 918,
+  "channel": "jd",
+  "status": "cancelled",
+  "warehouse": "杭州仓",
+  "cancelledAt": "2026-09-03T15:36:00+08:00",
+  "cancelReason": "买家取消：收货地址填错，已重新下单",
+  "remarks": []
+ },
+ {
+  "id": "SO-20260903-0012",
+  "placedAt": "2026-09-03T10:15:00+08:00",
+  "customer": {
+   "name": "余泽宇",
+   "phoneMasked": "139****7180",
+   "initial": "宇",
+   "avatarHue": 130
+  },
+  "items": [
+   {
+    "sku": "QM-PL-LIN-50",
+    "name": "亚麻素色抱枕 50×50",
+    "qty": 2,
+    "unitPrice": 79
+   },
+   {
+    "sku": "QM-DF-RD-100",
+    "name": "无火香薰藤条 100ml",
+    "qty": 1,
+    "unitPrice": 98
+   }
+  ],
+  "amount": 256,
+  "channel": "miniapp",
+  "status": "completed",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-03T10:16:00+08:00",
+  "shippedAt": "2026-09-03T16:45:00+08:00",
+  "trackingNo": "ZT7538 0866 3392",
+  "completedAt": "2026-09-05T12:30:00+08:00",
+  "address": "浙江省杭州市 西湖区",
+  "carrier": "中通快递",
+  "logistics": [
+   {
+    "at": "2026-09-03T16:45:00+08:00",
+    "text": "杭州仓已出库，中通快递已揽收"
+   },
+   {
+    "at": "2026-09-04T02:45:00+08:00",
+    "text": "到达 杭州 转运中心"
+   },
+   {
+    "at": "2026-09-05T09:30:00+08:00",
+    "text": "派送中，快递员已联系收件人"
+   },
+   {
+    "at": "2026-09-05T12:30:00+08:00",
+    "text": "已签收，本人签收"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260902-0097",
+  "placedAt": "2026-09-02T21:10:00+08:00",
+  "customer": {
+   "name": "尹若曦",
+   "phoneMasked": "186****3306",
+   "initial": "曦",
+   "avatarHue": 80
+  },
+  "items": [
+   {
+    "sku": "QM-CD-SOY-200",
+    "name": "大豆蜡香薰蜡烛 200g",
+    "qty": 2,
+    "unitPrice": 129
+   }
+  ],
+  "amount": 258,
+  "channel": "douyin",
+  "status": "completed",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-02T21:11:00+08:00",
+  "shippedAt": "2026-09-03T10:20:00+08:00",
+  "trackingNo": "ZT7538 0790 4471",
+  "completedAt": "2026-09-05T09:20:00+08:00",
+  "address": "湖北省宜昌市 西陵区",
+  "carrier": "中通快递",
+  "logistics": [
+   {
+    "at": "2026-09-03T10:20:00+08:00",
+    "text": "杭州仓已出库，中通快递已揽收"
+   },
+   {
+    "at": "2026-09-03T20:20:00+08:00",
+    "text": "到达 宜昌 转运中心"
+   },
+   {
+    "at": "2026-09-05T06:20:00+08:00",
+    "text": "派送中，快递员已联系收件人"
+   },
+   {
+    "at": "2026-09-05T09:20:00+08:00",
+    "text": "已签收，本人签收"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260902-0074",
+  "placedAt": "2026-09-02T17:25:00+08:00",
+  "customer": {
+   "name": "梁承泽",
+   "phoneMasked": "131****9962",
+   "initial": "泽",
+   "avatarHue": 165
+  },
+  "items": [
+   {
+    "sku": "QM-TB-OAK-160",
+    "name": "北欧白橡木餐桌 1.6m",
+    "qty": 1,
+    "unitPrice": 2980
+   }
+  ],
+  "amount": 2980,
+  "channel": "jd",
+  "status": "refunding",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-02T17:26:00+08:00",
+  "shippedAt": "2026-09-03T09:30:00+08:00",
+  "trackingNo": "DB3106 7511 8827",
+  "address": "江苏省徐州市 云龙区",
+  "refundReason": "桌面运输划痕",
+  "refundRequestedAt": "2026-09-06T15:12:00+08:00",
+  "carrier": "德邦快递",
+  "logistics": [
+   {
+    "at": "2026-09-03T09:30:00+08:00",
+    "text": "杭州仓已出库，德邦快递已揽收"
+   },
+   {
+    "at": "2026-09-03T19:30:00+08:00",
+    "text": "到达 徐州 转运中心"
+   }
+  ],
+  "remarks": [
+   {
+    "by": "u_yuwei",
+    "byName": "唐雨薇",
+    "at": "2026-09-06T15:40:00+08:00",
+    "text": "已请买家拍照，划痕约 6cm，走德邦运损理赔，同时给买家补偿 ¥200 或换货。"
+   }
+  ]
+ },
+ {
+  "id": "SO-20260902-0058",
+  "placedAt": "2026-09-02T14:00:00+08:00",
+  "customer": {
+   "name": "贺明轩",
+   "phoneMasked": "158****5511",
+   "initial": "轩",
+   "avatarHue": 355
+  },
+  "items": [
+   {
+    "sku": "QM-NS-WAL-2D",
+    "name": "胡桃木床头柜（双抽）",
+    "qty": 1,
+    "unitPrice": 899
+   },
+   {
+    "sku": "QM-PL-CLD-45",
+    "name": "云朵羊羔绒抱枕 45×45",
+    "qty": 2,
+    "unitPrice": 89
+   }
+  ],
+  "amount": 1077,
+  "channel": "tmall",
+  "status": "completed",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-02T14:01:00+08:00",
+  "shippedAt": "2026-09-02T17:30:00+08:00",
+  "trackingNo": "SF1436 5209 3316",
+  "completedAt": "2026-09-04T11:05:00+08:00",
+  "address": "浙江省杭州市 钱塘区",
+  "carrier": "顺丰速运",
+  "logistics": [
+   {
+    "at": "2026-09-02T17:30:00+08:00",
+    "text": "杭州仓已出库，顺丰速运已揽收"
+   },
+   {
+    "at": "2026-09-03T03:30:00+08:00",
+    "text": "到达 杭州 转运中心"
+   },
+   {
+    "at": "2026-09-04T08:05:00+08:00",
+    "text": "派送中，快递员已联系收件人"
+   },
+   {
+    "at": "2026-09-04T11:05:00+08:00",
+    "text": "已签收，本人签收"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260902-0031",
+  "placedAt": "2026-09-02T10:30:00+08:00",
+  "customer": {
+   "name": "秦雨薇",
+   "phoneMasked": "137****2098",
+   "initial": "薇",
+   "avatarHue": 100
+  },
+  "items": [
+   {
+    "sku": "QM-RG-WL-160",
+    "name": "新西兰羊毛地毯 1.6×2.3m",
+    "qty": 1,
+    "unitPrice": 1290
+   }
+  ],
+  "amount": 1290,
+  "channel": "miniapp",
+  "status": "completed",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-02T10:31:00+08:00",
+  "shippedAt": "2026-09-02T16:10:00+08:00",
+  "trackingNo": "SF1436 5187 0045",
+  "completedAt": "2026-09-04T10:40:00+08:00",
+  "address": "浙江省宁波市 海曙区",
+  "carrier": "顺丰速运",
+  "logistics": [
+   {
+    "at": "2026-09-02T16:10:00+08:00",
+    "text": "杭州仓已出库，顺丰速运已揽收"
+   },
+   {
+    "at": "2026-09-03T02:10:00+08:00",
+    "text": "到达 宁波 转运中心"
+   },
+   {
+    "at": "2026-09-04T07:40:00+08:00",
+    "text": "派送中，快递员已联系收件人"
+   },
+   {
+    "at": "2026-09-04T10:40:00+08:00",
+    "text": "已签收，本人签收"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260901-0079",
+  "placedAt": "2026-09-01T18:20:00+08:00",
+  "customer": {
+   "name": "孟浩",
+   "phoneMasked": "150****4432",
+   "initial": "浩",
+   "avatarHue": 40
+  },
+  "items": [
+   {
+    "sku": "QM-SF-LIN-3",
+    "name": "亚麻三人沙发",
+    "qty": 1,
+    "unitPrice": 3960
+   },
+   {
+    "sku": "QM-PL-LIN-50",
+    "name": "亚麻素色抱枕 50×50",
+    "qty": 2,
+    "unitPrice": 79
+   }
+  ],
+  "amount": 4118,
+  "channel": "tmall",
+  "status": "completed",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-09-01T18:21:00+08:00",
+  "shippedAt": "2026-09-02T09:40:00+08:00",
+  "trackingNo": "DB3106 7433 6602",
+  "completedAt": "2026-09-05T15:20:00+08:00",
+  "address": "江苏省南通市 崇川区",
+  "carrier": "德邦快递",
+  "logistics": [
+   {
+    "at": "2026-09-02T09:40:00+08:00",
+    "text": "杭州仓已出库，德邦快递已揽收"
+   },
+   {
+    "at": "2026-09-02T19:40:00+08:00",
+    "text": "到达 南通 转运中心"
+   },
+   {
+    "at": "2026-09-05T12:20:00+08:00",
+    "text": "派送中，快递员已联系收件人"
+   },
+   {
+    "at": "2026-09-05T15:20:00+08:00",
+    "text": "已签收，本人签收"
+   }
+  ],
+  "remarks": []
+ },
+ {
+  "id": "SO-20260831-0088",
+  "placedAt": "2026-08-31T20:05:00+08:00",
+  "customer": {
+   "name": "韩晓雅",
+   "phoneMasked": "133****7760",
+   "initial": "雅",
+   "avatarHue": 195
+  },
+  "items": [
+   {
+    "sku": "QM-WD-OAK-3",
+    "name": "白橡木三门衣柜",
+    "qty": 1,
+    "unitPrice": 5280
+   }
+  ],
+  "amount": 5280,
+  "channel": "jd",
+  "status": "completed",
+  "warehouse": "杭州仓",
+  "paidAt": "2026-08-31T20:06:00+08:00",
+  "shippedAt": "2026-09-01T10:15:00+08:00",
+  "trackingNo": "DB3106 7360 2280",
+  "completedAt": "2026-09-04T16:35:00+08:00",
+  "address": "浙江省杭州市 富阳区",
+  "carrier": "德邦快递",
+  "logistics": [
+   {
+    "at": "2026-09-01T10:15:00+08:00",
+    "text": "杭州仓已出库，德邦快递已揽收"
+   },
+   {
+    "at": "2026-09-01T20:15:00+08:00",
+    "text": "到达 杭州 转运中心"
+   },
+   {
+    "at": "2026-09-04T13:35:00+08:00",
+    "text": "派送中，快递员已联系收件人"
+   },
+   {
+    "at": "2026-09-04T16:35:00+08:00",
+    "text": "已签收，本人签收"
+   }
+  ],
+  "remarks": []
+ }
+]

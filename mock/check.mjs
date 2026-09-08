@@ -127,8 +127,246 @@ for (const a of activity) {
   }
 }
 
+// ======== 第 2 轮（orders / form / settings / landing / chat）========
+const ordersAll = read("orders-all.json");
+const skus = read("skus.json");
+const suppliers = read("suppliers.json");
+const purchaseForm = read("purchase-form.json");
+const settings = read("settings.json");
+const landing = read("landing.json");
+const chat = read("chat.json");
+const skuById = Object.fromEntries(skus.items.map((s) => [s.sku, s]));
+const supplierById = Object.fromEntries(suppliers.items.map((s) => [s.id, s]));
+const orderById = Object.fromEntries(ordersAll.map((o) => [o.id, o]));
+const dayOrders = Object.fromEntries(series.month.points.map((p) => [p.date, p.orders]));
+const money = (n) => `¥${n.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// ---- orders-all：≥40、倒序、首 5 单 = orders.json、与第 1 轮同口径、状态 ↔ 时间字段、序号 ≤ 当日订单数
+check(ordersAll.length >= 40, `orders-all 须 ≥ 40 单（现 ${ordersAll.length}）`);
+check(ordersAll.every((o, i) => !i || o.placedAt < ordersAll[i - 1].placedAt), "orders-all 须按 placedAt 倒序");
+check(new Set(ordersAll.map((o) => o.id)).size === ordersAll.length, "orders-all 订单号重复");
+orders.forEach((o, i) => {
+  const a = ordersAll[i];
+  check(a && Object.keys(o).every((k) => JSON.stringify(a[k]) === JSON.stringify(o[k])), `orders-all[${i}] 与 orders.json[${i}]（${o.id}）字段不一致`);
+});
+for (const o of ordersAll) {
+  check(Math.abs(o.items.reduce((a, i) => a + i.qty * i.unitPrice, 0) - o.amount) < 0.01, `${o.id}: amount ≠ Σ qty×unitPrice`);
+  check(meta.orderStatuses.includes(o.status), `${o.id}: status 未登记`);
+  check(meta.channels.some((c) => c.key === o.channel), `${o.id}: channel 未登记`);
+  check(o.placedAt <= asOf, `${o.id}: placedAt 晚于 asOf`);
+  const [, ymd, seq] = o.id.match(/^SO-(\d{8})-(\d{4})$/) ?? [];
+  check(ymd === o.placedAt.slice(0, 10).replaceAll("-", ""), `${o.id}: 订单号日期 ≠ placedAt`);
+  const date = o.placedAt.slice(0, 10);
+  if (dayOrders[date] != null) check(Number(seq) >= 1 && Number(seq) <= dayOrders[date], `${o.id}: 序号超过当日订单数 ${dayOrders[date]}`);
+  check(o.customer.initial === o.customer.name.at(-1), `${o.id}: customer.initial ≠ 姓名末字`);
+  for (const it of o.items) {
+    const s = skuById[it.sku];
+    check(s && s.name === it.name && s.unitPrice === it.unitPrice, `${o.id}: 商品 ${it.sku} 与 skus.json 名称/售价不一致`);
+  }
+  check(o.channel === "offline" ? !!o.store && meta.tenant.stores.includes(o.store) : !!o.warehouse && meta.tenant.warehouses.includes(o.warehouse), `${o.id}: 线下单须有 store / 线上单须有 warehouse`);
+  const t = (k) => (o[k] == null || (o[k] <= asOf && o[k] >= o.placedAt)) || failures.push(`${o.id}: ${k} 须在 placedAt ~ asOf 内`);
+  ["paidAt", "shippedAt", "completedAt", "cancelledAt", "refundRequestedAt"].forEach(t);
+  switch (o.status) {
+    case "pending_payment": check(!o.paidAt && o.expiresAt > asOf, `${o.id}: 待付款须无 paidAt 且 expiresAt > asOf`); break;
+    case "pending_shipment": check(o.paidAt && !o.shippedAt && !!o.address, `${o.id}: 待发货须有 paidAt/address、无 shippedAt`); break;
+    case "shipped": check(o.paidAt && o.shippedAt && !o.completedAt && o.carrier && o.trackingNo, `${o.id}: 已发货须有 paidAt/shippedAt/carrier/trackingNo、无 completedAt`); break;
+    case "completed": check(o.completedAt && (o.channel === "offline" || (o.shippedAt && o.shippedAt < o.completedAt)), `${o.id}: 已完成须有 completedAt（线上单还需 shippedAt < completedAt）`); break;
+    case "refunding": check(o.paidAt && o.refundReason && o.refundRequestedAt, `${o.id}: 退款中须有 paidAt/refundReason/refundRequestedAt`); break;
+    case "cancelled": check(o.cancelledAt && o.cancelReason, `${o.id}: 已取消须有 cancelledAt/cancelReason`); break;
+  }
+  if (o.carrier) check(meta.carriers.includes(o.carrier), `${o.id}: carrier 未在 meta 登记`);
+  if (o.shippedAt) {
+    check(Array.isArray(o.logistics) && o.logistics[0]?.at === o.shippedAt && o.logistics.every((e, i) => !i || e.at >= o.logistics[i - 1].at), `${o.id}: logistics 须以 shippedAt 开头且正序`);
+    if (o.completedAt) check(o.logistics.at(-1).at === o.completedAt, `${o.id}: logistics 末条 ≠ completedAt`);
+  }
+  check(Array.isArray(o.remarks), `${o.id}: remarks 须为数组`);
+  for (const r of o.remarks ?? []) {
+    check(team.some((m) => m.id === r.by && m.name === r.byName), `${o.id}: 备注作者 ${r.by} 不在 team`);
+    check(r.at >= o.placedAt && r.at <= asOf && r.text.length <= 200, `${o.id}: 备注时间越界或超 200 字`);
+  }
+}
+const statusCount = Object.fromEntries(meta.orderStatuses.map((s) => [s, ordersAll.filter((o) => o.status === s).length]));
+check(Object.values(statusCount).every((n) => n > 0), `orders-all 须覆盖全部 6 种状态：${JSON.stringify(statusCount)}`);
+check(meta.channels.every((c) => ordersAll.some((o) => o.channel === c.key)), "orders-all 须覆盖全部 5 个渠道");
+check(ordersAll.some((o) => o.urgent) && ordersAll.some((o) => o.stockout), "orders-all 须含 urgent 与 stockout 样例");
+
+// ---- skus：lowStock 口径、供应商存在、与通知 / 动态 / stats 一致
+for (const s of skus.items) {
+  check(s.lowStock === s.stock < s.safetyStock, `${s.sku}: lowStock ≠ stock < safetyStock`);
+  check(!!supplierById[s.supplier], `${s.sku}: supplier ${s.supplier} 不在 suppliers`);
+  check(supplierById[s.supplier]?.categories.includes(s.category), `${s.sku}: 供应商品类不含 ${s.category}`);
+  check(skus.categories.some((c) => c.key === s.category), `${s.sku}: category 未登记`);
+  check(s.cost < s.unitPrice, `${s.sku}: 采购价须低于售价`);
+}
+check(skus.items.filter((s) => s.lowStock).length <= stats.byPeriod.month.lowStock.value, "skus lowStock 数超过 stats.lowStock");
+{
+  const ns = skus.items.find((s) => s.sku === "QM-NS-WAL-2D");
+  const n2 = notifications.items.find((n) => n.type === "inventory");
+  check(ns && n2 && n2.title.includes(`剩余 ${ns.stock} 件`), "床头柜库存 ≠ notifications n_2「剩余 n 件」");
+  const pl = skus.items.find((s) => s.sku === "QM-PL-CLD-45");
+  const act = activity.find((a) => a.type === "inventory" && a.text.includes("安全库存"));
+  check(pl && act && act.text.includes(`调整为 ${pl.safetyStock}`), "抱枕安全库存 ≠ activity 调整值");
+  // 缺货订单：标 stockout 的单至少含 1 个 lowStock SKU；该 SKU 的 weekStockoutOrders 须 ≥ 涉及单数
+  const bySku = {};
+  for (const o of ordersAll.filter((o) => o.stockout)) {
+    const low = o.items.filter((it) => skuById[it.sku]?.lowStock);
+    check(low.length > 0, `${o.id}: 标 stockout 但无 lowStock SKU`);
+    for (const it of low) bySku[it.sku] = (bySku[it.sku] ?? 0) + 1;
+  }
+  for (const [sku, n] of Object.entries(bySku)) check(skuById[sku]?.weekStockoutOrders >= n, `${sku}: weekStockoutOrders < orders-all 中缺货单数 ${n}`);
+}
+
+// ---- suppliers
+for (const s of suppliers.items) {
+  check(purchaseForm.settlementMethods.some((m) => m.key === s.settlement), `${s.id}: settlement 未登记`);
+  check(s.lastOrderAt <= asOf, `${s.id}: lastOrderAt 晚于 asOf`);
+  check(/^\d{3}\*{4}\d{4}$/.test(s.phoneMasked) && s.phoneDemo.length === 11 && s.phoneDemo.startsWith(s.phoneMasked.slice(0, 3)) && s.phoneDemo.endsWith(s.phoneMasked.slice(-4)), `${s.id}: phoneMasked 与 phoneDemo 不一致`);
+}
+check(suppliers.items.some((s) => s.name === "安吉林语木业"), "suppliers 须含第 1 轮已出现的安吉林语木业");
+
+// ---- purchase-form：草稿可验算
+{
+  const d = purchaseForm.draft;
+  const sup = supplierById[d.supplierId];
+  check(sup && sup.contact === d.contact && sup.phoneDemo === d.phone && sup.email === d.email, "draft 联系人/电话/邮箱 ≠ suppliers");
+  check(Math.abs(d.items.reduce((a, i) => a + i.qty * i.unitPrice, 0) - d.subtotal) < 0.01, "draft.subtotal ≠ Σ qty×unitPrice");
+  for (const it of d.items) {
+    const s = skuById[it.sku];
+    check(s && s.name === it.name && s.cost === it.unitPrice && s.supplier === d.supplierId, `draft 商品 ${it.sku} 名称/采购价/供应商不一致`);
+  }
+  check(purchaseForm.warehouses.some((w) => w.key === d.warehouse), "draft.warehouse 未登记");
+  check(purchaseForm.deliverySlots.some((s) => s.key === d.slot), "draft.slot 未登记");
+  check(d.arrivalDate > asOf.slice(0, 10), "draft.arrivalDate 须晚于 asOf 当日");
+  check(d.freightRange[0] >= purchaseForm.freight.min && d.freightRange[1] <= purchaseForm.freight.max && d.freightRange[0] < d.freightRange[1], "draft.freightRange 越界");
+  check(d.attachments.every((n) => purchaseForm.attachments.samples.some((s) => s.name === n && s.status === "done")), "draft.attachments 须为已上传样例");
+  check(d.note.length <= purchaseForm.validation.noteMax, "draft.note 超过 noteMax");
+  check(team.some((m) => m.id === d.createdBy && m.name === d.createdByName), "draft.createdBy 不在 team");
+  check(purchaseForm.success.description.includes(d.poNumber) && purchaseForm.success.description.includes(sup?.name ?? "") && purchaseForm.success.description.includes(d.arrivalDate), "success.description 须含 PO 号 / 供应商 / 到货日");
+  check(purchaseForm.poNumberNext === d.poNumber && new RegExp(`^PO-${asOf.slice(0, 10).replaceAll("-", "")}-\\d{3}$`).test(d.poNumber), "poNumber 须为 asOf 当日的 PO-YYYYMMDD-NNN");
+  const draftSkuLow = skuById["QM-NS-WAL-2D"];
+  const nsPending = ordersAll.filter((o) => o.stockout && o.status === "pending_shipment" && o.items.some((i) => i.sku === "QM-NS-WAL-2D")).length;
+  check(d.note.includes(`库存 ${draftSkuLow.stock}`) && d.note.includes(`安全线 ${draftSkuLow.safetyStock}`) && d.note.includes(`${nsPending} 单待发货缺货`), "draft.note 中床头柜库存/安全线/待发货缺货单数 ≠ skus / orders-all");
+}
+
+// ---- settings：profile = user、members = team、plan = workspace.plan、发票金额 = 计划价
+{
+  const p = settings.profile;
+  check(p.userId === user.id && p.name === user.name && p.initial === user.initial && p.avatarHue === user.avatarHue && p.email === user.email && p.title === user.title, "settings.profile ≠ user.json");
+  check(p.languages.some((l) => l.key === p.language) && p.timezones.some((t) => t.key === p.timezone), "settings.profile 语言/时区未登记");
+  check(p.timezone === meta.timezone, "settings.profile.timezone ≠ meta.timezone");
+  check(p.bio.length <= p.bioMax, "profile.bio 超长");
+  const sec = settings.security;
+  check(sec.sessions.filter((s) => s.current).length === 1 && sec.sessions.every((s) => s.lastActiveAt <= asOf), "sessions 须恰有 1 个 current 且不晚于 asOf");
+  check(sec.sessions.find((s) => s.current).lastActiveAt === asOf, "当前会话 lastActiveAt 应 = asOf");
+  check(sec.passwordUpdatedAt <= asOf, "passwordUpdatedAt 晚于 asOf");
+  const ch = settings.notifications.channels.map((c) => c.key);
+  for (const g of settings.notifications.groups) for (const it of g.items) check(ch.every((k) => typeof it[k] === "boolean"), `notifications.${g.key}.${it.key}: 须对每个 channel 给布尔值`);
+  const tm = settings.team;
+  check(tm.workspaceId === user.workspace.id && tm.workspaceName === user.workspace.name, "settings.team 工作空间 ≠ user.workspace");
+  check(tm.members.length === team.length && tm.members.every((m) => team.some((t) => t.id === m.id)), "settings.team.members ≠ team.json");
+  check(tm.seats.used === tm.members.length && tm.seats.total === settings.billing.seatsIncluded, "seats.used ≠ 成员数 或 seats.total ≠ 计划席位");
+  check(tm.members.every((m) => m.lastActiveAt <= asOf && m.joinedAt <= asOf.slice(0, 10)), "team.members 时间越界");
+  check(tm.members.find((m) => m.id === user.id).lastActiveAt === asOf, "当前用户 lastActiveAt 应 = asOf");
+  check(tm.pendingInvites.every((i) => i.invitedAt <= asOf && team.some((t) => t.id === i.invitedBy) && tm.roles.some((r) => r.key === i.role) && !team.some((t) => t.email === i.email)), "pendingInvites 非法");
+  check(tm.roles.every((r) => team.some((t) => t.role === r.key && t.roleLabel === r.label)), "settings.team.roles 标签 ≠ team.json roleLabel");
+  const b = settings.billing;
+  const cur = b.plans.find((pl) => pl.key === b.plan);
+  check(cur && cur.label === b.planLabel && cur.label === user.workspace.plan && cur.seats === b.seatsIncluded, "billing 当前计划 ≠ user.workspace.plan");
+  check(b.plans.filter((pl) => pl.recommended).length === 1, "billing.plans 须恰有 1 个推荐档");
+  for (const pl of b.plans) check(pl.yearly === pl.monthly * 10 && pl.features.length === b.plans[0].features.length, `${pl.key}: 年付须 = 月付 × 10，功能条数一致`);
+  check(b.plans.every((pl, i) => !i || pl.monthly > b.plans[i - 1].monthly), "billing.plans 须按价格升序");
+  check(b.invoices.every((inv, i) => (!i || inv.issuedAt <= b.invoices[i - 1].issuedAt) && inv.issuedAt <= asOf.slice(0, 10) && b.invoiceStatuses.some((s) => s.key === inv.status)), "invoices 须倒序、不晚于 asOf、状态登记");
+  for (const inv of b.invoices) {
+    const m = inv.description.match(/^(.+?) · (年付|月付)/);
+    if (!m) continue;
+    const pl = b.plans.find((x) => x.label === m[1]);
+    check(pl && inv.amount === (m[2] === "年付" ? pl.yearly : pl.monthly), `${inv.id}: 金额 ≠ ${m[1]}${m[2]}价`);
+  }
+  check(b.renewsAt > asOf.slice(0, 10) && b.invoices[0].description.includes(b.planLabel) && b.invoices[0].description.includes(b.cycle === "yearly" ? "年付" : "月付"), "renewsAt / 最新发票与当前计划周期不符");
+  check(settings.dangerZone.confirmHint.includes(settings.dangerZone.confirmPhrase) && settings.dangerZone.confirmPhrase.includes(user.workspace.name), "dangerZone 确认文字须含空间名");
+  check(settings.tabs.length === 5, "settings.tabs ≠ 5");
+}
+
+// ---- landing：定价与 settings 同价、客户/评价虚构一致、计数
+{
+  for (const pl of landing.pricing.plans) {
+    const s = settings.billing.plans.find((x) => x.key === pl.key);
+    check(s && s.label === pl.label && s.monthly === pl.monthly && s.yearly === pl.yearly && s.recommended === pl.recommended, `landing.pricing.${pl.key} ≠ settings.billing.plans`);
+  }
+  check(landing.customers.length === 6 && landing.features.length === 6 && landing.solutions.length === 3 && landing.stats.length === 4 && landing.testimonials.length === 6 && landing.faq.length === 6 && landing.footer.columns.length === 4 && landing.nav.length === 5, "landing 各区块条数 ≠ Brief（5 链接 / 6 客户 / 6 特性 / 3 分屏 / 4 数字 / 6 评价 / 6 FAQ / 4 列）");
+  check(landing.customers.some((c) => c.name === meta.tenant.name), "landing.customers 须含示例租户");
+  for (const t of landing.testimonials) check(t.initial === t.name.at(-1) && landing.customers.some((c) => c.name === t.company), `评价 ${t.name}: initial ≠ 姓名末字 或 公司不在客户名单`);
+  const ruolin = landing.testimonials.find((t) => t.name === user.name);
+  check(ruolin && ruolin.company === user.workspace.name && ruolin.title === user.title, "沈若琳评价 ≠ user.json 身份");
+  check(landing.hero.socialProof.avatars.every((a) => team.some((m) => m.initial === a.initial && m.avatarHue === a.hue)), "hero 头像群须取自 team.json");
+  check(landing.hero.socialProof.label.startsWith(landing.stats[0].value), "hero「1,200+」≠ stats[0]");
+  check(landing.footer.copyright.includes("虚构"), "footer.copyright 须注明虚构");
+}
+
+// ---- chat：会话倒序、消息时序、来源订单存在、缺货表 = skus、复盘数字 = series、待发货表 = orders-all
+{
+  const groupOf = (iso) => (iso.slice(0, 10) === asOf.slice(0, 10) ? "today" : iso.slice(0, 10) >= meta.periods.week.range[0] ? "week" : "earlier");
+  const groupKeys = chat.groups.map((g) => g.key);
+  for (const c of chat.conversations) {
+    check(groupKeys.includes(c.group) && groupOf(c.updatedAt) === c.group && c.updatedAt <= asOf, `${c.id}: group 与 updatedAt 不符`);
+    const msgs = chat.messages[c.id];
+    if (msgs) {
+      check(msgs.length === c.messageCount, `${c.id}: messageCount ≠ 实际条数`);
+      check(msgs.every((m, i) => m.at <= asOf && (!i || m.at >= msgs[i - 1].at)), `${c.id}: 消息须正序且不晚于 asOf`);
+      check(msgs.at(-1).at === c.updatedAt, `${c.id}: updatedAt ≠ 最后一条消息时间`);
+      for (const m of msgs) {
+        for (const s of m.sources ?? []) if (s.type === "order") check(!!orderById[s.label] && s.href === `/orders/${s.label}`, `${c.id}/${m.id}: 来源订单 ${s.label} 不存在或 href 不符`);
+        for (const id of (m.markdown ?? m.text ?? "").match(/SO-\d{8}-\d{4}/g) ?? []) check(!!orderById[id], `${c.id}/${m.id}: 正文订单号 ${id} 不存在`);
+        for (const tc of m.toolCalls ?? []) check(["done", "running", "failed"].includes(tc.status) && (tc.status !== "done" || typeof tc.durationMs === "number"), `${c.id}/${m.id}: toolCall ${tc.name} 状态非法`);
+      }
+    }
+  }
+  check(chat.conversations.every((c, i) => !i || c.updatedAt <= chat.conversations[i - 1].updatedAt || c.group !== chat.conversations[i - 1].group), "同组会话须按 updatedAt 倒序");
+  check(chat.suggestions.length === 4 && chat.suggestions.some((s) => s.label.includes("SO-20260903-0087")), "chat.suggestions 须 4 条且含改加急示例");
+  check(chat.emptyState.title.includes(user.shortName), "chat.emptyState 须称呼当前用户");
+  // c_1 缺货表：行 = skus 中 weekStockoutOrders > 0 的 SKU，按降序；合计 40
+  const m2 = chat.messages.c_1[1].markdown;
+  const rows = [...m2.matchAll(/^\| (QM-[A-Z0-9-]+) \| (.+?) \| (\d+) \| (\d+) \/ (\d+) \|$/gm)].map((r) => ({ sku: r[1], name: r[2], n: +r[3], stock: +r[4], safety: +r[5] }));
+  const expect = skus.items.filter((s) => s.weekStockoutOrders > 0).sort((a, b) => b.weekStockoutOrders - a.weekStockoutOrders);
+  check(rows.length === expect.length && rows.every((r, i) => r.sku === expect[i].sku && r.name === expect[i].name && r.n === expect[i].weekStockoutOrders && r.stock === expect[i].stock && r.safety === expect[i].safetyStock), "chat c_1 缺货表 ≠ skus.weekStockoutOrders（降序）/ stock / safetyStock");
+  const total = expect.reduce((a, s) => a + s.weekStockoutOrders, 0);
+  check(m2.includes(`**${total} 单**`) && chat.messages.c_1[1].toolCalls[0].result.includes(`合计 ${total} 单`), `chat c_1 缺货合计应为 ${total}`);
+  const stockoutPending = ordersAll.filter((o) => o.stockout && o.status === "pending_shipment" && o.items.some((i) => i.sku === "QM-NS-WAL-2D")).map((o) => o.id);
+  check(stockoutPending.every((id) => m2.includes(id)) && m2.includes(`${stockoutPending.length} 单待发货`), "chat c_1 床头柜待发货缺货单号/数量 ≠ orders-all");
+  // c_1 CSV 与表一致
+  const csv = chat.messages.c_1[3].markdown.match(/```csv\n([\s\S]+?)```/)[1].trim().split("\n").slice(1);
+  check(csv.length === expect.length && csv.every((line, i) => { const [sku, name, n, stock, safety, sup] = line.split(","); return sku === expect[i].sku && name === expect[i].name && +n === expect[i].weekStockoutOrders && +stock === expect[i].stock && +safety === expect[i].safetyStock && sup === supplierById[expect[i].supplier].name; }), "chat c_1 CSV ≠ skus / suppliers");
+  // c_2 改加急：订单存在、待发货、缺货、金额 / 买家一致
+  const o87 = orderById["SO-20260903-0087"];
+  const m6 = chat.messages.c_2[1];
+  check(o87 && o87.status === "pending_shipment" && o87.stockout && !o87.urgent, "SO-20260903-0087 须为待发货、缺货、未加急（助理执行前状态）");
+  check(o87 && m6.markdown.includes(o87.customer.name) && m6.markdown.includes(o87.customer.phoneMasked) && m6.markdown.includes(money(o87.amount)) && m6.toolCalls[0].result.includes(money(o87.amount)), "chat c_2 买家/金额 ≠ orders-all");
+  check(m6.toolCalls[1].result.includes(user.name), "chat c_2 更新订单操作人须为当前用户");
+  // c_3 待发货超 48h 表 = orders-all 中 pending_shipment 且 placedAt < 消息时间 − 48h
+  const m9 = chat.messages.c_3[1];
+  const cutoff = new Date(new Date(m9.at).getTime() - 48 * 3600e3).toISOString();
+  const overdue = ordersAll.filter((o) => o.status === "pending_shipment" && new Date(o.placedAt).toISOString() < cutoff).map((o) => o.id);
+  const tableIds = [...m9.markdown.matchAll(/^\| (SO-\d{8}-\d{4}) \|.*\| (¥[\d,]+\.\d{2}) \|$/gm)].map((r) => [r[1], r[2]]);
+  check(tableIds.length === overdue.length && tableIds.every(([id, amt]) => overdue.includes(id) && amt === money(orderById[id].amount)), `chat c_3 超 48h 表 ≠ orders-all（应为 ${overdue.join(", ")}）`);
+  check(m9.markdown.includes(`**${overdue.length} 单**`) && m9.toolCalls[0].result === `${overdue.length} 单`, "chat c_3 单数不一致");
+  // c_4 直播复盘 = series.month
+  const d3 = series.month.points.find((p) => p.date === "2026-09-03");
+  const d2 = series.month.points.find((p) => p.date === "2026-09-02");
+  const m11 = chat.messages.c_4[1].markdown;
+  const growth = Math.round((d3.gmv / d2.gmv - 1) * 1000) / 10;
+  const sorted = [...series.month.points].sort((a, b) => b.gmv - a.gmv);
+  check(m11.includes(`¥${d3.gmv.toLocaleString("en-US")} / ${d3.orders} 单`) && m11.includes(`¥${d2.gmv.toLocaleString("en-US")} / ${d2.orders} 单`) && m11.includes(`**${growth}%**`), `chat c_4 复盘数字 ≠ series.month（应 ${d3.gmv}/${d3.orders}、${d2.gmv}/${d2.orders}、${growth}%）`);
+  check(sorted[1].date === "2026-09-03" && sorted[0].date === "2026-08-19" && m11.includes(`¥${sorted[0].gmv.toLocaleString("en-US")} / ${sorted[0].orders} 单`), "c_4「近 30 天第二高，仅次于 8/19」须与 series.month 排序及数字一致");
+  // streamingSample：与 draft 一致
+  const ss = chat.streamingSample;
+  const d = purchaseForm.draft;
+  const row = d.items.find((i) => i.sku === "QM-NS-WAL-2D");
+  check(chat.conversations.some((c) => c.id === ss.conversationId) && ss.partialMarkdown.includes(`${row.qty} 件 × ${money(row.unitPrice)} = ${money(row.qty * row.unitPrice)}`) && ss.partialMarkdown.includes(d.arrivalDate) && ss.partialMarkdown.includes(`${supplierById[d.supplierId].leadTimeDays} 天`), "chat.streamingSample ≠ purchase-form.draft / suppliers");
+  check(ss.toolCalls.every((t) => t.status === "running"), "streamingSample 工具卡须为 running");
+}
+
 if (failures.length) {
   for (const f of failures) console.error("FAIL", f);
   process.exit(1);
 }
-console.log(`mock ok (${asOf})`);
+console.log(`mock ok (${asOf}) — orders.json ${orders.length} · orders-all ${ordersAll.length} · skus ${skus.items.length} · suppliers ${suppliers.items.length} · chat ${chat.conversations.length} 会话`);

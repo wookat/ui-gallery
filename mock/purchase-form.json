@@ -1,0 +1,226 @@
+{
+ "note": "form 屏（/form 新建采购单）的选项与校验口径。supplier 选项见 suppliers.json，商品行 SKU 选项见 skus.json（单价默认 cost）。示例草稿 draft 用于 success/summary 状态，合计可由行验算。",
+ "poNumberNext": "PO-20260906-003",
+ "poNumberFormat": "PO-YYYYMMDD-NNN",
+ "steps": [
+  {
+   "key": "basic",
+   "label": "基本信息"
+  },
+  {
+   "key": "goods",
+   "label": "商品与配送"
+  },
+  {
+   "key": "confirm",
+   "label": "确认提交"
+  }
+ ],
+ "phoneCountryCodes": [
+  {
+   "code": "+86",
+   "label": "中国大陆"
+  },
+  {
+   "code": "+852",
+   "label": "中国香港"
+  },
+  {
+   "code": "+886",
+   "label": "中国台湾"
+  },
+  {
+   "code": "+65",
+   "label": "新加坡"
+  }
+ ],
+ "settlementMethods": [
+  {
+   "key": "prepay_100",
+   "label": "全额预付",
+   "hint": "下单后 3 日内付清"
+  },
+  {
+   "key": "prepay_30",
+   "label": "预付 30%",
+   "hint": "余款到货验收后 7 日内"
+  },
+  {
+   "key": "monthly_30",
+   "label": "月结 30 天",
+   "hint": "次月对账后 30 日内"
+  },
+  {
+   "key": "monthly_60",
+   "label": "月结 60 天",
+   "hint": "次月对账后 60 日内"
+  },
+  {
+   "key": "cod",
+   "label": "货到付款",
+   "hint": "验收合格当日付款"
+  }
+ ],
+ "warehouses": [
+  {
+   "key": "hz",
+   "label": "杭州仓",
+   "address": "浙江省杭州市余杭区仓前街道良睦路 1399 号 3 号库"
+  },
+  {
+   "key": "hz_store",
+   "label": "杭州湖滨店（门店直送）",
+   "address": "浙江省杭州市上城区湖滨路 28 号"
+  }
+ ],
+ "deliverySlots": [
+  {
+   "key": "am",
+   "label": "上午 09:00–12:00"
+  },
+  {
+   "key": "pm",
+   "label": "下午 13:00–17:00"
+  },
+  {
+   "key": "any",
+   "label": "全天均可"
+  }
+ ],
+ "freight": {
+  "min": 0,
+  "max": 2000,
+  "step": 50,
+  "unit": "元",
+  "defaultRange": [
+   200,
+   600
+  ],
+  "hint": "大件家具走德邦物流，江浙沪整车约 ¥400–800"
+ },
+ "tagSuggestions": [
+  "补货",
+  "双 11 备货",
+  "新品",
+  "加急",
+  "样品"
+ ],
+ "attachments": {
+  "accept": [
+   ".pdf",
+   ".xlsx",
+   ".jpg",
+   ".png"
+  ],
+  "maxSizeMB": 10,
+  "maxFiles": 5,
+  "samples": [
+   {
+    "name": "樟里木艺-报价单-202609.pdf",
+    "sizeKB": 386,
+    "status": "done"
+   },
+   {
+    "name": "床头柜-工艺确认图.jpg",
+    "sizeKB": 1240,
+    "status": "done"
+   },
+   {
+    "name": "采购明细-补货-0906.xlsx",
+    "sizeKB": 48,
+    "status": "uploading",
+    "progress": 62
+   }
+  ],
+  "errorSample": {
+   "name": "整柜装箱视频.mp4",
+   "sizeKB": 48210,
+   "error": "不支持的文件类型，仅限 PDF / XLSX / JPG / PNG"
+  }
+ },
+ "validation": {
+  "supplier": "请选择供应商",
+  "contact": "请填写联系人",
+  "phone": "请输入 11 位手机号",
+  "email": "邮箱格式不正确，例如 name@company.cn",
+  "noteMax": 200,
+  "noteMaxMessage": "备注不超过 200 字",
+  "settlement": "请选择结算方式",
+  "itemsMin": "至少添加 1 行商品",
+  "qtyRange": [
+   1,
+   9999
+  ],
+  "qtyMessage": "数量须为 1–9999 的整数",
+  "unitPriceMin": 0.01,
+  "unitPriceMessage": "单价须大于 0",
+  "warehouse": "请选择收货仓库",
+  "arrivalDate": "到货日期不能早于明天",
+  "arrivalLeadTime": "早于供应商常规交期（{days} 天），请确认已与供应商沟通",
+  "slot": "请选择收货时段",
+  "terms": "请先阅读并同意《采购条款》",
+  "submitError": "提交失败：网络超时，采购单已保存为草稿，请重试"
+ },
+ "terms": [
+  "供应商须在约定到货日前 1 个工作日通知仓库预约卸货时段。",
+  "验收标准以双方确认的工艺图与样品为准，色差以实木自然纹理范围内为限。",
+  "运输破损由承运方与供应商协商理赔，栖木家居在验收单注明后 3 个工作日内反馈。",
+  "发票开具信息：杭州栖木家居有限公司，税号 91330106MA2B7XQ5XK（虚构）。"
+ ],
+ "draft": {
+  "poNumber": "PO-20260906-003",
+  "supplierId": "sup_zhangli",
+  "contact": "吴丽华",
+  "phoneCountryCode": "+86",
+  "phone": "13700003308",
+  "email": "sales@zhangli-wood.cn",
+  "note": "床头柜 QM-NS-WAL-2D 杭州仓库存 18 低于安全线 40，本周已有 3 单待发货缺货；请按工艺确认图 v2 生产，抽屉滑轨换静音款。",
+  "settlement": "prepay_30",
+  "needInvoice": true,
+  "urgent": true,
+  "items": [
+   {
+    "sku": "QM-NS-WAL-2D",
+    "name": "胡桃木床头柜（双抽）",
+    "qty": 60,
+    "unitPrice": 480
+   },
+   {
+    "sku": "QM-LP-OAK-01",
+    "name": "白橡木落地灯",
+    "qty": 20,
+    "unitPrice": 350
+   },
+   {
+    "sku": "QM-SH-WAL-120",
+    "name": "胡桃木置物架 1.2m",
+    "qty": 8,
+    "unitPrice": 620
+   }
+  ],
+  "subtotal": 40760,
+  "warehouse": "hz",
+  "arrivalDate": "2026-09-24",
+  "slot": "am",
+  "freightRange": [
+   400,
+   800
+  ],
+  "attachments": [
+   "樟里木艺-报价单-202609.pdf",
+   "床头柜-工艺确认图.jpg"
+  ],
+  "tags": [
+   "补货",
+   "加急"
+  ],
+  "createdBy": "u_ruolin",
+  "createdByName": "沈若琳"
+ },
+ "success": {
+  "title": "采购单已提交",
+  "description": "PO-20260906-003 已发送给 东阳樟里木艺（吴丽华），预计 2026-09-24 上午到达杭州仓。",
+  "primaryAction": "查看采购单",
+  "secondaryAction": "再建一张"
+ }
+}

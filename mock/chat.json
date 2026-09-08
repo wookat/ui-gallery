@@ -1,0 +1,333 @@
+{
+ "note": "chat 屏（/chat 智能助理）数据。所有答案数字来自 skus.json / orders-all.json / series.json / stats.json，check.mjs 交叉校验 sources 引用的订单号存在、缺货表与 skus.weekStockoutOrders 一致。华东仓 = 杭州仓（meta.tenant.warehouses 唯一仓）。老板原话示例订单号 SO-20260903-0412 超出 9/3 当日 134 单，改用真实存在的 SO-20260903-0087。",
+ "assistant": {
+  "name": "Acme 助理",
+  "avatar": "brand-mark",
+  "disclaimer": "助理答案基于 2026-09-06 17:30 的数据快照，操作类指令会在执行前展示工具调用"
+ },
+ "models": [
+  {
+   "key": "standard",
+   "label": "标准",
+   "description": "快速回答，适合查询与改单"
+  },
+  {
+   "key": "deep",
+   "label": "深度分析",
+   "description": "跨周期对比与复盘，响应较慢"
+  }
+ ],
+ "attachments": {
+  "accept": [
+   ".csv",
+   ".xlsx",
+   ".pdf",
+   ".png",
+   ".jpg"
+  ],
+  "maxSizeMB": 10
+ },
+ "composer": {
+  "placeholder": "问问订单、库存或采购…",
+  "hint": "Enter 发送，Shift + Enter 换行",
+  "maxRows": 8
+ },
+ "suggestions": [
+  {
+   "key": "stockout",
+   "label": "上周华东仓缺货最多的 SKU 是哪个？",
+   "icon": "package-search"
+  },
+  {
+   "key": "overdue",
+   "label": "今天待发货超过 48 小时的订单有哪些？",
+   "icon": "clock-alert"
+  },
+  {
+   "key": "urgent",
+   "label": "帮我把 SO-20260903-0087 改为加急",
+   "icon": "zap"
+  },
+  {
+   "key": "channels",
+   "label": "近 30 天各渠道销售额占比",
+   "icon": "chart-pie"
+  }
+ ],
+ "emptyState": {
+  "title": "你好，若琳",
+  "description": "我可以查订单、看库存、生成补货建议，也能替你改单。试试下面的问题："
+ },
+ "errorState": {
+  "message": "生成失败：助理服务暂时不可用（504）",
+  "retry": "重试"
+ },
+ "groups": [
+  {
+   "key": "today",
+   "label": "今天"
+  },
+  {
+   "key": "week",
+   "label": "本周"
+  },
+  {
+   "key": "earlier",
+   "label": "更早"
+  }
+ ],
+ "conversations": [
+  {
+   "id": "c_1",
+   "group": "today",
+   "title": "上周缺货最多的 SKU",
+   "updatedAt": "2026-09-06T17:05:00+08:00",
+   "unread": false,
+   "messageCount": 4
+  },
+  {
+   "id": "c_2",
+   "group": "today",
+   "title": "SO-20260903-0087 改加急",
+   "updatedAt": "2026-09-06T16:12:00+08:00",
+   "unread": false,
+   "messageCount": 3
+  },
+  {
+   "id": "c_3",
+   "group": "today",
+   "title": "待发货超 48 小时的订单",
+   "updatedAt": "2026-09-06T09:08:00+08:00",
+   "unread": true,
+   "messageCount": 2
+  },
+  {
+   "id": "c_5",
+   "group": "week",
+   "title": "退款话术：亚麻色差",
+   "updatedAt": "2026-09-05T14:20:00+08:00",
+   "unread": false,
+   "messageCount": 2
+  },
+  {
+   "id": "c_4",
+   "group": "week",
+   "title": "9/3 抖音直播复盘",
+   "updatedAt": "2026-09-04T10:30:00+08:00",
+   "unread": false,
+   "messageCount": 2
+  },
+  {
+   "id": "c_6",
+   "group": "earlier",
+   "title": "双 11 预售上架清单",
+   "updatedAt": "2026-08-28T15:40:00+08:00",
+   "unread": false,
+   "messageCount": 6
+  },
+  {
+   "id": "c_7",
+   "group": "earlier",
+   "title": "杭州仓盘点进度",
+   "updatedAt": "2026-08-22T11:10:00+08:00",
+   "unread": false,
+   "messageCount": 4
+  }
+ ],
+ "messages": {
+  "c_1": [
+   {
+    "id": "m_1",
+    "role": "user",
+    "at": "2026-09-06T17:02:00+08:00",
+    "text": "上周华东仓缺货最多的 SKU 是哪个？"
+   },
+   {
+    "id": "m_2",
+    "role": "assistant",
+    "at": "2026-09-06T17:02:00+08:00",
+    "toolCalls": [
+     {
+      "name": "查询库存缺货",
+      "args": "仓库=杭州仓（华东）· 周期=近 7 天（08-31 ~ 09-06）",
+      "status": "done",
+      "durationMs": 640,
+      "result": "6 个 SKU 存在缺货延迟发货，合计 40 单"
+     }
+    ],
+    "markdown": "近 7 天杭州仓（华东）因缺货延迟发货的订单共 **40 单**，涉及 6 个 SKU。缺货最多的是 **胡桃木床头柜（双抽）**：\n\n| SKU | 商品 | 缺货延迟订单 | 当前库存 / 安全线 |\n|---|---|---:|---:|\n| QM-NS-WAL-2D | 胡桃木床头柜（双抽） | 14 | 18 / 40 |\n| QM-PL-CLD-45 | 云朵羊羔绒抱枕 45×45 | 11 | 165 / 200 |\n| QM-CT-LIN-300 | 亚麻遮光窗帘 3.0m | 6 | 41 / 50 |\n| QM-TB-OAK-160 | 北欧白橡木餐桌 1.6m | 4 | 9 / 12 |\n| QM-ST-RTN-L | 藤编脏衣篓（带盖） | 3 | 34 / 40 |\n| QM-WD-OAK-3 | 白橡木三门衣柜 | 2 | 4 / 5 |\n\n床头柜 9/3 直播后连续 3 天缺货，目前仍有 3 单待发货在等补货（SO-20260905-0115、SO-20260904-0075、SO-20260903-0087）。建议优先向 东阳樟里木艺 下补货单，常规交期 18 天。",
+    "sources": [
+     {
+      "type": "snapshot",
+      "label": "库存快照 09-06 17:30",
+      "href": "/inventory"
+     },
+     {
+      "type": "order",
+      "label": "SO-20260905-0115",
+      "href": "/orders/SO-20260905-0115"
+     },
+     {
+      "type": "order",
+      "label": "SO-20260904-0075",
+      "href": "/orders/SO-20260904-0075"
+     },
+     {
+      "type": "order",
+      "label": "SO-20260903-0087",
+      "href": "/orders/SO-20260903-0087"
+     }
+    ]
+   },
+   {
+    "id": "m_3",
+    "role": "user",
+    "at": "2026-09-06T17:04:00+08:00",
+    "text": "把这张表导出成 CSV，我要贴到采购群"
+   },
+   {
+    "id": "m_4",
+    "role": "assistant",
+    "at": "2026-09-06T17:05:00+08:00",
+    "markdown": "已生成，点右上角复制即可：\n\n```csv\nsku,name,stockout_orders_7d,stock,safety_stock,supplier\nQM-NS-WAL-2D,胡桃木床头柜（双抽）,14,18,40,东阳樟里木艺\nQM-PL-CLD-45,云朵羊羔绒抱枕 45×45,11,165,200,南通云织家纺\nQM-CT-LIN-300,亚麻遮光窗帘 3.0m,6,41,50,南通云织家纺\nQM-TB-OAK-160,北欧白橡木餐桌 1.6m,4,9,12,安吉林语木业\nQM-ST-RTN-L,藤编脏衣篓（带盖）,3,34,40,义乌竹里编艺\nQM-WD-OAK-3,白橡木三门衣柜,2,4,5,安吉林语木业\n```\n\n需要的话我可以直接为床头柜创建采购单草稿（60 件，樟里木艺，预付 30%）。",
+    "sources": [
+     {
+      "type": "snapshot",
+      "label": "库存快照 09-06 17:30",
+      "href": "/inventory"
+     }
+    ]
+   }
+  ],
+  "c_2": [
+   {
+    "id": "m_5",
+    "role": "user",
+    "at": "2026-09-06T16:10:00+08:00",
+    "text": "帮我把 SO-20260903-0087 改为加急"
+   },
+   {
+    "id": "m_6",
+    "role": "assistant",
+    "at": "2026-09-06T16:11:00+08:00",
+    "toolCalls": [
+     {
+      "name": "查询订单",
+      "args": "SO-20260903-0087",
+      "status": "done",
+      "durationMs": 320,
+      "result": "待发货 · 抖音小店 · 苏婉婷 · 胡桃木床头柜（双抽）×2 · ¥1,798.00 · 缺货待补"
+     },
+     {
+      "name": "更新订单",
+      "args": "SO-20260903-0087 · urgent=true",
+      "status": "done",
+      "durationMs": 410,
+      "result": "已更新，操作人 沈若琳"
+     }
+    ],
+    "markdown": "已将 **SO-20260903-0087** 标记为加急。\n\n- 买家：苏婉婷（136****2214），杭州市萧山区\n- 商品：胡桃木床头柜（双抽）× 2，¥1,798.00\n- 当前状态：待发货，因 QM-NS-WAL-2D 缺货等补货（预计 09-09 到仓）\n\n加急后该单会排在补货到仓后的第一批出库，何嘉豪 会收到站内通知。是否也把同样缺货的 SO-20260905-0115 和 SO-20260904-0075 一起标记？",
+    "sources": [
+     {
+      "type": "order",
+      "label": "SO-20260903-0087",
+      "href": "/orders/SO-20260903-0087"
+     }
+    ]
+   },
+   {
+    "id": "m_7",
+    "role": "user",
+    "at": "2026-09-06T16:12:00+08:00",
+    "text": "先不用，0115 客户没催。"
+   }
+  ],
+  "c_3": [
+   {
+    "id": "m_8",
+    "role": "user",
+    "at": "2026-09-06T09:06:00+08:00",
+    "text": "今天待发货超过 48 小时的订单有哪些？"
+   },
+   {
+    "id": "m_9",
+    "role": "assistant",
+    "at": "2026-09-06T09:08:00+08:00",
+    "toolCalls": [
+     {
+      "name": "查询订单",
+      "args": "状态=待发货 · 下单时间 < 09-04 09:06",
+      "status": "done",
+      "durationMs": 510,
+      "result": "2 单"
+     }
+    ],
+    "markdown": "截至 09:06，待发货超过 48 小时的订单有 **2 单**，均因胡桃木床头柜 / 云朵抱枕缺货：\n\n| 订单号 | 下单时间 | 渠道 | 商品 | 金额 |\n|---|---|---|---|---:|\n| SO-20260903-0118 | 09-03 22:05 | 抖音小店 | 云朵羊羔绒抱枕 45×45 ×5 | ¥445.00 |\n| SO-20260903-0087 | 09-03 20:44 | 抖音小店 | 胡桃木床头柜（双抽）×2 | ¥1,798.00 |\n\n> 注：SO-20260904-0075（09-04 16:30 下单，同样缺货）将于今天 16:30 超期，建议一并处理。",
+    "sources": [
+     {
+      "type": "order",
+      "label": "SO-20260904-0075",
+      "href": "/orders/SO-20260904-0075"
+     },
+     {
+      "type": "order",
+      "label": "SO-20260903-0118",
+      "href": "/orders/SO-20260903-0118"
+     },
+     {
+      "type": "order",
+      "label": "SO-20260903-0087",
+      "href": "/orders/SO-20260903-0087"
+     }
+    ]
+   }
+  ],
+  "c_4": [
+   {
+    "id": "m_10",
+    "role": "user",
+    "at": "2026-09-04T10:28:00+08:00",
+    "text": "9 月 3 日抖音直播卖了多少？和前一天比呢"
+   },
+   {
+    "id": "m_11",
+    "role": "assistant",
+    "at": "2026-09-04T10:30:00+08:00",
+    "markdown": "9 月 3 日全渠道销售额 **¥52,310 / 134 单**，是近 30 天单日第二高（仅次于 8 月 19 日七夕礼赠的 ¥52,380 / 128 单）；较 9 月 2 日（¥39,760 / 101 单）增长 **31.6%**，新增订单主要来自抖音小店。\n\n直播后 3 天内缺货最明显的是胡桃木床头柜（双抽）与云朵羊羔绒抱枕，建议下次直播前把这两款安全库存上调。",
+    "sources": [
+     {
+      "type": "doc",
+      "label": "近 30 天逐日趋势",
+      "href": "/?period=month"
+     }
+    ]
+   }
+  ],
+  "c_5": [
+   {
+    "id": "m_12",
+    "role": "user",
+    "at": "2026-09-05T14:18:00+08:00",
+    "text": "客户说亚麻窗帘颜色和图片不一样要退货，给我一段客服话术"
+   },
+   {
+    "id": "m_13",
+    "role": "assistant",
+    "at": "2026-09-05T14:20:00+08:00",
+    "markdown": "可以这样回复：\n\n> 您好，亚麻为天然纤维，不同批次会有轻微色差，我们的详情页色卡标注了 ±5% 的范围。如果实物与您预期差别较大，支持 7 天无理由退货，运费由我们承担；也可以为您换同系列的「米白」或「燕麦」色，换货免运费。您看更倾向哪一种？\n\n若客户坚持退货，直接在订单里受理退款即可，退货地址会自动发送给买家。"
+   }
+  ]
+ },
+ "streamingSample": {
+  "conversationId": "c_1",
+  "role": "assistant",
+  "partialMarkdown": "已为 **胡桃木床头柜（双抽）** 创建采购单草稿：\n\n- 供应商：东阳樟里木艺（吴丽华）\n- 数量：60 件 × ¥480.00 = ¥28,800.00\n- 期望到货：2026-09-24（常规交期 18 天）\n- 结算：预付 30%\n\n正在补充落地灯与置物架的",
+  "toolCalls": [
+   {
+    "name": "创建采购单草稿",
+    "args": "QM-NS-WAL-2D ×60 · sup_zhangli",
+    "status": "running"
+   }
+  ]
+ }
+}

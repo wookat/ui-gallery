@@ -1,0 +1,120 @@
+{
+ "note": "landing 屏（/landing 营销页，无应用壳）数据。客户名 / 评价人 / 公司均为虚构，客户 Logo 云只用文字 wordmark。pricing 与 settings.json billing.plans 同价（同一产品的对外价）。统计数字 stats 为 Acme 平台口径（不是栖木家居的经营数据）。",
+ "brand": { "name": "Acme Console", "tagline": "订单与库存，一处看清" },
+ "nav": [
+  { "key": "features", "label": "产品", "href": "#features" },
+  { "key": "solutions", "label": "解决方案", "href": "#solutions" },
+  { "key": "pricing", "label": "定价", "href": "#pricing" },
+  { "key": "customers", "label": "客户", "href": "#customers" },
+  { "key": "docs", "label": "帮助中心", "href": "#faq" }
+ ],
+ "cta": { "login": "登录", "trial": "免费试用 14 天", "loginHref": "/login", "trialHref": "/login" },
+ "hero": {
+  "title": "把全渠道订单和库存，装进一个后台",
+  "subtitle": "Acme Console 帮中小品牌把天猫、抖音、京东、小程序和门店的订单同步到一处，库存预警、采购补货、售后处理一站完成。",
+  "primary": "免费试用 14 天",
+  "secondary": "预约演示",
+  "socialProof": {
+   "label": "1,200+ 团队在用",
+   "avatars": [
+    { "initial": "琳", "hue": 210 },
+    { "initial": "鸣", "hue": 25 },
+    { "initial": "豪", "hue": 150 },
+    { "initial": "薇", "hue": 340 },
+    { "initial": "博", "hue": 275 }
+   ]
+  },
+  "illustration": "用令牌色的纯 CSS/SVG 抽象 dashboard：顶栏 + 4 张统计卡 + 一条面积图 + 一张 3 行表格，不放截图位图"
+ },
+ "customers": [
+  { "name": "栖木家居", "wordmark": "QIMU" },
+  { "name": "山野茶事", "wordmark": "山野茶事" },
+  { "name": "沐光文具", "wordmark": "MUGUANG" },
+  { "name": "织云家纺", "wordmark": "织云" },
+  { "name": "北岸咖啡", "wordmark": "NORTHSHORE" },
+  { "name": "小满母婴", "wordmark": "小满" }
+ ],
+ "features": [
+  { "icon": "refresh-cw", "title": "五大渠道自动同步", "description": "天猫、抖音、京东、微信小程序、线下门店订单 15 分钟内汇总，不再手抄表格。" },
+  { "icon": "receipt-text", "title": "订单一屏处理", "description": "筛选、批量发货、改地址、退款受理，待发货超 48 小时自动提醒。" },
+  { "icon": "warehouse", "title": "库存预警与安全线", "description": "按 SKU 设置安全库存，低于阈值即时通知，避免直播爆单后缺货。" },
+  { "icon": "truck", "title": "采购补货闭环", "description": "从预警直接生成采购单，跟踪供应商交期与到货验收。" },
+  { "icon": "sparkles", "title": "智能助理", "description": "用一句话查「上周缺货最多的 SKU」，答案直接引用订单与库存数据。" },
+  { "icon": "shield-check", "title": "团队协作与权限", "description": "管理员 / 成员 / 只读三级角色，操作留痕，两步验证保护账号。" }
+ ],
+ "solutions": [
+  {
+   "eyebrow": "订单",
+   "title": "直播爆单也不乱",
+   "description": "抖音直播当晚 134 单同步进系统，状态、渠道、金额一目了然；仓库按待发货列表拣货，客服在同一条订单里处理催单与退款。",
+   "bullets": ["状态筛选 + 渠道多选 + 日期范围", "行内改加急、改地址、取消", "移动端卡片视图，仓库用手机也能看"],
+   "visual": "订单表格抽象图（3 列 × 4 行 + 状态 Tag）"
+  },
+  {
+   "eyebrow": "库存",
+   "title": "缺货前 3 天就知道",
+   "description": "为每个 SKU 设安全线，库存跌破即推送到手机；一键生成采购单，交期到了自动提醒验收。",
+   "bullets": ["安全库存与预警 SKU 列表", "采购单三步创建，附件与标签", "到货验收后库存自动回补"],
+   "visual": "库存条形图抽象图（6 条，2 条为 warning 色）"
+  },
+  {
+   "eyebrow": "助理",
+   "title": "问一句，就有答案",
+   "description": "「上周华东仓缺货最多的 SKU 是哪个？」——助理直接查询库存与订单，给出数字和来源，还能替你把订单改成加急。",
+   "bullets": ["答案带来源 Chip，可追溯到订单号", "工具调用透明可见", "支持表格、代码块与复制"],
+   "visual": "对话气泡抽象图（2 轮问答 + 来源 Chip）"
+  }
+ ],
+ "stats": [
+  { "value": "1,200+", "label": "团队在用" },
+  { "value": "3,800 万", "label": "累计处理订单" },
+  { "value": "15 分钟", "label": "渠道同步间隔" },
+  { "value": "99.95%", "label": "近 12 个月可用性" }
+ ],
+ "pricing": {
+  "toggle": { "monthly": "按月付", "yearly": "按年付", "yearlyBadge": "省 2 个月" },
+  "plans": [
+   { "key": "starter", "label": "入门版", "description": "刚起步的独立品牌", "monthly": 99, "yearly": 990, "cta": "开始试用", "recommended": false, "features": ["3 个成员席位", "2 个销售渠道", "订单 / 库存基础看板", "邮件支持"] },
+   { "key": "pro", "label": "专业版", "description": "多渠道运营的成长团队", "monthly": 299, "yearly": 2990, "cta": "开始试用", "recommended": true, "features": ["10 个成员席位", "不限销售渠道", "智能助理", "自定义报表", "工作日在线客服"] },
+   { "key": "business", "label": "企业版", "description": "多仓多店的成熟品牌", "monthly": 899, "yearly": 8990, "cta": "联系销售", "recommended": false, "features": ["50 个成员席位", "不限销售渠道", "智能助理", "自定义报表", "专属客户经理", "SLA 99.9%"] }
+  ],
+  "footnote": "价格含税，人民币计价；年付按 10 个月计费。"
+ },
+ "testimonials": [
+  { "name": "沈若琳", "initial": "琳", "hue": 210, "title": "运营主管", "company": "栖木家居", "quote": "9 月 3 日直播一晚 134 单，第二天早上仓库直接按待发货列表拣货，没有再手抄一张表。" },
+  { "name": "周砚", "initial": "砚", "hue": 95, "title": "创始人", "company": "山野茶事", "quote": "库存预警比我们自己盘点早了整整一周，中秋礼盒没有再缺货。" },
+  { "name": "许昭阳", "initial": "阳", "hue": 40, "title": "电商负责人", "company": "沐光文具", "quote": "三个渠道的退款终于在一个页面处理，客服每天少切换十几次后台。" },
+  { "name": "林知夏", "initial": "夏", "hue": 300, "title": "运营经理", "company": "织云家纺", "quote": "采购单三步就建好，附件和交期都在一处，供应商也说对账省事多了。" },
+  { "name": "宋一帆", "initial": "帆", "hue": 180, "title": "门店店长", "company": "北岸咖啡", "quote": "门店订单和线上库存共用一套数，手机上就能看今天卖了多少。" },
+  { "name": "高书瑶", "initial": "瑶", "hue": 20, "title": "供应链主管", "company": "小满母婴", "quote": "问助理「上周缺货最多的 SKU」直接给出数字和订单号，开会不用再翻报表。" }
+ ],
+ "faq": [
+  { "q": "支持哪些销售渠道？", "a": "天猫、抖音小店、京东、微信小程序与线下门店 POS；专业版起不限渠道数量。" },
+  { "q": "数据同步多久一次？", "a": "各渠道每 15 分钟自动同步一次，也可在订单页手动触发。" },
+  { "q": "免费试用需要绑卡吗？", "a": "不需要。14 天试用期内可使用专业版全部功能，到期后自行选择是否付费。" },
+  { "q": "可以随时更换或取消计划吗？", "a": "可以。升级即时生效并按剩余天数折算；降级或取消在当前周期结束后生效。" },
+  { "q": "库存预警怎么设置？", "a": "在 SKU 详情里填写安全库存，低于该值时通过邮件 / 推送 / 站内通知提醒，可在通知设置里分渠道开关。" },
+  { "q": "数据安全如何保障？", "a": "全程 TLS 加密传输，支持两步验证与会话管理，成员按角色授权并保留操作日志。" }
+ ],
+ "ctaBanner": { "title": "今天就把订单和库存理清楚", "subtitle": "14 天免费试用，无需绑卡，5 分钟完成渠道接入。", "primary": "免费试用 14 天", "secondary": "预约演示" },
+ "footer": {
+  "columns": [
+   { "title": "产品", "links": ["订单管理", "库存与采购", "智能助理", "报表", "更新日志"] },
+   { "title": "解决方案", "links": ["家居品牌", "食品饮料", "文创文具", "母婴用品"] },
+   { "title": "资源", "links": ["帮助中心", "开发者文档", "服务状态", "博客"] },
+   { "title": "公司", "links": ["关于我们", "联系销售", "隐私政策", "服务条款"] }
+  ],
+  "social": [
+   { "key": "wechat", "label": "微信公众号", "icon": "message-circle" },
+   { "key": "weibo", "label": "微博", "icon": "at-sign" },
+   { "key": "github", "label": "GitHub", "icon": "github" },
+   { "key": "mail", "label": "邮件", "icon": "mail" }
+  ],
+  "languages": [
+   { "key": "zh-CN", "label": "简体中文" },
+   { "key": "zh-TW", "label": "繁體中文" },
+   { "key": "en-US", "label": "English" }
+  ],
+  "copyright": "© 2026 Acme Console（UI Gallery 参考应用，虚构产品）"
+ }
+}

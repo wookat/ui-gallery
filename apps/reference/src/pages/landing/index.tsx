@@ -348,6 +348,12 @@ export default function LandingPage() {
   const menuOpen = menu.value
   const [autoScrolled, setAutoScrolled] = React.useState(false)
   const scrolled = forced ? state === "scrolled" : autoScrolled
+  /** 汉堡不是 SheetTrigger（Sheet 挂在页尾、汉堡在导航），Radix 拿不到 triggerRef；关闭时手动归还焦点（hifi closeMenu → lastFocus.focus()） */
+  const burgerRef = React.useRef<HTMLButtonElement>(null)
+  const focusBurger = (e: Event) => {
+    e.preventDefault()
+    burgerRef.current?.focus()
+  }
 
   React.useEffect(() => {
     if (forced) return
@@ -419,7 +425,7 @@ export default function LandingPage() {
                 {t("landing.nav.trial")}
               </TipLink>
             </Button>
-            <IconButton label={t("landing.nav.menu.open")} aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenu(true)} className="hidden max-lg:inline-flex">
+            <IconButton ref={burgerRef} label={t("landing.nav.menu.open")} aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenu(true)} className="hidden max-lg:inline-flex">
               <MenuIcon />
             </IconButton>
           </div>
@@ -747,7 +753,7 @@ export default function LandingPage() {
         </Wrap>
       </footer>
 
-      {/* Sheet（375 / 768 菜单；?open=menu）：Radix Dialog 提供 Esc / 遮罩关闭、焦点圈定与归还 */}
+      {/* Sheet（375 / 768 菜单；?open=menu）：Radix Dialog 提供 Esc / 遮罩关闭与焦点圈定；关闭后焦点归还汉堡（onCloseAutoFocus） */}
       <Sheet open={menuOpen} onOpenChange={setMenu}>
         <SheetContent
           side="right"
@@ -755,6 +761,7 @@ export default function LandingPage() {
           closeLabel={t("landing.nav.menu.close")}
           className="w-sheet max-w-full [&_[data-slot=sheet-close]]:top-[calc((var(--size-navbar)-var(--size-hit))/2)] [&_[data-slot=sheet-close]]:right-3"
           onOpenAutoFocus={focusSheetClose}
+          onCloseAutoFocus={focusBurger}
         >
           <div className="flex h-navbar items-center border-b pr-3 pl-4">
             <span aria-hidden className="inline-flex min-h-hit items-center gap-2 text-role-title whitespace-nowrap text-fg">

@@ -52,6 +52,19 @@
 - minor · L-D2 三屏品牌图形不一致：跨屏设计侧遗留，实现按 landing hifi 的 A 形绘制，待设计统一。
 - 本轮新增 content key 只追加在 `content/landing.md`，不影响已上线 login / dashboard 文案；未改 `design/` 与 `mock/`。
 
+### 第 4 轮审查修复记录（0a5e2c3 审查清单，tech-lead 升级修复）
+
+| 问题 | 修法 | 实测证据 |
+|---|---|---|
+| 交互反馈 · 375 / 768 × 亮暗：移动菜单 Sheet 关闭后焦点未归还汉堡（Escape / 关闭钮 / 菜单内锚链接三种关闭方式后 `document.activeElement = body`），违反 hifi `check.mjs` L301「Escape 关闭 Sheet，焦点回汉堡」 | 根因确认：汉堡是普通 `IconButton onClick=setMenu(true)`，不在 `<Sheet>` 子树内、未用 `SheetTrigger`，Radix Dialog 默认 `onCloseAutoFocus` 去聚焦 `triggerRef.current`（null）→ 无归还。修法：汉堡挂 `burgerRef`，`SheetContent` 传 `onCloseAutoFocus={focusBurger}`（`preventDefault` 后 `burgerRef.current?.focus()`），对应 hifi `closeMenu → lastFocus.focus()`；L750 注释改为如实描述。不改 `components/ui/sheet.tsx`（login / dashboard / chat 同用）、不改 hifi 与令牌 | 复现（修前，Playwright 对 dist 实测，`~/repro-landing-focus.mjs` 不入库）：375 / 768 × 亮 / 暗 × Escape / 关闭钮 / 锚链接 12 组，Tab 到「打开菜单」→ Enter（焦点落「关闭菜单」）→ 关闭后 `activeElement` 全部为 `body`，12/12 FAIL。修后同一矩阵 12/12 PASS：关闭后 `activeElement = button[aria-label=打开菜单]`，URL 已清除 `open`，console error 0 |
+
+### 门禁实跑结果（第 4 轮，commit 见 git log）
+
+- `apps/reference/`：`pnpm lint` ✔（eslint + no-hardcode 76 文件）· `pnpm typecheck` ✔ · `pnpm build` ✔
+- `node tools/shoot.mjs landing && node tools/compare.mjs landing` → 20/20 ≥ 95%，最低 99.55%（tabletSm-light-mobile-menu-open），最高 99.91%；L-D1 已由设计侧在 e389b5a 修正并重截 ref，compare 门禁转绿
+- `node tools/a11y.mjs landing` → ALL PASS（axe serious/critical 0、375 无溢出、热区 ≥ 40、焦点环缺失 0、console error 0）
+- 焦点归还矩阵（上表）12/12 PASS
+
 ### 门禁实跑结果（第 3 轮，commit 见 git log）
 
 - `apps/reference/`：`pnpm lint` ✔（eslint + no-hardcode 73 文件）· `pnpm typecheck` ✔ · `pnpm build` ✔ · `node tools/no-hardcode.mjs` ✔

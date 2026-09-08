@@ -54,6 +54,8 @@ import { channelLabel, mock, navBadge, periods, seriesFor, statFor } from "@/dat
 import { useScreenState } from "@/data/screen-state"
 import { formatCurrency, formatInteger, formatMonthDay, formatPercent, formatTime } from "@/lib/format"
 
+import { ComposedSection, FormControlsSection, LayoutSection, ListExtras, NavExtras, OverlayExtras, TableExtras } from "./round2"
+
 /**
  * /kitchen-sink —— docs/frontend/04-components.md 映射表中每个组件 × 变体 × 状态。
  * 状态列固定为 default / hover / focus / disabled / loading / error（不适用的列留空并标 —）。
@@ -70,6 +72,7 @@ const sections = [
   "button",
   "input",
   "checkbox",
+  "form-controls",
   "alert",
   "tag",
   "avatar",
@@ -81,6 +84,8 @@ const sections = [
   "list",
   "chart",
   "feedback",
+  "layout",
+  "composed",
 ] as const
 
 function Section({ id, children, className }: { id: (typeof sections)[number]; children: React.ReactNode; className?: string }) {
@@ -320,6 +325,11 @@ export default function KitchenSink() {
         </Row>
       </Section>
 
+      {/* ---------- 表单控件（第 2 轮） ---------- */}
+      <Section id="form-controls">
+        <FormControlsSection open={open} set={set} />
+      </Section>
+
       {/* ---------- 提示条 ---------- */}
       <Section id="alert">
         <Row label="Alert" wide cols={[K("state.error"), K("state.warning"), K("state.success"), K("state.info")]}>
@@ -539,6 +549,7 @@ export default function KitchenSink() {
             </BreadcrumbList>
           </Breadcrumb>
         </Row>
+        <NavExtras />
       </Section>
 
       {/* ---------- 浮层 ---------- */}
@@ -647,6 +658,7 @@ export default function KitchenSink() {
             {K("sample.toast.open")}
           </Button>
         </Row>
+        <OverlayExtras open={open} set={set} />
       </Section>
 
       {/* ---------- 表格 ---------- */}
@@ -740,10 +752,12 @@ export default function KitchenSink() {
             })}
           </div>
         </Row>
+        <TableExtras />
       </Section>
 
       {/* ---------- 列表 ---------- */}
       <Section id="list">
+        <ListExtras />
         <Row label="Timeline" wide cols={[K("state.default"), K("state.loading")]}>
           <Timeline className="w-full">
             {mock.activity.slice(0, 3).map((a) => {
@@ -857,6 +871,16 @@ export default function KitchenSink() {
           <Progress value={20} tone="warning" aria-label={K("sample.progress.aria")} />
           <Progress value={100} tone="success" aria-label={K("sample.progress.aria")} />
         </Row>
+      </Section>
+
+      {/* ---------- 布局（第 2 轮） ---------- */}
+      <Section id="layout">
+        <LayoutSection />
+      </Section>
+
+      {/* ---------- 复合组件（第 2 轮） ---------- */}
+      <Section id="composed">
+        <ComposedSection />
       </Section>
     </main>
   )

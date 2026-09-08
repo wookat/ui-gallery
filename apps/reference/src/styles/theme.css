@@ -56,6 +56,8 @@
   --color-on-primary: var(--color-role-on-primary);
   --color-primary-soft: var(--color-role-primary-soft);
   --color-on-primary-soft: var(--color-role-on-primary-soft);
+  --color-on-primary-muted: var(--color-role-on-primary-muted);
+  --color-surface-brand: var(--color-role-surface-brand);
   --color-link: var(--color-role-link);
   --color-focus-ring: var(--color-role-focus-ring);
   --color-success: var(--color-role-success);
@@ -153,6 +155,25 @@
   --spacing-chart-trend: var(--size-chart-trend);
   --spacing-chart-trend-mobile: var(--size-chart-trend-mobile);
   --spacing-chart-donut: var(--size-chart-donut);
+  /* 第 2 轮屏幕（orders / form / settings / components / landing / chat）用到的尺寸令牌 */
+  --spacing-icon-lg: var(--size-icon-lg);
+  --spacing-step: var(--size-step);
+  --spacing-dot: var(--size-dot);
+  --spacing-track: var(--size-track);
+  --spacing-chip: var(--size-chip);
+  --spacing-navbar: var(--size-navbar);
+  --spacing-table-header: var(--size-table-header);
+  --spacing-table-row: var(--size-table-row);
+  --spacing-table-row-compact: var(--size-table-row-compact);
+  --spacing-dialog: var(--size-dialog);
+  --spacing-drawer: var(--size-drawer);
+  --spacing-sheet: var(--size-sheet);
+  --spacing-settings-tabs: var(--size-settings-tabs);
+  --spacing-conversation-list: var(--size-conversation-list);
+  --spacing-thread-max: var(--size-thread-max);
+  --spacing-bubble-max: var(--size-bubble-max);
+  --spacing-marketing-max: var(--size-marketing-max);
+  --spacing-prose-max: var(--size-prose-max);
   /* 页面级派生量（与 design/hifi/dashboard 一致，仅由令牌运算得到） */
   --spacing-popover: calc(var(--size-content-max) / 4);
   --spacing-donut: calc(var(--size-chart-donut) * 2 / 3);
@@ -168,6 +189,7 @@
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
   --radius-full: var(--radius-full);
 
   --shadow-*: initial;
@@ -190,6 +212,8 @@
   --default-transition-timing-function: var(--motion-ease);
   --animate-skeleton: skeleton-shine var(--motion-skeleton) linear infinite;
   --animate-spin: spin var(--motion-base) linear infinite;
+  --animate-blink: blink var(--motion-blink) steps(2) infinite;
+  --animate-slide: slide var(--motion-skeleton) var(--motion-ease) infinite;
 }
 
 /* reference 模式下 @theme 内的 @keyframes 不会输出，故放在顶层 */
@@ -198,6 +222,14 @@
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+/* 流式光标 / OTP 光标（hifi @keyframes blink）与不定进度条（hifi .bar.indeterminate） */
+@keyframes blink {
+  50% { opacity: 0; }
+}
+@keyframes slide {
+  from { left: -40%; }
+  to { left: 100%; }
 }
 
 /* shadcn 组件通过 var(--radius-…) / var(--background) 等旧名访问时的兜底别名（同样只指向令牌） */

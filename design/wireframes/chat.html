@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="zh-CN" data-state="success" data-conv="c_1">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>线框 · chat（/chat 智能助理）· Acme Console</title>
+<style>
+  /* 低保真线框：纯灰阶（#000–#fff），无组件库、无图片、无字体文件。
+     灰阶变量只服务线框层级表达，不是阶段 2 的设计令牌。 */
+  :root {
+    --g0: #ffffff; --g5: #f4f4f4; --g10: #e6e6e6; --g20: #cccccc; --g40: #999999; --g60: #666666; --g80: #333333; --g100: #000000;
+    --unit: 8px; --hit: 40px;
+    --sidebar: 240px; --topbar: 56px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans SC", sans-serif; font-size: 14px; line-height: 1.5; color: var(--g80); background: var(--g0); }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: var(--g80); text-underline-offset: 2px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ico { display: inline-block; width: 24px; height: 24px; border: 1px dashed var(--g40); border-radius: 4px; flex: none; }
+  .ico-sm { width: 20px; height: 20px; }
+  .iconbtn { width: var(--hit); height: var(--hit); display: inline-grid; place-items: center; border: 0; background: transparent; border-radius: 8px; cursor: pointer; position: relative; flex: none; }
+  .iconbtn:hover { background: var(--g5); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--g80); color: var(--g0); display: inline-grid; place-items: center; font-size: 13px; font-weight: 600; flex: none; }
+  .avatar-sm { width: 28px; height: 28px; font-size: 12px; }
+  .badge { display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--g100); color: var(--g0); font-size: 11px; line-height: 18px; text-align: center; font-weight: 600; }
+  .badge-warn { background: var(--g0); color: var(--g100); border: 1.5px solid var(--g100); line-height: 15px; }
+
+  /* 线框标注栏 */
+  .wf-bar { display: flex; flex-wrap: wrap; gap: var(--unit) calc(var(--unit) * 2); align-items: center; padding: var(--unit) calc(var(--unit) * 2); font-size: 12px; color: var(--g60); border-bottom: 1px dashed var(--g20); background: var(--g5); }
+  .wf-bar strong { color: var(--g100); }
+  .wf-bar a { color: var(--g60); }
+  .wf-bar a[aria-current="true"] { color: var(--g100); font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--g100); }
+  [data-p] { position: relative; }
+  [data-p]::before { content: attr(data-p); position: absolute; left: -6px; top: -10px; z-index: 2; width: 18px; height: 18px; border-radius: 50%; background: var(--g100); color: var(--g0); font-size: 11px; line-height: 18px; text-align: center; font-weight: 600; }
+  .sidebar[data-p]::before { left: 4px; top: 4px; }
+
+  /* ===== 应用壳（与 dashboard.html 相同） ===== */
+  .shell { display: grid; grid-template-columns: var(--sidebar) 1fr; min-height: calc(100vh - 42px); }
+  .sidebar { border-right: 1px solid var(--g10); background: var(--g5); padding: calc(var(--unit) * 2) calc(var(--unit) * 1.5); display: flex; flex-direction: column; gap: calc(var(--unit) * 2); }
+  .brand { display: flex; align-items: center; gap: calc(var(--unit) * 1.25); padding: 0 var(--unit); min-height: var(--hit); }
+  .brand .mark { width: 28px; height: 28px; border: 2px solid var(--g100); border-radius: 7px; flex: none; }
+  .brand .txt { min-width: 0; line-height: 1.2; }
+  .brand .name { font-weight: 600; color: var(--g100); font-size: 14px; }
+  .brand .ws { font-size: 12px; color: var(--g60); }
+  .brand .collapse { margin-left: auto; }
+  .nav-group { margin: 0; padding: 0; list-style: none; }
+  .nav-group + .nav-group { margin-top: var(--unit); }
+  .nav-title { font-size: 11px; color: var(--g40); letter-spacing: .04em; padding: 0 var(--unit) 4px; }
+  .nav-item { display: flex; align-items: center; gap: calc(var(--unit) * 1.25); height: var(--hit); padding: 0 var(--unit); border-radius: 8px; color: var(--g80); text-decoration: none; }
+  .nav-item .ico { width: 20px; height: 20px; }
+  .nav-item .lbl { flex: 1; }
+  .nav-item[aria-current="page"] { background: var(--g0); color: var(--g100); font-weight: 600; border: 1px solid var(--g20); }
+  .nav-item[aria-disabled="true"] { color: var(--g60); }
+  .sidebar .disabled-tip { margin-top: auto; font-size: 11px; color: var(--g40); padding: 0 var(--unit); }
+
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar); border-bottom: 1px solid var(--g10); display: flex; align-items: center; gap: var(--unit); padding: 0 calc(var(--unit) * 3); position: sticky; top: 0; background: var(--g0); z-index: 3; }
+  .hamburger { display: none; }
+  .crumb { display: flex; align-items: center; gap: var(--unit); color: var(--g60); white-space: nowrap; }
+  .crumb .cur { color: var(--g100); font-weight: 600; }
+  .crumb .dis { color: var(--g40); }
+  .search { margin-left: auto; width: 320px; height: 36px; border: 1px solid var(--g20); border-radius: 8px; display: flex; align-items: center; gap: var(--unit); padding: 0 var(--unit) 0 calc(var(--unit) * 1.5); color: var(--g40); }
+  .search .ico { width: 16px; height: 16px; }
+  .search .ph { flex: 1; }
+  .search kbd { font: inherit; font-size: 11px; border: 1px solid var(--g20); border-radius: 4px; padding: 0 5px; color: var(--g60); }
+  .search-btn { display: none; }
+  .topbar .dot { position: absolute; top: 6px; right: 6px; }
+  .topbar .dot .badge { min-width: 16px; height: 16px; line-height: 16px; font-size: 10px; padding: 0 4px; }
+  .topbar .assist { border: 1px dashed var(--g40); }
+  .topbar .assist[aria-current="page"] { border-style: solid; border-color: var(--g100); }
+
+  .content { padding: calc(var(--unit) * 3); max-width: 1280px; width: 100%; margin: 0 auto; flex: 1; min-width: 0; }
+  .state { display: none; }
+
+  /* ===== 通用控件 ===== */
+  .card { border: 1px solid var(--g20); border-radius: 12px; background: var(--g0); padding: calc(var(--unit) * 2); min-width: 0; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: var(--hit); padding: 0 calc(var(--unit) * 2); border-radius: 8px; border: 1px solid var(--g100); background: var(--g100); color: var(--g0); font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn-secondary { background: var(--g0); color: var(--g80); border-color: var(--g20); font-weight: 500; }
+  .btn-ghost { background: transparent; color: var(--g80); border-color: transparent; font-weight: 500; }
+  .btn-danger { background: var(--g0); color: var(--g100); border: 2px solid var(--g100); }
+  .btn-danger.solid { background: var(--g100); color: var(--g0); }
+  .btn[aria-disabled="true"], .btn:disabled { background: var(--g10); color: var(--g40); border-color: var(--g10); cursor: not-allowed; }
+  .btn-sm { height: 32px; padding: 0 calc(var(--unit) * 1.5); font-size: 13px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label, .field .lbl { font-size: 13px; font-weight: 500; color: var(--g100); }
+  .field .opt { color: var(--g40); font-weight: 400; font-size: 12px; margin-left: 4px; }
+  .field .req { color: var(--g100); }
+  .field .hint { font-size: 12px; color: var(--g60); }
+  .field .err { display: none; font-size: 12px; color: var(--g100); font-weight: 600; }
+  .field .err::before { content: "▲ "; }
+  .ctl { height: var(--hit); border: 1px solid var(--g20); border-radius: 8px; padding: 0 calc(var(--unit) * 1.5); display: flex; align-items: center; gap: var(--unit); background: var(--g0); color: var(--g80); min-width: 0; }
+  .ctl .ph { color: var(--g40); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ctl .val { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ctl .ico { width: 16px; height: 16px; }
+  .ctl.ro { background: var(--g5); color: var(--g60); }
+  .ctl.sm { height: 32px; padding: 0 var(--unit); font-size: 13px; }
+  .textarea { min-height: 88px; align-items: flex-start; padding-top: var(--unit); }
+  .field.invalid .ctl { border: 2px solid var(--g100); }
+  .field.invalid .err { display: block; }
+  .check { display: flex; align-items: center; gap: var(--unit); min-height: var(--hit); }
+  .check input { width: 18px; height: 18px; margin: 0; accent-color: #000; }
+  .switch { display: inline-block; width: 40px; height: 22px; border-radius: 11px; border: 1px solid var(--g40); background: var(--g0); position: relative; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--g40); }
+  .switch[aria-checked="true"] { background: var(--g100); border-color: var(--g100); }
+  .switch[aria-checked="true"]::after { left: 20px; background: var(--g0); }
+  .tag { display: inline-block; font-size: 12px; line-height: 20px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--g40); color: var(--g80); background: var(--g0); white-space: nowrap; }
+  .tag-info { background: var(--g100); color: var(--g0); border-color: var(--g100); }
+  .tag-warning { border-style: dashed; border-color: var(--g100); color: var(--g100); }
+  .tag-success { background: var(--g10); border-color: var(--g10); }
+  .tag-danger { border: 2px solid var(--g100); color: var(--g100); line-height: 18px; font-weight: 600; }
+  .tag-neutral { color: var(--g60); border-color: var(--g20); }
+  .tag-mini { font-size: 10px; line-height: 16px; padding: 0 5px; vertical-align: 2px; }
+  .alert { border: 2px solid var(--g100); border-radius: 10px; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); display: flex; gap: var(--unit); align-items: flex-start; background: var(--g0); }
+  .alert .ico { width: 20px; height: 20px; border-style: solid; }
+  .alert strong { color: var(--g100); display: block; }
+  .alert .acts { margin-left: auto; display: flex; gap: var(--unit); flex: none; }
+  .alert.warn { border-style: dashed; }
+  .alert.info { border-width: 1px; border-color: var(--g40); }
+  .sk { background: var(--g10); border-radius: 6px; display: block; }
+  .center-block { max-width: 440px; margin: calc(var(--unit) * 8) auto; text-align: center; }
+  .center-block .fig { width: 96px; height: 96px; margin: 0 auto calc(var(--unit) * 2); border: 2px dashed var(--g20); border-radius: 50%; }
+  .center-block h2 { margin: 0; font-size: 18px; color: var(--g100); }
+  .center-block p { color: var(--g60); margin: var(--unit) 0 0; }
+  .center-block .acts { display: flex; gap: var(--unit); justify-content: center; margin-top: calc(var(--unit) * 3); flex-wrap: wrap; }
+  .center-block .help { font-size: 12px; color: var(--g40); margin-top: calc(var(--unit) * 2); }
+  .toast { display: none; position: fixed; top: calc(42px + var(--unit) * 2); right: calc(var(--unit) * 3); z-index: 9; border: 1px solid var(--g100); background: var(--g0); border-radius: 10px; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); box-shadow: 0 4px 16px rgba(0,0,0,.12); align-items: center; gap: var(--unit); font-weight: 500; color: var(--g100); max-width: 420px; }
+  .toast .undo { margin-left: var(--unit); text-decoration: underline; font-weight: 600; }
+  .toast .life { font-size: 11px; color: var(--g40); font-weight: 400; }
+  .tooltip { display: inline-block; background: var(--g100); color: var(--g0); font-size: 12px; padding: 4px 8px; border-radius: 6px; }
+
+  /* ===== 叠层清单（线框以平铺面板呈现；?open= 命中时该面板以真实叠层位置显示） ===== */
+  .overlays { border-top: 1px dashed var(--g20); background: var(--g5); padding: calc(var(--unit) * 3); }
+  .overlays h2 { margin: 0 0 var(--unit); font-size: 14px; color: var(--g60); font-weight: 600; }
+  .overlays .row { display: flex; gap: calc(var(--unit) * 2); flex-wrap: wrap; align-items: flex-start; }
+  .overlays .row > div { min-width: 0; max-width: 100%; }
+  .panel { border: 1px solid var(--g20); border-radius: 10px; background: var(--g0); padding: var(--unit); width: 320px; max-width: 100%; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .panel-cap { font-size: 11px; color: var(--g40); margin: 0 0 var(--unit) 4px; }
+  .panel .ph { display: flex; justify-content: space-between; align-items: center; padding: var(--unit) var(--unit) 4px; font-weight: 600; color: var(--g100); gap: var(--unit); }
+  .menu { list-style: none; margin: 0; padding: 0; }
+  .menu li { display: flex; align-items: center; gap: var(--unit); min-height: var(--hit); padding: 0 var(--unit); border-radius: 6px; }
+  .menu li.danger { color: var(--g100); font-weight: 600; border-top: 1px solid var(--g10); }
+  .menu li[aria-disabled="true"] { color: var(--g40); }
+  .dialog { width: 440px; padding: calc(var(--unit) * 3); }
+  .dialog h3 { margin: 0 0 var(--unit); font-size: 17px; color: var(--g100); }
+  .dialog p { margin: 0 0 calc(var(--unit) * 2); color: var(--g60); }
+  .dialog .acts { display: flex; justify-content: flex-end; gap: var(--unit); margin-top: calc(var(--unit) * 3); }
+  .backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 7; }
+  .is-open { position: fixed; z-index: 8; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+  .is-open.dialog { left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: auto; }
+  .is-open.side { right: 0; top: 0; bottom: 0; border-radius: 0; width: 480px; max-width: 100vw; overflow: auto; }
+  .is-open.sheet { left: 0; top: 0; bottom: 0; border-radius: 0; width: 300px; overflow: auto; }
+
+  /* ===== 375：抽屉导航 + 单列（与 dashboard.html 相同断点） ===== */
+  @media (max-width: 767px) {
+    .shell { display: block; min-height: 0; }
+    .sidebar { display: none; }
+    .topbar { padding: 0 var(--unit); gap: 0; }
+    .hamburger { display: inline-grid; }
+    .crumb .root, .crumb .sep, .crumb .dis { display: none; }
+    .crumb { flex: 1; min-width: 0; margin-left: 4px; }
+    .crumb .cur { overflow: hidden; text-overflow: ellipsis; }
+    .search { display: none; }
+    .search-btn { display: inline-grid; }
+    .content { padding: calc(var(--unit) * 2); }
+    .card { padding: calc(var(--unit) * 1.5); border-radius: 10px; }
+    .toast { left: var(--unit); right: var(--unit); justify-content: center; max-width: none; }
+    .overlays .row { flex-direction: column; }
+    .panel, .dialog { width: 100%; }
+    .is-open.dialog { width: calc(100vw - 32px); }
+    .is-open.side { width: 100vw; top: 15vh; border-radius: 16px 16px 0 0; }
+    .is-open.sheet { width: 85vw; }
+    [data-p]::before { left: -4px; top: -8px; }
+  }
+
+  /* ===== 状态显示 ===== */
+  .st { display: none; }
+  [data-state="empty"] .st-empty, [data-state="loading"] .st-loading, [data-state="success"] .st-success, [data-state="streaming"] .st-success, [data-state="streaming"] .st-streaming, [data-state="error"] .st-success, [data-state="error"] .st-error { display: block; }
+  [data-state="empty"] .chips-row, [data-state="loading"] .chips-row { display: none; }
+  [data-state="streaming"] .send { display: none; } .stop { display: none; } [data-state="streaming"] .stop { display: inline-grid; }
+  [data-state="loading"] .convs .list { display: none; } .convs .list-sk { display: none; } [data-state="loading"] .convs .list-sk { display: block; }
+  [data-state="streaming"] .conv[data-conv-id="c_1"] .streaming-only, [data-state="error"] .conv[data-conv-id="c_1"] .error-only { display: block; }
+  .streaming-only, .error-only { display: none; }
+  [data-state="error"] .conv[data-conv-id="c_1"] .streaming-only { display: none; }
+  .conv { display: none; } [data-conv="c_1"] .conv[data-conv-id="c_1"], [data-conv="c_2"] .conv[data-conv-id="c_2"], [data-conv="c_3"] .conv[data-conv-id="c_3"], [data-conv="c_4"] .conv[data-conv-id="c_4"], [data-conv="c_5"] .conv[data-conv-id="c_5"], [data-conv="c_6"] .conv[data-conv-id="c_6"], [data-conv="c_7"] .conv[data-conv-id="c_7"] { display: block; }
+  [data-state="empty"] .conv { display: none !important; }
+  [data-toast] .toast { display: flex; }
+  [data-state="empty"] .tobottom, [data-state="loading"] .tobottom, [data-state="empty"] .att-chip { display: none; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ===== 布局：content 内两栏（会话列表 280 + 消息流），高度撑满视口 ===== */
+  .content.chat { max-width: none; padding: 0; display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 42px - var(--topbar)); min-height: 560px; }
+  .convs { border-right: 1px solid var(--g10); background: var(--g5); display: flex; flex-direction: column; min-height: 0; }
+  .convs .top { padding: calc(var(--unit) * 2) calc(var(--unit) * 2) var(--unit); display: flex; align-items: center; justify-content: space-between; gap: var(--unit); }
+  .convs h1 { margin: 0; font-size: 18px; font-weight: 600; color: var(--g100); }
+  .convs .sbox { margin: 0 calc(var(--unit) * 2) var(--unit); }
+  .convs .ctl { height: 36px; }
+  .convs .list { flex: 1; overflow: auto; padding: 0 var(--unit) var(--unit); }
+  .grp { font-size: 11px; color: var(--g40); font-weight: 600; padding: calc(var(--unit) * 1.5) var(--unit) 4px; letter-spacing: .04em; }
+  .citem { display: flex; align-items: center; gap: var(--unit); min-height: 48px; padding: 6px var(--unit); border-radius: 8px; color: var(--g80); text-decoration: none; position: relative; }
+  .citem:hover { background: var(--g10); }
+  .citem[aria-current="page"] { background: var(--g0); border: 1px solid var(--g20); color: var(--g100); font-weight: 600; }
+  .citem .t { flex: 1; min-width: 0; }
+  .citem .t b { display: block; font-size: 13px; font-weight: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .citem .t span { display: block; font-size: 11px; color: var(--g40); font-weight: 400; margin-top: 1px; }
+  .citem .un { width: 8px; height: 8px; border-radius: 50%; background: var(--g100); flex: none; }
+  .citem .more { width: 32px; height: 32px; }
+  .citem .more .ico { width: 16px; height: 16px; }
+  .citem.na .t b { color: var(--g60); }
+  .convs .foot { padding: var(--unit) calc(var(--unit) * 2) calc(var(--unit) * 2); font-size: 11px; color: var(--g40); border-top: 1px solid var(--g10); }
+  .list-sk { padding: var(--unit) calc(var(--unit) * 2); }
+  .list-sk .sk { height: 14px; margin: 18px 0; }
+
+  .thread-wrap { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .thread { flex: 1; overflow: auto; padding: calc(var(--unit) * 3) calc(var(--unit) * 3) 0; }
+  .thread .inner { max-width: 820px; margin: 0 auto; }
+  .datesep { display: flex; align-items: center; gap: var(--unit); color: var(--g40); font-size: 12px; margin: calc(var(--unit) * 2) 0; }
+  .datesep::before, .datesep::after { content: ""; flex: 1; border-top: 1px solid var(--g10); }
+  .msg { display: flex; gap: calc(var(--unit) * 1.5); margin: calc(var(--unit) * 2) 0; align-items: flex-start; }
+  .msg.me { flex-direction: row-reverse; }
+  .msg .av { width: 32px; height: 32px; border-radius: 8px; border: 2px solid var(--g100); flex: none; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: var(--g100); }
+  .msg.me .av { border-radius: 50%; background: var(--g80); color: var(--g0); border: 0; }
+  .msg .col { min-width: 0; max-width: 100%; }
+  .msg .who { font-size: 11px; color: var(--g40); margin: 0 0 4px 2px; display: flex; gap: var(--unit); }
+  .msg.me .who { justify-content: flex-end; }
+  .bbl { border: 1px solid var(--g20); background: var(--g0); border-radius: 14px; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); color: var(--g80); font-size: 14px; line-height: 1.6; min-width: 0; }
+  .msg.me .bbl { background: var(--g100); color: var(--g0); border-color: var(--g100); max-width: 560px; }
+  .bbl p { margin: 0 0 var(--unit); } .bbl p:last-child { margin-bottom: 0; }
+  .bbl strong { color: var(--g100); } .msg.me .bbl strong { color: var(--g0); }
+  .bbl ul { margin: 0 0 var(--unit); padding-left: 20px; }
+  .bbl blockquote { margin: var(--unit) 0; padding: 4px 12px; border-left: 3px solid var(--g40); color: var(--g60); }
+  .md-table { margin: var(--unit) 0; overflow-x: auto; border: 1px solid var(--g10); border-radius: 8px; }
+  .md-table table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  .md-table th, .md-table td { padding: 6px 10px; border-bottom: 1px solid var(--g10); text-align: left; white-space: nowrap; }
+  .md-table th { background: var(--g5); color: var(--g60); font-weight: 500; font-size: 12px; }
+  .md-table td.num, .md-table th.num { text-align: right; }
+  .md-table tr:last-child td { border-bottom: 0; }
+  .md-table .hint { display: none; font-size: 11px; color: var(--g40); padding: 4px 10px; }
+  .codeblk { margin: var(--unit) 0; border: 1px solid var(--g20); border-radius: 8px; background: var(--g5); overflow: hidden; }
+  .codeblk .ch { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 0 12px; height: 32px; border-bottom: 1px solid var(--g10); font-size: 11px; color: var(--g60); }
+  .codeblk .ch .btn { height: 28px; font-size: 12px; padding: 0 8px; }
+  .codeblk pre { margin: 0; padding: 12px; font-size: 12px; overflow-x: auto; color: var(--g80); }
+  .tools { margin: 0 0 var(--unit); display: grid; gap: 6px; }
+  .tool { border: 1px dashed var(--g40); border-radius: 8px; background: var(--g5); font-size: 13px; }
+  .tool summary { list-style: none; cursor: pointer; min-height: 40px; display: flex; align-items: center; gap: var(--unit); padding: 0 12px; color: var(--g80); }
+  .tool summary .ico { width: 16px; height: 16px; }
+  .tool summary .dur { margin-left: auto; color: var(--g40); font-size: 12px; }
+  .tool summary .chev::after { content: "展开详情"; font-size: 11px; color: var(--g60); }
+  .tool[open] summary .chev::after { content: "收起详情"; }
+  .tool .body { padding: 4px 12px 10px; display: grid; grid-template-columns: 40px 1fr; gap: 4px 8px; color: var(--g80); border-top: 1px solid var(--g10); }
+  .tool .body dt { color: var(--g40); } .tool .body dd { margin: 0; }
+  .tool.running summary .ico { border-radius: 50%; border-style: solid; border-color: var(--g100) var(--g20) var(--g20); }
+  .srcs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--unit); align-items: center; }
+  .srcs .lbl { font-size: 11px; color: var(--g40); }
+  .chip { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 10px; border: 1px solid var(--g40); border-radius: 13px; font-size: 12px; color: var(--g80); background: var(--g0); text-decoration: none; }
+  .chip .ico { width: 12px; height: 12px; }
+  .chip.order { font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .macts { display: flex; gap: 2px; margin: 4px 0 0 2px; }
+  .macts .iconbtn { width: 32px; height: 32px; } .macts .ico { width: 16px; height: 16px; }
+  .msg.me .macts { justify-content: flex-end; }
+  .cursor { display: inline-block; width: 8px; height: 16px; background: var(--g100); vertical-align: -3px; }
+  .disc { text-align: center; font-size: 11px; color: var(--g40); margin: calc(var(--unit) * 2) 0; }
+  .tobottom { position: sticky; bottom: 8px; display: flex; justify-content: center; pointer-events: none; }
+  .tobottom .btn { height: 32px; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+
+  /* 欢迎（empty） */
+  .welcome { max-width: 720px; margin: 8vh auto 0; text-align: center; }
+  .welcome .mark { width: 56px; height: 56px; border: 3px solid var(--g100); border-radius: 14px; margin: 0 auto calc(var(--unit) * 2); }
+  .welcome h2 { margin: 0; font-size: 24px; color: var(--g100); }
+  .welcome p { color: var(--g60); margin: var(--unit) 0 0; }
+  .welcome .sugt { font-size: 12px; color: var(--g40); margin: calc(var(--unit) * 4) 0 var(--unit); text-align: left; }
+  .sugs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--unit); }
+  .sug { border: 1px solid var(--g20); border-radius: 12px; padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2); text-align: left; display: flex; gap: var(--unit); align-items: center; min-height: 64px; color: var(--g80); background: var(--g0); text-decoration: none; }
+  .sug:hover { border-color: var(--g100); }
+  .sug .ico { width: 20px; height: 20px; }
+
+  /* 骨架（loading） */
+  .skmsg { display: flex; gap: 12px; margin: 24px 0; }
+  .skmsg.me { flex-direction: row-reverse; }
+  .skmsg .sk.av { width: 32px; height: 32px; border-radius: 8px; }
+  .skmsg .lines { flex: 1; max-width: 520px; display: grid; gap: 8px; }
+  .skmsg .lines .sk { height: 14px; }
+
+  /* 历史不可用 / 错误 */
+  .unavail { max-width: 440px; margin: 12vh auto; text-align: center; }
+  .unavail .fig { width: 80px; height: 80px; border: 2px dashed var(--g20); border-radius: 50%; margin: 0 auto calc(var(--unit) * 2); }
+  .unavail h2 { margin: 0; font-size: 17px; color: var(--g100); }
+  .unavail p { color: var(--g60); margin: var(--unit) 0 calc(var(--unit) * 2); font-size: 14px; }
+  .errbox { margin: calc(var(--unit) * 2) 0 0 44px; }
+
+  /* 输入区 */
+  .composer { border-top: 1px solid var(--g10); background: var(--g0); padding: var(--unit) calc(var(--unit) * 3) calc(var(--unit) * 2); }
+  .composer .inner { max-width: 820px; margin: 0 auto; }
+  .chips-row { display: flex; gap: 6px; flex-wrap: wrap; padding-bottom: var(--unit); scrollbar-width: none; }
+  @media (max-width: 767px) { .chips-row { flex-wrap: nowrap; overflow-x: auto; } }
+  .chips-row::-webkit-scrollbar { display: none; }
+  .chips-row .chip { height: 32px; flex: none; }
+  .box { border: 1px solid var(--g40); border-radius: 14px; background: var(--g0); padding: var(--unit); }
+  .box:focus-within { border-color: var(--g100); box-shadow: 0 0 0 2px var(--g20); }
+  .box textarea { width: 100%; border: 0; outline: 0; resize: none; font: inherit; font-size: 14px; line-height: 1.5; min-height: 44px; max-height: calc(1.5em * 8); padding: 6px 8px; background: transparent; color: var(--g100); display: block; }
+  .box .row { display: flex; align-items: center; gap: 4px; }
+  .box .row .ctl { height: 32px; font-size: 12px; min-width: 96px; }
+  .box .row .sp { flex: 1; }
+  .box .send, .box .stop { background: var(--g100); color: var(--g0); border-radius: 10px; }
+  .box .send[aria-disabled="true"] { background: var(--g20); }
+  .box .send .ico, .box .stop .ico { border-color: var(--g0); }
+  .att-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--g20); border-radius: 8px; padding: 0 8px; height: 28px; font-size: 12px; color: var(--g80); margin: 0 0 6px 8px; }
+  .hint { font-size: 11px; color: var(--g40); margin-top: 6px; display: flex; justify-content: space-between; }
+
+  /* 会话列表 Sheet（375）与删除 Dialog */
+  [data-open] .backdrop { display: block; }
+  .sheet-convs { display: none; }
+  [data-open="sidebar"] .sheet-convs { display: flex; flex-direction: column; position: fixed; z-index: 8; left: 0; top: 0; bottom: 0; width: 300px; max-width: 85vw; background: var(--g5); box-shadow: 12px 0 40px rgba(0,0,0,.25); overflow: auto; }
+  .sheet-convs .list { padding: 0 var(--unit) var(--unit); }
+  [data-open="delete"] .ov-delete { position: fixed; z-index: 8; box-shadow: 0 12px 40px rgba(0,0,0,.25); left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: calc(100vw - 32px); }
+  .convs-btn { display: none; }
+
+  @media (max-width: 767px) {
+    .content.chat { display: block; height: auto; min-height: 0; }
+    .convs { display: none; }
+    .thread-wrap { min-height: calc(100vh - 42px - var(--topbar)); }
+    .thread { padding: var(--unit) calc(var(--unit) * 1.5) 0; }
+    .thread .mhead { display: flex; align-items: center; gap: var(--unit); height: 44px; margin: 0 0 var(--unit); border-bottom: 1px solid var(--g10); }
+    .convs-btn { display: inline-grid; }
+    .msg .who .name { display: none; }
+    .msg .av { display: none; }
+    .msg .bbl { font-size: 14px; }
+    .md-table .hint { display: block; }
+    .md-table table { min-width: 480px; }
+    .errbox { margin-left: 0; }
+    .sugs { grid-template-columns: 1fr; }
+    .welcome { margin-top: 4vh; }
+    .composer { padding: var(--unit) calc(var(--unit) * 1.5) calc(var(--unit) * 1.5); }
+    .hint .k { display: none; }
+    .box .row .ctl { min-width: 0; }
+    .box .row .ctl .val { display: none; }
+    .tool summary .chev { display: none; }
+    [data-open="sidebar"] .sheet-convs { width: 85vw; }
+  }
+  @media (min-width: 768px) { .thread .mhead { display: none; } }
+</style>
+</head>
+<body>
+  <nav class="wf-bar" aria-label="线框标注栏">
+    <strong>线框 · chat（/chat 智能助理，应用壳内）</strong>
+    <span>状态：</span>
+    <a href="?state=empty" data-s="empty">empty（欢迎 + 4 建议卡）</a>
+    <a href="?state=loading" data-s="loading">loading（历史骨架）</a>
+    <a href="?state=streaming&conversation=c_1" data-s="streaming">streaming</a>
+    <a href="?state=success&conversation=c_1" data-s="success">success</a>
+    <a href="?state=error&conversation=c_1" data-s="error">error（重试）</a>
+    <span>· 会话：</span>
+    <a href="?conversation=c_1" data-cv="c_1">c_1</a><a href="?conversation=c_2" data-cv="c_2">c_2</a><a href="?conversation=c_3" data-cv="c_3">c_3</a><a href="?conversation=c_4" data-cv="c_4">c_4</a><a href="?conversation=c_5" data-cv="c_5">c_5</a><a href="?conversation=c_6" data-cv="c_6">c_6（历史不可用）</a><a href="?conversation=c_7" data-cv="c_7">c_7</a>
+    <span>· 叠层：</span>
+    <a href="?open=sidebar" data-o="sidebar">open=sidebar（375 会话 Sheet）</a>
+    <a href="?open=delete&conversation=c_3" data-o="delete">open=delete</a>
+    <span>· Toast：</span><a href="?conversation=c_2&toast=urgent" data-t="urgent">toast=urgent</a>
+    <span>· 数据 = mock/chat.json（数字由 skus / orders-all / series 复算）· 序号 = 01-ia.md §9.6</span>
+  </nav>
+
+  <div class="shell">
+    <!-- 侧边栏（1440 展开；1024 折叠为 icon rail；≤768 抽屉）——与 dashboard.html 相同，本轮仅「智能助理」变为当前项 -->
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <div class="txt">
+          <div class="name">Acme Console</div>
+          <div class="ws">栖木家居</div>
+        </div>
+        <button class="iconbtn collapse" type="button" aria-label="收起侧边栏"><span class="ico ico-sm" aria-hidden="true"></span></button>
+      </div>
+      <nav>
+        <div class="nav-title">概览</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="dashboard.html"><span class="ico" aria-hidden="true"></span><span class="lbl">仪表盘</span></a></li>
+        </ul>
+        <div class="nav-title">交易</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="orders.html" ><span class="ico" aria-hidden="true"></span><span class="lbl">订单</span><span class="badge num" aria-label="待发货 63">63</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">售后</span><span class="badge num" aria-label="待处理退款 7">7</span></a></li>
+        </ul>
+        <div class="nav-title">货品</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">商品</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">库存</span><span class="badge badge-warn num" aria-label="库存预警 12 SKU">12</span></a></li>
+          <li><a class="nav-item" href="#" aria-disabled="true" ><span class="ico" aria-hidden="true"></span><span class="lbl">采购</span></a></li>
+        </ul>
+        <div class="nav-title">经营</div>
+        <ul class="nav-group">
+          <li><a class="nav-item" href="#" aria-disabled="true"><span class="ico" aria-hidden="true"></span><span class="lbl">报表</span></a></li>
+          <li><a class="nav-item" href="settings.html" ><span class="ico" aria-hidden="true"></span><span class="lbl">设置</span></a></li>
+        </ul>
+      </nav>
+      <div class="disabled-tip">灰字项 aria-disabled，hover Tooltip「后续轮次提供」；本轮「订单」「设置」变为可达。/form、/chat 不在侧边栏 8 项内（brief §11.1 壳说明）</div>
+    </aside>
+
+    <div class="main">
+      <!-- 顶栏：与 dashboard 相同 + 新增「智能助理」IconButton（brief §11.10-E，位置见 01-ia.md §8） -->
+      <header class="topbar">
+        <button class="iconbtn hamburger" type="button" aria-label="打开导航"><span class="ico" aria-hidden="true"></span></button>
+        <nav class="crumb" aria-label="面包屑"><span class="root">栖木家居</span><span class="sep" aria-hidden="true">/</span><span class="cur">智能助理</span></nav>
+        <div class="search" role="search" aria-label="全局搜索"><span class="ico" aria-hidden="true"></span><span class="ph">搜索订单号、商品、客户</span><kbd>⌘K</kbd></div>
+        <button class="iconbtn search-btn" type="button" aria-label="全局搜索"><span class="ico" aria-hidden="true"></span></button>
+        <a class="iconbtn assist" href="chat.html" aria-label="智能助理" aria-current="page"><span class="ico" aria-hidden="true"></span></a>
+        <button class="iconbtn" type="button" aria-label="通知，3 条未读" aria-haspopup="dialog"><span class="ico" aria-hidden="true"></span><span class="dot"><span class="badge num">3</span></span></button>
+        <button class="iconbtn" type="button" aria-label="切换为暗色" aria-pressed="false"><span class="ico" aria-hidden="true"></span></button>
+        <button class="iconbtn" type="button" aria-label="账号菜单" aria-haspopup="menu"><span class="avatar" aria-hidden="true">琳</span></button>
+      </header>
+
+
+      <main class="content chat" id="main">
+        <!-- ① 会话列表（1440 常驻左栏；375 收进 Sheet，见 open=sidebar） -->
+        <aside class="convs" aria-label="会话列表" data-p="①">
+          <div class="top"><h1>智能助理</h1><a class="btn btn-secondary" href="?state=empty" style="height:36px">新建会话</a></div>
+          <div class="sbox"><div class="ctl" role="search" aria-label="搜索会话"><span class="ico ico-sm" aria-hidden="true"></span><span class="ph">搜索会话</span></div></div>
+          <div class="list-sk" aria-busy="true" aria-label="正在加载会话"><span class="sk" style="width:40%"></span><span class="sk"></span><span class="sk" style="width:80%"></span><span class="sk" style="width:90%"></span><span class="sk" style="width:60%"></span><span class="sk"></span></div>
+          <nav class="list" aria-label="会话">
+            <div class="grp">今天</div>
+            <a class="citem" href="?conversation=c_1" data-id="c_1" aria-label="上周缺货最多的 SKU，17:05"><span class="t"><b>上周缺货最多的 SKU</b><span>17:05 · 4 条</span></span><button class="iconbtn more" type="button" aria-label="会话操作" aria-haspopup="menu"><span class="ico" aria-hidden="true"></span></button></a>
+            <a class="citem" href="?conversation=c_2" data-id="c_2" aria-label="SO-20260903-0087 改加急，16:12"><span class="t"><b>SO-20260903-0087 改加急</b><span>16:12 · 3 条</span></span><button class="iconbtn more" type="button" aria-label="会话操作" aria-haspopup="menu"><span class="ico" aria-hidden="true"></span></button></a>
+            <a class="citem" href="?conversation=c_3" data-id="c_3" aria-label="待发货超 48 小时的订单，09:08，有新回复"><span class="un" aria-hidden="true"></span><span class="t"><b>待发货超 48 小时的订单</b><span>09:08 · 2 条 · 有新回复</span></span><button class="iconbtn more" type="button" aria-label="会话操作" aria-haspopup="menu"><span class="ico" aria-hidden="true"></span></button></a>
+            <div class="grp">本周</div>
+            <a class="citem" href="?conversation=c_5" data-id="c_5" aria-label="退款话术：亚麻色差，昨天 14:20"><span class="t"><b>退款话术：亚麻色差</b><span>昨天 14:20 · 2 条</span></span><button class="iconbtn more" type="button" aria-label="会话操作" aria-haspopup="menu"><span class="ico" aria-hidden="true"></span></button></a>
+            <a class="citem" href="?conversation=c_4" data-id="c_4" aria-label="9/3 抖音直播复盘，09-04"><span class="t"><b>9/3 抖音直播复盘</b><span>09-04 10:30 · 2 条</span></span><button class="iconbtn more" type="button" aria-label="会话操作" aria-haspopup="menu"><span class="ico" aria-hidden="true"></span></button></a>
+            <div class="grp">更早</div>
+            <a class="citem na" href="?conversation=c_6" data-id="c_6" aria-label="双 11 预售上架清单，08-28"><span class="t"><b>双 11 预售上架清单</b><span>08-28 · 6 条 · 历史未包含</span></span><button class="iconbtn more" type="button" aria-label="会话操作" aria-haspopup="menu"><span class="ico" aria-hidden="true"></span></button></a>
+            <a class="citem na" href="?conversation=c_7" data-id="c_7" aria-label="杭州仓盘点进度，08-22"><span class="t"><b>杭州仓盘点进度</b><span>08-22 · 4 条 · 历史未包含</span></span><button class="iconbtn more" type="button" aria-label="会话操作" aria-haspopup="menu"><span class="ico" aria-hidden="true"></span></button></a>
+          </nav>
+          <div class="foot">7 个会话 · ⋯ 菜单：重命名 / 删除会话（→ Dialog，见 open=delete）· 搜索无结果：「没有匹配的会话」· 列表空态：「还没有会话，从右侧的建议开始」</div>
+        </aside>
+
+        <!-- ② 消息流 + ③ 输入区 -->
+        <section class="thread-wrap">
+          <div class="thread" role="log" aria-label="消息记录" aria-live="polite" data-p="②">
+            <div class="mhead"><a class="iconbtn convs-btn" href="?open=sidebar" aria-label="打开会话列表"><span class="ico" aria-hidden="true"></span></a><strong class="mtitle" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">上周缺货最多的 SKU</strong><a class="iconbtn convs-btn" href="?state=empty" aria-label="新建会话"><span class="ico" aria-hidden="true"></span></a></div>
+            <div class="inner">
+
+              <!-- empty：欢迎 + 4 建议卡 -->
+              <section class="st st-empty welcome" aria-label="欢迎">
+                <div class="mark" role="img" aria-label="Acme 助理"></div>
+                <h2>你好，若琳</h2>
+                <p>我可以查订单、看库存、生成补货建议，也能替你改单。试试下面的问题：</p>
+                <div class="sugt">试试这样问</div>
+                <div class="sugs" aria-label="建议问题">
+                  <a class="sug" href="?conversation=c_1"><span class="ico" aria-hidden="true"></span>上周华东仓缺货最多的 SKU 是哪个？</a>
+                  <a class="sug" href="?conversation=c_3"><span class="ico" aria-hidden="true"></span>今天待发货超过 48 小时的订单有哪些？</a>
+                  <a class="sug" href="?conversation=c_2"><span class="ico" aria-hidden="true"></span>帮我把 SO-20260903-0087 改为加急</a>
+                  <a class="sug" href="?state=streaming&conversation=c_1"><span class="ico" aria-hidden="true"></span>近 30 天各渠道销售额占比</a>
+                </div>
+              </section>
+
+              <!-- loading：3 组气泡骨架 -->
+              <div class="st st-loading" aria-busy="true" aria-label="正在加载历史消息">
+                <div class="skmsg me"><span class="sk av"></span><div class="lines" style="justify-items:end"><span class="sk" style="width:60%"></span></div></div>
+                <div class="skmsg"><span class="sk av"></span><div class="lines"><span class="sk"></span><span class="sk" style="width:92%"></span><span class="sk" style="width:70%;height:96px"></span><span class="sk" style="width:55%"></span></div></div>
+                <div class="skmsg me"><span class="sk av"></span><div class="lines" style="justify-items:end"><span class="sk" style="width:45%"></span></div></div>
+                <div class="skmsg"><span class="sk av"></span><div class="lines"><span class="sk" style="width:80%"></span><span class="sk" style="width:60%"></span></div></div>
+              </div>
+
+              <div class="st st-success">
+                <!-- ===== c_1 ===== -->
+                <div class="conv" data-conv-id="c_1">
+                  <div class="datesep">今天</div>
+                  <div class="msg me" aria-label="你在 17:02 说"><span class="av" aria-hidden="true">琳</span><div class="col"><div class="who"><span>17:02</span></div><div class="bbl">上周华东仓缺货最多的 SKU 是哪个？</div><div class="macts"><button class="iconbtn" type="button" aria-label="编辑并重发"><span class="ico" aria-hidden="true"></span></button></div></div></div>
+                  <div class="msg" aria-label="助理在 17:02 回复"><span class="av" role="img" aria-label="Acme 助理">A</span><div class="col">
+                    <div class="who"><span class="name">Acme 助理</span><span>17:02</span></div>
+                    <div class="tools"><details class="tool"><summary aria-label="工具调用：查询库存缺货"><span class="ico" aria-hidden="true"></span>查询库存缺货 · 0.6 秒<span class="dur">6 个 SKU，合计 40 单</span><span class="chev"></span></summary><dl class="body"><dt>参数</dt><dd>仓库=杭州仓（华东）· 周期=近 7 天（08-31 ~ 09-06）</dd><dt>结果</dt><dd>6 个 SKU 存在缺货延迟发货，合计 40 单</dd></dl></details></div>
+                    <div class="bbl">
+                      <p>近 7 天杭州仓（华东）因缺货延迟发货的订单共 <strong>40 单</strong>，涉及 6 个 SKU。缺货最多的是 <strong>胡桃木床头柜（双抽）</strong>：</p>
+                      <div class="md-table"><table aria-label="数据表"><thead><tr><th>SKU</th><th>商品</th><th class="num">缺货延迟订单</th><th class="num">当前库存 / 安全线</th></tr></thead><tbody>
+                        <tr><td class="mono">QM-NS-WAL-2D</td><td>胡桃木床头柜（双抽）</td><td class="num">14</td><td class="num">18 / 40</td></tr>
+                        <tr><td class="mono">QM-PL-CLD-45</td><td>云朵羊羔绒抱枕 45×45</td><td class="num">11</td><td class="num">165 / 200</td></tr>
+                        <tr><td class="mono">QM-CT-LIN-300</td><td>亚麻遮光窗帘 3.0m</td><td class="num">6</td><td class="num">41 / 50</td></tr>
+                        <tr><td class="mono">QM-TB-OAK-160</td><td>北欧白橡木餐桌 1.6m</td><td class="num">4</td><td class="num">9 / 12</td></tr>
+                        <tr><td class="mono">QM-ST-RTN-L</td><td>藤编脏衣篓（带盖）</td><td class="num">3</td><td class="num">34 / 40</td></tr>
+                        <tr><td class="mono">QM-WD-OAK-3</td><td>白橡木三门衣柜</td><td class="num">2</td><td class="num">4 / 5</td></tr>
+                      </tbody></table><div class="hint">左右滑动查看更多</div></div>
+                      <p>床头柜 9/3 直播后连续 3 天缺货，目前仍有 3 单待发货在等补货（SO-20260905-0115、SO-20260904-0075、SO-20260903-0087）。建议优先向 东阳樟里木艺 下补货单，常规交期 18 天。</p>
+                      <div class="srcs" aria-label="引用来源"><span class="lbl">来源</span><a class="chip" href="#" aria-label="数据快照：库存快照 09-06 17:30"><span class="ico" aria-hidden="true"></span>库存快照 09-06 17:30</a><a class="chip order" href="orders.html?open=drawer" aria-label="订单 SO-20260905-0115">SO-20260905-0115</a><a class="chip order" href="orders.html" aria-label="订单 SO-20260904-0075">SO-20260904-0075</a><a class="chip order" href="orders.html" aria-label="订单 SO-20260903-0087">SO-20260903-0087</a></div>
+                    </div>
+                    <div class="macts"><button class="iconbtn" type="button" aria-label="复制回复"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="重新生成"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="有帮助"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="没帮助"><span class="ico" aria-hidden="true"></span></button></div>
+                  </div></div>
+                  <div class="msg me" aria-label="你在 17:04 说"><span class="av" aria-hidden="true">琳</span><div class="col"><div class="who"><span>17:04</span></div><div class="bbl">把这张表导出成 CSV，我要贴到采购群</div></div></div>
+                  <div class="msg" aria-label="助理在 17:05 回复"><span class="av" role="img" aria-label="Acme 助理">A</span><div class="col">
+                    <div class="who"><span class="name">Acme 助理</span><span>17:05</span></div>
+                    <div class="bbl">
+                      <p>已生成，点右上角复制即可：</p>
+                      <div class="codeblk"><div class="ch"><span>csv</span><button class="btn btn-ghost" type="button" aria-label="复制代码">复制代码</button></div><pre>sku,name,stockout_orders_7d,stock,safety_stock,supplier
+QM-NS-WAL-2D,胡桃木床头柜（双抽）,14,18,40,东阳樟里木艺
+QM-PL-CLD-45,云朵羊羔绒抱枕 45×45,11,165,200,南通云织家纺
+QM-CT-LIN-300,亚麻遮光窗帘 3.0m,6,41,50,南通云织家纺
+QM-TB-OAK-160,北欧白橡木餐桌 1.6m,4,9,12,安吉林语木业
+QM-ST-RTN-L,藤编脏衣篓（带盖）,3,34,40,义乌竹里编艺
+QM-WD-OAK-3,白橡木三门衣柜,2,4,5,安吉林语木业</pre></div>
+                      <p>需要的话我可以直接为床头柜创建采购单草稿（60 件，樟里木艺，预付 30%）。</p>
+                      <div class="srcs" aria-label="引用来源"><span class="lbl">来源</span><a class="chip" href="#"><span class="ico" aria-hidden="true"></span>库存快照 09-06 17:30</a></div>
+                    </div>
+                    <div class="macts"><button class="iconbtn" type="button" aria-label="复制回复"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="重新生成"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="有帮助"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="没帮助"><span class="ico" aria-hidden="true"></span></button></div>
+                  </div></div>
+
+                  <!-- streaming：用户追问 + 流式气泡（mock.streamingSample） -->
+                  <div class="streaming-only">
+                    <div class="msg me" aria-label="你在 17:06 说"><span class="av" aria-hidden="true">琳</span><div class="col"><div class="who"><span>17:06</span></div><div class="bbl">那就帮我建采购单草稿吧</div></div></div>
+                    <div class="msg" aria-busy="true" aria-label="助理正在输入"><span class="av" role="img" aria-label="Acme 助理">A</span><div class="col">
+                      <div class="who"><span class="name">Acme 助理</span><span>正在输入…</span></div>
+                      <div class="tools"><details class="tool running"><summary aria-label="工具调用：创建采购单草稿"><span class="ico" aria-hidden="true"></span>正在创建采购单草稿…<span class="chev"></span></summary><dl class="body"><dt>参数</dt><dd>QM-NS-WAL-2D ×60 · sup_zhangli</dd></dl></details></div>
+                      <div class="bbl"><p>已为 <strong>胡桃木床头柜（双抽）</strong> 创建采购单草稿：</p><ul><li>供应商：东阳樟里木艺（吴丽华）</li><li>数量：60 件 × ¥480.00 = ¥28,800.00</li><li>期望到货：2026-09-24（常规交期 18 天）</li><li>结算：预付 30%</li></ul><p>正在补充落地灯与置物架的<span class="cursor" aria-hidden="true"></span></p></div>
+                    </div></div>
+                  </div>
+
+                  <!-- error：用户追问 + 回复失败 Alert -->
+                  <div class="error-only">
+                    <div class="msg me" aria-label="你在 17:06 说"><span class="av" aria-hidden="true">琳</span><div class="col"><div class="who"><span>17:06</span></div><div class="bbl">那就帮我建采购单草稿吧</div></div></div>
+                    <div class="errbox"><div class="alert" role="alert"><span class="ico" aria-hidden="true"></span><div><strong>回复失败</strong>生成失败：助理服务暂时不可用（504）</div><div class="acts"><button class="btn" type="button" style="height:32px">重试</button><button class="btn btn-ghost" type="button" style="height:32px">忽略</button></div></div></div>
+                  </div>
+                </div>
+
+                <!-- ===== c_2 ===== -->
+                <div class="conv" data-conv-id="c_2">
+                  <div class="datesep">今天</div>
+                  <div class="msg me" aria-label="你在 16:10 说"><span class="av" aria-hidden="true">琳</span><div class="col"><div class="who"><span>16:10</span></div><div class="bbl">帮我把 SO-20260903-0087 改为加急</div></div></div>
+                  <div class="msg" aria-label="助理在 16:11 回复"><span class="av" role="img" aria-label="Acme 助理">A</span><div class="col">
+                    <div class="who"><span class="name">Acme 助理</span><span>16:11</span></div>
+                    <div class="tools">
+                      <details class="tool"><summary aria-label="工具调用：查询订单"><span class="ico" aria-hidden="true"></span>查询订单 · 0.3 秒<span class="dur">待发货 · 缺货待补</span><span class="chev"></span></summary><dl class="body"><dt>参数</dt><dd>SO-20260903-0087</dd><dt>结果</dt><dd>待发货 · 抖音小店 · 苏婉婷 · 胡桃木床头柜（双抽）×2 · ¥1,798.00 · 缺货待补</dd></dl></details>
+                      <details class="tool" open><summary aria-label="工具调用：更新订单"><span class="ico" aria-hidden="true"></span>更新订单 · 0.4 秒<span class="dur">已更新</span><span class="chev"></span></summary><dl class="body"><dt>参数</dt><dd>SO-20260903-0087 · urgent=true</dd><dt>结果</dt><dd>已更新，操作人 沈若琳</dd></dl></details>
+                    </div>
+                    <div class="bbl"><p>已将 <strong>SO-20260903-0087</strong> 标记为加急。</p><ul><li>买家：苏婉婷（136****2214），杭州市萧山区</li><li>商品：胡桃木床头柜（双抽）× 2，¥1,798.00</li><li>当前状态：待发货，因 QM-NS-WAL-2D 缺货等补货（预计 09-09 到仓）</li></ul><p>加急后该单会排在补货到仓后的第一批出库，何嘉豪 会收到站内通知。是否也把同样缺货的 SO-20260905-0115 和 SO-20260904-0075 一起标记？</p>
+                      <div class="srcs" aria-label="引用来源"><span class="lbl">来源</span><a class="chip order" href="orders.html" aria-label="订单 SO-20260903-0087">SO-20260903-0087</a></div></div>
+                    <div class="macts"><button class="iconbtn" type="button" aria-label="复制回复"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="重新生成"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="有帮助"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="没帮助"><span class="ico" aria-hidden="true"></span></button></div>
+                  </div></div>
+                  <div class="msg me" aria-label="你在 16:12 说"><span class="av" aria-hidden="true">琳</span><div class="col"><div class="who"><span>16:12</span></div><div class="bbl">先不用，0115 客户没催。</div></div></div>
+                </div>
+
+                <!-- ===== c_3 ===== -->
+                <div class="conv" data-conv-id="c_3">
+                  <div class="datesep">今天</div>
+                  <div class="msg me" aria-label="你在 09:06 说"><span class="av" aria-hidden="true">琳</span><div class="col"><div class="who"><span>09:06</span></div><div class="bbl">今天待发货超过 48 小时的订单有哪些？</div></div></div>
+                  <div class="msg" aria-label="助理在 09:08 回复"><span class="av" role="img" aria-label="Acme 助理">A</span><div class="col">
+                    <div class="who"><span class="name">Acme 助理</span><span>09:08</span></div>
+                    <div class="tools"><details class="tool"><summary aria-label="工具调用：查询订单"><span class="ico" aria-hidden="true"></span>查询订单 · 0.5 秒<span class="dur">2 单</span><span class="chev"></span></summary><dl class="body"><dt>参数</dt><dd>状态=待发货 · 下单时间 &lt; 09-04 09:06</dd><dt>结果</dt><dd>2 单</dd></dl></details></div>
+                    <div class="bbl">
+                      <p>截至 09:06，待发货超过 48 小时的订单有 <strong>2 单</strong>，均因胡桃木床头柜 / 云朵抱枕缺货：</p>
+                      <div class="md-table"><table aria-label="数据表"><thead><tr><th>订单号</th><th>下单时间</th><th>渠道</th><th>商品</th><th class="num">金额</th></tr></thead><tbody>
+                        <tr><td class="mono">SO-20260903-0118</td><td>09-03 22:05</td><td>抖音小店</td><td>云朵羊羔绒抱枕 45×45 ×5</td><td class="num">¥445.00</td></tr>
+                        <tr><td class="mono">SO-20260903-0087</td><td>09-03 20:44</td><td>抖音小店</td><td>胡桃木床头柜（双抽）×2</td><td class="num">¥1,798.00</td></tr>
+                      </tbody></table><div class="hint">左右滑动查看更多</div></div>
+                      <blockquote>注：SO-20260904-0075（09-04 16:30 下单，同样缺货）将于今天 16:30 超期，建议一并处理。</blockquote>
+                      <div class="srcs" aria-label="引用来源"><span class="lbl">来源</span><a class="chip order" href="orders.html">SO-20260904-0075</a><a class="chip order" href="orders.html">SO-20260903-0118</a><a class="chip order" href="orders.html">SO-20260903-0087</a></div>
+                    </div>
+                    <div class="macts"><button class="iconbtn" type="button" aria-label="复制回复"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="重新生成"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="有帮助"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="没帮助"><span class="ico" aria-hidden="true"></span></button></div>
+                  </div></div>
+                </div>
+
+                <!-- ===== c_4 ===== -->
+                <div class="conv" data-conv-id="c_4">
+                  <div class="datesep">09-04</div>
+                  <div class="msg me" aria-label="你在 10:28 说"><span class="av" aria-hidden="true">琳</span><div class="col"><div class="who"><span>10:28</span></div><div class="bbl">9 月 3 日抖音直播卖了多少？和前一天比呢</div></div></div>
+                  <div class="msg" aria-label="助理在 10:30 回复"><span class="av" role="img" aria-label="Acme 助理">A</span><div class="col">
+                    <div class="who"><span class="name">Acme 助理</span><span>10:30</span></div>
+                    <div class="bbl"><p>9 月 3 日全渠道销售额 <strong>¥52,310 / 134 单</strong>，是近 30 天单日第二高（仅次于 8 月 19 日七夕礼赠的 ¥52,380 / 128 单）；较 9 月 2 日（¥39,760 / 101 单）增长 <strong>31.6%</strong>，新增订单主要来自抖音小店。</p><p>直播后 3 天内缺货最明显的是胡桃木床头柜（双抽）与云朵羊羔绒抱枕，建议下次直播前把这两款安全库存上调。</p>
+                      <div class="srcs" aria-label="引用来源"><span class="lbl">来源</span><a class="chip" href="dashboard.html?period=month" aria-label="文档：近 30 天逐日趋势"><span class="ico" aria-hidden="true"></span>近 30 天逐日趋势</a></div></div>
+                    <div class="macts"><button class="iconbtn" type="button" aria-label="复制回复"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="重新生成"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="有帮助"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="没帮助"><span class="ico" aria-hidden="true"></span></button></div>
+                  </div></div>
+                </div>
+
+                <!-- ===== c_5 ===== -->
+                <div class="conv" data-conv-id="c_5">
+                  <div class="datesep">昨天</div>
+                  <div class="msg me" aria-label="你在 14:18 说"><span class="av" aria-hidden="true">琳</span><div class="col"><div class="who"><span>14:18</span></div><div class="bbl">客户说亚麻窗帘颜色和图片不一样要退货，给我一段客服话术</div></div></div>
+                  <div class="msg" aria-label="助理在 14:20 回复"><span class="av" role="img" aria-label="Acme 助理">A</span><div class="col">
+                    <div class="who"><span class="name">Acme 助理</span><span>14:20</span></div>
+                    <div class="bbl"><p>可以这样回复：</p><blockquote>您好，亚麻为天然纤维，不同批次会有轻微色差，我们的详情页色卡标注了 ±5% 的范围。如果实物与您预期差别较大，支持 7 天无理由退货，运费由我们承担；也可以为您换同系列的「米白」或「燕麦」色，换货免运费。您看更倾向哪一种？</blockquote><p>若客户坚持退货，直接在订单里受理退款即可，退货地址会自动发送给买家。</p></div>
+                    <div class="macts"><button class="iconbtn" type="button" aria-label="复制回复"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="重新生成"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="有帮助"><span class="ico" aria-hidden="true"></span></button><button class="iconbtn" type="button" aria-label="没帮助"><span class="ico" aria-hidden="true"></span></button></div>
+                  </div></div>
+                </div>
+
+                <!-- ===== c_6 / c_7：historyAvailable=false → 骨架后停留为空态 ===== -->
+                <div class="conv" data-conv-id="c_6"><div class="unavail"><div class="fig" aria-hidden="true"></div><h2>历史消息未包含在演示数据中</h2><p>这条会话共 6 条消息，最后更新于 9 天前；演示站点只保留今天与本周的会话内容。</p><a class="btn btn-secondary" href="?conversation=c_1">返回今天的会话</a></div></div>
+                <div class="conv" data-conv-id="c_7"><div class="unavail"><div class="fig" aria-hidden="true"></div><h2>历史消息未包含在演示数据中</h2><p>这条会话共 4 条消息，最后更新于 15 天前；演示站点只保留今天与本周的会话内容。</p><a class="btn btn-secondary" href="?conversation=c_1">返回今天的会话</a></div></div>
+
+                <p class="disc">助理答案基于数据快照，重要操作请核对 · 快照 2026-09-06 17:30</p>
+              </div>
+            </div>
+            <div class="tobottom"><span class="btn btn-secondary">回到最新消息</span></div>
+          </div>
+
+          <!-- ③ 输入区 -->
+          <form class="composer" aria-label="消息输入" data-p="③" onsubmit="return false">
+            <div class="inner">
+              <div class="chips-row" aria-label="建议问题">
+                <a class="chip" href="?conversation=c_1"><span class="ico" aria-hidden="true"></span>上周华东仓缺货最多的 SKU 是哪个？</a>
+                <a class="chip" href="?conversation=c_3"><span class="ico" aria-hidden="true"></span>今天待发货超过 48 小时的订单有哪些？</a>
+                <a class="chip" href="?conversation=c_2"><span class="ico" aria-hidden="true"></span>帮我把 SO-20260903-0087 改为加急</a>
+                <a class="chip" href="?state=streaming"><span class="ico" aria-hidden="true"></span>近 30 天各渠道销售额占比</a>
+              </div>
+              <div class="box">
+                <span class="att-chip"><span class="ico ico-sm" aria-hidden="true"></span>缺货SKU-0906.csv · 12 KB<button class="iconbtn" type="button" aria-label="移除附件 缺货SKU-0906.csv" style="width:24px;height:24px">×</button></span>
+                <label class="vh" for="msg">输入消息</label>
+                <textarea id="msg" rows="2" placeholder="问问订单、库存或采购…" aria-describedby="hint"></textarea>
+                <div class="row">
+                  <button class="iconbtn" type="button" aria-label="添加附件" title="支持 CSV / XLSX / PDF / PNG / JPG，不超过 10 MB"><span class="ico" aria-hidden="true"></span></button>
+                  <div class="ctl" role="button" aria-haspopup="listbox" aria-label="选择模型"><span class="ico ico-sm" aria-hidden="true"></span><span class="val">标准</span><span class="ico" aria-hidden="true" style="width:12px;height:12px"></span></div>
+                  <span class="sp"></span>
+                  <span class="counter" style="font-size:11px;color:var(--g40)">0 / 2000</span>
+                  <button class="iconbtn send" type="submit" aria-label="发送" aria-disabled="true"><span class="ico" aria-hidden="true"></span></button>
+                  <button class="iconbtn stop" type="button" aria-label="停止生成"><span class="ico" aria-hidden="true" style="width:14px;height:14px;border-radius:2px;background:var(--g0)"></span></button>
+                </div>
+              </div>
+              <div class="hint" id="hint"><span class="k">Enter 发送，Shift + Enter 换行</span><span>模型：标准（快速回答）/ 深度分析（较慢）· 附件 ≤ 10 MB</span></div>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" role="status"><span class="ico ico-sm" aria-hidden="true"></span><span class="toast-msg">已把 SO-20260903-0087 标记为加急</span><span class="life">· 3 秒后消失</span></div>
+  <div class="backdrop" aria-hidden="true"></div>
+
+  <!-- 375 会话 Sheet（side=left），内容与左栏一致 -->
+  <div class="sheet-convs convs" role="dialog" aria-modal="true" aria-label="会话列表">
+    <div class="top"><h1>智能助理</h1><a class="iconbtn" href="?" aria-label="关闭会话列表">×</a></div>
+    <div class="sbox"><div class="ctl" role="search" aria-label="搜索会话"><span class="ico ico-sm" aria-hidden="true"></span><span class="ph">搜索会话</span></div></div>
+    <div style="padding:0 16px 8px"><a class="btn" href="?state=empty" style="width:100%">新建会话</a></div>
+    <nav class="list" aria-label="会话">
+      <div class="grp">今天</div>
+      <a class="citem" href="?conversation=c_1" aria-current="page"><span class="t"><b>上周缺货最多的 SKU</b><span>17:05 · 4 条</span></span></a>
+      <a class="citem" href="?conversation=c_2"><span class="t"><b>SO-20260903-0087 改加急</b><span>16:12 · 3 条</span></span></a>
+      <a class="citem" href="?conversation=c_3"><span class="un" aria-hidden="true"></span><span class="t"><b>待发货超 48 小时的订单</b><span>09:08 · 2 条 · 有新回复</span></span></a>
+      <div class="grp">本周</div>
+      <a class="citem" href="?conversation=c_5"><span class="t"><b>退款话术：亚麻色差</b><span>昨天 14:20 · 2 条</span></span></a>
+      <a class="citem" href="?conversation=c_4"><span class="t"><b>9/3 抖音直播复盘</b><span>09-04 10:30 · 2 条</span></span></a>
+      <div class="grp">更早</div>
+      <a class="citem na" href="?conversation=c_6"><span class="t"><b>双 11 预售上架清单</b><span>08-28 · 6 条 · 历史未包含</span></span></a>
+      <a class="citem na" href="?conversation=c_7"><span class="t"><b>杭州仓盘点进度</b><span>08-22 · 4 条 · 历史未包含</span></span></a>
+    </nav>
+  </div>
+
+  <!-- ===== 叠层清单 ===== -->
+  <section class="overlays" aria-label="叠层元素">
+    <h2>叠层元素（?open= 命中时以真实叠层位置显示）</h2>
+    <div class="row">
+      <div><p class="panel-cap">open=delete · 会话 ⋯ › 删除会话</p>
+        <div class="panel dialog ov-delete" role="dialog" aria-modal="true" aria-labelledby="dl-t"><h3 id="dl-t">删除会话「<span class="del-title">待发货超 48 小时的订单</span>」？</h3><p>删除后无法恢复，助理执行过的操作（如改单）不会撤销。</p><div class="acts"><a class="btn btn-secondary" href="?">取消</a><button class="btn" type="button">删除</button></div></div>
+      </div>
+      <div><p class="panel-cap">会话 ⋯ 菜单</p><div class="panel" style="width:200px"><ul class="menu"><li><span class="ico ico-sm" aria-hidden="true"></span>重命名</li><li class="danger"><span class="ico ico-sm" aria-hidden="true"></span>删除会话</li></ul></div></div>
+      <div><p class="panel-cap">模型 Select</p><div class="panel" style="width:260px"><ul class="menu" role="listbox"><li aria-selected="true"><span class="ico ico-sm" aria-hidden="true"></span><span><b>标准</b><br /><small style="color:var(--g60)">快速回答，适合查询与改单</small></span></li><li><span class="ico ico-sm" aria-hidden="true"></span><span><b>深度分析</b><br /><small style="color:var(--g60)">跨周期对比与复盘，响应较慢</small></span></li></ul></div></div>
+      <div><p class="panel-cap">离线 warning 条（顶部）/ 附件过大内联错误</p><div class="alert warn" style="width:320px"><span class="ico" aria-hidden="true"></span><div>网络已断开，消息将在恢复后发送</div></div><p class="panel-cap" style="margin-top:8px">「文件超过 10 MB」显示在附件 Chip 下方</p></div>
+    </div>
+  </section>
+
+<script>
+  // 仅用于线框状态切换（?state= / ?conversation= / ?open= / ?toast=），无业务逻辑。
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var s = q.get('state') || 'success'; if (!/^(empty|loading|streaming|success|error)$/.test(s)) s = 'success';
+    var cv = q.get('conversation') || 'c_1'; if (!/^c_[1-7]$/.test(cv)) cv = 'c_1';
+    if ((s === 'streaming' || s === 'error') && cv !== 'c_1') cv = 'c_1';
+    var root = document.documentElement;
+    root.setAttribute('data-state', s); root.setAttribute('data-conv', cv);
+    var o = q.get('open'); if (/^(sidebar|delete)$/.test(o || '')) root.setAttribute('data-open', o);
+    if (q.get('toast') === 'urgent') root.setAttribute('data-toast', 'urgent');
+    var titles = { c_1: '上周缺货最多的 SKU', c_2: 'SO-20260903-0087 改加急', c_3: '待发货超 48 小时的订单', c_4: '9/3 抖音直播复盘', c_5: '退款话术：亚麻色差', c_6: '双 11 预售上架清单', c_7: '杭州仓盘点进度' };
+    document.querySelector('.mtitle').textContent = s === 'empty' ? '新会话' : titles[cv];
+    document.querySelector('.del-title').textContent = titles[cv];
+    if (s !== 'empty') document.querySelectorAll('.convs .citem[data-id="' + cv + '"]').forEach(function (a) { a.setAttribute('aria-current', 'page'); });
+    if (cv === 'c_3' && s !== 'empty') document.querySelectorAll('.citem[href="?conversation=c_3"] .un').forEach(function (u) { u.remove(); });
+    var mark = function (sel) { var el = document.querySelector(sel); if (el) el.setAttribute('aria-current', 'true'); };
+    mark('.wf-bar a[data-s="' + s + '"]'); if (s !== 'empty') mark('.wf-bar a[data-cv="' + cv + '"]'); if (o) mark('.wf-bar a[data-o="' + o + '"]'); if (q.get('toast') === 'urgent') mark('.wf-bar a[data-t="urgent"]');
+  })();
+</script>
+</body>
+</html>

@@ -720,6 +720,12 @@ export default function Orders() {
   const menuId = open === "order-menu" ? (orderParam && byId.has(orderParam) ? orderParam : "SO-20260906-0108") : null
 
   const closeOverlay = () => set({ open: null, order: null, tab: null })
+  /** 菜单关闭只在仍是菜单态时清 open：菜单项 onSelect 已切到抽屉 / 对话框时，Radix 紧随的 onOpenChange(false) 不得覆盖 */
+  const menuOpenChange = (on: boolean, id: string) =>
+    set((cur): Record<string, string | null> => {
+      if (on) return { open: "order-menu", order: id }
+      return cur.get("open") === "order-menu" ? { open: null, order: null } : {}
+    })
   const overlayId = drawerId ?? dialogId
   const lastOverlayId = React.useRef<string | null>(null)
   React.useEffect(() => {
@@ -1068,7 +1074,7 @@ export default function Orders() {
                           order={o}
                           menuKey={o.id}
                           open={menuId === o.id && !cards}
-                          onOpenChange={(on) => set({ open: on ? "order-menu" : null, order: on ? o.id : null })}
+                          onOpenChange={(on) => menuOpenChange(on, o.id)}
                           onAction={(a) => doAction(a, o.id)}
                         />
                       </TableCell>
@@ -1123,7 +1129,7 @@ export default function Orders() {
                     menuKey={o.id}
                     className="mt-1"
                     open={menuId === o.id && cards}
-                    onOpenChange={(on) => set({ open: on ? "order-menu" : null, order: on ? o.id : null })}
+                    onOpenChange={(on) => menuOpenChange(on, o.id)}
                     onAction={(a) => doAction(a, o.id)}
                   />
                 </li>

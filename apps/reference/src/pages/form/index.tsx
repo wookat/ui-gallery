@@ -1191,13 +1191,15 @@ export default function FormPage() {
                     <SaveIcon aria-hidden />
                     {t("form.nav.saveDraft")}
                   </Button>
+                  {/* key 区分两个按钮：同一 <button> 在 click 内从 type=button 切成 type=submit 会被浏览器当作提交 */}
                   {step < 3 ? (
-                    <Button type="button" disabled={loading} onClick={() => advance()} className="mobile:flex-1">
+                    <Button key="next" type="button" disabled={loading} onClick={() => advance()} className="mobile:flex-1">
                       {t("form.nav.next")}
                       <ArrowRightIcon aria-hidden />
                     </Button>
                   ) : (
                     <Button
+                      key="submit"
                       type="submit"
                       loading={loading}
                       aria-disabled={!model.terms && !loading ? true : undefined}

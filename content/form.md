@@ -11,7 +11,7 @@
 | stepper.step | 第 {n} 步，共 3 步 | 375 下用文字代替横向步骤条 |
 | stepper.status.done | 已完成 | 步骤图标视觉隐藏文字 |
 | stepper.status.current | 当前步骤 | |
-| stepper.status.todo | 未开始 |
+| stepper.status.todo | 未开始 | |
 | stepper.status.error | 有待修正项 | 当前步存在校验错误时的读屏后缀 |
 | step1.title | 基本信息 | 与 `mock.steps[0].label` 一致 |
 | step1.description | 选择供应商并填写联系与结算方式 | |
@@ -115,9 +115,9 @@
 | summary.field.arrival | 期望到货 | 「{date} {slot}」 |
 | summary.field.freight | 运费预算 | |
 | summary.field.attachments | 附件 | 「{n} 个文件」 |
-| summary.field.tags | 标签 |
+| summary.field.tags | 标签 | |
 | summary.attachmentsCount | {n} 个文件 | 摘要「附件」取值（只计已上传） |
-| aside.aria | 采购单摘要 | 右侧摘要卡 aria-label | |
+| aside.aria | 采购单摘要 | 右侧摘要卡 aria-label |
 | summary.total.goods | 商品合计 | |
 | summary.total.freight | 运费预算 | 显示区间 |
 | summary.total.grand | 预计总额 | 商品合计 + 运费上限，加粗 |
@@ -143,8 +143,8 @@
 | success.title | 采购单已提交 | Result 图形 + 标题，数据见 `mock.success` |
 | success.primary | 查看采购单 | 主按钮（本轮不可达，Toast `shell.nav.disabled.tip`） |
 | success.secondary | 再建一张 | 次级按钮，回到第 1 步并清空 |
-| success.sentTo | 已发送至 {email} |
-| success.description | {po} 已发送给 {supplier}（{contact}），预计 {date} {slot}到达{warehouse}。 | 按当前填写值拼出的结果描述（mock.success.description 为默认值样例） | 副文案 |
+| success.sentTo | 已发送至 {email} | 副文案 |
+| success.description | {po} 已发送给 {supplier}（{contact}），预计 {date} {slot}到达{warehouse}。 | 按当前填写值拼出的结果描述（mock.success.description 为默认值样例） |
 | leave.title | 离开页面？ | 有未保存改动时切换导航的 Dialog |
 | leave.description | 采购单尚未提交，离开后填写内容将丢失。 | |
 | leave.stay | 继续填写 | |

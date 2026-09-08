@@ -103,7 +103,7 @@ function Combobox({
   }
 
   const list = (
-    <ul id={listId} role="listbox" aria-label={placeholder} className="flex max-h-[calc(var(--size-hit)*6)] flex-col overflow-y-auto">
+    <ul id={listId} role="listbox" aria-label={placeholder} className="max-h-[calc(var(--size-hit)*6+var(--space-2))] overflow-y-auto">
       {filtered.length === 0 ? (
         <li data-slot="combobox-empty" className={cn("text-center text-fg-muted", inline ? "flex min-h-hit items-center justify-center px-3 text-role-caption" : "px-3 py-6")}>
           {emptyText}
@@ -120,7 +120,7 @@ function Combobox({
             onMouseEnter={() => setActive(i)}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => pick(o)}
-            className="flex min-h-hit w-full cursor-pointer items-center gap-3 rounded-sm px-3 py-2 text-left text-role-body select-none data-active:bg-surface-muted aria-selected:bg-primary-soft aria-selected:text-on-primary-soft aria-disabled:disabled-look [&_svg]:size-icon-md"
+            className="flex min-h-hit w-full cursor-pointer items-center justify-between gap-3 rounded-sm px-3 py-2 text-left text-role-body select-none data-active:bg-surface-muted aria-selected:bg-primary-soft aria-selected:text-on-primary-soft aria-disabled:disabled-look [&_svg]:size-icon-md"
           >
             <span className="flex min-w-0 flex-1 flex-col gap-1">
               <span className="truncate">{o.label}</span>
@@ -138,15 +138,10 @@ function Combobox({
     return (
       <PopoverPrimitive.Root open={open} onOpenChange={(o) => (o ? setOpen(true) : close())}>
         <PopoverPrimitive.Anchor asChild>
-          <div
-            ref={anchorRef}
-            data-slot="combobox-input"
-            className={cn(
-              "flex h-control-md w-full min-w-0 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 text-role-body text-fg transition-colors duration-(--motion-fast) ease-std focus-within:border-primary has-[input:hover:not(:disabled)]:border-fg-muted has-aria-invalid:border-(length:--border-width-accent) has-aria-invalid:border-danger has-disabled:bg-surface-muted has-disabled:text-fg-muted [&_svg]:size-icon-sm",
-              className,
-            )}
-          >
-            <SearchIcon aria-hidden className="shrink-0 text-fg-muted" />
+          <div ref={anchorRef} data-slot="combobox-input" className={cn("relative flex w-full min-w-0 items-center text-fg-muted [&_svg]:pointer-events-none", className)}>
+            <span aria-hidden className="absolute inset-y-0 left-0 grid w-hit place-items-center [&_svg]:size-icon-sm">
+              <SearchIcon />
+            </span>
             <input
               id={id}
               type="text"
@@ -175,9 +170,12 @@ function Combobox({
               }}
               onBlur={onBlur}
               onKeyDown={onKeyDown}
-              className="h-hit min-w-0 flex-1 rounded-sm border-0 bg-transparent text-fg placeholder:text-fg-muted focus-visible:outline-offset-0 disabled:cursor-not-allowed"
+              className="h-control-md w-full min-w-0 rounded-md border border-border-strong bg-surface pl-hit pr-hit text-role-body text-fg transition-colors duration-(--motion-fast) ease-std placeholder:text-fg-muted hover:not-disabled:border-fg-muted focus-visible:border-primary aria-expanded:border-primary aria-invalid:border-(length:--border-width-accent) aria-invalid:border-danger aria-invalid:focus-visible:outline-danger disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-fg-muted"
               {...aria}
             />
+            <span aria-hidden className="absolute inset-y-0 right-0 grid w-hit place-items-center [&_svg]:size-icon-md">
+              <ChevronDownIcon />
+            </span>
           </div>
         </PopoverPrimitive.Anchor>
         <PopoverPrimitive.Portal>
@@ -185,6 +183,8 @@ function Combobox({
             data-slot="combobox-content"
             align="start"
             sideOffset={4}
+            avoidCollisions={false}
+            hideWhenDetached
             onOpenAutoFocus={(e) => e.preventDefault()}
             onCloseAutoFocus={(e) => e.preventDefault()}
             onInteractOutside={(e) => {

@@ -52,7 +52,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tag } from "@/components/ui/badge"
 import { TagInput } from "@/components/ui/tag-input"
 import { CharCounter, Textarea } from "@/components/ui/textarea"
-import { PageHeader } from "@/components/composed/page-header"
 import { Result } from "@/components/composed/result"
 import { Stepper } from "@/components/composed/stepper"
 import { AppShell } from "@/pages/dashboard/shell"
@@ -92,12 +91,24 @@ type Local = "terms" | "leave" | null
 
 const CENTERED_DIALOG =
   "mobile:top-1/2 mobile:bottom-auto mobile:left-1/2 mobile:w-[calc(100vw-var(--space-4)*2)] mobile:max-w-dialog mobile:-translate-1/2 mobile:rounded-xl mobile:px-4 mobile:py-5"
-const CARD = "min-w-0 rounded-lg border bg-surface p-6 text-fg shadow-sm mobile:p-4"
+const CARD = "min-w-0 rounded-lg border bg-surface p-6 text-fg shadow-sm tablet:p-4"
+/** hifi .aside .row：桌面左右对齐；≤1024 非 rail 与 ≤768 改为上下堆叠的 2 列网格单元 */
+const ASIDE_ROW = "flex items-baseline justify-between gap-4 tablet:flex-col tablet:items-start tablet:gap-1 rail:tablet:flex-row rail:tablet:items-baseline rail:tablet:gap-4 mobile:flex-col! mobile:items-start! mobile:gap-1!"
+const ASIDE_DT = "shrink-0 text-role-body text-fg-muted tablet:text-role-caption rail:tablet:text-role-body mobile:text-role-caption!"
+const ASIDE_DD = "min-w-0 text-right wrap-anywhere tablet:text-left rail:tablet:text-right mobile:text-left!"
+/** hifi .sum-section：描边卡，space-4 × space-5 内距 */
+const SUM_SECTION = "grid gap-3 rounded-md border px-5 py-4 mobile:gap-2 mobile:px-4 mobile:py-3"
+/** hifi .dl / .dl-2：dt 为 body 字号、与 dd 同基线；≤768 列距收窄为 space-4 */
+const SUM_DL = "mobile:gap-x-4 [&>dd]:min-h-0 [&>dt]:pt-0 [&>dt]:text-role-body"
+/** hifi form .alert-body：min-height control-md 垂直居中，动作区 md 幽灵钮与之同高 */
+const ALERT = "gap-y-3 pr-4 mobile:-mb-2 [&>[data-slot=alert-body]]:min-h-control-md [&>[data-slot=alert-body]]:content-center [&>[data-slot=alert-body]]:gap-1"
+/** 同行动作区（hifi .alert-actions margin-right -space-2，与正文同高） */
+const ALERT_INLINE = `${ALERT} [&>[data-slot=alert-actions]]:my-0 [&>[data-slot=alert-actions]]:-mr-2`
 const PARENT_NAV = mock.nav.flatMap((g): NavItem[] => g.items).find((it) => it.key === "purchasing")
 
 const Required = () => (
   <>
-    <span aria-hidden className="text-danger">
+    <span aria-hidden className="ml-1 text-danger">
       *
     </span>
     <span className="sr-only">{t("form.required")}</span>
@@ -107,7 +118,7 @@ const Optional = () => <span className="ml-2 text-role-caption font-normal text-
 
 const PanelHead = ({ id, title, description }: { id: string; title: string; description: string }) => (
   <div className="grid gap-1">
-    <h2 id={id} className="text-role-title">
+    <h2 id={id} className="text-role-heading">
       {title}
     </h2>
     <p className="text-role-caption text-fg-muted">{description}</p>
@@ -115,11 +126,11 @@ const PanelHead = ({ id, title, description }: { id: string; title: string; desc
 )
 
 const SummaryHead = ({ id, title, onEdit, disabled }: { id: string; title: string; onEdit: () => void; disabled: boolean }) => (
-  <div className="flex items-center justify-between gap-3">
-    <h3 id={id} className="text-role-label">
+  <div className="flex min-h-hit items-center justify-between gap-3">
+    <h3 id={id} className="text-role-title">
       {title}
     </h3>
-    <Button type="button" variant="ghost" size="sm" disabled={disabled} onClick={onEdit}>
+    <Button type="button" variant="ghost" disabled={disabled} onClick={onEdit} className="-mr-3">
       <PencilIcon aria-hidden />
       {t("form.summary.edit")}
     </Button>
@@ -151,6 +162,8 @@ export default function FormPage() {
   const [reached, setReached] = React.useState<Step>(initialStep)
   const [dirty, setDirty] = React.useState(true)
   const [local, setLocal] = React.useState<Local>(null)
+  /** ?open= 驱动的浮层被关闭后，URL 更新前先同步关闭，保证焦点归还时序确定 */
+  const [dismissed, setDismissed] = React.useState<Local>(null)
   const [leaveTo, setLeaveTo] = React.useState("/dashboard")
   const [submitAlert, setSubmitAlert] = React.useState(state === "error")
   const timer = React.useRef<number | null>(null)
@@ -187,12 +200,16 @@ export default function FormPage() {
     const el = [document.getElementById(id), document.getElementById(`${id}-m`)].find((n) => n && n.offsetParent !== null)
     if (!el) return false
     el.focus({ preventScroll: true })
-    el.scrollIntoView({ block: "center" })
+    const r = el.getBoundingClientRect()
+    if (r.top < 0 || r.bottom > window.innerHeight) el.scrollIntoView({ block: "center" })
     return true
   }
   React.useEffect(() => {
     if (pendingFocus.current && focusById(pendingFocus.current)) pendingFocus.current = null
   })
+  React.useEffect(() => {
+    if (open === null) setDismissed(null)
+  }, [open])
   const focusFirstError = (errs: readonly { focusId: string }[]) => {
     if (errs[0]) pendingFocus.current = errs[0].focusId
   }
@@ -254,12 +271,17 @@ export default function FormPage() {
   }
 
   const overlay = (key: Exclude<Local, null>) => ({
-    open: open === key || local === key,
+    open: (open === key && dismissed !== key) || local === key,
     onOpenChange: (o: boolean) => {
-      if (o) setLocal(key)
-      else {
+      if (o) {
+        setLocal(key)
+        setDismissed(null)
+      } else {
         setLocal(null)
-        if (open === key) set({ open: null })
+        if (open === key) {
+          setDismissed(key)
+          set({ open: null })
+        }
       }
     },
   })
@@ -292,7 +314,7 @@ export default function FormPage() {
     label: k.name,
     hint: (
       <>
-        <span className="font-mono">{k.sku}</span>
+        <span className="font-mono text-xs">{k.sku}</span>
         <span>{t("form.items.sku.meta", { stock: k.stock, safety: k.safetyStock })}</span>
         {k.lowStock ? <Tag tone="warning">{t("form.items.sku.lowStock")}</Tag> : null}
       </>
@@ -350,8 +372,8 @@ export default function FormPage() {
     if (!k) return null
     return (
       <span className="flex flex-wrap items-center gap-2 text-role-caption text-fg-muted">
-        <span className="font-mono">{k.sku}</span>
-        <span>{t("form.items.sku.meta", { stock: k.stock, safety: k.safetyStock })}</span>
+        <span className="font-mono text-xs">{k.sku}</span>
+        <span className="whitespace-nowrap">{t("form.items.sku.meta", { stock: k.stock, safety: k.safetyStock })}</span>
         {k.lowStock ? <Tag tone="warning">{t("form.items.sku.lowStock")}</Tag> : null}
       </span>
     )
@@ -404,23 +426,12 @@ export default function FormPage() {
       busy={loading}
       beforeLeave={beforeLeave}
     >
-      <PageHeader
-        title={t("form.title")}
-        description={(() => {
-          const [a, b] = t("form.subtitle", { po: "\u0000" }).split("\u0000")
-          return (
-            <>
-              {a}
-              <span className="font-mono tabular-nums">{PF.poNumberNext}</span>
-              {b}
-            </>
-          )
-        })()}
-      />
-
       {success ? (
+        <>
+          <h1 className="sr-only">{t("form.title")}</h1>
         <Result
           status="success"
+          className="gap-3 py-16 mobile:px-4 mobile:py-12 [&>h2]:text-role-display mobile:[&>h2]:text-role-heading [&>span]:size-[calc(var(--size-sparkline)*4)] [&>span_svg]:size-[calc(var(--size-sparkline)*2)] [&>div:not(:last-child)]:mt-0 mobile:[&>div:last-child]:w-full mobile:[&>div:last-child]:flex-col mobile:[&>div:last-child]:items-stretch"
           title={t("form.success.title")}
           description={(() => {
             const desc =
@@ -451,8 +462,26 @@ export default function FormPage() {
         >
           <p className="text-center text-role-caption text-fg-muted">{t("form.success.sentTo", { email: model.email })}</p>
         </Result>
+        </>
       ) : (
         <>
+          <header data-slot="page-header" className="flex flex-wrap items-end justify-between gap-4 mobile:flex-col mobile:items-stretch">
+            <div className="flex min-w-0 flex-col gap-1">
+              <h1 className="text-role-display mobile:text-role-heading">{t("form.title")}</h1>
+              <p className="text-role-caption wrap-anywhere text-fg-muted">
+                {(() => {
+                  const [a, b] = t("form.subtitle", { po: "\u0000" }).split("\u0000")
+                  return (
+                    <>
+                      {a}
+                      <span className="font-mono text-sm leading-snug tabular-nums">{PF.poNumberNext}</span>
+                      {b}
+                    </>
+                  )
+                })()}
+              </p>
+            </div>
+          </header>
           <Stepper
             aria-label={t("form.stepper.aria")}
             steps={steps}
@@ -466,7 +495,7 @@ export default function FormPage() {
           />
           <div aria-hidden className="hidden flex-col gap-2 mobile:flex">
             <div className="flex items-baseline justify-between gap-3">
-              <strong className={cn("text-role-label", errors.length ? "text-danger" : "text-fg")}>{steps[step - 1].label}</strong>
+              <strong className={cn("text-role-title", errors.length ? "text-danger" : "text-fg")}>{steps[step - 1].label}</strong>
               <span className="text-role-caption text-fg-muted tabular-nums">{t("form.stepper.step", { n: step })}</span>
             </div>
             <div className="h-track overflow-hidden rounded-full bg-surface-muted">
@@ -487,40 +516,45 @@ export default function FormPage() {
               className={cn(CARD, "flex flex-col gap-6 tablet:order-2 rail:tablet:order-none mobile:order-2! mobile:pb-0")}
             >
                 {errors.length ? (
-                  <Alert variant="danger">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <strong className="text-role-label">{t("form.invalid.summary", { n: errors.length })}</strong>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => focusFirstError(errors)}>
+                  <Alert
+                    variant="danger"
+                    className={ALERT_INLINE}
+                    actions={
+                      <Button type="button" variant="ghost" onClick={() => focusFirstError(errors)} className="text-danger hover:not-disabled:text-danger">
                         {t("form.invalid.goto")}
                       </Button>
-                    </div>
+                    }
+                  >
+                    <strong className="text-role-label text-danger">{t("form.invalid.summary", { n: errors.length })}</strong>
                   </Alert>
                 ) : null}
                 {state === "error" && submitAlert ? (
                   <Alert
                     variant="danger"
+                    className={ALERT}
                     closeLabel={t("form.error.dismiss")}
                     onClose={() => {
                       setSubmitAlert(false)
                       set({ state: null })
                     }}
-                  >
-                    <strong className="text-role-label">{t("form.error.title")}</strong>
-                    <AlertDescription>{V.submitError}</AlertDescription>
-                    <div>
-                      <Button id="retryBtn" type="button" variant="secondary" size="sm" onClick={submit}>
+                    wrapActions
+                    actions={
+                      <Button id="retryBtn" type="button" variant="secondary" onClick={submit}>
                         <RefreshCwIcon aria-hidden />
                         {t("form.error.retry")}
                       </Button>
-                    </div>
+                    }
+                  >
+                    <strong className="text-role-label text-danger">{t("form.error.title")}</strong>
+                    <AlertDescription>{V.submitError}</AlertDescription>
                   </Alert>
                 ) : null}
 
                 <fieldset disabled={loading} inert={loading || undefined} className="m-0 flex min-w-0 flex-col gap-6 border-0 p-0 aria-disabled:opacity-100">
                   {step === 1 ? (
-                    <section aria-labelledby="p1Title" className="flex flex-col gap-5">
+                    <section aria-labelledby="p1Title" className="flex flex-col gap-6 mobile:gap-4">
                       <PanelHead id="p1Title" title={steps[0].label} description={steps[0].description} />
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-5 mobile:grid-cols-1">
+                      <div className="grid grid-cols-2 items-start gap-6 tablet:gap-4 mobile:grid-cols-1">
                         <Field className="col-span-2 mobile:col-span-1">
                           <FieldLabel htmlFor="supplier">
                             {t("form.supplier.label")}
@@ -568,7 +602,7 @@ export default function FormPage() {
                             {t("form.phone.label")}
                             <Required />
                           </FieldLabel>
-                          <div className="grid grid-cols-[max-content_minmax(0,1fr)] gap-2 mobile:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+                          <div className="grid grid-cols-[max-content_minmax(0,1fr)] gap-2 rail:tablet:grid-cols-1">
                             <Select id="phoneCountry" aria-label={t("form.phone.country.aria")} value={model.phoneCountryCode} onChange={(e) => update({ phoneCountryCode: e.target.value })}>
                               {PF.phoneCountryCodes.map((c) => (
                                 <option key={c.code} value={c.code}>
@@ -611,7 +645,7 @@ export default function FormPage() {
                           <FieldError id="emailErr">{errorOf("email")}</FieldError>
                         </Field>
                         <fieldset className="col-span-2 m-0 grid gap-2 border-0 p-0 mobile:col-span-1" aria-describedby={errorOf("settlement") ? "settlementErr" : undefined}>
-                          <legend className="mb-2 block text-role-label text-fg">
+                          <legend className="block text-role-label text-fg">
                             {t("form.settlement.label")}
                             <Required />
                           </legend>
@@ -619,7 +653,7 @@ export default function FormPage() {
                             value={model.settlement}
                             onValueChange={(v) => update({ settlement: v })}
                             aria-invalid={!!errorOf("settlement") || undefined}
-                            className="grid grid-cols-2 gap-3 mobile:grid-cols-1"
+                            className="grid grid-cols-[repeat(auto-fill,minmax(calc(var(--size-form-max)/2),1fr))] gap-3 mobile:grid-cols-1"
                           >
                             {PF.settlementMethods.map((o) => (
                               <label
@@ -640,7 +674,7 @@ export default function FormPage() {
                           </RadioGroup>
                           <FieldError id="settlementErr">{errorOf("settlement")}</FieldError>
                         </fieldset>
-                        <label htmlFor="invoice" className="flex min-h-hit cursor-pointer items-start gap-3 text-role-body select-none has-disabled:cursor-not-allowed">
+                        <label htmlFor="invoice" className="flex min-h-hit cursor-pointer items-start gap-3 py-2 text-role-body select-none has-disabled:cursor-not-allowed">
                           <Checkbox id="invoice" checked={model.needInvoice} onCheckedChange={(c) => update({ needInvoice: c === true })} aria-describedby="invoiceHint" className="mt-hairline" />
                           <span className="flex flex-col gap-1">
                             <strong className="text-role-label">{t("form.invoice.label")}</strong>
@@ -649,7 +683,7 @@ export default function FormPage() {
                             </span>
                           </span>
                         </label>
-                        <label htmlFor="urgent" className="flex min-h-hit cursor-pointer items-start justify-between gap-3 text-role-body select-none has-disabled:cursor-not-allowed">
+                        <label htmlFor="urgent" className="flex min-h-hit cursor-pointer items-start justify-between gap-4 py-2 text-role-body select-none has-disabled:cursor-not-allowed">
                           <span className="flex min-w-0 flex-col gap-1">
                             <strong className="text-role-label">{t("form.urgent.label")}</strong>
                             <span id="urgentHint" className="text-role-caption text-fg-muted">
@@ -666,7 +700,9 @@ export default function FormPage() {
                               {t("form.note.label")}
                               <Optional />
                             </FieldLabel>
-                            <CharCounter id="noteCounter" value={model.note.length} max={V.noteMax} />
+                            <CharCounter id="noteCounter" value={model.note.length} max={V.noteMax}>
+                              {t("form.note.counter", { n: model.note.length, max: V.noteMax })}
+                            </CharCounter>
                           </div>
                           <Textarea
                             id="note"
@@ -685,24 +721,24 @@ export default function FormPage() {
                   ) : null}
 
                   {step === 2 ? (
-                    <section aria-labelledby="p2Title" className="flex flex-col gap-5">
+                    <section aria-labelledby="p2Title" className="flex flex-col gap-6 mobile:gap-4">
                       <PanelHead id="p2Title" title={steps[1].label} description={steps[1].description} />
-                      <div id="items" className={cn("flex flex-col gap-3 rounded-lg border p-4", itemsError && "border-danger")}>
-                        <div className="flex items-center justify-between gap-3">
-                          <h3 className="text-role-label">{t("form.items.title")}</h3>
+                      <div id="items" className="flex flex-col gap-3">
+                        <div className="flex items-end justify-between gap-3">
+                          <h3 className="text-role-title">{t("form.items.title")}</h3>
                           <span className="text-role-caption text-fg-muted tabular-nums">{countText}</span>
                         </div>
-                        <Table className="mobile:hidden">
+                        <Table className="table-fixed mobile:hidden [&_td]:px-2 [&_th]:h-table-header [&_th]:px-2 tablet:[&_td]:px-1 tablet:[&_th]:px-1">
                           <TableHeader>
                             <TableRow className="hover:[&>td]:bg-transparent">
                               <TableHead scope="col">{t("form.items.col.sku")}</TableHead>
-                              <TableHead scope="col" className="w-[calc(var(--size-hit)*3)]">
+                              <TableHead scope="col" className="w-20 tablet:w-[calc(var(--space-16)+var(--space-2))]">
                                 {t("form.items.col.qty")}
                               </TableHead>
-                              <TableHead scope="col" className="w-[calc(var(--size-hit)*4)]">
+                              <TableHead scope="col" className="w-[calc(var(--space-20)+var(--space-12))] tablet:w-[calc(var(--space-20)+var(--space-6))]">
                                 {t("form.items.col.unitPrice")}
                               </TableHead>
-                              <TableHead scope="col" className="w-[calc(var(--size-hit)*3)] text-right">
+                              <TableHead scope="col" className="w-[calc(var(--space-20)+var(--space-8))] text-right tablet:w-[calc(var(--space-20)+var(--space-4))]">
                                 {t("form.items.col.subtotal")}
                               </TableHead>
                               <TableHead scope="col" className="w-hit">
@@ -722,11 +758,11 @@ export default function FormPage() {
                                   </TableCell>
                                   <TableCell className="align-top">{numControl(r, i, "qty", "")}</TableCell>
                                   <TableCell className="align-top">{numControl(r, i, "unitPrice", "")}</TableCell>
-                                  <TableCell className="text-right align-top text-role-label tabular-nums [&]:pt-[calc(var(--space-3)+(var(--size-control-md)-var(--font-size-md)*var(--font-line-height-body))/2)]">
+                                  <TableCell className="text-right align-top text-role-label tabular-nums [&]:pt-[calc(var(--space-3)+(var(--size-control-md)-var(--font-size-sm)*var(--font-line-height-snug))/2)]">
                                     {formatCurrency(rowSubtotal(r))}
                                   </TableCell>
                                   <TableCell className="align-top">
-                                    <IconButton label={t("form.items.removeRow", { n: i + 1 })} onClick={() => removeRow(r.id)} className="text-danger hover:not-disabled:bg-danger-soft hover:not-disabled:text-danger">
+                                    <IconButton label={t("form.items.removeRow", { n: i + 1 })} onClick={() => removeRow(r.id)} className="hover:not-disabled:bg-danger-soft hover:not-disabled:text-danger">
                                       <Trash2Icon />
                                     </IconButton>
                                   </TableCell>
@@ -761,10 +797,10 @@ export default function FormPage() {
                                 {numControl(r, i, "unitPrice", "-m")}
                                 <FieldError id={`${rowField(r.id, "unitPrice")}-err-m`}>{errorOf(rowField(r.id, "unitPrice"))}</FieldError>
                               </Field>
-                              <div className="col-span-2 flex items-center justify-between gap-3 border-t pt-3">
+                              <div className="col-span-2 flex items-center gap-3 border-t pt-2">
                                 <span className="text-role-caption text-fg-muted">{t("form.items.col.subtotal")}</span>
-                                <span className="ml-auto text-role-label tabular-nums">{formatCurrency(rowSubtotal(r))}</span>
-                                <IconButton label={t("form.items.removeRow", { n: i + 1 })} onClick={() => removeRow(r.id)} className="text-danger hover:not-disabled:bg-danger-soft hover:not-disabled:text-danger">
+                                <span className="flex-1 text-right text-role-title tabular-nums">{formatCurrency(rowSubtotal(r))}</span>
+                                <IconButton label={t("form.items.removeRow", { n: i + 1 })} onClick={() => removeRow(r.id)} className="-mr-2 hover:not-disabled:bg-danger-soft hover:not-disabled:text-danger">
                                   <Trash2Icon />
                                 </IconButton>
                               </div>
@@ -772,21 +808,22 @@ export default function FormPage() {
                           ))}
                         </div>
                         <FieldError id="itemsErr">{itemsError}</FieldError>
-                        <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
-                          <Button id="addRow" type="button" variant="ghost" size="sm" onClick={addRow} aria-describedby={itemsError ? "itemsErr" : undefined}>
+                        <div className="flex flex-wrap items-center justify-between gap-4 mobile:flex-col-reverse mobile:items-stretch mobile:gap-3">
+                          <Button id="addRow" type="button" variant="ghost" onClick={addRow} aria-describedby={itemsError ? "itemsErr" : undefined} className="-ml-3 mobile:ml-0 mobile:justify-start">
                             <PlusIcon aria-hidden />
                             {t("form.items.add")}
                           </Button>
-                          <div className="flex flex-wrap items-baseline gap-3 tabular-nums">
+                          <div className="flex flex-col items-end gap-1 text-right tabular-nums mobile:items-start mobile:text-left">
                             <span className="text-role-caption text-fg-muted">{countText}</span>
-                            <strong className="text-role-label">
+                            <strong className="text-role-title">
                               {t("form.items.total")} {formatCurrency(goodsTotal(model))}
                             </strong>
                           </div>
                         </div>
                       </div>
+                      <div role="presentation" className="mt-2 h-hairline bg-border" />
 
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-5 mobile:grid-cols-1">
+                      <div className="grid grid-cols-2 items-start gap-6 tablet:gap-4 mobile:grid-cols-1">
                         <Field>
                           <FieldLabel htmlFor="warehouse">
                             {t("form.warehouse.label")}
@@ -899,26 +936,26 @@ export default function FormPage() {
                             aria-labelledby="attachLabel"
                           />
                           {model.attachments.length ? (
-                            <ul aria-label={t("form.attachments.label")} className="grid gap-2">
+                            <ul aria-label={t("form.attachments.label")} className="mt-2 grid">
                               {model.attachments.map((a) => (
-                                  <FileItem
-                                    key={a.id}
-                                    name={a.name}
-                                    size={formatFileSize(a.sizeKB)}
-                                    status={a.status}
-                                    progress={a.progress}
-                                    error={a.error}
-                                    removeLabel={t("form.attachments.remove", { name: a.name })}
-                                    onRemove={() => update({ attachments: model.attachments.filter((x) => x.id !== a.id) })}
-                                    actions={
-                                      a.status === "error" ? (
-                                        <Button type="button" variant="ghost" size="sm" onClick={() => setAttachment(a.id, { status: "uploading", progress: 0, error: undefined })}>
-                                          <RefreshCwIcon aria-hidden />
-                                          {t("form.attachments.retry")}
-                                        </Button>
-                                      ) : undefined
-                                    }
-                                  />
+                                <FileItem
+                                  key={a.id}
+                                  name={a.name}
+                                  size={formatFileSize(a.sizeKB)}
+                                  status={a.status}
+                                  progress={a.progress}
+                                  error={a.error}
+                                  statusLabels={{ uploading: t("form.attachments.uploading", { percent: a.progress ?? 0 }), done: t("form.attachments.done") }}
+                                  removeLabel={t("form.attachments.remove", { name: a.name })}
+                                  onRemove={() => update({ attachments: model.attachments.filter((x) => x.id !== a.id) })}
+                                  actions={
+                                    a.status === "error" ? (
+                                      <Button type="button" variant="ghost" size="sm" onClick={() => setAttachment(a.id, { status: "uploading", progress: 0, error: undefined })}>
+                                        {t("form.attachments.retry")}
+                                      </Button>
+                                    ) : undefined
+                                  }
+                                />
                               ))}
                             </ul>
                           ) : null}
@@ -950,14 +987,14 @@ export default function FormPage() {
                   ) : null}
 
                   {step === 3 ? (
-                    <section aria-labelledby="p3Title" className="flex flex-col gap-5">
+                    <section aria-labelledby="p3Title" className="flex flex-col gap-6 mobile:gap-4">
                       <PanelHead id="p3Title" title={t("form.summary.title")} description={steps[2].description} />
-                      <div className="flex flex-col gap-6">
-                        <section aria-labelledby="sumBasicTitle" className="grid gap-3">
+                      <div className="flex flex-col gap-4">
+                        <section aria-labelledby="sumBasicTitle" className={SUM_SECTION}>
                           <SummaryHead id="sumBasicTitle" title={t("form.summary.section.basic")} onEdit={() => goStep(1)} disabled={loading} />
-                          <DescriptionList cols={2} className="mobile:grid-cols-[max-content_minmax(0,1fr)]">
+                          <DescriptionList cols={2} className={SUM_DL}>
                             <DescriptionTerm>{t("form.summary.field.supplier")}</DescriptionTerm>
-                            <DescriptionDetails className="col-span-3 mobile:col-span-1">{supplier?.name ?? "—"}</DescriptionDetails>
+                            <DescriptionDetails className="col-[2/-1]">{supplier?.name ?? "—"}</DescriptionDetails>
                             <DescriptionTerm>{t("form.summary.field.contact")}</DescriptionTerm>
                             <DescriptionDetails className="tabular-nums">
                               {model.contact || "—"}
@@ -968,26 +1005,26 @@ export default function FormPage() {
                             <DescriptionTerm>{t("form.summary.field.settlement")}</DescriptionTerm>
                             <DescriptionDetails>{settlement?.label ?? "—"}</DescriptionDetails>
                             <DescriptionTerm>{t("form.summary.field.invoice")}</DescriptionTerm>
-                            <DescriptionDetails>{model.needInvoice ? t("form.bool.true") : t("form.bool.false")}</DescriptionDetails>
+                            <DescriptionDetails>{model.needInvoice ? t("form.yes") : t("form.no")}</DescriptionDetails>
                             <DescriptionTerm>{t("form.summary.field.urgent")}</DescriptionTerm>
                             <DescriptionDetails>{model.urgent ? t("form.bool.true") : t("form.bool.false")}</DescriptionDetails>
                             <DescriptionTerm>{t("form.summary.field.note")}</DescriptionTerm>
-                            <DescriptionDetails className="col-span-3 mobile:col-span-1">{model.note || "—"}</DescriptionDetails>
+                            <DescriptionDetails className="col-[2/-1]">{model.note || "—"}</DescriptionDetails>
                           </DescriptionList>
                         </section>
-                        <section aria-labelledby="sumGoodsTitle" className="grid gap-3">
+                        <section aria-labelledby="sumGoodsTitle" className={SUM_SECTION}>
                           <SummaryHead id="sumGoodsTitle" title={t("form.summary.section.goods")} onEdit={() => goStep(2)} disabled={loading} />
-                          <Table>
+                          <Table className="[&_th]:px-2">
                             <TableHeader>
                               <TableRow className="hover:[&>td]:bg-transparent">
-                                <TableHead scope="col">{t("form.items.col.sku")}</TableHead>
-                                <TableHead scope="col" className="text-right">
+                                <TableHead scope="col" className="px-2">{t("form.items.col.sku")}</TableHead>
+                                <TableHead scope="col" className="px-2 text-right">
                                   {t("form.items.col.qty")}
                                 </TableHead>
-                                <TableHead scope="col" className="text-right mobile:hidden">
+                                <TableHead scope="col" className="px-2 text-right mobile:hidden">
                                   {t("form.items.col.unitPrice")}
                                 </TableHead>
-                                <TableHead scope="col" className="text-right">
+                                <TableHead scope="col" className="px-2 text-right">
                                   {t("form.items.col.subtotal")}
                                 </TableHead>
                               </TableRow>
@@ -997,26 +1034,24 @@ export default function FormPage() {
                                 const k = skuOf(r.sku)
                                 return (
                                   <TableRow key={r.id} className="hover:[&>td]:bg-transparent">
-                                    <TableCell className="whitespace-normal">
-                                      <span className="flex flex-col gap-1">
-                                        <span>{k ? k.name : r.sku || "—"}</span>
-                                        <span className="font-mono text-role-caption text-fg-muted">{r.sku}</span>
-                                      </span>
+                                    <TableCell className="h-table-row-compact p-2 whitespace-normal">
+                                      <span>{k ? k.name : r.sku || "—"}</span>
+                                      <span className="block font-mono text-role-caption text-fg-muted">{r.sku}</span>
                                     </TableCell>
-                                    <TableCell className="text-right tabular-nums">{r.qty || 0}</TableCell>
-                                    <TableCell className="text-right tabular-nums mobile:hidden">{formatCurrency(Number(r.unitPrice) || 0)}</TableCell>
-                                    <TableCell className="text-right tabular-nums">{formatCurrency(rowSubtotal(r))}</TableCell>
+                                    <TableCell className="h-table-row-compact p-2 text-right tabular-nums">{r.qty || 0}</TableCell>
+                                    <TableCell className="h-table-row-compact p-2 text-right tabular-nums mobile:hidden">{formatCurrency(Number(r.unitPrice) || 0)}</TableCell>
+                                    <TableCell className="h-table-row-compact p-2 text-right tabular-nums">{formatCurrency(rowSubtotal(r))}</TableCell>
                                   </TableRow>
                                 )
                               })}
                             </TableBody>
                           </Table>
                         </section>
-                        <section aria-labelledby="sumDeliveryTitle" className="grid gap-3">
+                        <section aria-labelledby="sumDeliveryTitle" className={SUM_SECTION}>
                           <SummaryHead id="sumDeliveryTitle" title={t("form.summary.section.delivery")} onEdit={() => goStep(2)} disabled={loading} />
-                          <DescriptionList cols={2} className="mobile:grid-cols-[max-content_minmax(0,1fr)]">
+                          <DescriptionList cols={2} className={SUM_DL}>
                             <DescriptionTerm>{t("form.summary.field.warehouse")}</DescriptionTerm>
-                            <DescriptionDetails className="col-span-3 mobile:col-span-1">
+                            <DescriptionDetails className="col-[2/-1]">
                               {warehouse ? (
                                 <>
                                   {warehouse.label}
@@ -1051,18 +1086,18 @@ export default function FormPage() {
                             </DescriptionDetails>
                           </DescriptionList>
                         </section>
-                        <dl className="grid gap-2 rounded-lg bg-surface-muted px-5 py-4 tabular-nums">
-                          <div className="flex items-center justify-between gap-3">
+                        <dl className="grid gap-2 rounded-md bg-surface-muted px-5 py-4 tabular-nums mobile:px-4 mobile:py-3">
+                          <div className="flex items-center justify-between gap-6">
                             <dt className="text-fg-muted">{t("form.summary.total.goods")}</dt>
-                            <dd>{formatCurrency(goodsTotal(model))}</dd>
+                            <dd className="whitespace-nowrap">{formatCurrency(goodsTotal(model))}</dd>
                           </div>
-                          <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center justify-between gap-6">
                             <dt className="text-fg-muted">{t("form.summary.total.freight")}</dt>
-                            <dd>{freightText}</dd>
+                            <dd className="whitespace-nowrap">{freightText}</dd>
                           </div>
-                          <div className="flex items-center justify-between gap-3 border-t pt-2">
+                          <div className="mt-1 flex items-baseline justify-between gap-4 border-t pt-2">
                             <dt className="text-role-label">{t("form.summary.total.grand")}</dt>
-                            <dd className="text-role-title">{formatCurrency(grandTotal(model))}</dd>
+                            <dd className="text-role-heading whitespace-nowrap">{formatCurrency(grandTotal(model))}</dd>
                           </div>
                         </dl>
                         <Field id="fTerms">
@@ -1101,7 +1136,7 @@ export default function FormPage() {
 
                 <div
                   data-slot="form-actions"
-                  className="flex items-center gap-3 border-t pt-4 mobile:sticky mobile:bottom-0 mobile:z-10 mobile:-mx-4 mobile:mt-0 mobile:bg-surface mobile:px-4 mobile:py-3"
+                  className="mt-2 flex items-center gap-3 border-t pt-5 mobile:sticky mobile:bottom-0 mobile:z-10 mobile:-mx-4 mobile:mt-0 mobile:bg-surface mobile:px-4 mobile:py-3"
                 >
                   <Button type="button" variant="secondary" disabled={step === 1 || loading} onClick={() => goStep((step - 1) as Step)} aria-label={t("form.nav.prev")} className="mobile:px-3">
                     <ArrowLeftIcon aria-hidden />
@@ -1146,29 +1181,29 @@ export default function FormPage() {
               inert={loading || undefined}
               className={cn(
                 CARD,
-                "sticky top-[calc(var(--size-topbar)+var(--space-6))] flex flex-col gap-4 tablet:static tablet:order-1 rail:tablet:sticky rail:tablet:order-none mobile:static! mobile:order-1!",
+                "sticky top-[calc(var(--size-topbar)+var(--space-6))] flex flex-col gap-4 tablet:static tablet:order-1 tablet:gap-3 rail:tablet:sticky rail:tablet:order-none rail:tablet:gap-4 mobile:static! mobile:order-1! mobile:gap-3!",
               )}
             >
-                <div className="font-mono text-role-label tabular-nums">{PF.poNumberNext}</div>
-                <dl className="grid gap-3 tablet:grid-cols-2 rail:tablet:grid-cols-1 mobile:grid-cols-1!">
-                  <div className="flex items-start justify-between gap-3">
-                    <dt className="text-role-caption text-fg-muted">{t("form.summary.field.supplier")}</dt>
-                    <dd className="text-right text-role-label">{supplier?.name ?? "—"}</dd>
+                <div className="font-mono text-sm text-fg-muted tabular-nums">{PF.poNumberNext}</div>
+                <dl className="grid gap-3 tablet:grid-cols-2 tablet:gap-x-4 rail:tablet:grid-cols-1 mobile:grid-cols-2!">
+                  <div className={ASIDE_ROW}>
+                    <dt className={ASIDE_DT}>{t("form.summary.field.supplier")}</dt>
+                    <dd className={ASIDE_DD}>{supplier?.name ?? "—"}</dd>
                   </div>
-                  <div className="flex items-start justify-between gap-3">
-                    <dt className="text-role-caption text-fg-muted">{t("form.summary.total.goods")}</dt>
-                    <dd className="flex flex-col items-end text-role-label tabular-nums">
+                  <div className={ASIDE_ROW}>
+                    <dt className={ASIDE_DT}>{t("form.summary.total.goods")}</dt>
+                    <dd className={cn(ASIDE_DD, "tabular-nums")}>
                       <span>{formatCurrency(goodsTotal(model))}</span>
-                      <span className="text-role-caption font-normal text-fg-muted">{countText}</span>
+                      <span className="mt-1 block text-role-caption text-fg-muted tablet:hidden rail:tablet:block mobile:hidden!">{countText}</span>
                     </dd>
                   </div>
-                  <div className="flex items-start justify-between gap-3">
-                    <dt className="text-role-caption text-fg-muted">{t("form.summary.total.freight")}</dt>
-                    <dd className="text-role-label tabular-nums">{freightText}</dd>
+                  <div className={ASIDE_ROW}>
+                    <dt className={ASIDE_DT}>{t("form.summary.total.freight")}</dt>
+                    <dd className={cn(ASIDE_DD, "tabular-nums")}>{freightText}</dd>
                   </div>
-                  <div className="flex items-baseline justify-between gap-3 border-t pt-3 tablet:col-span-2 rail:tablet:col-span-1 mobile:col-span-1!">
-                    <dt className="text-role-label">{t("form.summary.total.grand")}</dt>
-                    <dd className="text-role-title tabular-nums">{formatCurrency(grandTotal(model))}</dd>
+                  <div className={cn(ASIDE_ROW, "mt-1 border-t pt-3 tablet:mt-0 tablet:border-t-0 tablet:pt-0 rail:tablet:mt-1 rail:tablet:border-t rail:tablet:pt-3 mobile:mt-0! mobile:border-t-0! mobile:pt-0!")}>
+                    <dt className={cn(ASIDE_DT, "text-role-label text-fg tablet:text-role-caption tablet:font-medium rail:tablet:text-role-label mobile:text-role-caption! mobile:font-medium!")}>{t("form.summary.total.grand")}</dt>
+                    <dd className={cn(ASIDE_DD, "text-role-heading tabular-nums tablet:text-role-title rail:tablet:text-role-heading mobile:text-role-title!")}>{formatCurrency(grandTotal(model))}</dd>
                   </div>
                 </dl>
             </aside>
@@ -1191,7 +1226,7 @@ export default function FormPage() {
               </li>
             ))}
           </ol>
-          <DialogFooter className="mobile:flex-col-reverse mobile:items-stretch">
+          <DialogFooter className="mt-0 mobile:flex-col-reverse mobile:items-stretch">
             <DialogClose asChild>
               <Button type="button">{t("form.terms.dialog.close")}</Button>
             </DialogClose>
@@ -1201,11 +1236,11 @@ export default function FormPage() {
 
       <AlertDialog {...overlay("leave")}>
         <AlertDialogContent className={CENTERED_DIALOG}>
-          <AlertDialogHeader>
+          <AlertDialogHeader className="gap-4">
             <AlertDialogTitle>{t("form.leave.title")}</AlertDialogTitle>
             <AlertDialogDescription>{t("form.leave.description")}</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mobile:flex-col-reverse mobile:items-stretch">
+          <AlertDialogFooter className="mt-0 mobile:flex-col-reverse mobile:items-stretch">
             <AlertDialogCancel>{t("form.leave.stay")}</AlertDialogCancel>
             <AlertDialogAction variant="danger" onClick={() => navigate(leaveTo)}>
               {t("form.leave.leave")}

@@ -71,7 +71,7 @@ function Stepper({ steps, current, statusLabels, compactLabel, errorAt, onStepCh
               <span className="sr-only">，{statusLabels[status]}</span>
             </>
           )
-          const itemClass = "-mx-3 flex w-[calc(100%+var(--space-6))] min-h-hit items-start gap-3 rounded-md px-3 py-2"
+          const itemClass = "-mx-3 flex w-full min-h-hit items-start gap-3 rounded-md px-3 py-2"
           return (
             <React.Fragment key={step.key}>
               <li data-status={status} aria-current={status === "current" ? "step" : undefined} className="min-w-0 flex-1">

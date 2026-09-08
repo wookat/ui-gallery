@@ -68,16 +68,19 @@ function Combobox({
   }
   const [query, setQuery] = React.useState("")
   const [editing, setEditing] = React.useState(false)
-  const [active, setActive] = React.useState(0)
+  const inline = variant === "input"
+  /** hifi form .option.is-active：内联搜索框打开时不预选，方向键/悬停后才高亮；按钮式下拉保留预选首项 */
+  const initialActive = inline ? -1 : 0
+  const [active, setActive] = React.useState(initialActive)
   const listId = React.useId()
   const anchorRef = React.useRef<HTMLDivElement>(null)
   const selected = options.find((o) => o.value === value) ?? null
   const filtered = options.filter((o) => matches(o, query))
-  const inline = variant === "input"
   const close = () => {
     setOpen(false)
     setQuery("")
     setEditing(false)
+    setActive(initialActive)
   }
   const pick = (o: ComboboxOption) => {
     if (o.disabled) return
@@ -159,7 +162,7 @@ function Combobox({
               onChange={(e) => {
                 setEditing(true)
                 setQuery(e.target.value)
-                setActive(0)
+                setActive(initialActive)
                 if (!open) setOpen(true)
               }}
               onClick={() => {

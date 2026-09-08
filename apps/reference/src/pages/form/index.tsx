@@ -532,7 +532,7 @@ export default function FormPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-[minmax(0,1fr)_calc(var(--size-content-max)/4)] items-start gap-6 tablet:grid-cols-1 tablet:gap-4 rail:tablet:grid-cols-[minmax(0,1fr)_calc(var(--size-content-max)/4)] mobile:grid-cols-1!">
+          <div className="grid grid-cols-[minmax(0,1fr)_calc(var(--size-content-max)/4)] items-start gap-6 tablet:grid-cols-1 tablet:gap-4 rail:tablet:grid-cols-[minmax(0,1fr)_calc(var(--size-content-max)/4)] rail:tablet:gap-6 mobile:grid-cols-1!">
             <form
               data-slot="card"
               noValidate
@@ -776,35 +776,38 @@ export default function FormPage() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {model.items.map((r, i) => (
-                              <React.Fragment key={r.id}>
-                                <TableRow className="hover:[&>td]:bg-transparent">
-                                  <TableCell className="whitespace-normal align-top">
-                                    <div className="grid gap-2">
-                                      {skuControl(r, i, "")}
-                                      {skuMeta(r)}
-                                    </div>
-                                  </TableCell>
-                                  <TableCell className="align-top">{numControl(r, i, "qty", "")}</TableCell>
-                                  <TableCell className="align-top">{numControl(r, i, "unitPrice", "")}</TableCell>
-                                  <TableCell className="text-right align-top text-role-label tabular-nums [&]:pt-[calc(var(--space-3)+(var(--size-control-md)-var(--font-size-sm)*var(--font-line-height-snug))/2)]">
-                                    {formatCurrency(rowSubtotal(r))}
-                                  </TableCell>
-                                  <TableCell className="align-top">
-                                    <IconButton label={t("form.items.removeRow", { n: i + 1 })} onClick={() => removeRow(r.id)} className="hover:not-disabled:bg-danger-soft hover:not-disabled:text-danger">
-                                      <Trash2Icon />
-                                    </IconButton>
-                                  </TableCell>
-                                </TableRow>
-                                {errorOf(rowField(r.id, "sku")) || errorOf(rowField(r.id, "qty")) || errorOf(rowField(r.id, "unitPrice")) ? (
-                                  <TableRow className="hover:[&>td]:bg-transparent">
-                                    <TableCell colSpan={5} className="whitespace-normal pt-0">
-                                      <div className="flex flex-wrap gap-x-4 gap-y-1">{rowErrors(r, "")}</div>
+                            {model.items.map((r, i) => {
+                              const hasRowError = !!(errorOf(rowField(r.id, "sku")) || errorOf(rowField(r.id, "qty")) || errorOf(rowField(r.id, "unitPrice")))
+                              return (
+                                <React.Fragment key={r.id}>
+                                  <TableRow className={cn("hover:[&>td]:bg-transparent", hasRowError && "[&>td]:border-b-0 [&>td]:pb-2")}>
+                                    <TableCell className="whitespace-normal align-top">
+                                      <div className="grid gap-2">
+                                        {skuControl(r, i, "")}
+                                        {skuMeta(r)}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="align-top">{numControl(r, i, "qty", "")}</TableCell>
+                                    <TableCell className="align-top">{numControl(r, i, "unitPrice", "")}</TableCell>
+                                    <TableCell className="text-right align-top text-role-label tabular-nums [&]:pt-[calc(var(--space-3)+(var(--size-control-md)-var(--font-size-sm)*var(--font-line-height-snug))/2)]">
+                                      {formatCurrency(rowSubtotal(r))}
+                                    </TableCell>
+                                    <TableCell className="align-top">
+                                      <IconButton label={t("form.items.removeRow", { n: i + 1 })} onClick={() => removeRow(r.id)} className="hover:not-disabled:bg-danger-soft hover:not-disabled:text-danger">
+                                        <Trash2Icon />
+                                      </IconButton>
                                     </TableCell>
                                   </TableRow>
-                                ) : null}
-                              </React.Fragment>
-                            ))}
+                                  {hasRowError ? (
+                                    <TableRow className="hover:[&>td]:bg-transparent">
+                                      <TableCell colSpan={5} className="whitespace-normal pt-0">
+                                        <div className="flex flex-wrap gap-x-4 gap-y-1">{rowErrors(r, "")}</div>
+                                      </TableCell>
+                                    </TableRow>
+                                  ) : null}
+                                </React.Fragment>
+                              )
+                            })}
                           </TableBody>
                         </Table>
                         <div className="hidden flex-col gap-3 mobile:flex">

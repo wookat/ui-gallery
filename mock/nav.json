@@ -82,7 +82,7 @@
     "label": "设置",
     "path": "/settings",
     "icon": "settings",
-    "implemented": false
+    "implemented": true
    }
   ]
  }

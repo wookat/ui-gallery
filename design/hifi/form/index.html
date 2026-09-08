@@ -289,6 +289,8 @@ html[data-theme="dark"] .icon-moon { display: none; }
 .notif-item[data-unread="true"] .notif-dot { visibility: visible; }
 .notif-empty { padding: var(--space-8) var(--space-4); text-align: center; color: var(--color-role-fg-muted); }
 .pop-foot { border-top: var(--border-width-hairline) solid var(--color-role-border); margin-top: var(--space-2); padding-top: var(--space-2); }
+/* 本轮不可达的「查看全部通知」：可聚焦 aria-disabled 链接，按 tokens ef05fe8 契约保持 link 色 + cursor-not-allowed，可悬停显示 Tooltip */
+.pop-foot .btn[aria-disabled="true"], .pop-foot .btn[aria-disabled="true"]:hover, .pop-foot .btn[aria-disabled="true"]:active { opacity: 1; pointer-events: auto; cursor: not-allowed; background: transparent; color: var(--color-role-link); }
 .menu-head { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3) var(--space-3); border-bottom: var(--border-width-hairline) solid var(--color-role-border); margin-bottom: var(--space-2); }
 .menu-head .menu-id { min-width: 0; }
 .menu-head .menu-id strong { display: block; font: var(--typography-label); font-family: var(--font-family-sans); color: var(--color-role-fg); }
@@ -493,18 +495,19 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
 .items-foot .total strong { font: var(--typography-title); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; }
 .section-gap { height: var(--border-width-hairline); background: var(--color-role-border); margin: var(--space-8) 0 var(--space-6); }
 
-/* 双滑块 */
-.range { position: relative; height: var(--size-hit); }
+/* 双滑块：整条 .range（高 size.hit）都是热区——两个 input 自身不接指针，由容器统一处理 pointerdown/move（落点跳到最近的 thumb 并可拖动）；键盘仍作用于各自 input */
+.range { position: relative; height: var(--size-hit); cursor: pointer; touch-action: none; }
+.range[data-dragging] { cursor: grabbing; }
 .range-track { position: absolute; left: calc(var(--size-icon-md) / 2); right: calc(var(--size-icon-md) / 2); top: 50%; height: var(--size-track); margin-top: calc(-1 * var(--size-track) / 2); border-radius: var(--radius-full); background: var(--color-role-neutral-soft); }
 .range-fill { position: absolute; top: 0; bottom: 0; left: var(--lo, 20%); right: calc(100% - var(--hi, 30%)); background: var(--color-role-primary); border-radius: var(--radius-full); }
 .range input[type="range"] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; appearance: none; -webkit-appearance: none; background: transparent; pointer-events: none; outline: none; }
 .range input[type="range"]::-webkit-slider-runnable-track { background: transparent; height: 100%; }
 .range input[type="range"]::-moz-range-track { background: transparent; height: 100%; }
-.range input[type="range"]::-webkit-slider-thumb { pointer-events: auto; appearance: none; -webkit-appearance: none; width: var(--size-icon-md); height: var(--size-icon-md); margin-top: calc((var(--size-hit) - var(--size-icon-md)) / 2); border-radius: var(--radius-full); background: var(--color-role-surface); border: var(--border-width-focus) solid var(--color-role-primary); box-shadow: var(--shadow-sm); cursor: grab; transition: box-shadow var(--motion-fast) var(--motion-ease); }
-.range input[type="range"]::-moz-range-thumb { pointer-events: auto; width: var(--size-icon-md); height: var(--size-icon-md); border-radius: var(--radius-full); background: var(--color-role-surface); border: var(--border-width-focus) solid var(--color-role-primary); box-shadow: var(--shadow-sm); cursor: grab; }
-.range input[type="range"]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft); }
+.range input[type="range"]::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: var(--size-icon-md); height: var(--size-icon-md); margin-top: calc((var(--size-hit) - var(--size-icon-md)) / 2); border-radius: var(--radius-full); background: var(--color-role-surface); border: var(--border-width-focus) solid var(--color-role-primary); box-shadow: var(--shadow-sm); cursor: grab; transition: box-shadow var(--motion-fast) var(--motion-ease); }
+.range input[type="range"]::-moz-range-thumb { width: var(--size-icon-md); height: var(--size-icon-md); border-radius: var(--radius-full); background: var(--color-role-surface); border: var(--border-width-focus) solid var(--color-role-primary); box-shadow: var(--shadow-sm); cursor: grab; }
+.range input[type="range"][data-near]::-webkit-slider-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft); }
 .range input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft), 0 0 0 calc(var(--space-1) + var(--border-width-focus)) var(--color-role-focus-ring); }
-.range input[type="range"]:hover::-moz-range-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft); }
+.range input[type="range"][data-near]::-moz-range-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft); }
 .range input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft), 0 0 0 calc(var(--space-1) + var(--border-width-focus)) var(--color-role-focus-ring); }
 .range-scale { display: flex; justify-content: space-between; font: var(--typography-caption); font-family: var(--font-family-sans); color: var(--color-role-fg-muted); font-variant-numeric: tabular-nums; }
 
@@ -574,7 +577,8 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
 .actions { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-8); padding-top: var(--space-5); border-top: var(--border-width-hairline) solid var(--color-role-border); }
 .actions .spacer { flex: 1; }
 .actions .btn-submit { min-width: var(--hifi-submit-w); }
-.actions .btn-submit[aria-disabled="true"] { pointer-events: auto; } /* 未勾条款：视觉禁用但可点，点击给出内联提示 */
+/* 未勾条款：仍可聚焦、可点（点击给出内联提示），属可操作控件 → 不走 opacity 禁用，改为全不透明描边次级样式 + fg-muted 文字（≥4.5:1）+ cursor-not-allowed */
+.actions .btn-submit[aria-disabled="true"], .actions .btn-submit[aria-disabled="true"]:hover, .actions .btn-submit[aria-disabled="true"]:active { opacity: 1; pointer-events: auto; cursor: not-allowed; background: var(--color-role-surface); color: var(--color-role-fg-muted); border-color: var(--color-role-border-strong); }
 .actions .btn[hidden] { display: none; }
 
 /* Result */
@@ -1485,8 +1489,40 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
     $('freightValue').textContent = freightText();
     $('freightMin').setAttribute('aria-valuetext', m0(M.freight[0])); $('freightMax').setAttribute('aria-valuetext', m0(M.freight[1]));
   };
-  $('freightMin').addEventListener('input', function () { var v = Math.min(Number($('freightMin').value), M.freight[1] - PF.freight.step); $('freightMin').value = v; M.freight[0] = v; renderFreight(); renderAside(); });
-  $('freightMax').addEventListener('input', function () { var v = Math.max(Number($('freightMax').value), M.freight[0] + PF.freight.step); $('freightMax').value = v; M.freight[1] = v; renderFreight(); renderAside(); });
+  var setFreight = function (id, v) {
+    var F = PF.freight, i = id === 'freightMin' ? 0 : 1;
+    v = Math.round((v - F.min) / F.step) * F.step + F.min;
+    v = i === 0 ? Math.max(F.min, Math.min(v, M.freight[1] - F.step)) : Math.min(F.max, Math.max(v, M.freight[0] + F.step));
+    $(id).value = v; M.freight[i] = v; renderFreight(); renderAside();
+  };
+  $('freightMin').addEventListener('input', function () { setFreight('freightMin', Number($('freightMin').value)); });
+  $('freightMax').addEventListener('input', function () { setFreight('freightMax', Number($('freightMax').value)); });
+  /* 指针交互由 .range 容器承担（两个 input 均 pointer-events:none）：整条 40 高的轨道都是热区，落点跳到最近的 thumb 并可继续拖动 */
+  var rangeEl = $('range'), rangeDrag = null;
+  var freightAt = function (clientX) {
+    var F = PF.freight, tr = rangeEl.querySelector('.range-track').getBoundingClientRect();
+    return F.min + Math.min(1, Math.max(0, (clientX - tr.left) / tr.width)) * (F.max - F.min);
+  };
+  var nearestThumb = function (v) {
+    var dMin = Math.abs(v - M.freight[0]), dMax = Math.abs(v - M.freight[1]);
+    return dMin < dMax || (dMin === dMax && v < M.freight[0]) ? 'freightMin' : 'freightMax';
+  };
+  var setNear = function (id) { ['freightMin', 'freightMax'].forEach(function (k) { if (k === id) $(k).setAttribute('data-near', ''); else $(k).removeAttribute('data-near'); }); };
+  rangeEl.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0 || $('freightMin').disabled) return;
+    var v = freightAt(e.clientX); rangeDrag = nearestThumb(v);
+    rangeEl.setAttribute('data-dragging', ''); rangeEl.setPointerCapture(e.pointerId); e.preventDefault();
+    $(rangeDrag).focus({ preventScroll: true }); setFreight(rangeDrag, v); setNear(rangeDrag);
+  });
+  rangeEl.addEventListener('pointermove', function (e) {
+    if (rangeDrag) { setFreight(rangeDrag, freightAt(e.clientX)); return; }
+    if ($('freightMin').disabled) return;
+    setNear(nearestThumb(freightAt(e.clientX)));
+  });
+  var endRangeDrag = function () { rangeDrag = null; rangeEl.removeAttribute('data-dragging'); };
+  rangeEl.addEventListener('pointerup', endRangeDrag);
+  rangeEl.addEventListener('pointercancel', endRangeDrag);
+  rangeEl.addEventListener('pointerleave', function () { if (!rangeDrag) setNear(null); });
   $('warehouse').addEventListener('change', function () { M.warehouse = $('warehouse').value; renderDelivery(); retouch('fWarehouse'); });
   $('slot').addEventListener('change', function () { M.slot = $('slot').value; retouch('fSlot'); });
   $('arrival').addEventListener('input', function () { M.arrivalDate = $('arrival').value.trim(); M.dirty = true; renderArrivalHint(); retouch('fArrival'); });

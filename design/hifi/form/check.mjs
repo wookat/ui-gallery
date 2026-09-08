@@ -121,10 +121,20 @@ for (const [vpName, vp] of Object.entries(viewports)) {
         const small = [];
         for (const el of document.querySelectorAll('a, button, [role="tab"], [role="menuitem"], input, select, textarea')) {
           if (!vis(el)) continue;
-          // 表单控件的实际热区 = 外层 .ctl 容器 / 包裹的 label（点击容器任意处即聚焦或切换）
-          const hit = /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName) ? (el.closest('.ctl, label, .radio-card') || el) : el;
+          // 表单控件的实际热区 = 外层 .ctl 容器 / 包裹的 label（点击容器任意处即聚焦或切换）；range 的热区 = 承接指针事件的 .range 容器
+          const hit = el.type === 'range' ? el.closest('.range') : /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName) ? (el.closest('.ctl, label, .radio-card') || el) : el;
           const r = hit.getBoundingClientRect();
-          if (r.width < w || r.height < w) small.push(`${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}.${[...el.classList].join('.')} ${Math.round(r.width)}x${Math.round(r.height)} "${(el.getAttribute('aria-label') || el.textContent).trim().slice(0, 12)}"`);
+          const tag = `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}.${[...el.classList].join('.')} ${Math.round(r.width)}x${Math.round(r.height)} "${(el.getAttribute('aria-label') || el.textContent).trim().slice(0, 12)}"`;
+          if (r.width < w || r.height < w) { small.push(tag); continue; }
+          // 几何尺寸够还不算：热区矩形 25%/75% 四点 + 中心用 elementFromPoint 实测（避开圆角），命中点必须落在热区元素内；真 disabled / inert 控件本就不可点，不探；
+          // 命中到祖先 = 被滚动容器裁切，命中到叠层（fixed/sticky/absolute 且不含热区）= 被 Dialog/Toast/吸底操作条遮挡，都不算热区问题；视口外的点跳过
+          if (el.matches(':disabled') || el.closest('[inert]') || el.closest('[aria-busy="true"]')) continue;
+          if (getComputedStyle(hit).pointerEvents === 'none') { small.push(`${tag} 热区 pointer-events:none`); continue; }
+          const overlaid = (t) => { for (let a = t; a && a !== document.body; a = a.parentElement) if (/fixed|sticky|absolute/.test(getComputedStyle(a).position) && !hit.contains(a) && !a.contains(hit)) return true; return false; };
+          const clipped = (x, y) => { for (let a = hit.parentElement; a && a !== document.body; a = a.parentElement) { const cs = getComputedStyle(a); if (cs.overflowY !== 'visible' || cs.overflowX !== 'visible') { const b = a.getBoundingClientRect(), l = b.left + a.clientLeft, t = b.top + a.clientTop; if (x < l || x > l + a.clientWidth || y < t || y > t + a.clientHeight) return true; } } return false; };
+          const pts = [[r.left + r.width * 0.25, r.top + r.height * 0.25], [r.right - r.width * 0.25, r.top + r.height * 0.25], [r.left + r.width * 0.25, r.bottom - r.height * 0.25], [r.right - r.width * 0.25, r.bottom - r.height * 0.25], [r.left + r.width / 2, r.top + r.height / 2]].filter(([x, y]) => x >= 0 && y >= 0 && x < innerWidth && y < innerHeight && !clipped(x, y));
+          const miss = pts.filter(([x, y]) => { const t = document.elementFromPoint(x, y); return t && !hit.contains(t) && !t.contains(hit) && !overlaid(t); });
+          if (miss.length) small.push(`${tag} 实测 ${miss.length}/${pts.length} 点未命中`);
         }
         const overflow = [];
         for (const el of document.querySelectorAll('body *')) {
@@ -230,10 +240,34 @@ await browser.close();
   await page.fill('#arrival', '2026-09-20');
   ok((await page.evaluate(() => document.getElementById('arrivalHint').classList.contains('is-warning'))) && (await txt('#arrivalHint')).includes('早于供应商常规交期'), '到货日期早于常规交期 → warning 提示');
   await page.fill('#arrival', '2026-09-24');
-  // 滑块
+  // 滑块：键盘（原生 input）
   await page.evaluate(() => { const r = document.getElementById('freightMax'); r.value = 1000; r.dispatchEvent(new Event('input')); });
   ok((await txt('#freightValue')) === '¥400 – ¥1,000' && (await txt('#asideGrand')) === '¥41,760.00', `滑块上限 → ${await txt('#freightValue')}，预计总额 ${await txt('#asideGrand')}`);
   await page.evaluate(() => { const r = document.getElementById('freightMax'); r.value = 800; r.dispatchEvent(new Event('input')); });
+  // 滑块：指针实测——整条 .range（40 高）都是热区；点击轨道任意处跳到最近 thumb；按住可拖；之后键盘仍作用于被聚焦的 input
+  await page.evaluate(() => document.getElementById('range').scrollIntoView({ block: 'center' }));
+  const rangeHit = await page.evaluate(() => {
+    const rg = document.getElementById('range'), rr = rg.getBoundingClientRect(), pts = [];
+    for (let x = rr.left + 1; x < rr.right; x += 24) for (const y of [rr.top + 1, rr.top + rr.height / 2, rr.bottom - 1]) pts.push(document.elementFromPoint(x, y));
+    return { h: Math.round(rr.height), n: pts.length, miss: pts.filter((e) => !e || !rg.contains(e)).length };
+  });
+  ok(rangeHit.h >= 40 && rangeHit.miss === 0, `双滑块 .range 高 ${rangeHit.h} ≥ 40，elementFromPoint 网格 ${rangeHit.n} 点全部命中 .range（未命中 ${rangeHit.miss}）`);
+  const trackBox = await page.locator('#range .range-track').boundingBox();
+  const freight = () => page.evaluate(() => [document.getElementById('freightMin').value, document.getElementById('freightMax').value, document.activeElement.id]);
+  await page.mouse.click(trackBox.x + trackBox.width * 0.75, trackBox.y + trackBox.height / 2);
+  let fr = await freight();
+  ok(fr[1] === '1500' && fr[0] === '400' && fr[2] === 'freightMax' && (await txt('#freightValue')) === '¥400 – ¥1,500', `点击轨道 75% 处 → 最近的上限 thumb 跳到 ${fr[1]} 并聚焦（${await txt('#freightValue')}）`);
+  await page.mouse.click(trackBox.x + trackBox.width * 0.05, trackBox.y - 15);
+  fr = await freight();
+  ok(fr[0] === '100' && fr[1] === '1500' && fr[2] === 'freightMin', `点击 .range 上缘（轨道外 15px）5% 处 → 下限 thumb 跳到 ${fr[0]}`);
+  await page.mouse.move(trackBox.x + trackBox.width * 0.5, trackBox.y); await page.mouse.down(); await page.mouse.move(trackBox.x + trackBox.width * 0.3, trackBox.y, { steps: 5 }); await page.mouse.up();
+  fr = await freight();
+  ok(fr[1] === '600' && fr[0] === '100', `从 50% 按住拖到 30% → 上限 thumb 跟随到 ${fr[1]}`);
+  await page.keyboard.press('ArrowRight');
+  fr = await freight();
+  ok(fr[1] === '650', `拖动后按 → 键 → 上限 +step 到 ${fr[1]}（键盘仍作用于原生 input）`);
+  await page.evaluate(() => { const lo = document.getElementById('freightMin'), hi = document.getElementById('freightMax'); lo.value = 400; lo.dispatchEvent(new Event('input')); hi.value = 800; hi.dispatchEvent(new Event('input')); });
+  ok((await txt('#freightValue')) === '¥400 – ¥800', '滑块复位 ¥400 – ¥800');
   // 标签
   await page.click('#tagSuggest [data-add-tag="新品"]');
   ok((await page.locator('#tagBox .chip').count()) === 3, '点击常用标签「新品」→ 3 个 Chip');
@@ -245,6 +279,8 @@ await browser.close();
   ok((await txt('#totals')).includes('¥40,760.00') && (await txt('#totals')).includes('¥400 – ¥800') && (await txt('#totals')).includes('¥41,560.00'), `步 3 合计：${await txt('#totals')}`);
   ok((await page.locator('#sumGoods tr').count()) === 3 && (await txt('#sumBasic')).includes('安吉林语木业') && (await txt('#sumDelivery')).includes('2 个文件'), '摘要三区块内容正确（3 行商品 / 供应商 / 2 个附件）');
   ok((await page.getAttribute('#submitBtn', 'aria-disabled')) === 'true', '未勾条款：提交按钮 aria-disabled');
+  const subCs = await page.evaluate(() => { const b = document.getElementById('submitBtn'), cs = getComputedStyle(b); return { op: cs.opacity, cursor: cs.cursor, pe: cs.pointerEvents, focusable: b.tabIndex >= 0 && !b.disabled }; });
+  ok(subCs.op === '1' && subCs.cursor === 'not-allowed' && subCs.pe === 'auto' && subCs.focusable, `未勾条款：提交按钮为全不透明可聚焦的 aria-disabled（opacity=${subCs.op} cursor=${subCs.cursor}）`);
   await page.click('#submitBtn', { force: true }); // Playwright 默认拒绝点击 aria-disabled，这里模拟真实点击
   ok((await txt('#invalidAlertText')) === '还有 1 项需要修正' && !(await page.isHidden('#termsErr')), '未勾条款提交 → 内联提示 + Alert');
   await page.click('#openTerms');
@@ -376,7 +412,7 @@ await browser.close();
   ok(al.sameLine && al.h <= 80, `375 invalid：「查看」与文案同行，Alert 高 ${Math.round(al.h)} ≤ 80`);
   await page.click('#gotoFirstErr');
   ok((await page.evaluate(() => document.activeElement.id)) === 'supplier', '375 invalid：「查看」→ 聚焦首个错误字段 #supplier');
-  // 对比度：未实现导航项文字 / 侧栏背景（亮 / 暗）；辅助文字 / 卡片背景
+  // 对比度：未实现导航项文字 / 侧栏背景（亮 / 暗）；辅助文字 / 卡片背景；可聚焦 aria-disabled 项（「查看全部通知」链接、未勾条款的提交按钮）文字
   const lum = (rgb) => { const [r, g, b] = rgb.match(/\d+(\.\d+)?/g).slice(0, 3).map((c) => { c = +c / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
   const contrast = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return (l1 + 0.05) / (l2 + 0.05); };
   for (const theme of ['light', 'dark']) {
@@ -386,6 +422,18 @@ await browser.close();
     ok(contrast(c.navFg, c.navBg) >= 4.5, `${theme}: 未实现导航项文字/侧栏背景对比度 ${contrast(c.navFg, c.navBg).toFixed(2)}:1 ≥ 4.5`);
     ok(contrast(c.hintFg, c.cardBg) >= 4.5, `${theme}: 辅助文字/卡片背景对比度 ${contrast(c.hintFg, c.cardBg).toFixed(2)}:1 ≥ 4.5`);
     ok(contrast(c.errFg, c.cardBg) >= 3, `${theme}: 必填星号/卡片背景对比度 ${contrast(c.errFg, c.cardBg).toFixed(2)}:1 ≥ 3`);
+    await page.goto(`${fileUrl}?state=default&theme=${theme}&open=notifications`);
+    await page.waitForTimeout(300);
+    const nv = await page.evaluate(() => { const a = document.getElementById('notifViewAll'), cs = getComputedStyle(a); return { dis: a.getAttribute('aria-disabled'), fg: cs.color, bg: getComputedStyle(a.closest('.popover')).backgroundColor, op: cs.opacity, cursor: cs.cursor, pe: cs.pointerEvents, tab: a.tabIndex }; });
+    ok(nv.dis === 'true' && nv.tab >= 0 && nv.op === '1' && nv.cursor === 'not-allowed' && nv.pe === 'auto', `${theme}: 「查看全部通知」可聚焦 aria-disabled，opacity=${nv.op} cursor=${nv.cursor} pointer-events=${nv.pe}`);
+    ok(contrast(nv.fg, nv.bg) >= 4.5, `${theme}: 「查看全部通知」文字/Popover 背景对比度 ${contrast(nv.fg, nv.bg).toFixed(2)}:1 ≥ 4.5`);
+    await page.hover('#notifViewAll');
+    await page.waitForTimeout(250);
+    ok((await page.evaluate(() => getComputedStyle(document.getElementById('notifViewAll'), '::after').opacity)) === '1', `${theme}: 悬停「查看全部通知」显示 Tooltip`);
+    await page.goto(`${fileUrl}?state=default&theme=${theme}&step=3`);
+    await page.waitForTimeout(300);
+    const sb = await page.evaluate(() => { const b = document.getElementById('submitBtn'), cs = getComputedStyle(b); const bg = /rgba\(.*, 0\)$/.test(cs.backgroundColor) ? getComputedStyle(b.closest('.form-card')).backgroundColor : cs.backgroundColor; return { dis: b.getAttribute('aria-disabled'), fg: cs.color, bg, op: cs.opacity }; });
+    ok(sb.dis === 'true' && sb.op === '1' && contrast(sb.fg, sb.bg) >= 4.5, `${theme}: 未勾条款提交按钮（aria-disabled，opacity=${sb.op}）文字/按钮底对比度 ${contrast(sb.fg, sb.bg).toFixed(2)}:1 ≥ 4.5`);
   }
   // 8pt 节奏：主要块级间距为 8 的倍数
   await page.setViewportSize(viewports.desktop);

@@ -9,13 +9,18 @@ type FileDropzoneProps = Omit<React.ComponentProps<"input">, "type" | "onChange"
   /** 主文案 / 次要说明（accept、大小上限等） */
   title: string
   hint: string
+  /** 拖入中替换主文案（hifi「松开即上传」），此时不显示 hint */
+  dragoverTitle?: string
+  /** 强制拖入中外观（演示矩阵用） */
+  dragover?: boolean
   onFiles: (files: File[]) => void
   invalid?: boolean
 }
 
 /** 拖放上传：hifi .dropzone —— 虚线 border-strong、radius.lg、居中图标 + 文案；dragover 转 primary + primary-soft 底；整块是 label 包住 input[type=file] */
-function FileDropzone({ title, hint, onFiles, invalid, className, disabled, id, ...props }: FileDropzoneProps) {
-  const [over, setOver] = React.useState(false)
+function FileDropzone({ title, hint, dragoverTitle, dragover, onFiles, invalid, className, disabled, id, ...props }: FileDropzoneProps) {
+  const [hovering, setOver] = React.useState(false)
+  const over = dragover || hovering
   const inputId = React.useId()
   const finalId = id ?? inputId
   return (
@@ -40,8 +45,8 @@ function FileDropzone({ title, hint, onFiles, invalid, className, disabled, id, 
       )}
     >
       <UploadCloudIcon aria-hidden />
-      <span className="text-role-label">{title}</span>
-      <span className="text-role-caption text-fg-muted">{hint}</span>
+      <span className="text-role-label">{over && dragoverTitle ? dragoverTitle : title}</span>
+      {over && dragoverTitle ? null : <span className="text-role-caption text-fg-muted">{hint}</span>}
       <input id={finalId} type="file" className="sr-only" disabled={disabled} onChange={(e) => onFiles(Array.from(e.target.files ?? []))} {...props} />
     </label>
   )

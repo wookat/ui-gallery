@@ -1,11 +1,10 @@
-import * as React from "react"
 import { cn } from "@/lib/cn"
 import { MinusIcon, PlusIcon } from "lucide-react"
 
 import { IconButton } from "@/components/ui/icon-button"
-import { Input } from "@/components/ui/input"
+import { Input, type InputProps } from "@/components/ui/input"
 
-type NumberInputProps = Omit<React.ComponentProps<"input">, "value" | "onChange" | "type"> & {
+type NumberInputProps = Omit<InputProps, "value" | "onChange" | "type"> & {
   value: number
   onChange: (next: number) => void
   min?: number

@@ -22,7 +22,7 @@ export const bind = ({ open, set }: OverlayProps, id: string) => ({
   onOpenChange: (o: boolean) => set({ open: o ? id : null }),
 })
 
-export const MATRIX_WRAP = "relative -mx-6 w-auto overflow-x-auto px-6 scroll-px-6 mobile:-mx-4 mobile:px-4 mobile:scroll-px-4"
+export const MATRIX_WRAP = "relative -mx-6 w-auto overflow-x-auto px-6 scroll-px-6 mobile:-mx-4 mobile:px-4 mobile:scroll-px-4 data-scrollable:scroll-shadow-x"
 export const MATRIX_TH = "h-table-header border-b border-border whitespace-nowrap px-3 text-left align-middle text-role-caption font-medium text-fg-muted first:pl-0 last:pr-0"
 export const MATRIX_ROW = "border-b border-border last:border-b-0"
 export const MATRIX_ROW_TH = "py-3 pr-3 text-left align-middle whitespace-nowrap text-role-label text-fg"
@@ -71,8 +71,25 @@ export function StageCol({ className, ...props }: React.ComponentProps<"div">) {
 export const GRID_2 = "grid w-full grid-cols-2 gap-4 mobile:grid-cols-1"
 export const GRID_3 = "grid w-full grid-cols-3 gap-4 tablet:grid-cols-2 mobile:grid-cols-1"
 
-export function MatrixWrap({ className, label, ...props }: React.ComponentProps<"div"> & { label: string }) {
-  return <div data-slot="matrix-wrap" tabIndex={0} role="region" aria-label={label} className={cn(MATRIX_WRAP, className)} {...props} />
+/** 内容宽于容器时置 data-scrollable（hifi .is-scrollable：两侧横滚阴影） */
+export function useScrollable<T extends HTMLElement>() {
+  const ref = React.useRef<T>(null)
+  const [scrollable, setScrollable] = React.useState(false)
+  React.useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => setScrollable(el.scrollWidth > el.clientWidth + 1)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  return [ref, scrollable] as const
+}
+
+export function MatrixWrap({ className, label, kind = "matrix-wrap", ...props }: React.ComponentProps<"div"> & { label: string; kind?: "matrix-wrap" | "table-wrap" }) {
+  const [ref, scrollable] = useScrollable<HTMLDivElement>()
+  return <div ref={ref} data-slot={kind} data-scrollable={scrollable || undefined} tabIndex={0} role="region" aria-label={label} className={cn(MATRIX_WRAP, className)} {...props} />
 }
 
 export type MatrixRow<S extends string> = {

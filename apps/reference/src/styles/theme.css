@@ -389,6 +389,19 @@
   cursor: not-allowed;
 }
 
+/* 横滚容器两侧阴影：hifi .matrix-wrap.is-scrollable / .table-wrap.is-scrollable ——
+   两层 local 渐变（surface → 透明）随内容滚到边缘时盖住阴影，两层 scroll 渐变是阴影本体；
+   阴影色与 hifi 同源（fg-muted 14%），宽度 = space.4 */
+@utility scroll-shadow-x {
+  --scroll-shadow: var(--space-4);
+  --scroll-shadow-color: color-mix(in srgb, var(--color-role-fg-muted) 14%, transparent);
+  background:
+    linear-gradient(90deg, var(--color-role-surface) 50%, transparent) left / calc(var(--scroll-shadow) * 2) 100% no-repeat local,
+    linear-gradient(270deg, var(--color-role-surface) 50%, transparent) right / calc(var(--scroll-shadow) * 2) 100% no-repeat local,
+    linear-gradient(90deg, var(--scroll-shadow-color), transparent) left / var(--scroll-shadow) 100% no-repeat scroll,
+    linear-gradient(270deg, var(--scroll-shadow-color), transparent) right / var(--scroll-shadow) 100% no-repeat scroll;
+}
+
 /* 骨架屏：hifi .sk —— 实心 skeleton 底色 + ::after 微光扫过；颜色、透明度与时长均来自令牌 */
 @utility skeleton-shine {
   position: relative;

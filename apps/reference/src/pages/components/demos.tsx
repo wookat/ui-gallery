@@ -15,6 +15,7 @@ import {
   MoreHorizontalIcon,
   PackageIcon,
   ReceiptTextIcon,
+  SearchIcon,
   SettingsIcon,
   ShieldIcon,
   Trash2Icon,
@@ -30,12 +31,11 @@ import { BrandMark } from "@/components/composed/brand"
 import { DonutChart, TrendChart } from "@/components/composed/charts"
 import { NavGroupLabel, NavItem } from "@/components/composed/nav-item"
 import { NotificationItem } from "@/components/composed/notification-item"
-import { SearchInput } from "@/components/composed/search-input"
 import { StatCard, StatCardSkeleton, Delta } from "@/components/composed/stat-card"
 import { StateCard } from "@/components/composed/state-card"
 import { TaskItem, type TaskStatus } from "@/components/composed/task-item"
 import { Timeline, TimelineItem, TimelineSkeleton } from "@/components/composed/timeline"
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CountBadge, Tag, type Tone } from "@/components/ui/badge"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
@@ -44,7 +44,7 @@ import { Checkbox, CheckboxField } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuHeader, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field"
 import { IconButton } from "@/components/ui/icon-button"
-import { Input } from "@/components/ui/input"
+import { Input, InputControl } from "@/components/ui/input"
 import { NumberInput } from "@/components/ui/number-input"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Popover, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger } from "@/components/ui/popover"
@@ -53,15 +53,15 @@ import { Separator, TextDivider } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { orderStatus, t } from "@/data/content"
 import { channelLabel, mock, navBadge, navBadgeLabel, navBadgeTone, periods, seriesFor, statFor, type NavItem as NavItemDef } from "@/data/mock"
-import { cn } from "@/lib/cn"
 import { currencySymbol, formatAmount, formatCurrency, formatDateTime, formatFullDateTime, formatInteger, formatMonthDay, formatPercent, formatTime } from "@/lib/format"
 
-import { Dash, demo, DemoBox, GRID_2, GRID_3, K, Matrix, MATRIX_WRAP, Row, Stage, StageCol, STATES, TABLE_TOTAL, type OverlayProps, type State } from "./kit"
+import { Dash, demo, DemoBox, GRID_2, GRID_3, K, Matrix, MatrixWrap, Row, Stage, StageCol, STATES, TABLE_TOTAL, type MatrixRow, type OverlayProps, type State } from "./kit"
 import { ListExtras, TableExtras } from "./round2"
 
 /**
@@ -164,50 +164,122 @@ export function IconButtonDemo() {
   )
 }
 
+const INPUT_STATES = ["default", "hover", "focus", "error", "disabled", "readonly"] as const
+type InputState = (typeof INPUT_STATES)[number]
+const INPUT_SIZES = ["sm", "md", "lg"] as const
+const INPUT_SIZE_COLS = ["Input", "SearchInput"] as const
+const inputDemo = (s: InputState) => (s === "hover" || s === "focus" ? s : undefined)
+const draftItem = mock.purchaseForm.draft.items[0]
+const draftSubtotal = mock.purchaseForm.draft.items.reduce((sum, it) => sum + it.qty * it.unitPrice, 0)
+const searchOrderId = mock.ordersAll[0].id
+
+/** hifi「类型 × 状态（size = md）」+「尺寸」两张矩阵；不适用的格标 —；只读 = readOnly、禁用 = disabled，无假加载 */
+function InputMatrix() {
+  const stateProps = (s: InputState) => ({ "data-demo": inputDemo(s), disabled: s === "disabled", readOnly: s === "readonly", "aria-invalid": s === "error" || undefined })
+  const rows: MatrixRow<InputState>[] = [
+    {
+      label: "Input",
+      mono: 'type="text"',
+      render: (s) =>
+        s === "readonly" ? (
+          <Input aria-label={K("sample.workspaceId")} defaultValue={mock.settings.team.workspaceId} {...stateProps(s)} />
+        ) : (
+          <Input
+            aria-label={K("sample.input.label")}
+            placeholder={K("sample.input.placeholder")}
+            defaultValue={s === "focus" || s === "disabled" ? K("sample.input.value") : undefined}
+            aria-describedby={s === "error" ? "input-matrix-err" : undefined}
+            {...stateProps(s)}
+          />
+        ),
+    },
+    {
+      label: "PasswordInput",
+      mono: 'type="password"',
+      render: (s) =>
+        s === "readonly" ? (
+          <Dash />
+        ) : (
+          <PasswordInput aria-label={t("login.password.label")} defaultValue={user.demoCredentials.passwordRule} showLabel={t("login.password.show")} hideLabel={t("login.password.hide")} {...stateProps(s)} />
+        ),
+    },
+    {
+      label: "SearchInput",
+      mono: 'type="search"',
+      render: (s) =>
+        s === "error" || s === "readonly" ? (
+          <Dash />
+        ) : (
+          <InputControl leading={<SearchIcon />} trailing={s === "focus" ? <IconButton label={t("orders.selection.clear")}><XIcon /></IconButton> : undefined}>
+            <Input type="search" aria-label={t("orders.search.aria")} placeholder={s === "focus" ? undefined : t("orders.search.placeholder")} defaultValue={s === "focus" ? searchOrderId : undefined} {...stateProps(s)} />
+          </InputControl>
+        ),
+    },
+    {
+      label: "NumberInput",
+      mono: 'inputMode="numeric"',
+      render: (s) =>
+        s === "readonly" ? (
+          <Dash />
+        ) : (
+          <NumberInput value={s === "error" ? 0 : draftItem.qty} onChange={() => {}} min={1} max={999} decrementLabel={K("sample.number.dec")} incrementLabel={K("sample.number.inc")} aria-label={t("form.items.col.qty")} data-demo={inputDemo(s)} disabled={s === "disabled"} aria-invalid={s === "error" || undefined} />
+        ),
+    },
+    {
+      label: K("matrix.withPrefix"),
+      mono: `prefix="${currencySymbol}"`,
+      render: (s) => (
+        <InputControl affix={currencySymbol}>
+          <Input inputMode="decimal" aria-label={s === "readonly" ? t("form.items.col.subtotal") : t("form.items.col.unitPrice")} defaultValue={formatAmount(s === "readonly" ? draftSubtotal : s === "error" ? 0 : draftItem.unitPrice)} className="tabular-nums" {...stateProps(s)} />
+        </InputControl>
+      ),
+    },
+    {
+      label: "Textarea",
+      mono: "rows={3}",
+      render: (s) =>
+        s === "readonly" ? (
+          <Dash />
+        ) : (
+          <Textarea aria-label={t("form.note.label")} placeholder={t("form.note.placeholder")} defaultValue={s === "default" || s === "hover" ? undefined : mock.purchaseForm.draft.note} rows={3} {...stateProps(s)} />
+        ),
+    },
+  ]
+  return (
+    <>
+      <Matrix caption={K("caption.input.matrix")} head={K("matrix.type")} cols={INPUT_STATES} wide rows={rows} />
+      <span id="input-matrix-err" className="sr-only">
+        {K("sample.input.error")}
+      </span>
+      <Matrix
+        caption={K("matrix.size")}
+        head={K("matrix.size")}
+        cols={INPUT_SIZE_COLS}
+        colLabel={(c) => c}
+        wide
+        rows={INPUT_SIZES.map((size) => ({
+          label: size,
+          mono: `control.${size}`,
+          render: (c: (typeof INPUT_SIZE_COLS)[number]) =>
+            c === "Input" ? (
+              <InputControl hit={size === "sm"}>
+                <Input size={size} aria-label={K("sample.input.label")} defaultValue={K("sample.input.value")} />
+              </InputControl>
+            ) : (
+              <InputControl hit={size === "sm"} leading={<SearchIcon />}>
+                <Input size={size} type="search" aria-label={t("orders.search.aria")} placeholder={t("orders.search.placeholder")} />
+              </InputControl>
+            ),
+        }))}
+      />
+    </>
+  )
+}
+
 export function InputDemo({ part }: { part: "input" | "field" | "divider" }) {
   return (
     <>
-        {part === "input" && (
-          <>
-        <StateMatrix
-          label="Input"
-          wide
-          render={(s) => (
-            <Input
-              aria-label={K("sample.input.label")}
-              placeholder={K("sample.input.placeholder")}
-              defaultValue={s === "default" ? undefined : K("sample.input.value")}
-              data-demo={demo(s)}
-              disabled={s === "disabled"}
-              readOnly={s === "loading"}
-              aria-invalid={s === "error" || undefined}
-            />
-          )}
-        />
-        <Row label="Input · states" wide cols={[K("state.readonly"), "type=email", "type=search"]}>
-          <Input readOnly defaultValue={user.email} aria-label={t("login.email.label")} />
-          <Input type="email" placeholder={t("login.email.placeholder")} aria-label={t("login.email.label")} />
-          <SearchInput placeholder={t("shell.search.placeholder")} aria-label={t("shell.search.aria")} shortcut="⌘K" />
-        </Row>
-        <StateMatrix
-          label="PasswordInput"
-          wide
-          states={["default", "hover", "focus", "disabled", "error"]}
-          render={(s) => (
-            <PasswordInput
-              aria-label={t("login.password.label")}
-              placeholder={t("login.password.placeholder")}
-              defaultValue={s === "default" ? undefined : user.demoCredentials.passwordRule}
-              showLabel={t("login.password.show")}
-              hideLabel={t("login.password.hide")}
-              data-demo={demo(s)}
-              disabled={s === "disabled"}
-              aria-invalid={s === "error" || undefined}
-            />
-          )}
-        />
-          </>
-        )}
+        {part === "input" && <InputMatrix />}
         {part === "field" && (
           <>
         <Row label="Field" cols={[K("state.default"), K("state.error"), K("state.disabled")]}>
@@ -266,7 +338,7 @@ const SHIPPED_TOAST_N = mock.ordersAll.filter((o) => o.status === "shipped").len
 
 function StaticToast({ role = "status", icon, title, description, action, close }: { role?: "status" | "alert"; icon?: React.ReactNode; title: string; description?: string; action?: string; close?: boolean }) {
   return (
-    <div role={role} className="flex w-fit max-w-full items-center gap-3 rounded-lg border bg-surface-raised py-2 pr-2 pl-4 text-role-label text-fg shadow-lg">
+    <div role={role} className="flex min-h-control-lg w-fit max-w-full items-center gap-3 rounded-lg border bg-surface-raised py-2 pr-2 pl-4 text-role-label text-fg shadow-lg">
       {icon}
       <span className="flex min-w-0 flex-col wrap-anywhere">
         {title}
@@ -278,7 +350,7 @@ function StaticToast({ role = "status", icon, title, description, action, close 
         </Button>
       ) : null}
       {close ? (
-        <IconButton label={K("sample.toast.close")}>
+        <IconButton label={K("sample.toast.close")} className="[&_svg]:size-icon-sm">
           <XIcon />
         </IconButton>
       ) : null}
@@ -290,25 +362,40 @@ export function AlertDemo({ set }: Pick<OverlayProps, "set">) {
   return (
     <div className={GRID_2}>
       <StageCol>
-        <Alert variant="info" closeLabel={K("sample.toast.close")} onClose={() => {}}>
+        <Alert variant="info" appearance="soft" role="status" closeLabel={K("sample.toast.close")} onClose={() => {}}>
           <AlertTitle>{K("sample.alert.title.info")}</AlertTitle>
           <AlertDescription>{mock.notifications.items.find((n) => n.type === "announcement")?.title}</AlertDescription>
         </Alert>
-        <Alert variant="success" closeLabel={K("sample.toast.close")} onClose={() => {}}>
+        <Alert variant="success" appearance="soft" role="status" closeLabel={K("sample.toast.close")} onClose={() => {}}>
           <AlertTitle>{K("sample.alert.title.success")}</AlertTitle>
           <AlertDescription>{K("sample.alert.prefsSaved")}</AlertDescription>
         </Alert>
-        <Alert variant="warning">
+        <Alert
+          variant="warning"
+          appearance="soft"
+          role="status"
+          action={
+            <Button variant="ghost" size="sm">
+              {K("sample.alert.restock")}
+            </Button>
+          }
+        >
           <AlertTitle>{K("sample.alert.title.warning")}</AlertTitle>
           <AlertDescription>{K("sample.alert.lowStock", { name: LOW_STOCK_SKU.name, n: LOW_STOCK_SKU.stock })}</AlertDescription>
-          <AlertAction>{K("sample.alert.restock")}</AlertAction>
         </Alert>
-        <Alert variant="danger">
+        <Alert
+          variant="danger"
+          appearance="soft"
+          action={
+            <Button variant="ghost" size="sm">
+              {K("sample.alert.reauth")}
+            </Button>
+          }
+        >
           <AlertTitle>{K("sample.alert.title.danger")}</AlertTitle>
           <AlertDescription>{K("sample.alert.syncFailed", { channel: SYNC_CHANNEL })}</AlertDescription>
-          <AlertAction>{K("sample.alert.reauth")}</AlertAction>
         </Alert>
-        <Alert variant="neutral">
+        <Alert variant="neutral" appearance="soft" role="status">
           <AlertTitle>{K("sample.alert.title.neutral")}</AlertTitle>
           <AlertDescription>{mock.chat.assistant.disclaimer}</AlertDescription>
         </Alert>
@@ -760,7 +847,7 @@ export function TableDemo({ part }: { part: "table" | "order" }) {
     <>
         {part === "table" && (
           <>
-            <TableWrap className={cn(MATRIX_WRAP, "w-auto")}>
+            <MatrixWrap label={K("sample.table.caption")} kind="table-wrap">
               <Table>
                 <caption className="sr-only">{K("sample.table.caption")}</caption>
                 <TableHeader>
@@ -813,7 +900,7 @@ export function TableDemo({ part }: { part: "table" | "order" }) {
                   })}
                 </TableBody>
               </Table>
-            </TableWrap>
+            </MatrixWrap>
             <p className="hidden text-role-caption text-fg-muted mobile:block">{K("sample.table.mobileHint")}</p>
             <Matrix
               caption={K("sample.table.density")}

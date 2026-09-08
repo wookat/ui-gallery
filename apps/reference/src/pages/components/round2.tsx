@@ -31,7 +31,6 @@ import { Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerTrigger } from "
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { FileDropzone, FileItem } from "@/components/ui/file-dropzone"
 import { IconButton } from "@/components/ui/icon-button"
-import { NumberInput } from "@/components/ui/number-input"
 import { OTPInput } from "@/components/ui/otp-input"
 import { Pagination } from "@/components/ui/pagination"
 import { RadioField, RadioGroup } from "@/components/ui/radio-group"
@@ -41,12 +40,11 @@ import { Separator } from "@/components/ui/separator"
 import { Slider, SliderValues } from "@/components/ui/slider"
 import { Switch, SwitchField } from "@/components/ui/switch"
 import { TagInput } from "@/components/ui/tag-input"
-import { CharCounter, Textarea } from "@/components/ui/textarea"
 import { orderStatus, t } from "@/data/content"
 import { channelLabel, mock } from "@/data/mock"
 import { formatCurrency, formatCurrencyWhole, formatDateTime, formatInteger, formatMonthDay, formatTime } from "@/lib/format"
 
-import { bind, demo, DemoBox, K, Matrix as KitMatrix, Row, TABLE_PAGE_COUNT, TABLE_PAGE_SIZE, TABLE_TOTAL, type OverlayProps, type State } from "./kit"
+import { bind, demo, DemoBox, GRID_3, K, Matrix as KitMatrix, Row, TABLE_PAGE_COUNT, TABLE_PAGE_SIZE, TABLE_TOTAL, type OverlayProps, type State } from "./kit"
 
 /**
  * /kitchen-sink 第 2 轮追加区块（orders / form / settings / components / landing / chat 六屏所需控件）。
@@ -69,10 +67,9 @@ const fileSize = (kb: number) => (kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : 
 const calendarLabels = { prevMonth: K("sample.calendar.prev"), nextMonth: K("sample.calendar.next") }
 
 /* ---------------- 表单控件 ---------------- */
-export type FormPart = "input" | "select" | "choice" | "date" | "misc"
+export type FormPart = "select" | "choice" | "date" | "misc"
 
 export function FormControlsSection({ part, ...overlay }: OverlayProps & { part: FormPart }) {
-  const [qty, setQty] = React.useState(form.draft.items[0].qty)
   const [supplier, setSupplier] = React.useState<string | null>(form.draft.supplierId)
   const [settlement, setSettlement] = React.useState(form.draft.settlement)
   const [urgent, setUrgent] = React.useState(form.draft.urgent)
@@ -81,38 +78,9 @@ export function FormControlsSection({ part, ...overlay }: OverlayProps & { part:
   const [tags, setTags] = React.useState<string[]>(form.tagSuggestions.slice(0, 2))
   const [otp, setOtp] = React.useState("")
   const [otpErr, setOtpErr] = React.useState("")
-  const note = form.draft.note
   const is = (...parts: FormPart[]) => parts.includes(part)
   return (
     <>
-      {is("input") && (
-        <>
-      <Matrix
-        label="Textarea"
-        wide
-        render={(s) => (
-          <Textarea aria-label={t("form.note.label")} placeholder={t("form.note.placeholder")} defaultValue={s === "default" ? undefined : note} data-demo={demo(s)} disabled={s === "disabled"} aria-invalid={s === "error" || undefined} rows={2} />
-        )}
-      />
-      <Row label="Textarea · counter" cols={[K("state.default"), K("state.error")]}>
-        <Field className="w-full">
-          <FieldLabel htmlFor="ta-counter">{t("form.note.label")}</FieldLabel>
-          <Textarea id="ta-counter" defaultValue={note} rows={2} />
-          <CharCounter value={note.length} max={200} />
-        </Field>
-        <Field className="w-full">
-          <FieldLabel htmlFor="ta-over">{t("settings.profile.bio.label")}</FieldLabel>
-          <Textarea id="ta-over" aria-invalid defaultValue={mock.settings.profile.bio} rows={2} />
-          <CharCounter value={mock.settings.profile.bio.length} max={mock.settings.profile.bioMax} />
-        </Field>
-      </Row>
-      <Matrix
-        label="NumberInput"
-        states={["default", "focus", "disabled", "error"]}
-        render={(s) => <NumberInput value={qty} onChange={setQty} min={1} max={999} decrementLabel={K("sample.number.dec")} incrementLabel={K("sample.number.inc")} aria-label={t("form.items.col.qty")} data-demo={demo(s)} disabled={s === "disabled"} aria-invalid={s === "error" || undefined} />}
-      />
-        </>
-      )}
       {is("select") && (
         <>
       <Matrix
@@ -204,39 +172,37 @@ export function FormControlsSection({ part, ...overlay }: OverlayProps & { part:
       )}
       {is("misc") && (
         <>
-      <Row label="TagInput" wide cols={[K("state.default"), K("state.disabled"), K("state.error")]}>
-        <TagInput value={tags} onChange={setTags} placeholder={t("form.tags.placeholder")} removeLabel={(tag) => t("form.tags.remove", { tag })} aria-label={t("form.tags.label")} max={5} />
-        <TagInput value={form.tagSuggestions.slice(0, 2)} onChange={() => {}} removeLabel={(tag) => t("form.tags.remove", { tag })} aria-label={t("form.tags.label")} disabled />
-        <TagInput value={[]} onChange={() => {}} placeholder={t("form.tags.placeholder")} removeLabel={(tag) => t("form.tags.remove", { tag })} aria-label={t("form.tags.label")} invalid />
-      </Row>
-      <Row label="OTPInput" wide cols={[K("state.default"), K("state.error"), K("state.disabled")]}>
-        <Field>
-          <FieldLabel id="otp-label">{t("settings.security.2fa.code.label")}</FieldLabel>
-          <OTPInput value={otp} onChange={setOtp} cellLabel={(n) => `${t("settings.security.2fa.code.label")} ${n}`} aria-labelledby="otp-label" />
-        </Field>
-        <Field>
-          <FieldLabel id="otp-err-label">{t("settings.security.2fa.code.label")}</FieldLabel>
-          <OTPInput value={otpErr} onChange={setOtpErr} invalid cellLabel={(n) => `${t("settings.security.2fa.code.label")} ${n}`} aria-labelledby="otp-err-label" aria-describedby="otp-err-msg" />
-          <p id="otp-err-msg" role="alert" className="text-role-caption text-danger">
-            {t("settings.security.2fa.code.invalid")}
-          </p>
-        </Field>
-        <OTPInput value="" onChange={() => {}} disabled cellLabel={(n) => `${t("settings.security.2fa.code.label")} ${n}`} />
-      </Row>
-      <Row label="FileDropzone / FileItem" wide cols={[K("state.default"), C("state.dragover"), K("state.error")]}>
-        <div className="flex w-full flex-col gap-2">
-          <FileDropzone title={t("form.attachments.dropzone")} hint={t("form.attachments.accept")} onFiles={() => {}} accept={form.attachments.accept.join(",")} multiple />
-          <ul className="flex flex-col gap-2">
+      <div className={GRID_3}>
+        <DemoBox caption={`TagInput（${K("state.default")} / ${K("state.disabled")} / ${K("state.error")}）`}>
+          <TagInput value={tags} onChange={setTags} placeholder={t("form.tags.placeholder")} removeLabel={(tag) => t("form.tags.remove", { tag })} aria-label={t("form.tags.label")} max={5} />
+          <TagInput value={form.tagSuggestions.slice(0, 2)} onChange={() => {}} removeLabel={(tag) => t("form.tags.remove", { tag })} aria-label={t("form.tags.label")} disabled />
+          <TagInput value={[]} onChange={() => {}} placeholder={t("form.tags.placeholder")} removeLabel={(tag) => t("form.tags.remove", { tag })} aria-label={t("form.tags.label")} invalid />
+        </DemoBox>
+        <DemoBox caption={`OTPInput（${K("state.default")} / ${K("state.error")} / ${K("state.disabled")}）`}>
+          <Field>
+            <FieldLabel id="otp-label">{t("settings.security.2fa.code.label")}</FieldLabel>
+            <OTPInput value={otp} onChange={setOtp} cellLabel={(n) => `${t("settings.security.2fa.code.label")} ${n}`} aria-labelledby="otp-label" />
+          </Field>
+          <Field>
+            <FieldLabel id="otp-err-label">{t("settings.security.2fa.code.label")}</FieldLabel>
+            <OTPInput value={otpErr} onChange={setOtpErr} invalid cellLabel={(n) => `${t("settings.security.2fa.code.label")} ${n}`} aria-labelledby="otp-err-label" aria-describedby="otp-err-msg" />
+            <p id="otp-err-msg" role="alert" className="text-role-caption text-danger">
+              {t("settings.security.2fa.code.invalid")}
+            </p>
+          </Field>
+          <OTPInput value="" onChange={() => {}} disabled cellLabel={(n) => `${t("settings.security.2fa.code.label")} ${n}`} />
+        </DemoBox>
+        <DemoBox caption={`FileDropzone（${K("state.default")} / ${C("state.dragover")}）+ FileItem（${C("state.uploading")} / ${K("state.success")} / ${K("state.error")}）`}>
+          <FileDropzone title={t("form.attachments.dropzone")} hint={t("form.attachments.accept")} dragoverTitle={C("sample.dropzone.dragover")} onFiles={() => {}} accept={form.attachments.accept.join(",")} multiple />
+          <FileDropzone title={t("form.attachments.dropzone")} hint={t("form.attachments.accept")} dragoverTitle={C("sample.dropzone.dragover")} dragover onFiles={() => {}} />
+          <ul className="flex w-full flex-col gap-2">
             {form.attachments.samples.map((f) => (
               <FileItem key={f.name} name={f.name} size={fileSize(f.sizeKB)} status={f.status === "uploading" ? "uploading" : "done"} progress={"progress" in f ? f.progress : undefined} removeLabel={t("form.attachments.remove", { name: f.name })} onRemove={() => {}} />
             ))}
+            <FileItem name={form.attachments.errorSample.name} size={fileSize(form.attachments.errorSample.sizeKB)} status="error" error={form.attachments.errorSample.error} removeLabel={t("form.attachments.remove", { name: form.attachments.errorSample.name })} onRemove={() => {}} />
           </ul>
-        </div>
-        <FileDropzone title={t("form.attachments.dropzone")} hint={t("form.attachments.accept")} onFiles={() => {}} data-dragover className="data-dragover:border-primary data-dragover:bg-primary-soft" />
-        <ul className="flex w-full flex-col gap-2">
-          <FileItem name={form.attachments.errorSample.name} size={fileSize(form.attachments.errorSample.sizeKB)} status="error" error={form.attachments.errorSample.error} removeLabel={t("form.attachments.remove", { name: form.attachments.errorSample.name })} onRemove={() => {}} />
-        </ul>
-      </Row>
+        </DemoBox>
+      </div>
         </>
       )}
     </>

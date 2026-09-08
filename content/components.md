@@ -173,6 +173,10 @@
 | matrix.block | block | |
 | matrix.expanded | 展开 | IconButton 矩阵列（`aria-expanded`） |
 | matrix.badge | 角标 | IconButton 矩阵列（CountBadge） |
+| matrix.withPrefix | 带前缀 | 表单控件矩阵行（`prefix="¥"`） |
+| caption.input.matrix | 类型 × 状态（size = md） | Input 矩阵 caption |
+| sample.workspaceId | 工作区 ID | Input 只读格 aria-label，值取 mock/settings.json workspaceId |
+| sample.dropzone.dragover | 松开即上传 | FileDropzone 拖入中主文案 |
 | caption.button.matrix | 变体 × 状态（size = md） | Button 矩阵 caption |
 | caption.button.size | 尺寸（sm 视觉高 32，hit-area 撑到 40） | |
 | caption.iconButton.matrix | 形状 × 状态（固定 size.hit 正方形，必填 aria-label） | |

@@ -22,7 +22,7 @@ import { formatCurrency, formatCurrencyWhole, formatDateTime, formatTime } from 
 import { tokenMs, useBelowWidth } from "@/lib/media"
 
 import { AlertDemo, AvatarDemo, ButtonDemo, CardDemo, ChartDemo, CheckboxDemo, FeedbackDemo, IconButtonDemo, InputDemo, ListDemo, NavDemo, OverlayDemo, TabsDemo, TableDemo, TagDemo } from "./demos"
-import { DemoBox, GRID_2, GRID_3, MATRIX_ROW, MATRIX_ROW_TH, MATRIX_TD, MATRIX_TH, MATRIX_WRAP, Stage, StageCol } from "./kit"
+import { DemoBox, GRID_2, GRID_3, MATRIX_ROW, MATRIX_ROW_TH, MATRIX_TD, MATRIX_TH, MatrixWrap, Stage, StageCol } from "./kit"
 import { ComposedSection, FormControlsSection, LayoutSection, NavExtras, OverlayExtras } from "./round2"
 import { snippets, type Snippet } from "./snippets"
 
@@ -86,7 +86,7 @@ const TYPE_SAMPLES: Record<(typeof TYPE_ROLES)[number][0], string> = {
 function TypographyDemo() {
   return (
     <>
-      <div className={MATRIX_WRAP} tabIndex={0} role="region" aria-label={K("type.caption")}>
+      <MatrixWrap label={K("type.caption")}>
         <table className="w-full border-collapse">
           <caption className="pb-3 text-left text-role-caption text-fg-muted">{K("type.caption")}</caption>
           <thead>
@@ -111,7 +111,7 @@ function TypographyDemo() {
             ))}
           </tbody>
         </table>
-      </div>
+      </MatrixWrap>
       <DemoBox caption={K("type.hierarchy")} className="gap-2 self-stretch">
         <p className="text-role-title">{HIERARCHY_ORDER.items[0].name}</p>
         <p className="text-role-body">
@@ -213,7 +213,7 @@ const MOTIONS = ["fast", "base", "slow"] as const
 function ScaleDemo() {
   return (
     <div className="grid w-full gap-6 lg:grid-cols-2">
-      <div className={MATRIX_WRAP} tabIndex={0} role="region" aria-label={K("scale.space.caption")}>
+      <MatrixWrap label={K("scale.space.caption")}>
         <table className="w-full border-collapse">
           <caption className="pb-3 text-left text-role-caption text-fg-muted">{K("scale.space.caption")}</caption>
           <thead>
@@ -235,7 +235,7 @@ function ScaleDemo() {
             ))}
           </tbody>
         </table>
-      </div>
+      </MatrixWrap>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 rounded-md border border-border bg-bg p-4">
           <span className="text-role-caption text-fg-muted">{K("scale.radius")}</span>
@@ -360,12 +360,7 @@ function Demo({ id, overlay }: { id: string; overlay: Overlay }) {
     case "iconbutton":
       return <IconButtonDemo />
     case "input":
-      return (
-        <>
-          <InputDemo part="input" />
-          <FormControlsSection part="input" {...overlay} />
-        </>
-      )
+      return <InputDemo part="input" />
     case "field":
       return <InputDemo part="field" />
     case "select":
@@ -568,11 +563,11 @@ function ComponentCard({ s, expanded, onToggle, overlay }: { s: Snippet; expande
       </div>
       <div id={panelId} hidden={!expanded} className={cn("flex flex-col gap-3 border-t pt-4", SCROLL_MT)}>
         <p className="sr-only">{K("code.hint")}</p>
-        <CodeBlock code={s.code} language={K("code.language")} labels={{ copy: K("code.copy"), copied: K("code.copied") }} />
+        <CodeBlock code={s.code} language={K("code.language")} labels={{ copy: K("code.copy"), copied: K("code.copied") }} copyAs="text" />
         {s.props.length ? (
           <>
             <h4 className="text-role-label">{K("props.title")}</h4>
-            <div className={MATRIX_WRAP} tabIndex={0} role="region" aria-label={K("props.title")}>
+            <MatrixWrap label={K("props.title")} kind="table-wrap">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
@@ -595,7 +590,7 @@ function ComponentCard({ s, expanded, onToggle, overlay }: { s: Snippet; expande
                   ))}
                 </tbody>
               </table>
-            </div>
+            </MatrixWrap>
           </>
         ) : null}
         <div className="flex items-center gap-2">
@@ -750,7 +745,7 @@ export default function ComponentsPage() {
       <nav aria-label={K("nav.aria")} className="sticky top-topbar z-10 border-b bg-bg mobile:top-[calc(var(--size-hit)+var(--space-4)+var(--size-control-md)+var(--space-2))]">
         <div className="mx-auto flex max-w-content-max items-center gap-1 overflow-x-auto px-6 py-2 [scrollbar-width:none] mobile:px-4 [&::-webkit-scrollbar]:hidden">
           {mobile ? (
-            <Select aria-label={K("nav.select")} value={current} onChange={(e) => jump(e.target.value)} className="h-hit">
+            <Select aria-label={K("nav.select")} value={current} onChange={(e) => jump(e.target.value)} className="h-hit border-border">
               {CATS.map((c, i) => (
                 <option key={c.id} value={c.id}>
                   {String(i + 1).padStart(2, "0")} {K(`section.${c.key}`)}

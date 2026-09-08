@@ -7,6 +7,10 @@ import { Tag } from "@/components/ui/badge"
 
 type PricingCardProps = React.ComponentProps<typeof Card> & {
   name: string
+  /** 计划一句话说明（landing .plan-desc） */
+  description?: React.ReactNode
+  /** 推荐角标位置：start 贴左（settings）· center 顶部居中（landing） */
+  badgeAlign?: "start" | "center"
   /** 已格式化价格（formatCurrencyWhole）与后缀（content pricing.perMonth / perYear） */
   price: string
   suffix: string
@@ -22,7 +26,7 @@ type PricingCardProps = React.ComponentProps<typeof Card> & {
 }
 
 /** 定价卡：hifi .plan —— Card 骨架，recommended 时 primary 描边 + 顶部角标；价格 display 字阶；特性行勾 / 横杠（不含项 fg-muted） */
-function PricingCard({ name, price, suffix, note, features, featureLabels, recommended, recommendedLabel, current, action, className, ...props }: PricingCardProps) {
+function PricingCard({ name, description, badgeAlign = "start", price, suffix, note, features, featureLabels, recommended, recommendedLabel, current, action, className, ...props }: PricingCardProps) {
   return (
     <Card
       data-slot="pricing-card"
@@ -32,12 +36,13 @@ function PricingCard({ name, price, suffix, note, features, featureLabels, recom
       {...props}
     >
       {recommended && recommendedLabel ? (
-        <Tag tone="info" dot={false} className="absolute -top-3 left-6">
+        <Tag tone="info" dot={false} className={cn("absolute -top-3", badgeAlign === "center" ? "left-1/2 -translate-x-1/2" : "left-6")}>
           {recommendedLabel}
         </Tag>
       ) : null}
       <header className="flex flex-col gap-2">
         <h3 className="text-role-title">{name}</h3>
+        {description ? <p className="text-role-body text-fg-muted">{description}</p> : null}
         <p className="flex items-baseline gap-1">
           <span className="text-role-display tabular-nums">{price}</span>
           <span className="text-role-body text-fg-muted">{suffix}</span>

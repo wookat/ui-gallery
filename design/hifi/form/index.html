@@ -12,7 +12,8 @@
   · 状态：?state=default|invalid|loading|success|error；步骤：?step=1|2|3（invalid 默认落步 1，loading / error 默认落步 3）；
     叠层：?open=terms|leave|supplier|sku|drawer|notifications|account；?toast=draft|row（&hold 不自动消失）；主题：?theme=light|dark；?sidebar=rail|expanded；?fail=1 让提交走 error 分支
   · 应用壳与 dashboard 高保真同源：侧边栏 4 组 8 项（本屏无高亮项，「采购」组仍 aria-disabled，见 brief §11.10-E）、面包屑「栖木家居 › 采购 › 新建采购单」（「采购」不可点 + Tooltip）
-  · 断点（tokens.breakpoint）：≥1025 双栏（表单 + 粘性摘要卡）；769–1024 侧边栏 icon rail、仍双栏；≤768 抽屉 + 单栏：摘要卡移到表单上方、Stepper 变「第 n 步，共 3 步」+ 进度条、商品行卡片化、操作条吸底
+  · 断点（tokens.breakpoint）：≥1025 双栏（表单 + 粘性摘要卡）；769–1024 侧边栏默认 icon rail、仍双栏（用户展开侧边栏时退为单栏、摘要卡上移，商品表列距收紧）；≤768 抽屉 + 单栏：摘要卡移到表单上方、Stepper 变「第 n 步，共 3 步」+ 进度条、商品行卡片化、操作条吸底
+  · 校验：字段失焦即校验（已触碰字段随输入实时更新），「下一步 / 提交」再整步校验；loading 时 Stepper 真实 disabled、侧栏 inert；抽屉打开时主区 inert + Tab 循环
   · 字体：OFL 的 Inter Variable / Noto Sans SC Variable / JetBrains Mono Variable（apps/shadcn-ui 依赖 @fontsource-variable/*，需先 pnpm install --filter shadcn-ui）
   · 图标：Lucide（ISC），内联 <symbol> 精灵
   · 门禁：node design/hifi/form/check.mjs（--static 只跑静态检查）；1440 / 375 × 亮 / 暗 × 全部状态与叠层截基准图到 ref/，并做溢出 / 热区 / 字体 / 控制台 / 键盘 / 合计复算 / 文案极值断言
@@ -27,11 +28,10 @@
 :root {
   --hifi-popover-w: calc(var(--size-content-max) / 4);            /* 320：Popover / 摘要卡宽 */
   --hifi-figure: calc(var(--size-sparkline) * 4);                   /* 128：Result 图形 */
-  --hifi-col-qty: calc(var(--space-20) + var(--space-4));           /* 96：数量列 */
+  --hifi-col-qty: var(--space-20);                                   /* 80：数量列（行内错误另起一行跨列显示，列宽只需容纳 4 位数） */
   --hifi-col-price: calc(var(--space-20) + var(--space-12));        /* 128：单价列 */
-  --hifi-col-subtotal: calc(var(--space-20) + var(--space-16));     /* 144：小计列 */
+  --hifi-col-subtotal: calc(var(--space-20) + var(--space-8));      /* 112：小计列（¥25,600.00） */
   --hifi-submit-w: calc(var(--space-20) + var(--space-12));         /* 128：提交按钮最小宽（loading 时保持宽度） */
-  --hifi-country-w: calc(var(--space-20) + var(--space-16));         /* 104：国家码 Select */
   --hifi-z-topbar: 20;
   --hifi-z-sidebar: 30;
   --hifi-z-popover: 40;
@@ -195,7 +195,7 @@ input, select, textarea { font: inherit; color: inherit; }
 /* 未实现导航项可聚焦且带 Tooltip，文字 ≥4.5:1，故用 fg-muted 而非 fg-disabled（tokens ef05fe8 契约） */
 .nav-item[aria-disabled="true"] { opacity: 1; pointer-events: auto; cursor: not-allowed; color: var(--color-role-fg-muted); }
 .nav-item[aria-disabled="true"]:hover { background: transparent; color: var(--color-role-fg-muted); }
-/* loading：全表单只读，Stepper / 侧栏导航禁点 */
+/* loading：全表单只读，Stepper 按钮 disabled、侧栏 inert（脚本），面包屑禁点 */
 html[data-state="loading"] .nav-item, html[data-state="loading"] .step, html[data-state="loading"] .crumbs a { pointer-events: none; }
 
 .sidebar-foot { flex: none; padding: var(--space-2) var(--space-3) var(--space-3); border-top: var(--border-width-hairline) solid var(--color-role-border); }
@@ -419,7 +419,7 @@ html[data-step="1"] #panel1, html[data-step="2"] #panel2, html[data-step="3"] #p
 .ctl.textarea textarea { resize: vertical; line-height: var(--font-line-height-body); min-height: calc(var(--size-control-md) * 2); }
 .field.is-invalid .ctl { border-color: var(--color-role-danger); }
 .field.is-invalid .ctl:focus-within { outline-color: var(--color-role-danger); }
-.phone-group { display: grid; grid-template-columns: var(--hifi-country-w) minmax(0, 1fr); gap: var(--space-2); }
+.phone-group { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-2); }
 fieldset[disabled] { opacity: 1; cursor: default; pointer-events: none; }
 fieldset[disabled] .ctl, fieldset[disabled] .radio-card, fieldset[disabled] .dropzone { background: var(--color-role-surface-muted); color: var(--color-role-fg-muted); }
 fieldset[disabled] .ctl input, fieldset[disabled] .ctl select, fieldset[disabled] .ctl textarea { color: var(--color-role-fg-muted); }
@@ -472,6 +472,11 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
 .items .col-subtotal { width: var(--hifi-col-subtotal); text-align: right; }
 .items .col-remove { width: var(--size-hit); text-align: right; }
 .items td.col-subtotal { font: var(--typography-label); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; padding-top: calc(var(--space-3) + (var(--size-control-md) - var(--font-size-sm) * var(--font-line-height-snug)) / 2); white-space: nowrap; }
+/* 行内错误：不挤在窄列里，另起一行跨全部列；无错误时整行不占位 */
+.items .row-errs td { padding: 0 0 var(--space-3); }
+.items .row-errs .errs { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+.items .row-errs:not(:has(.err:not([hidden]))) { display: none; }
+.items tbody tr:has(+ .row-errs .err:not([hidden])) td { border-bottom: 0; padding-bottom: var(--space-2); }
 .sku-meta { display: flex; align-items: center; gap: var(--space-2); font: var(--typography-caption); font-family: var(--font-family-sans); color: var(--color-role-fg-muted); flex-wrap: wrap; }
 .sku-meta:empty { display: none; }
 .sku-meta .mono { font-size: var(--font-size-xs); }
@@ -499,6 +504,8 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
 .range input[type="range"]::-moz-range-thumb { pointer-events: auto; width: var(--size-icon-md); height: var(--size-icon-md); border-radius: var(--radius-full); background: var(--color-role-surface); border: var(--border-width-focus) solid var(--color-role-primary); box-shadow: var(--shadow-sm); cursor: grab; }
 .range input[type="range"]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft); }
 .range input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft), 0 0 0 calc(var(--space-1) + var(--border-width-focus)) var(--color-role-focus-ring); }
+.range input[type="range"]:hover::-moz-range-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft); }
+.range input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 var(--space-1) var(--color-role-primary-soft), 0 0 0 calc(var(--space-1) + var(--border-width-focus)) var(--color-role-focus-ring); }
 .range-scale { display: flex; justify-content: space-between; font: var(--typography-caption); font-family: var(--font-family-sans); color: var(--color-role-fg-muted); font-variant-numeric: tabular-nums; }
 
 /* 附件 */
@@ -627,22 +634,36 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
 .toast.is-neutral .icon { color: var(--color-role-fg-muted); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(calc(-1 * var(--space-2))); } }
 
-/* ---------- 响应式：≤1024 侧边栏 icon rail（脚本设 data-sidebar），双栏保留 ---------- */
+/* ---------- 响应式：≤1024 侧边栏默认 icon rail（脚本设 data-sidebar），双栏保留；侧边栏展开 / ≤768 时退为单栏、摘要卡上移 ---------- */
 @media (max-width: 1024px) {
   .search { width: var(--size-sidebar-expanded); }
   .form-grid { gap: var(--space-4); }
+  .card { padding: var(--space-4); }
+  /* rail 双栏下表单列仅 ~250：国家码 Select（最长项「+886 中国台湾」）与 11 位号码上下堆叠，保证号码完整可见 */
+  html[data-sidebar="rail"] .phone-group { grid-template-columns: minmax(0, 1fr); }
+  /* 商品表：列距与数值列收紧，优先保证商品名可读 */
+  .items th + th, .items td + td { padding-left: var(--space-1); }
+  .items th:not(:last-child), .items td:not(:last-child) { padding-right: var(--space-1); }
+  .items .col-qty { width: calc(var(--space-16) + var(--space-2)); }
+  .items .col-price { width: calc(var(--space-20) + var(--space-6)); }
+  .items .col-subtotal { width: calc(var(--space-20) + var(--space-4)); }
+  html:not([data-sidebar="rail"]) .layout { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+  html:not([data-sidebar="rail"]) .aside { position: static; order: -1; padding: var(--space-4); gap: var(--space-3); }
+  html:not([data-sidebar="rail"]) .aside dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-4); }
+  html:not([data-sidebar="rail"]) .aside .row { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+  html:not([data-sidebar="rail"]) .aside dd { text-align: left; }
+  html:not([data-sidebar="rail"]) .aside dt { font: var(--typography-caption); font-family: var(--font-family-sans); }
+  html:not([data-sidebar="rail"]) .aside .row.is-grand { border-top: 0; padding-top: 0; margin-top: 0; }
+  html:not([data-sidebar="rail"]) .aside .row.is-grand dt { font: var(--typography-caption); font-family: var(--font-family-sans); color: var(--color-role-fg); font-weight: var(--font-weight-medium); }
+  html:not([data-sidebar="rail"]) .aside .row.is-grand dd { font: var(--typography-title); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; }
+  html:not([data-sidebar="rail"]) .aside .sub { display: none; }
 }
 
 /* ---------- 响应式：≤768 抽屉 + 单栏 + 吸底操作条 + 商品行卡片化 ---------- */
 @media (max-width: 768px) {
   .only-mobile { display: inline-flex; }
+  /* 抽屉：脚本在 ≤768 一律置 data-sidebar=expanded（与 dashboard 同源），rail 样式不再参与 */
   .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: var(--size-sidebar-drawer); transform: translateX(-100%); box-shadow: none; visibility: hidden; transition: transform var(--motion-base) var(--motion-ease), visibility 0s linear var(--motion-base); }
-  html[data-sidebar="rail"] .sidebar { width: var(--size-sidebar-drawer); }
-  html[data-sidebar="rail"] .brand-text, html[data-sidebar="rail"] .nav-label, html[data-sidebar="rail"] .nav-item .count-badge, html[data-sidebar="rail"] .nav-group-label { display: revert; }
-  html[data-sidebar="rail"] .nav-label { display: block; }
-  html[data-sidebar="rail"] .nav-item { justify-content: flex-start; padding: 0 var(--space-3); width: auto; }
-  html[data-sidebar="rail"] .nav-item[data-badge]::before { display: none; }
-  html[data-sidebar="rail"] .nav-group { border-top: 0; padding-top: 0; }
   html[data-drawer="open"] .sidebar { transform: none; box-shadow: var(--shadow-lg); visibility: visible; transition-delay: 0s; }
   html[data-drawer="open"] .scrim { display: block; }
   .brand .iconbtn { display: inline-flex; }
@@ -658,22 +679,13 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
   .page-head .t-display { font: var(--typography-heading); font-family: var(--font-family-sans); }
   .stepper { display: none; }
   .stepper-mobile { display: flex; }
-  .layout { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
-  .aside { position: static; order: -1; padding: var(--space-4); gap: var(--space-3); }
-  .aside dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-4); }
-  .aside .row { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
-  .aside dd { text-align: left; }
-  .aside dt { font: var(--typography-caption); font-family: var(--font-family-sans); }
-  .aside .row.is-grand { border-top: 0; padding-top: 0; margin-top: 0; }
-  .aside .row.is-grand dt { font: var(--typography-caption); font-family: var(--font-family-sans); color: var(--color-role-fg); font-weight: var(--font-weight-medium); }
-  .aside .row.is-grand dd { font: var(--typography-title); font-family: var(--font-family-sans); font-variant-numeric: tabular-nums; }
-  .aside .sub { display: none; }
-  .card { padding: var(--space-4); }
   .panel-head { margin-bottom: var(--space-4); }
   .form-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
   .radios { grid-template-columns: minmax(0, 1fr); }
-  .alert { flex-wrap: wrap; margin-bottom: var(--space-4); }
-  .alert-actions { flex: 1 0 100%; justify-content: flex-end; margin: 0 calc(-1 * var(--space-2)) 0 0; }
+  .alert { margin-bottom: var(--space-4); }
+  /* 提交失败 Alert：长文案 + 两个按钮，375 下按钮换行右对齐；invalid Alert 单行文案 + 「查看」保持同行 */
+  .alert-stack { flex-wrap: wrap; }
+  .alert-stack .alert-actions { flex: 1 0 100%; justify-content: flex-end; margin: 0 calc(-1 * var(--space-2)) 0 0; }
   .section-gap { margin: var(--space-6) 0 var(--space-4); }
   .items table { display: none; }
   .item-cards { display: flex; }
@@ -846,7 +858,7 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
             <div class="alert-actions"><button class="btn btn-ghost" id="gotoFirstErr" type="button">查看</button></div>
           </div>
           <!-- error：提交失败 -->
-          <div class="alert alert-danger" id="submitAlert" role="alert" hidden>
+          <div class="alert alert-danger alert-stack" id="submitAlert" role="alert" hidden>
             <svg class="icon" aria-hidden="true"><use href="#i-triangle-alert"/></svg>
             <div class="alert-body"><strong>提交失败</strong><p id="submitAlertText">提交失败：网络超时，采购单已保存为草稿，请重试</p></div>
             <div class="alert-actions">
@@ -1090,8 +1102,11 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
   if (!/^[123]$/.test(step)) step = '1';
   var theme = q.get('theme'); if (theme === 'dark' || theme === 'light') root.setAttribute('data-theme', theme);
   var sidebarQ = q.get('sidebar');
-  if (sidebarQ === 'rail' || sidebarQ === 'expanded') root.setAttribute('data-sidebar', sidebarQ);
-  else if (window.innerWidth <= 1024) root.setAttribute('data-sidebar', 'rail');
+  var isMobile = function () { return window.innerWidth <= 768; };
+  // 769–1024 默认 icon rail；≤768 侧栏是抽屉，永远 expanded（与 dashboard 同源）
+  var autoSidebar = function () { return window.innerWidth <= 1024 && !isMobile() ? 'rail' : 'expanded'; };
+  if ((sidebarQ === 'rail' || sidebarQ === 'expanded') && !isMobile()) root.setAttribute('data-sidebar', sidebarQ);
+  else root.setAttribute('data-sidebar', autoSidebar());
   var open = q.get('open') || '';
   var toastQ = q.get('toast') || '';
   var forceFail = q.get('fail') === '1';
@@ -1151,13 +1166,27 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
   syncCollapse();
   $('collapseBtn').addEventListener('click', function () { root.setAttribute('data-sidebar', root.getAttribute('data-sidebar') === 'rail' ? 'expanded' : 'rail'); syncCollapse(); });
 
-  var syncInert = function () { $('sidebar').inert = window.innerWidth <= 768 && root.getAttribute('data-drawer') !== 'open'; };
+  /* 抽屉关闭：侧栏 inert（Tab 不落到屏外）；抽屉打开：主区 inert（Tab 不穿透遮罩）；loading：侧栏导航 inert */
+  var syncInert = function () {
+    var drawerOpen = root.getAttribute('data-drawer') === 'open';
+    $('sidebar').inert = (isMobile() && !drawerOpen) || root.getAttribute('data-state') === 'loading';
+    document.querySelector('.frame').inert = drawerOpen;
+  };
   var openDrawer = function () { root.setAttribute('data-drawer', 'open'); $('drawerOpen').setAttribute('aria-expanded', 'true'); syncInert(); var f = $('sidebar').querySelector('.nav-item'); if (f) f.focus({ preventScroll: true }); };
-  var closeDrawer = function () { root.removeAttribute('data-drawer'); $('drawerOpen').setAttribute('aria-expanded', 'false'); syncInert(); };
+  var closeDrawer = function () { var inside = $('sidebar').contains(document.activeElement); root.removeAttribute('data-drawer'); $('drawerOpen').setAttribute('aria-expanded', 'false'); syncInert(); if (inside) $('drawerOpen').focus(); };
   syncInert();
   $('drawerOpen').addEventListener('click', openDrawer);
   $('drawerClose').addEventListener('click', closeDrawer);
   $('scrim').addEventListener('click', closeDrawer);
+  // 抽屉内 Tab 循环（主区已 inert，这里只负责首尾相接）
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab' || root.getAttribute('data-drawer') !== 'open') return;
+    var f = Array.prototype.filter.call($('sidebar').querySelectorAll('a[href], button:not([disabled])'), function (el) { return el.offsetParent !== null; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1], inside = $('sidebar').contains(document.activeElement);
+    if (e.shiftKey && (!inside || document.activeElement === first)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (!inside || document.activeElement === last)) { e.preventDefault(); first.focus(); }
+  });
 
   /* ---------- 对话框 / Toast ---------- */
   var openDialog = function (id) { $(id).hidden = false; var f = $(id).querySelector('.dialog button, .dialog [tabindex]'); if (f) f.focus(); };
@@ -1237,6 +1266,31 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
     $('invalidAlert').hidden = true;
   };
   var currentErrs = [];
+  var renderAlert = function () {
+    if (currentErrs.length) { $('invalidAlertText').textContent = fill('还有 {n} 项需要修正', { n: currentErrs.length }); $('invalidAlert').hidden = false; }
+    else $('invalidAlert').hidden = true;
+    renderStepper();
+  };
+  /* 失焦校验：只更新该字段的错误展示，其余字段维持现状；Alert 计数随之增减。touched 的字段随后输入实时复校 */
+  var touched = {};
+  var syncFieldErr = function (field) {
+    var st = root.getAttribute('data-step');
+    var e = validate(st).filter(function (x) { return x.field === field; })[0];
+    var isRow = /^row-/.test(field);
+    var errEls = isRow ? document.querySelectorAll('[data-err="rowErr-' + field.slice(4) + '"]') : $(field).querySelectorAll('.err');
+    var ctls = isRow ? document.querySelectorAll('[data-focus="' + field + '-in"]') : $(field).querySelectorAll('input, select, textarea');
+    var boxes = isRow ? Array.prototype.map.call(ctls, function (c) { return c.closest('.field'); }) : [$(field)];
+    boxes.forEach(function (b) { if (b) b.classList.toggle('is-invalid', !!e); });
+    Array.prototype.forEach.call(errEls, function (el) { el.hidden = !e; if (e) el.querySelector('span').textContent = e.msg; });
+    Array.prototype.forEach.call(ctls, function (c) { if (e) c.setAttribute('aria-invalid', 'true'); else c.removeAttribute('aria-invalid'); });
+    currentErrs = currentErrs.filter(function (x) { return x.field !== field; });
+    if (e) { currentErrs.push(e); var order = validate(st).map(function (x) { return x.field; }); currentErrs.sort(function (a, b) { return order.indexOf(a.field) - order.indexOf(b.field); }); }
+    renderAlert();
+  };
+  var touch = function (field) { touched[field] = true; syncFieldErr(field); };
+  /* 失焦校验；焦点若正落到底部动作条（下一步/提交会立即整步校验），跳过以免错误提示撑开布局使按钮从指针下移走 */
+  var blurTouch = function (field) { return function (e) { if (e.relatedTarget && e.relatedTarget.closest('#actions')) return; touch(field); }; };
+  var retouch = function (field) { if (touched[field]) syncFieldErr(field); };
   var showErrors = function (errs) {
     clearErrors(); currentErrs = errs;
     errs.forEach(function (e) {
@@ -1244,8 +1298,8 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
       Array.prototype.forEach.call(document.querySelectorAll('#' + e.err + ', [data-err="' + e.err + '"]'), function (el) { el.hidden = false; var s = el.querySelector('span'); if (s) s.textContent = e.msg; });
       Array.prototype.forEach.call(document.querySelectorAll('#' + e.focus + ', [data-focus="' + e.focus + '"]'), function (el) { el.setAttribute('aria-invalid', 'true'); });
     });
-    if (errs.length) { $('invalidAlertText').textContent = fill('还有 {n} 项需要修正', { n: errs.length }); $('invalidAlert').hidden = false; }
-    renderStepper();
+    errs.forEach(function (e) { touched[e.field] = true; });
+    renderAlert();
   };
   var focusFirstError = function () {
     if (!currentErrs.length) return;
@@ -1262,12 +1316,12 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
   var renderStepper = function () {
     var cur = Number(root.getAttribute('data-step'));
     if (cur > reached) reached = cur;
-    var hasErr = currentErrs.length > 0;
+    var hasErr = currentErrs.length > 0, loading = root.getAttribute('data-state') === 'loading';
     $('stepper').innerHTML = PF.steps.map(function (s, i) {
       var n = i + 1, done = n < cur, isCur = n === cur, err = isCur && hasErr;
       var status = done ? '已完成' : isCur ? '当前步骤' : '未开始';
       var cls = 'step' + (done ? ' is-done' : '') + (err ? ' is-error' : '');
-      var btn = '<button class="' + cls + '" type="button" data-step="' + n + '"' + (isCur ? ' aria-current="step"' : '') + (n > reached ? ' disabled' : '') + '>'
+      var btn = '<button class="' + cls + '" type="button" data-step="' + n + '"' + (isCur ? ' aria-current="step"' : '') + (n > reached || loading ? ' disabled' : '') + '>'
         + '<span class="step-dot" aria-hidden="true"><span class="n">' + n + '</span><svg class="icon icon-check"><use href="#i-check"/></svg><svg class="icon icon-alert"><use href="#i-circle-alert"/></svg></span>'
         + '<span class="step-text"><strong>' + esc(s.label) + '</strong><span>' + esc(STEP_DESC[i]) + '</span></span><span class="sr-only">，' + status + '</span></button>';
       var sep = i < PF.steps.length - 1 ? '<li class="step-sep' + (done ? ' is-done' : '') + '" aria-hidden="true"></li>' : '';
@@ -1294,12 +1348,13 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
     var s = supplierOf(id); if (!s) return;
     M.supplierId = s.id; M.contact = s.contact; M.phone = s.phoneDemo; M.email = s.email; M.settlement = s.settlement; M.dirty = true;
     openSupplierList(false); renderStep1(); renderAside(); renderArrivalHint();
+    ['fSupplier', 'fContact', 'fPhone', 'fEmail', 'fSettlement'].forEach(retouch);
   };
   var renderSettlement = function () {
     $('settlement').innerHTML = PF.settlementMethods.map(function (o) {
       return '<label class="radio-card"><input class="radio" type="radio" name="settlement" value="' + o.key + '"' + (o.key === M.settlement ? ' checked' : '') + '><span class="rtext"><strong>' + esc(o.label) + '</strong><span class="t-caption">' + esc(o.hint) + '</span></span></label>';
     }).join('');
-    Array.prototype.forEach.call($('settlement').querySelectorAll('input'), function (r) { r.addEventListener('change', function () { M.settlement = r.value; M.dirty = true; }); });
+    Array.prototype.forEach.call($('settlement').querySelectorAll('input'), function (r) { r.addEventListener('change', function () { M.settlement = r.value; M.dirty = true; retouch('fSettlement'); }); });
     $('settlement').querySelector('input').id = 'settlement';
   };
   var renderNoteCounter = function () { var n = M.note.length; $('noteCounter').textContent = n + ' / ' + V.noteMax; $('noteCounter').classList.toggle('is-over', n > V.noteMax); };
@@ -1322,11 +1377,17 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
     Array.prototype.forEach.call(opts, function (o) { o.classList.remove('is-active'); }); opts[i].classList.add('is-active');
   });
   document.addEventListener('click', function (e) { if (!e.target.closest('#fSupplier')) openSupplierList(false); });
-  $('contact').addEventListener('input', function () { M.contact = $('contact').value; M.dirty = true; });
-  $('phone').addEventListener('input', function () { M.phone = $('phone').value.replace(/\D/g, ''); $('phone').value = M.phone; M.dirty = true; });
+  // 选项点击前会先触发 blur，延后到列表收起后再校验，避免错误提示闪现
+  $('supplier').addEventListener('blur', function () { setTimeout(function () { if (document.activeElement !== $('supplier')) touch('fSupplier'); }, cssMs('--motion-fast', 120)); });
+  $('contact').addEventListener('input', function () { M.contact = $('contact').value; M.dirty = true; retouch('fContact'); });
+  $('contact').addEventListener('blur', blurTouch('fContact'));
+  $('phone').addEventListener('input', function () { M.phone = $('phone').value.replace(/\D/g, ''); $('phone').value = M.phone; M.dirty = true; retouch('fPhone'); });
+  $('phone').addEventListener('blur', blurTouch('fPhone'));
   $('phoneCountry').addEventListener('change', function () { M.phoneCountryCode = $('phoneCountry').value; });
-  $('email').addEventListener('input', function () { M.email = $('email').value; M.dirty = true; });
-  $('note').addEventListener('input', function () { M.note = $('note').value; M.dirty = true; renderNoteCounter(); });
+  $('email').addEventListener('input', function () { M.email = $('email').value; M.dirty = true; retouch('fEmail'); });
+  $('email').addEventListener('blur', blurTouch('fEmail'));
+  $('note').addEventListener('input', function () { M.note = $('note').value; M.dirty = true; renderNoteCounter(); retouch('fNote'); });
+  $('note').addEventListener('blur', blurTouch('fNote'));
   $('invoice').addEventListener('change', function () { M.needInvoice = $('invoice').checked; });
   $('urgent').addEventListener('change', function () { M.urgent = $('urgent').checked; renderArrivalHint(); });
 
@@ -1340,24 +1401,28 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
       return '<button class="option" type="button" role="option" data-sku="' + k.sku + '" aria-selected="' + (k.sku === cur) + '"><span class="o-main"><strong>' + esc(k.name) + '</strong><span class="o-meta"><span class="mono">' + k.sku + '</span><span>' + esc(skuMeta(k)) + '</span>' + (k.lowStock ? '<span class="tag tag-warning">库存预警</span>' : '') + '</span></span><span class="o-right num">' + m2(k.cost) + '</span></button>';
     }).join('') : '<div class="option-empty">没有匹配的商品</div>';
   };
+  // 行内错误：表格上下文（ctx='t'）不放在窄列内，由 renderItems 另起一行跨列输出；卡片上下文（ctx='c'）紧跟字段
+  var rowErr = function (i, key, err) { return '<p class="err" data-err="rowErr-' + i + '-' + key + '"' + (err ? '' : ' hidden') + '><svg class="icon icon-sm" aria-hidden="true"><use href="#i-circle-alert"/></svg><span>' + esc(err || '') + '</span></p>'; };
   var skuField = function (r, i, ctx) {
     var k = skuOf(r.sku); var err = r.errors && r.errors.sku;
     return '<div class="field has-list' + (err ? ' is-invalid' : '') + '"' + (ctx === 't' ? ' id="row-' + i + '-sku"' : '') + '>'
       + '<div class="ctl combo"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-search"/></svg><input type="text" role="combobox" data-focus="row-' + i + '-sku-in" data-row="' + i + '" data-k="sku" value="' + esc(k ? k.name : r.sku || '') + '" placeholder="搜索 SKU 或商品名" aria-label="第 ' + (i + 1) + ' 行商品" aria-expanded="false" aria-autocomplete="list" autocomplete="off"' + (err ? ' aria-invalid="true"' : '') + '><div class="listbox" role="listbox" aria-label="商品" hidden></div></div>'
       + '<div class="sku-meta">' + (k ? '<span class="mono">' + k.sku + '</span><span>' + esc(skuMeta(k)) + '</span>' + (k.lowStock ? '<span class="tag tag-warning">库存预警</span>' : '') : '') + '</div>'
-      + '<p class="err" data-err="rowErr-' + i + '-sku"' + (err ? '' : ' hidden') + '><svg class="icon icon-sm" aria-hidden="true"><use href="#i-circle-alert"/></svg><span>' + esc(err || '') + '</span></p></div>';
+      + (ctx === 'c' ? rowErr(i, 'sku', err) : '') + '</div>';
   };
   var numField = function (r, i, key, ctx, label) {
     var err = r.errors && r.errors[key]; var val = r[key];
     var attrs = key === 'qty' ? ' inputmode="numeric" min="' + V.qtyRange[0] + '" max="' + V.qtyRange[1] + '" step="1"' : ' inputmode="decimal" min="' + V.unitPriceMin + '" step="0.01"';
     return '<div class="field' + (err ? ' is-invalid' : '') + '"' + (ctx === 't' ? ' id="row-' + i + '-' + key + '"' : '') + '>' + (ctx === 'c' ? '<span class="label">' + label + '</span>' : '')
       + '<div class="ctl">' + (key === 'unitPrice' ? '<span class="prefix">¥</span>' : '') + '<input class="num" type="number" data-focus="row-' + i + '-' + key + '-in" data-row="' + i + '" data-k="' + key + '" value="' + esc(val) + '"' + attrs + ' aria-label="第 ' + (i + 1) + ' 行' + label + '"' + (err ? ' aria-invalid="true"' : '') + '></div>'
-      + '<p class="err" data-err="rowErr-' + i + '-' + key + '"' + (err ? '' : ' hidden') + '><svg class="icon icon-sm" aria-hidden="true"><use href="#i-circle-alert"/></svg><span>' + esc(err || '') + '</span></p></div>';
+      + (ctx === 'c' ? rowErr(i, key, err) : '') + '</div>';
   };
   var renderItems = function () {
     $('itemRows').innerHTML = M.items.map(function (r, i) {
+      var E = r.errors || {};
       return '<tr data-row="' + i + '"><td>' + skuField(r, i, 't') + '</td><td class="col-qty">' + numField(r, i, 'qty', 't', '数量') + '</td><td class="col-price">' + numField(r, i, 'unitPrice', 't', '采购单价') + '</td>'
-        + '<td class="col-subtotal num" data-sub="' + i + '">' + m2(rowSubtotal(r)) + '</td><td class="col-remove"><button class="iconbtn is-danger" type="button" data-remove="' + i + '" aria-label="删除第 ' + (i + 1) + ' 行"><svg class="icon"><use href="#i-trash-2"/></svg></button></td></tr>';
+        + '<td class="col-subtotal num" data-sub="' + i + '">' + m2(rowSubtotal(r)) + '</td><td class="col-remove"><button class="iconbtn is-danger" type="button" data-remove="' + i + '" aria-label="删除第 ' + (i + 1) + ' 行"><svg class="icon"><use href="#i-trash-2"/></svg></button></td></tr>'
+        + '<tr class="row-errs"><td colspan="5"><div class="errs">' + rowErr(i, 'sku', E.sku) + rowErr(i, 'qty', E.qty) + rowErr(i, 'unitPrice', E.unitPrice) + '</div></td></tr>';
     }).join('');
     $('itemCards').innerHTML = M.items.map(function (r, i) {
       return '<div class="item-card" data-row="' + i + '"><div class="field span-2"><span class="label">商品</span>' + skuField(r, i, 'c') + '</div>' + numField(r, i, 'qty', 'c', '数量') + numField(r, i, 'unitPrice', 'c', '采购单价')
@@ -1371,8 +1436,9 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
         var i = Number(inp.getAttribute('data-row')), k = inp.getAttribute('data-k'); M.items[i][k] = inp.value === '' ? '' : Number(inp.value); M.dirty = true;
         Array.prototype.forEach.call($('items').querySelectorAll('input[data-k="' + k + '"][data-row="' + i + '"]'), function (o) { if (o !== inp) o.value = inp.value; });
         Array.prototype.forEach.call($('items').querySelectorAll('[data-sub="' + i + '"]'), function (s) { s.textContent = m2(rowSubtotal(M.items[i])); });
-        renderTotals(); renderAside();
+        renderTotals(); renderAside(); retouch('row-' + i + '-' + k);
       });
+      inp.addEventListener('blur', blurTouch('row-' + inp.getAttribute('data-row') + '-' + inp.getAttribute('data-k')));
     });
     Array.prototype.forEach.call($('items').querySelectorAll('input[data-k="sku"]'), function (inp) {
       var i = Number(inp.getAttribute('data-row')); var list = inp.parentNode.querySelector('.listbox');
@@ -1383,7 +1449,7 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
       };
       inp.addEventListener('focus', function () { render(''); show(true); });
       inp.addEventListener('input', function () { render(inp.value); show(true); });
-      inp.addEventListener('blur', function () { setTimeout(function () { show(false); }, cssMs('--motion-fast', 120)); });
+      inp.addEventListener('blur', function () { setTimeout(function () { show(false); if (document.activeElement !== inp) touch('row-' + i + '-sku'); }, cssMs('--motion-fast', 120)); });
     });
   };
   var renderTotals = function () {
@@ -1421,9 +1487,10 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
   };
   $('freightMin').addEventListener('input', function () { var v = Math.min(Number($('freightMin').value), M.freight[1] - PF.freight.step); $('freightMin').value = v; M.freight[0] = v; renderFreight(); renderAside(); });
   $('freightMax').addEventListener('input', function () { var v = Math.max(Number($('freightMax').value), M.freight[0] + PF.freight.step); $('freightMax').value = v; M.freight[1] = v; renderFreight(); renderAside(); });
-  $('warehouse').addEventListener('change', function () { M.warehouse = $('warehouse').value; renderDelivery(); });
-  $('slot').addEventListener('change', function () { M.slot = $('slot').value; });
-  $('arrival').addEventListener('input', function () { M.arrivalDate = $('arrival').value.trim(); M.dirty = true; renderArrivalHint(); });
+  $('warehouse').addEventListener('change', function () { M.warehouse = $('warehouse').value; renderDelivery(); retouch('fWarehouse'); });
+  $('slot').addEventListener('change', function () { M.slot = $('slot').value; retouch('fSlot'); });
+  $('arrival').addEventListener('input', function () { M.arrivalDate = $('arrival').value.trim(); M.dirty = true; renderArrivalHint(); retouch('fArrival'); });
+  $('arrival').addEventListener('blur', blurTouch('fArrival'));
 
   var FICON = { pdf: 'file-text', xlsx: 'file-spreadsheet', jpg: 'image', png: 'image', mp4: 'film' };
   var sizeText = function (kb) { return kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb + ' KB'; };
@@ -1493,7 +1560,7 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
     $('fields').disabled = loading;
   };
   var setStep = function (n) {
-    root.setAttribute('data-step', String(n)); currentErrs = []; clearErrors();
+    root.setAttribute('data-step', String(n)); currentErrs = []; touched = {}; clearErrors();
     if (String(n) === '3') renderSummary();
     renderStepper(); renderSubmit();
     var first = { 1: 'supplier', 2: null, 3: 'terms' }[n];
@@ -1504,7 +1571,7 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
     root.setAttribute('data-state', s);
     $('submitAlert').hidden = s !== 'error';
     if (s === 'success') renderResult();
-    renderSubmit();
+    renderSubmit(); renderStepper(); syncInert();
   };
   var renderResult = function () {
     var s = supplierOf(M.supplierId), w = byKey(PF.warehouses, M.warehouse), sl = byKey(PF.deliverySlots, M.slot);
@@ -1537,7 +1604,7 @@ fieldset[disabled] .btn, fieldset[disabled] .iconbtn, fieldset[disabled] .link-b
     a.addEventListener('click', function (e) { if (M.dirty && root.getAttribute('data-state') !== 'success') { e.preventDefault(); $('leaveBtn').setAttribute('data-href', a.getAttribute('href')); openDialog('leaveDialog'); } });
   });
   $('leaveBtn').addEventListener('click', function () { location.href = $('leaveBtn').getAttribute('data-href') || '../dashboard/index.html'; });
-  window.addEventListener('resize', function () { if (!sidebarQ) root.setAttribute('data-sidebar', window.innerWidth <= 1024 ? 'rail' : 'expanded'); syncCollapse(); syncInert(); });
+  window.addEventListener('resize', function () { if (!sidebarQ || isMobile()) root.setAttribute('data-sidebar', autoSidebar()); if (!isMobile()) closeDrawer(); syncCollapse(); syncInert(); });
 
   /* ---------- 初始化 ---------- */
   renderStep1(); renderItems(); renderDelivery(); renderAside();

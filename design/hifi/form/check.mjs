@@ -93,7 +93,7 @@ const isOverlay = (name) => /-(drawer|terms|leave|notifications|account|toast)$/
 const perViewport = {
   desktop: [...states.map((s) => [s, `state=${s}`]), ...extras, ...desktopOnly],
   mobile: [...states.map((s) => [s, `state=${s}`]), ...extras, ...mobileOnly],
-  tablet: [['default', 'state=default'], ['default-step2', 'state=default&step=2'], ['default-expanded', 'state=default&sidebar=expanded']],
+  tablet: [['default', 'state=default'], ['default-step2', 'state=default&step=2'], ['default-expanded', 'state=default&sidebar=expanded'], ['default-step2-expanded', 'state=default&step=2&sidebar=expanded'], ['invalid-step2', 'state=invalid&step=2']],
   tabletSm: [['default', 'state=default'], ['default-step2', 'state=default&step=2'], ['default-drawer', 'state=default&open=drawer']],
 };
 
@@ -194,6 +194,12 @@ await browser.close();
   await page.fill('#supplier', 'zzz');
   ok((await txt('#supplierList')) === '没有匹配的供应商', 'Combobox 空态文案');
   await page.keyboard.press('Escape');
+  // 失焦校验：phone=123 → 焦点移到 email → #phoneErr 立即可见；已触碰字段随输入实时复校
+  await page.fill('#phone', '123');
+  await page.focus('#email');
+  ok(!(await page.isHidden('#phoneErr')) && (await page.getAttribute('#phone', 'aria-invalid')) === 'true' && (await txt('#invalidAlertText')) === '还有 1 项需要修正', '失焦校验：phone=123 blur → #phoneErr 可见 + aria-invalid + Alert「还有 1 项」');
+  await page.fill('#phone', '13900006620');
+  ok((await page.isHidden('#phoneErr')) && (await page.isHidden('#invalidAlert')), '已触碰字段改回 11 位 → 错误与 Alert 实时消失');
   // 步 1 校验：清空联系人 + 错误电话 → 下一步被拦截，Alert 计数与首错聚焦
   await page.fill('#contact', '');
   await page.fill('#phone', '139');
@@ -209,15 +215,17 @@ await browser.close();
   ok((await txt('#itemsTotal')) === '¥41,240.00' && (await txt('#asideGoodsVal')) === '¥41,240.00' && (await txt('#asideGrand')) === '¥42,040.00', `数量 60→61 后合计 ${await txt('#itemsTotal')} / 预计总额 ${await txt('#asideGrand')}`);
   await page.fill('#itemRows tr[data-row="0"] input[data-k="qty"]', '60');
   await page.click('#addRow');
-  ok((await page.locator('#itemRows tr').count()) === 4 && !(await page.isHidden('#toast')) && (await txt('#toastText')) === '已添加商品行', '添加商品行 → 4 行 + Toast');
+  ok((await page.locator('#itemRows tr[data-row]').count()) === 4 && !(await page.isHidden('#toast')) && (await txt('#toastText')) === '已添加商品行', '添加商品行 → 4 行 + Toast');
   await page.click('#itemRows tr[data-row="3"] [data-remove]');
-  ok((await page.locator('#itemRows tr').count()) === 3 && (await txt('#itemsTotal')) === '¥40,760.00', '删除第 4 行 → 回到 3 行 ¥40,760.00');
+  ok((await page.locator('#itemRows tr[data-row]').count()) === 3 && (await txt('#itemsTotal')) === '¥40,760.00', '删除第 4 行 → 回到 3 行 ¥40,760.00');
   // 步 2 校验：数量 0 + 到货日期过早
   await page.fill('#itemRows tr[data-row="1"] input[data-k="qty"]', '0');
   await page.fill('#arrival', '2026-09-06');
   await page.click('#nextBtn');
   ok((await page.getAttribute('html', 'data-step')) === '2' && (await txt('#invalidAlertText')) === '还有 2 项需要修正', `步 2 校验拦截：${await txt('#invalidAlertText')}`);
   ok((await page.evaluate(() => document.activeElement.getAttribute('data-k'))) === 'qty', '首错聚焦到第 2 行数量');
+  const rowErr = await page.evaluate(() => { const e = document.querySelector('#itemRows .row-errs [data-err="rowErr-1-qty"]'); const r = e.getBoundingClientRect(); const cell = document.querySelector('#itemRows tr[data-row="1"] td.col-qty').getBoundingClientRect(); return { h: r.height, oneLine: r.height < parseFloat(getComputedStyle(e).fontSize) * 2, below: r.top >= cell.bottom, wide: r.width > cell.width }; });
+  ok(rowErr.oneLine && rowErr.below && rowErr.wide, `行内错误「数量须为 1–9999 的整数」另起一行跨列单行显示（高 ${Math.round(rowErr.h)}）`);
   await page.fill('#itemRows tr[data-row="1"] input[data-k="qty"]', '20');
   await page.fill('#arrival', '2026-09-20');
   ok((await page.evaluate(() => document.getElementById('arrivalHint').classList.contains('is-warning'))) && (await txt('#arrivalHint')).includes('早于供应商常规交期'), '到货日期早于常规交期 → warning 提示');
@@ -250,6 +258,7 @@ await browser.close();
   await page.check('#terms');
   await page.click('#submitBtn');
   ok((await page.getAttribute('html', 'data-state')) === 'loading' && (await txt('#submitText')) === '提交中…' && (await page.evaluate(() => document.getElementById('fields').disabled)), '提交 → loading：按钮「提交中…」+ 全表单只读');
+  ok((await page.evaluate(() => [...document.querySelectorAll('.stepper .step')].every((b) => b.disabled) && document.getElementById('sidebar').inert)), 'loading：Stepper 3 个按钮真实 disabled，侧栏 inert');
   const wLoading = await page.evaluate(() => document.getElementById('submitBtn').getBoundingClientRect().width);
   await page.waitForFunction(() => document.documentElement.getAttribute('data-state') === 'success');
   ok(wLoading >= 128, `loading 时提交按钮保持宽度 ${Math.round(wLoading)} ≥ 128`);
@@ -349,6 +358,13 @@ await browser.close();
   await page.click('#drawerOpen');
   await page.waitForTimeout(300);
   ok((await page.getAttribute('html', 'data-drawer')) === 'open' && (await page.evaluate(() => document.getElementById('sidebar').contains(document.activeElement))), '375：打开抽屉 → 焦点进入侧栏');
+  const brand = await page.evaluate(() => { const n = document.querySelector('.brand-name').getBoundingClientRect(), w = document.querySelector('.brand-ws').getBoundingClientRect(); return { stacked: w.top >= n.bottom, frameInert: document.querySelector('.frame').inert }; });
+  ok(brand.stacked && brand.frameInert, '375 抽屉：品牌名 / 工作区名上下两行，主区 inert');
+  let trapped = true;
+  for (let i = 0; i < 12; i++) { await page.keyboard.press('Tab'); trapped = trapped && (await page.evaluate(() => document.getElementById('sidebar').contains(document.activeElement))); }
+  await page.keyboard.press('Shift+Tab');
+  trapped = trapped && (await page.evaluate(() => document.getElementById('sidebar').contains(document.activeElement)));
+  ok(trapped, '375 抽屉：Tab × 12 + Shift+Tab 焦点始终在侧栏内（focus trap）');
   await page.keyboard.press('Escape');
   await page.waitForTimeout(300);
   ok((await page.evaluate(() => document.activeElement.id)) === 'drawerOpen' && (await page.evaluate(() => document.getElementById('sidebar').inert)), '375：Escape 关闭抽屉，焦点回汉堡，侧栏 inert');
@@ -356,6 +372,8 @@ await browser.close();
   await page.goto(`${fileUrl}?state=invalid&theme=light`);
   await page.waitForTimeout(250);
   ok((await txt('#invalidAlertText')) === '还有 3 项需要修正' && (await page.evaluate(() => document.getElementById('stepperMobileRow').classList.contains('is-error'))), '375 invalid：Alert「还有 3 项需要修正」+ 步骤标题变 danger');
+  const al = await page.evaluate(() => { const t = document.getElementById('invalidAlertText').getBoundingClientRect(), b = document.getElementById('gotoFirstErr').getBoundingClientRect(); return { sameLine: b.top < t.bottom && b.bottom > t.top, h: document.getElementById('invalidAlert').getBoundingClientRect().height }; });
+  ok(al.sameLine && al.h <= 80, `375 invalid：「查看」与文案同行，Alert 高 ${Math.round(al.h)} ≤ 80`);
   await page.click('#gotoFirstErr');
   ok((await page.evaluate(() => document.activeElement.id)) === 'supplier', '375 invalid：「查看」→ 聚焦首个错误字段 #supplier');
   // 对比度：未实现导航项文字 / 侧栏背景（亮 / 暗）；辅助文字 / 卡片背景
@@ -394,6 +412,21 @@ await browser.close();
   await t.waitForTimeout(250);
   const tm = await t.evaluate(() => ({ sidebar: document.documentElement.getAttribute('data-sidebar'), sw: document.documentElement.scrollWidth, cols: getComputedStyle(document.querySelector('.layout')).gridTemplateColumns.split(' ').length }));
   ok(tm.sidebar === 'rail' && tm.sw <= 1024 && tm.cols === 2, `1024：侧边栏默认 ${tm.sidebar}，双栏（${tm.cols} 列），scrollWidth=${tm.sw}`);
+  const ph = await t.evaluate(() => { const i = document.getElementById('phone'); return { v: i.value, fits: i.scrollWidth <= i.clientWidth }; });
+  ok(ph.fits, `1024：手机号 ${ph.v} 完整可见（scrollWidth ≤ clientWidth）`);
+  // 商品表：rail 双栏与侧栏展开（退为单栏）两态下，商品名不裁切、删除按钮在表单卡内、表头不重叠
+  for (const [label, qs, cols] of [['1024 rail', 'state=default&step=2', 2], ['1024 侧栏展开', 'state=default&step=2&sidebar=expanded', 1]]) {
+    await t.goto(`${fileUrl}?${qs}&theme=light`);
+    await t.waitForTimeout(250);
+    const g = await t.evaluate(() => {
+      const ths = [...document.querySelectorAll('.items th')].map((th) => th.getBoundingClientRect());
+      const card = document.querySelector('.form-card').getBoundingClientRect();
+      const rm = [...document.querySelectorAll('#itemRows [data-remove]')].map((b) => b.getBoundingClientRect().right);
+      const sku = [...document.querySelectorAll('#itemRows input[data-k="sku"]')].map((i) => [i.value, i.scrollWidth <= i.clientWidth]);
+      return { cols: getComputedStyle(document.querySelector('.layout')).gridTemplateColumns.split(' ').length, first: Math.round(ths[0].width), overlap: ths.some((r, i) => i && r.left < ths[i - 1].right - 0.5), rmInside: rm.every((r) => r <= card.right), sku };
+    });
+    ok(g.cols === cols && g.first >= 200 && !g.overlap && g.rmInside && g.sku.every(([, f]) => f), `${label} step2：${g.cols} 栏，商品列 ${g.first} ≥ 200，表头不重叠，删除按钮在卡内，商品名不裁切${g.sku.every(([, f]) => f) ? '' : ' → ' + g.sku.filter(([, f]) => !f).map(([v]) => v).join(' | ')}`);
+  }
   await t.setViewportSize(viewports.tabletSm);
   await t.goto(`${fileUrl}?state=default&theme=light`);
   await t.waitForTimeout(250);

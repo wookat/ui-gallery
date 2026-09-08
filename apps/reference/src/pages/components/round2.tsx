@@ -49,7 +49,7 @@ import { formatCurrency, formatCurrencyWhole, formatInteger, formatMonthDay, for
  * 文案：components.* / 各屏 content；数据：mock（purchaseForm / suppliers / settings / landing / chat / ordersSummary）。
  * 浮层由 ?open=dialog|alert|drawer|combobox|date 展开（shots.json）。
  */
-const K = (key: string, vars?: Record<string, string | number>) => t(`kitchen-sink.${key}`, vars)
+const K = (key: string, vars?: Record<string, string | number>) => t(`components.${key}`, vars)
 const C = (key: string, vars?: Record<string, string | number>) => t(`components.${key}`, vars)
 
 const STATES = ["default", "hover", "focus", "disabled", "error"] as const
@@ -106,7 +106,9 @@ const fileSize = (kb: number) => (kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : 
 const calendarLabels = { prevMonth: K("sample.calendar.prev"), nextMonth: K("sample.calendar.next") }
 
 /* ---------------- 表单控件 ---------------- */
-export function FormControlsSection(overlay: OverlayProps) {
+export type FormPart = "input" | "select" | "choice" | "date" | "misc"
+
+export function FormControlsSection({ part, ...overlay }: OverlayProps & { part: FormPart }) {
   const [qty, setQty] = React.useState(form.draft.items[0].qty)
   const [supplier, setSupplier] = React.useState<string | null>(form.draft.supplierId)
   const [settlement, setSettlement] = React.useState(form.draft.settlement)
@@ -117,8 +119,11 @@ export function FormControlsSection(overlay: OverlayProps) {
   const [otp, setOtp] = React.useState("")
   const [otpErr, setOtpErr] = React.useState("")
   const note = form.draft.note
+  const is = (...parts: FormPart[]) => parts.includes(part)
   return (
     <>
+      {is("input") && (
+        <>
       <Matrix
         label="Textarea"
         render={(s) => (
@@ -142,6 +147,10 @@ export function FormControlsSection(overlay: OverlayProps) {
         states={["default", "focus", "disabled", "error"]}
         render={(s) => <NumberInput value={qty} onChange={setQty} min={1} max={999} decrementLabel={K("sample.number.dec")} incrementLabel={K("sample.number.inc")} aria-label={t("form.items.col.qty")} data-demo={demo(s)} disabled={s === "disabled"} aria-invalid={s === "error" || undefined} />}
       />
+        </>
+      )}
+      {is("select") && (
+        <>
       <Matrix
         label="Select"
         render={(s) => (
@@ -172,6 +181,10 @@ export function FormControlsSection(overlay: OverlayProps) {
           />
         )}
       />
+        </>
+      )}
+      {is("choice") && (
+        <>
       <Row label="RadioGroup" cols={[K("state.default"), K("state.disabled"), K("state.error")]}>
         <RadioGroup value={settlement} onValueChange={setSettlement} aria-label={t("form.settlement.label")}>
           {form.settlementMethods.slice(0, 3).map((m) => (
@@ -198,6 +211,10 @@ export function FormControlsSection(overlay: OverlayProps) {
         <SwitchField id="sw-urgent" label={t("form.urgent.label")} hint={t("form.urgent.hint")} checked={urgent} onCheckedChange={setUrgent} />
         <SwitchField id="sw-notify" label={mock.settings.notifications.groups[0].items[0].label} hint={mock.settings.notifications.groups[0].items[0].description} defaultChecked={false} />
       </Row>
+        </>
+      )}
+      {is("date") && (
+        <>
       <Row label="Slider" wide cols={[K("state.default"), K("state.disabled")]}>
         <div className="flex w-full flex-col">
           <Slider value={freight} onValueChange={setFreight} min={form.freight.min} max={form.freight.max} step={form.freight.step} minStepsBetweenThumbs={1} thumbLabels={[t("form.freight.label"), t("form.freight.label")]} aria-label={t("form.freight.label")} />
@@ -217,6 +234,10 @@ export function FormControlsSection(overlay: OverlayProps) {
         <DatePicker value={null} onChange={() => {}} placeholder={t("form.arrivalDate.placeholder")} today={today} labels={calendarLabels} disabled />
         <Calendar value={[mock.ordersSummary.scope.range[0], mock.ordersSummary.scope.range[1]]} onChange={() => {}} today={today} max={today} labels={calendarLabels} />
       </Row>
+        </>
+      )}
+      {is("misc") && (
+        <>
       <Row label="TagInput" wide cols={[K("state.default"), K("state.disabled"), K("state.error")]}>
         <TagInput value={tags} onChange={setTags} placeholder={t("form.tags.placeholder")} removeLabel={(tag) => t("form.tags.remove", { tag })} aria-label={t("form.tags.label")} max={5} />
         <TagInput value={form.tagSuggestions.slice(0, 2)} onChange={() => {}} removeLabel={(tag) => t("form.tags.remove", { tag })} aria-label={t("form.tags.label")} disabled />
@@ -250,6 +271,8 @@ export function FormControlsSection(overlay: OverlayProps) {
           <FileItem name={form.attachments.errorSample.name} size={fileSize(form.attachments.errorSample.sizeKB)} status="error" error={form.attachments.errorSample.error} removeLabel={t("form.attachments.remove", { name: form.attachments.errorSample.name })} onRemove={() => {}} />
         </ul>
       </Row>
+        </>
+      )}
     </>
   )
 }
@@ -340,11 +363,13 @@ export function OverlayExtras(overlay: OverlayProps) {
 }
 
 /* ---------------- 导航追加：Segmented / Stepper / Accordion ---------------- */
-export function NavExtras() {
+export function NavExtras({ part }: { part: "tabs" | "menu" }) {
   const [view, setView] = React.useState("list")
   const statusLabels = { done: t("form.stepper.status.done"), current: t("form.stepper.status.current"), todo: t("form.stepper.status.todo"), error: K("state.error") }
   return (
     <>
+      {part === "tabs" && (
+        <>
       <Row label="Segmented" cols={[K("state.default"), K("state.disabled"), "icon"]}>
         <Segmented type="single" value={view} onValueChange={(v) => v && setView(v)} aria-label={C("sample.segmented.aria")}>
           <SegmentedItem value="list">{K("sample.segmented.list")}</SegmentedItem>
@@ -368,6 +393,9 @@ export function NavExtras() {
         <Stepper steps={form.steps} current={1} errorAt={1} statusLabels={statusLabels} aria-label={t("form.stepper.aria")} />
         <Stepper steps={form.steps} current={3} statusLabels={statusLabels} aria-label={t("form.stepper.aria")} />
       </Row>
+        </>
+      )}
+      {part === "menu" && (
       <Row label="Accordion" wide cols={[C("state.open"), K("state.disabled")]}>
         <Accordion type="single" collapsible defaultValue={mock.landing.faq[0].q} aria-label={t("landing.faq.aria")}>
           {mock.landing.faq.slice(0, 3).map((f) => (
@@ -386,6 +414,7 @@ export function NavExtras() {
           ))}
         </Accordion>
       </Row>
+      )}
     </>
   )
 }
@@ -503,7 +532,9 @@ export function LayoutSection() {
 }
 
 /* ---------------- 复合：Result / PricingCard / Chat ---------------- */
-export function ComposedSection() {
+export type ComposedPart = "state" | "pricing" | "chat" | "md"
+
+export function ComposedSection({ part }: { part: ComposedPart }) {
   const [draft, setDraft] = React.useState("")
   const [yearly, setYearly] = React.useState(true)
   const c1 = mock.chat.messages.c_1
@@ -522,6 +553,7 @@ export function ComposedSection() {
   const sourceLabel = (s: { type: string; label: string }) => (s.type === "order" ? t("chat.sources.order", { id: s.label }) : t("chat.sources.snapshot", { label: s.label }))
   return (
     <>
+      {part === "state" && (
       <Row label="Result" wide cols={[K("state.success"), K("state.error")]}>
         <Result
           status="success"
@@ -543,7 +575,9 @@ export function ComposedSection() {
         </Result>
         <Result status="error" title={t("chat.error.title")} description={mock.chat.errorState.message} actions={<Button variant="secondary">{mock.chat.errorState.retry}</Button>} />
       </Row>
+      )}
 
+      {part === "pricing" && (
       <Row label={`PricingCard · ${yearly ? t("landing.state.pricing.yearly") : t("landing.state.pricing.monthly")}`}>
         <div className="flex w-full flex-col gap-6">
           <SwitchField id="pricing-cycle" label={t("landing.pricing.toggle.aria")} hint={mock.landing.pricing.toggle.yearlyBadge} checked={yearly} onCheckedChange={setYearly} className="max-w-form-max" />
@@ -574,7 +608,10 @@ export function ComposedSection() {
           </div>
         </div>
       </Row>
+      )}
 
+      {part === "chat" && (
+        <>
       <Row label="ChatBubble" wide cols={["user", "assistant", C("state.streaming"), K("state.error")]}>
         <ChatBubble role="user" avatar={{ initial: mock.user.initial, hue: mock.user.avatarHue, name: mock.user.name }} time={formatTime(userMsg.at)}>
           {userMsg.text}
@@ -641,7 +678,7 @@ export function ComposedSection() {
         <Composer value="" onChange={() => {}} onSubmit={() => {}} disabled placeholder={mock.chat.composer.placeholder} labels={{ send: t("chat.composer.send"), stop: t("chat.streaming.stop"), attach: t("chat.composer.attach") }} />
       </Row>
 
-      <Row label="ConversationItem / CodeBlock" wide cols={["ConversationItem", "CodeBlock"]}>
+      <Row label="ConversationItem">
         <nav aria-label={t("chat.sidebar.group.today")} className="flex w-conversation-list max-w-full flex-col gap-1">
           {conversations.map((c, i) => (
             <ConversationItem
@@ -659,8 +696,15 @@ export function ComposedSection() {
             />
           ))}
         </nav>
+      </Row>
+        </>
+      )}
+
+      {part === "md" && (
+      <Row label="CodeBlock">
         <CodeBlock code={code.trimEnd()} language={t("chat.code.language", { lang: "csv" })} labels={codeLabels} className="w-full" />
       </Row>
+      )}
     </>
   )
 }

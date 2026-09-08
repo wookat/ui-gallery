@@ -144,3 +144,97 @@
 | sample.segmented.aria | 接收方式 | |
 | sample.anchor.aria | 页内导航 | |
 | sample.hero.aria | 产品界面示意图 | Hero 抽象图 aria-label |
+| sample.calendar.prev | 上个月 | 阶段 5 自 kitchen-sink.md 迁入（原文未列出）：Calendar 月份切换 aria-label |
+| sample.calendar.next | 下个月 | |
+| sample.number.dec | 减少数量 | NumberInput 步进 aria-label |
+| sample.number.inc | 增加数量 | |
+| sample.dialog.close | 关闭对话框 | Dialog 右上角 |
+| sample.segmented.list | 列表 | Segmented 视图切换 |
+| sample.segmented.cards | 卡片 | |
+| sample.toolbar.aria | 订单工具条示例 | Toolbar aria-label |
+| appShell.desktop | ≥1440 · sidebar expanded | AppShell 卡三档说明 |
+| appShell.tablet | 1024 · sidebar rail | |
+| appShell.mobile | ≤768 · 抽屉（Sheet） | |
+| sectionDesc.typography | display / h1–h3 / body / label / caption / mono — 全部字阶来自 typography.* 复合令牌；字体 Inter Variable + Noto Sans SC Variable，等宽 JetBrains Mono Variable。 | 类别说明（cat-head） |
+| sectionDesc.button | Button 全部 variant × size × state；IconButton。primary / secondary 禁用不降透明度，转 neutral-soft / surface-muted；ghost / danger 禁用用 opacity.disabled；link aria-disabled 保持 link 色 + cursor:not-allowed。 |  |
+| sectionDesc.formControls | Input / PasswordInput / SearchInput / NumberInput / Textarea / Select / Combobox / Checkbox / Radio / Switch / Slider / DatePicker / DateRangePicker / TimePicker / TagInput / OTPInput / FileDropzone / Field。示例数据取 mock/purchase-form.json、suppliers.json、settings.json。 |  |
+| sectionDesc.dataDisplay | Table / Pagination / Tag / CountBadge / Avatar / Delta / DescriptionList / Timeline / Card / StatCard / TrendChart / DonutChart / Markdown / CodeBlock / SourceChip。数据取 mock/orders-all.json、team.json、stats.json、series.json、activity.json、chat.json。 |  |
+| sectionDesc.feedback | Alert / Toast / Skeleton / Spinner / Progress / StateCard / Result / Dialog / Tooltip。语义色四档（info / success / warning / danger）+ neutral；Toast 在 surface-raised 上。 |  |
+| sectionDesc.navigation | NavItem / Breadcrumb / Tabs / Segmented / Stepper / Accordion / DropdownMenu / Popover / Sheet / Drawer / Anchor。未实现导航项 aria-disabled + Tooltip「后续轮次提供」，保持 fg-muted 与可聚焦。 |  |
+| sectionDesc.layout | AppShell / PageHeader / Toolbar / Separator / TextDivider / Kbd。AppShell：1440 侧栏 expanded 240，1024 rail 64，≤768 抽屉 280；内容区 max size.content-max 1200。 |  |
+| sectionDesc.theme | 色板（语义色 × 亮暗，切换右上角主题按钮即时对照）/ 字阶 / 间距 / 圆角 / 阴影 / 动效令牌表。所有值来自 design/tokens.json → tokens.css；本页不出现字面值。 |  |
+| sectionDesc.onboarding | Welcome / SuggestionChips / QuietHours：助理空态首屏与设置项。文案取 mock/chat.json emptyState、suggestions 与 mock/settings.json。 |  |
+| sectionDesc.composed | OrderCard / PurchaseItemRow / PricingCard / MemberRow / SessionRow / ChatBubble / ToolCall / Composer / ConversationList / HeroArt。业务组合件，放 src/components/composed/。 |  |
+| versionValue | f37ffb6 | tokens.json 无 version 字段：沿用 hifi 的令牌提交号（交回 tokens 阶段追加 version） |
+| theme.aria | 主题 | 主题分段控件 role=group aria-label |
+| type.caption | 字阶 × 用途（示例文案取自各屏 content） | Typography 矩阵 caption |
+| type.col.token | 令牌 | |
+| type.col.sample | 示例 | |
+| type.col.usage | 用途 | |
+| type.usage.hero | landing 首屏标题 | |
+| type.usage.display-lg | 营销页统计数字 | |
+| type.usage.display | 统计卡主数字、计划价 | |
+| type.usage.heading | 页面标题 / Dialog 标题 | |
+| type.usage.title | 卡片标题 / 金额 | |
+| type.usage.lead | 副标题 / 引言 | |
+| type.usage.body | 正文、表格单元 | |
+| type.usage.label | 表单标签、按钮、导航 | |
+| type.usage.caption | 辅助说明、时间、表头 | |
+| type.usage.eyebrow | 营销页小标 | |
+| type.usage.code | 订单号 / 单号 / 代码 | |
+| type.sample.eyebrow | Acme Console | 营销页小标示例 |
+| type.hierarchy | 层级示例：标题 / 正文 / 辅助三级；最长商品行折行 | |
+| swatch.group.base | 背景 / 表面 / 边框 / 前景 | 色板分组 |
+| swatch.group.semantic | 品牌 / 语义 / 图表 | |
+| swatch.bg | 页面底色 | 色板用途 |
+| swatch.surface | 卡片 | |
+| swatch.surface-muted | 次级面 | |
+| swatch.surface-raised | 浮层 | |
+| swatch.surface-brand | 品牌面 | |
+| swatch.border | 分隔 | |
+| swatch.border-strong | 控件边 | |
+| swatch.fg | 正文 | |
+| swatch.fg-muted | 辅助 | |
+| swatch.fg-disabled | 仅 disabled | |
+| swatch.bg-inverse | Tooltip | |
+| swatch.fg-inverse | Tooltip 文字 | |
+| swatch.primary | 主按钮 | |
+| swatch.primary-hover | 悬停 | |
+| swatch.primary-active | 按下 | |
+| swatch.primary-soft | 选中底 | |
+| swatch.on-primary | 主按钮文字 | |
+| swatch.on-primary-soft | 选中文字 | |
+| swatch.success | 已完成 | |
+| swatch.success-soft | 底 | |
+| swatch.warning | 待发货 | |
+| swatch.warning-soft | 底 | |
+| swatch.danger | 退款 / 删除 | |
+| swatch.danger-soft | 底 | |
+| swatch.info | 待付款 | |
+| swatch.neutral-soft | 已发货底 | |
+| swatch.link | 链接 | |
+| swatch.focus-ring | 焦点环 | |
+| swatch.skeleton | 骨架 | |
+| swatch.overlay | 遮罩 | |
+| swatch.chart-line | 销售额折线 | |
+| swatch.chart-bar | 订单数柱 | |
+| swatch.chart-grid | 网格 | |
+| scale.space.caption | space.*（8pt 网格，4 为半步） | |
+| scale.col.demo | 示意 | |
+| scale.space.1 | 图标与文字间 | |
+| scale.space.2 | 紧凑组内 | |
+| scale.space.3 | 控件内边距 | |
+| scale.space.4 | 卡片网格间距 | |
+| scale.space.5 | 卡片内边距 | |
+| scale.space.6 | 页面左右 | |
+| scale.space.8 | 区块间 | |
+| scale.space.10 | 空态内边距 | |
+| scale.space.12 | 大区块间 | |
+| scale.space.16 | 营销页段间 | |
+| scale.space.20 | 营销页首屏 | |
+| scale.radius | radius.* | |
+| scale.shadow | shadow.*（暗色下阴影更深、表面更亮） | |
+| scale.shadow.sm | sm 卡片 | |
+| scale.shadow.md | md 菜单 | |
+| scale.shadow.lg | lg 抽屉 | |
+| scale.motion | motion.*（悬停此行查看：fast 120 / base 200 / slow 320；prefers-reduced-motion 时关闭） | |

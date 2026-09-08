@@ -82,7 +82,7 @@
 
 ## 3. hifi 未出现、后续屏幕可能需要（todo）
 
-Command Palette、Toast 之外的全局通知中心、Data Table 列设置（`?open=columns` 用 Popover + Checkbox 组合即可）、日期区间选择器的双面板（当前 `Calendar` 只做区间显示，区间选择由页面用两个 `DatePicker` 组合）。补法：从 shadcn 注册表拷入 → 删掉默认 Tailwind 类 → 只用 `theme.css` 暴露的主题类 → 加入 `/kitchen-sink` 状态矩阵 → `tools/no-hardcode.mjs` 与 `tools/a11y.mjs kitchen-sink` 通过。
+Command Palette、Toast 之外的全局通知中心、Data Table 列设置（`?open=columns` 用 Popover + Checkbox 组合即可）、日期区间选择器的双面板（当前 `Calendar` 只做区间显示，区间选择由页面用两个 `DatePicker` 组合）。补法：从 shadcn 注册表拷入 → 删掉默认 Tailwind 类 → 只用 `theme.css` 暴露的主题类 → 加入 `/components` 状态矩阵 → `tools/no-hardcode.mjs` 与 `tools/a11y.mjs components` 通过。
 
 ## 4. 通用约定
 
@@ -93,4 +93,4 @@ Command Palette、Toast 之外的全局通知中心、Data Table 列设置（`?o
 - 浮层一律走 `useScreenState()` 的 `?open=<id>` 受控开合（`open` / `onOpenChange`），并在屏幕 `shots.json` 加 `overlay: true` 条目；Radix Popover 内容（Combobox / DatePicker 面板）必须有 `aria-label`（role=dialog 需可访问名）。
 - 下拉选择用原生 `<select>`（`Select`），不自绘面板：与 hifi 一致，移动端体验最佳，也避免 Radix Select 的 `aria-hidden` 焦点圈定在 axe `aria-hidden-focus` 下报错；需要搜索 / 副文案的场景用 `Combobox`。
 - 文案 / 可访问名一律由调用方通过 props 传入（`labels` / `closeLabel` / `removeLabel` / `statusLabels` …），组件内不写任何字面文案，保证全部来自 `content/*.md`。
-- 第 2 轮 kitchen-sink 区块在 `src/pages/kitchen-sink/round2.tsx`（`FormControlsSection` / `OverlayExtras` / `NavExtras` / `TableExtras` / `ListExtras` / `LayoutSection` / `ComposedSection`），由 `index.tsx` 挂到对应 section；示例数据取 `mock.purchaseForm / suppliers / ordersSummary / ordersAll / settings / landing / chat`。
+- 第 2 轮 kitchen-sink 区块（已迁入 `/components`）在 `src/pages/components/round2.tsx`（`FormControlsSection` / `OverlayExtras` / `NavExtras` / `TableExtras` / `ListExtras` / `LayoutSection` / `ComposedSection`），由 `index.tsx` 挂到对应 section；示例数据取 `mock.purchaseForm / suppliers / ordersSummary / ordersAll / settings / landing / chat`。

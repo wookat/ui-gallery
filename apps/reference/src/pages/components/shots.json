@@ -1,0 +1,14 @@
+[
+  {"name": "default", "query": "", "viewports": ["desktop", "mobile", "tablet", "tabletSm"], "overlay": true},
+  {"name": "snippet-expanded", "query": "open=code", "overlay": true, "scrollTo": "#code-typography"},
+  {"name": "section-typography", "query": "", "scrollTo": "#typography", "overlay": true},
+  {"name": "section-button", "query": "", "scrollTo": "#button", "overlay": true},
+  {"name": "section-form-controls", "query": "", "scrollTo": "#form-controls", "overlay": true},
+  {"name": "section-data-display", "query": "", "scrollTo": "#data-display", "overlay": true},
+  {"name": "section-feedback", "query": "", "scrollTo": "#feedback", "overlay": true},
+  {"name": "section-navigation", "query": "", "scrollTo": "#navigation", "overlay": true},
+  {"name": "section-layout", "query": "", "scrollTo": "#layout", "overlay": true},
+  {"name": "section-theme", "query": "", "scrollTo": "#theme", "overlay": true},
+  {"name": "section-onboarding", "query": "", "scrollTo": "#onboarding", "overlay": true},
+  {"name": "section-composed", "query": "", "scrollTo": "#composed", "overlay": true}
+]

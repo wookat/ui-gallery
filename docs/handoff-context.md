@@ -1,12 +1,12 @@
 # UI Gallery — 交接上下文
 
-更新：2026-09-08（fe01 第 2 轮 release：orders + form 上线；components / landing / chat / settings 未合入）
+更新：2026-09-06（fe01 第 2 轮补合 release：settings + landing + chat 上线；components 未合入）
 
 ## 仓库 / 服务
 - 代码：https://github.com/wookat/ui-gallery （直接提交 main；无 GitHub Actions，验收 = 本地 lint/typecheck/build 全绿即合）
 - 线上：https://ui.zalize.com （Cloudflare Workers 静态资产，`wrangler.jsonc`，`pnpm assemble && pnpm exec wrangler deploy`，账号 ddff52d24ee44e21a021c15eaffcc86d；Pages 项目创建被 Cloudflare 拦截「Subdomain is blocked」，故用 Workers）
   - 部署凭据：会话 secret `CLOUDFLARE_WORKERS_API_TOKEN`（`CLOUDFLARE_ADMIN_API_TOKEN` 对 `workers/services` 返回 10000 认证错误，不可用）
-  - 参考应用：https://ui.zalize.com/apps/reference/ （dashboard）、https://ui.zalize.com/apps/reference/login/ 、https://ui.zalize.com/apps/reference/orders/ 、https://ui.zalize.com/apps/reference/form/ 、https://ui.zalize.com/apps/reference/kitchen-sink/
+  - 参考应用：https://ui.zalize.com/apps/reference/ （dashboard）、https://ui.zalize.com/apps/reference/login/ 、https://ui.zalize.com/apps/reference/orders/ 、https://ui.zalize.com/apps/reference/form/ 、https://ui.zalize.com/apps/reference/settings/ 、https://ui.zalize.com/apps/reference/landing/ 、https://ui.zalize.com/apps/reference/chat/ 、https://ui.zalize.com/apps/reference/kitchen-sink/ （`/components/` 未上线，404）
 - 研究数据来源：https://github.com/wookat/frontend-libs-research （round1 §1、round4 §35–39 为组件库清单）
 
 ## 结构
@@ -18,6 +18,39 @@
 - `tools/shoot/shoot.mjs` Playwright 截图矩阵；`tools/assemble.mjs` 组装 `dist/`
 - `.devin/skills/ui-gallery-round/workflow.py` 动态工作流：build → review → fix → merge(串行) → deploy（各库「原生默认主题样板」）
 - `.devin/skills/frontend-0to1-ai/` （副本，源为 company-os/skills/frontend-0to1-ai）：AI 前端从 0 到 1 八阶段 skill + `workflow.py`（Brief → IA/线框 → 令牌 → 高保真 → 地基 → 按稿实现 → 视觉 QA → 集成上线）
+
+## fe01 第 2 轮补合（repair-only：settings / landing / chat 上线；components 未合入）
+
+运行方式：`FE01_REPAIR=~/.fe01/repair-r2.json` 跑 company-os `skills/frontend-0to1-ai/workflow.py`（run `wfr-5ff8c155556c439eb9d0d5eb7d9e2a97`），四屏各走一种修复模式：settings `hifi-fix`（hifi 复审 → 合入 → 实现 → 3 轮审查修复）、landing `design-fix`（hifi 三处 `:not(.eyebrow)` 重截 → 实现重比 → tech-lead 升级修 Sheet 焦点归还）、chat `sync`（合 integration 解 `shell.tsx` 冲突 → 重跑门禁 → 合入）、components `impl-fix`（第 4 轮独立审查修复 → 未过 → UNMERGED）。合入后体验官第 3–5 轮 + QA/合规第 5–7 轮在集成分支上闭环（第 3 轮 P1×4、第 4 轮 P1-5/QA-29 均已修复复验，最终 verdict 均 pass，P0 = 0 / P1 = 0）。
+
+### 分支 / commit / 部署
+- 集成分支 `fe01/integration` 头 `7cf92b8`（代码定稿 `4051141`：QA-29「联系销售」soft 变体；之后 3 个提交为报告）。本轮合入：`02d8173` hifi-settings@`0edd789`、`1afe7d5` screen-chat@`e496229`、`e85f0f2` screen-landing@`c0f71fc`（含 hifi/landing `e389b5a`）、`39016c7` screen-settings@`e70bd32`；修复提交 `9fed979`（体验官第 3 轮 P1×4）、`4051141`（P1-5 / QA-29）
+- main 合并 commit：`c33defc3586e5a3416b942a4d3b847cc199f66fb`（`git merge --no-ff origin/fe01/integration`，无冲突），已 push（`git ls-remote origin refs/heads/main` = `c33defc`）
+- **release 子会话两次 `status=suspended / out_of_quota`（组织 ACU 配额耗尽，已上报 org_admin）**，工作流无结构化 release 输出；release 由主会话本机降级执行，以下结果均为本机实跑
+- release 门禁实跑（2026-09-06，Node 22 / pnpm 11，8 GB / 2 核）：`pnpm install --frozen-lockfile` ✅；`apps/reference`：`pnpm lint` ✅、`pnpm typecheck` ✅、`pnpm build` ✅、`node tools/no-hardcode.mjs` 79 文件通过、`node mock/check.mjs` ✅；七屏 shoot/compare/a11y：settings 124/124 min 97.13%、landing 20/20 min 99.47%、chat 88/88 min 95.99%、login 28/28 min 98.15%、dashboard 56/56 min 98.33%、orders 86/86 min 96.32%、form 84/84 min 96.82%，a11y 七屏 ALL PASS；仓库根 turbo `--concurrency=1`：`pnpm lint` ✅ 23/23、`pnpm typecheck` ✅、`pnpm build` ✅ 24/24（4m12s）
+  - ⚠️ 截图必须在**无 `LANG`** 的进程环境跑（`env -u LANG -u LANGUAGE node tools/shoot.mjs …`）：`LANG=zh_CN.UTF-8` 下 dashboard `tablet-*-success-order-menu` 掉到 94.60%，是回退字体度量改变首帧 `scrollIntoView` 横向量（见 `tools/_shared.mjs` `launch` 注释），不是产品缺陷；`shots.json` 条目按需声明 `lang`
+- 部署：`~/.fe01/mirror-shots.mjs` 回拉旧库截图 708 张（路由 `/` 对应文件名 `dashboard__…`，不是 `index__…`）→ `node tools/assemble.mjs`（23 apps，`dist/apps/reference/{login,orders,form,settings,landing,chat,kitchen-sink}/`，shots 1686 张，含 `shots/reference/*` 与 `diff/`）→ `CLOUDFLARE_API_TOKEN=$CLOUDFLARE_WORKERS_API_TOKEN pnpm exec wrangler deploy` → Version `416bbd1a-e50e-45f4-9f5e-e1b3194fcd8c`。生产复验（部署后约 30 s）：`/apps/reference/` 200、`/login/` `/orders/` `/form/` `/settings/` `/landing/` `/chat/` `/kitchen-sink/` 全部 200、**`/components/` 404（预期，未合入）**、`manifest.json` 23 库、旧库截图抽样 200、`shots/reference/settings/desktop-light-profile-default.png` 200
+- `mock/nav.json` `settings.implemented: true` 已随 screen-settings 合入（侧栏「设置」可点）
+
+### 未合入屏幕
+| 屏 | 分支 @ commit | 现状（release 时本机实测） | 建议 |
+|---|---|---|---|
+| **components** | `fe01/screen-components`@`59eb7df`（第 4 轮独立审查修复 `219db1f`：Tabs line/vertical、计费 Segmented、垂直 Stepper、MemberRow/SessionRow/AnchorNav、Drawer 归位；`c909c4b` 合入 integration@`e85f0f2`；`59eb7df` SuggestionChip `appearance` 开关）；**落后 integration 15 个提交**（未含 screen-settings、`9fed979`、`4051141`） | 工作流第 4 轮审查后仍 FAIL → UNMERGED。本机 worktree 实跑该分支（`apps/reference`）：lint / typecheck / build exit 0；`compare.mjs components` **40/48 ≥ 95%，最低 86.84%**，未过线 8 张：`desktop-{light,dark}-section-form-controls` 92.5%、`mobile-{light,dark}-section-form-controls` 92.7–93.1%、`mobile-{light,dark}-section-button` 86.8–88.2%、`mobile-dark-section-composed` 94.42%、`mobile-light-section-layout` 93.90%；`a11y.mjs components` **352 PASS / 4 FAIL**：`desktop/{light,dark}/combobox` 热区 1 处 < 40×40、`mobile/{light,dark}/date` 热区 3 处 < 40×40 | 先 `git merge origin/fe01/integration`（settings 合入后 `theme.css` / `cn.ts` 可能再冲突，取并集），再按 `shots/reference/components/diff/` 逐张对 hifi 修 button / form-controls / layout 分区（375 优先）并给 Combobox 触发钮、DatePicker 日历格补 `hit-area`；compare 48/48 + a11y 0 FAIL 后重审合入；随之上线 `/kitchen-sink` → `/components` 重定向（`a0ea7a6`） |
+
+### 体验官 / QA 遗留（体验官第 5 轮 + QA 第 7 轮，0 P0 / 0 P1；release 阶段未改代码）
+体验官 P2（本轮新增 P2-9 ~ P2-16；P2-1 ~ P2-8 见下节，回归仍复现）：
+- **P2-9** chat 新会话发送后被带回 `c_1`，用户消息不进消息流（`?state=streaming` 固定重放样本；= QA-25，设计侧演示决策，第 5 轮仍复现）
+- P2-10 375 打开会话落在最早一条消息，无「回到底部」；P2-11 chat「添加附件」第二次点直接报「超过 10 MB」；P2-12 landing Footer 语言 Select 切繁中无反馈；P2-13 settings 多处确认后焦点落 `body`（继续编辑 / 移除成员 / 危险区 / 降级取消·确认）；P2-14 无改动重复保存 Toast 叠加；P2-15 「管理订阅」滚动落点被 56px 顶栏遮住；P2-16 降级确认框不写 `?open=downgrade`（归 QA-26）
+体验官 P3（新增 P3-8 ~ P3-16）：375 settings Tab 条裁切无滚动提示；Toast 关闭键 aria-label 英文「Close toast」；375 邀请成员需点两次；撤回邀请无确认；「停止生成」无提示；landing CTA 全部 `aria-disabled`（演示站断点）；顶栏 5 个图标按钮无 Tooltip（P3-14）；375 键盘聚焦「联系销售」不出 Tooltip（P3-15）；Tooltip 盖住企业版卡最后一条特性（P3-16）
+
+QA（第 7 轮）：P2 仅 **QA-02**（画廊接入口径，本次部署 manifest 仍含 `reference`，`shots/reference` 已随 assemble 上线）与 **QA-20**（主包 > 500 kB）；P3 18 项：**QA-31（新，工具侧）** `tools/a11y.mjs` orders 抽屉 `success-drawer-remarks` Tab 竞态随机 FAIL（基线同样命中，建议脚本加一次等待）、QA-28 chat 375 无 `h1`（`sr-only` 一行可修）、QA-30、QA-25、QA-26（含 P2-16：settings 用户触发浮层走 `openLocal` 不写 `?open=`）、QA-27（login 三个 CC0 单色第三方标识的商标边界记录）、QA-22、QA-21、QA-03、QA-06、QA-08 ~ QA-12、QA-14 ~ QA-16；QA-23 / QA-24 已关闭
+
+### 下一轮建议
+1. **components 补合**（见上表；实现侧工作，无设计依赖）→ 八屏齐后 `/components` 上线
+2. 顺手清几行改动：QA-28（chat 375 `sr-only h1`）、QA-31（a11y 脚本等待）、P2-13 / P2-6 / P3-6（焦点归还，统一 `onCloseAutoFocus`）、P2-14（保存 Toast 去重）、P2-15（`scroll-margin-top` 顶栏高）、P3-16（Tooltip `side`）、P3-9（sonner `closeButtonAriaLabel`）
+3. 设计 / 产品侧决策：QA-02（画廊是否接入参考应用，写 `04-adr`）、P2-9 / QA-25（chat 发送后是否回显用户消息）、QA-26（用户触发浮层是否写 URL）、P2-8（`aria-disabled` 导航项可感知差异）
+4. release 流程：组织 ACU 配额恢复前，release 阶段仍由主会话本机跑（门禁 + assemble + deploy + curl）；shots 持久化（R2 或 release 阶段 `pnpm shoot`）仍未做；截图跑 `env -u LANG`；新目录部署后等 ≥ 30 s 再复验
+5. 八屏齐后进入各组件库「按稿还原」阶段（`docs/one-pager.md` 第二轮目标）
 
 ## fe01 第 2 轮（增量：orders + form 上线；六屏设计资产合入）
 

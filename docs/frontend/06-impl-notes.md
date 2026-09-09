@@ -2,6 +2,30 @@
 
 > 阶段 5/6 产物。实现阶段不改 `design/hifi/*` 与令牌；实现方发现的设计稿问题在此记录，交回设计侧修正后重生成 `ref/*.png` 并复跑 `node tools/compare.mjs <screen>`。每条标明证据来源（浏览器实测 / 代码核对）。
 
+## 体验官第 3 轮走查 P1 修复（`docs/frontend/07-ux-walkthrough.md` P1-1～P1-4，直接在 `fe01/integration` 修，2026-09-09）
+
+起点 `59c9a50`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。不改 hifi / tokens / mock；文案追加在 `content/settings.md` 末尾新表（8 条 key，只追加）。
+
+| 项 | 根因（代码核对） | 修法 | 实测证据（Playwright 对 dist，1440×900，临时脚本不入库） |
+|---|---|---|---|
+| P1-1 /chat 无入口 | `AppShell` 的 `assistant` prop 可选且仅 chat 页传入，其余页面顶栏不渲染 | `shell.tsx`：`assistant` 默认值 `{ label: t("chat.title"), href: "/chat" }`，顶栏搜索与通知之间恒渲染 `IconButton asChild > Link`；chat 页仍传 `current: true`（primary-soft）；点击走 `beforeLeave`（form 未保存离开确认）且 `aria-current=page` 时不重复导航 | `/`、`/orders`、`/settings`、`/form` 顶栏各 1 个 `a[href$=/chat]`（aria-label 智能助理）；从 `/orders` 点击到达 `/chat`，该锚 `aria-current=page` |
+| P1-2 更新密码不校验 | `submitPassword` 只比对两次一致，空/弱密码直接 `runSave` → Toast | 顺序同 hifi `validate.password`：当前密码为空 → `current`；`strengthOf(next) < passwordRules.length`（三条规则未全满足）→ `weak`；不一致 → `mismatch`。首个失败项 `aria-invalid` + `aria-describedby` 指向 `FieldError` + 聚焦；三字段加 `required`；重置/输入时清错；仅全过才 `runSave` + Toast | 全空提交：无 Toast，`#pwCur[aria-invalid=true]`；新密码 `a`：无 Toast，`#pwNew[aria-invalid=true]` + `#pwNewErr`；不一致：`#pwConfirm[aria-invalid=true]`；合法（`Strong#2026` ×2）：1600ms 后 Toast「密码已更新，其他设备需重新登录」 |
+| P1-3 联系销售换套餐 / 降级无确认 | 三档卡片共用 `choosePlan`（`setPlan` + 「升级即时生效」Toast） | 「联系销售」（business 且高于当前档）→ `aria-disabled` + `cursor-not-allowed` + Tooltip（`billing.plan.contact.tip`），不绑 `choosePlan`（同 orders `NotYetLink` 契约：可聚焦、fg 不用 disabled 色）；`idx < curIdx` 的降级 → `askDowngrade` 打开 `?open=downgrade` AlertDialog（危险按钮「确认降级」），确认后 Toast「已安排降级到{plan}（{cycle}），于当前周期结束后生效」，当前套餐不立即变（与 `billing.change.description` 语义一致）；升级 / 换周期仍走 `choosePlan` 即时生效。`shots.json` 追加 `billing-downgrade`（overlay） | 点「联系销售」（force click）：无 Toast、仍显「联系销售」与「降级到入门版」；hover / 键盘聚焦 Tooltip 出现且含「销售顾问」；点「降级到入门版」→ alertdialog 含「本周期结束后」；确认 → Toast 含「当前周期结束后生效」、不含「升级即时生效」，弹窗关闭，套餐仍为专业版；「取消」关闭无 Toast |
+| P1-4 来源 Chip 不可点 | `Sources` 对所有 `SourceChip` 无条件 `onClick=preventDefault`；mock href 为 `/orders/SO-…`（无此路由） | `sourceHref`：`/orders/<id>` → `/orders?open=drawer&order=<id>`；`reachable()` 按 `mock.nav` 中 `implemented` 路径判定：可达 → 真实 href + SPA `navigate`（修饰键 / 中键放行给浏览器）；不可达（客户 / 库存 / 文档等 7 个）→ `aria-disabled` + `cursor-not-allowed` + Tooltip（`shell.nav.disabled.tip`），与 IA §11 未实现导航契约一致 | `/chat` 中 `a[href*="/orders?open=drawer&order=SO-20260905-0115"]` 1 个、无 `aria-disabled`；点击到达该 URL，orders 抽屉打开且含 SO-20260905-0115；不可达来源 7 个 `aria-disabled=true` |
+
+### 门禁实跑（`apps/reference/`，修后）
+
+- `pnpm lint` ✔（eslint + no-hardcode 79 文件）· `pnpm typecheck` ✔ · `pnpm build` ✔
+- `node tools/shoot.mjs <s> && node tools/compare.mjs <s>`（阈值 95%）：chat 88/88 最低 95.99%（mobile-*-loading，与 landing 第 4 轮记录的基线一致）；settings 124/124 最低 97.13%（billing-downgrade 为新增 overlay 状态，无 hifi ref，不参与对比）；dashboard 56/56 最低 98.33%；orders 86/86 最低 96.32%；form 84/84 最低 96.82%
+- `node tools/a11y.mjs <s>`：chat / settings / dashboard / orders / form 全部 ALL PASS（axe serious/critical 0、375 无溢出、热区 ≥ 40、焦点环缺失 0、console error 0）
+- login 无 `AppShell`，本轮改动不触及，未重跑
+- 环境：Playwright 1.62.1 浏览器需 `cd tools/shoot && npx playwright install chromium`（首跑报 Executable doesn't exist）
+
+### 未修 / 交回
+
+- 「联系销售」在 hifi 为实心 primary 按钮；实现按 AGENTS「可聚焦 aria-disabled 项保持 fg-muted/link + cursor-not-allowed」与 orders `NotYetLink` 同款 primary-soft，与 ref 差异在 compare 阈值内（billing-* 全部 ≥ 97%）。若设计侧希望保留实心样式并另给不可达态，需在 hifi 定稿层补充。
+- 降级为「周期结束后生效」的排期态（如卡片角标「将于 X 降级」）hifi 未定义，本轮只做 Toast，不自由发挥。
+
 ## settings（分支 `fe01/screen-settings`，基线 a302bc0 → 84d6afc → 4b48e3e → 第三轮 tech-lead 升级修复）
 
 ### -1. 第三轮升级修复（4b48e3e 之后，合入 `origin/fe01/integration`，2026-09-08）

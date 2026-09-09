@@ -63,6 +63,7 @@ import {
 import { Avatar } from "@/components/composed/avatar"
 import { PageHeader } from "@/components/composed/page-header"
 import { PricingCard } from "@/components/composed/pricing-card"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 export const path = "/settings"
 
@@ -78,7 +79,8 @@ type ChannelKey = Exclude<Channel, "all">
 const CYCLES = ["monthly", "yearly"] as const
 type Cycle = (typeof CYCLES)[number]
 type TwoFA = "off" | "setup" | "on"
-type Overlay = "2fa" | "2fa-disable" | "remove" | "danger" | "leave"
+type Overlay = "2fa" | "2fa-disable" | "remove" | "danger" | "leave" | "downgrade"
+const OVERLAYS: readonly Overlay[] = ["2fa", "2fa-disable", "remove", "danger", "leave", "downgrade"]
 type Local = Overlay | null
 
 const S = mock.settings
@@ -259,7 +261,7 @@ export default function SettingsPage() {
   }
   const closeLocal = () => {
     setLocal(null)
-    if (open && (["2fa", "2fa-disable", "remove", "danger", "leave"] as string[]).includes(open)) {
+    if (open && (OVERLAYS as readonly string[]).includes(open)) {
       setDismissed(open as Overlay)
       set({ open: null })
     }
@@ -298,7 +300,9 @@ export default function SettingsPage() {
 
   /* ---------- 账号安全 ---------- */
   const [pw, setPw] = React.useState({ current: "", next: "", confirm: "" })
-  const [pwError, setPwError] = React.useState<"mismatch" | null>(null)
+  const [pwError, setPwError] = React.useState<"current" | "weak" | "mismatch" | null>(null)
+  const currentRef = React.useRef<HTMLInputElement>(null)
+  const newRef = React.useRef<HTMLInputElement>(null)
   const confirmRef = React.useRef<HTMLInputElement>(null)
   const pwDirty = Boolean(pw.current || pw.next || pw.confirm)
   const strength = strengthOf(pw.next)
@@ -403,10 +407,24 @@ export default function SettingsPage() {
   const seatsIncluded = t("settings.billing.current.seats", { n: "{n}" }).split("{n}")
   const invoices = empty ? [] : S.billing.invoices
   const cycleLabel = (c: Cycle) => t(`settings.billing.cycle.${c}Short`)
+  const planIndex = (key: string) => S.billing.plans.findIndex((x) => x.key === key)
+  /** 升级 / 换周期即时生效（content billing.change.description） */
   const choosePlan = (p: Plan) => {
     setPlan(p.key)
     setPlanCycle(cycle)
     toast.success(t("settings.billing.plan.toast", { plan: p.label, cycle: cycleLabel(cycle) }), { duration: tokenMs("--timing-toast-stay") })
+  }
+  /** 降级：二次确认（?open=downgrade），确认后于当前周期结束后生效 —— 当前套餐不立即改变 */
+  const [downgradeKey, setDowngradeKey] = React.useState<string | null>(null)
+  const downgradeTarget = S.billing.plans.find((p) => p.key === downgradeKey) ?? [...S.billing.plans].reverse().find((p) => planIndex(p.key) < planIndex(plan))
+  const askDowngrade = (p: Plan) => {
+    setDowngradeKey(p.key)
+    openLocal("downgrade")
+  }
+  const confirmDowngrade = () => {
+    if (!downgradeTarget) return
+    toast.success(t("settings.billing.plan.downgrade.toast", { plan: downgradeTarget.label, cycle: cycleLabel(cycle) }), { duration: tokenMs("--timing-toast-stay") })
+    setDowngradeKey(null)
   }
 
   /* ---------- 危险区 ---------- */
@@ -503,8 +521,19 @@ export default function SettingsPage() {
     if (nameError) return
     runSave("profile", () => setSavedProfile(profile), S.profile.savedToast)
   }
+  /** hifi validate.password：当前密码必填 → 新密码三条规则全满足 → 两次一致；首个失败项 aria-invalid + 聚焦 */
   const submitPassword = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!pw.current) {
+      setPwError("current")
+      currentRef.current?.focus()
+      return
+    }
+    if (strength < S.security.passwordRules.length) {
+      setPwError("weak")
+      newRef.current?.focus()
+      return
+    }
     if (pw.next !== pw.confirm) {
       setPwError("mismatch")
       confirmRef.current?.focus()
@@ -730,20 +759,31 @@ export default function SettingsPage() {
                           <FieldLabel htmlFor="pwCur">{t("settings.security.password.current")}</FieldLabel>
                           <PasswordInput
                             id="pwCur"
+                            ref={currentRef}
                             value={pw.current}
                             autoComplete="current-password"
+                            required
+                            aria-invalid={pwError === "current" ? true : undefined}
+                            aria-describedby={pwError === "current" ? "pwCurErr" : undefined}
                             showLabel={t("login.password.show")}
                             hideLabel={t("login.password.hide")}
-                            onChange={(e) => setPw({ ...pw, current: e.target.value })}
+                            onChange={(e) => {
+                              setPw({ ...pw, current: e.target.value })
+                              if (pwError === "current") setPwError(null)
+                            }}
                           />
+                          {pwError === "current" ? <FieldError id="pwCurErr">{t("settings.security.password.currentRequired")}</FieldError> : null}
                         </Field>
                         <Field>
                           <FieldLabel htmlFor="pwNew">{t("settings.security.password.new")}</FieldLabel>
                           <PasswordInput
                             id="pwNew"
+                            ref={newRef}
                             value={pw.next}
                             autoComplete="new-password"
-                            aria-describedby="pwStrength"
+                            required
+                            aria-invalid={pwError === "weak" ? true : undefined}
+                            aria-describedby={pwError === "weak" ? "pwNewErr pwStrength" : "pwStrength"}
                             showLabel={t("login.password.show")}
                             hideLabel={t("login.password.hide")}
                             onChange={(e) => {
@@ -751,6 +791,7 @@ export default function SettingsPage() {
                               setPwError(null)
                             }}
                           />
+                          {pwError === "weak" ? <FieldError id="pwNewErr">{t("settings.security.password.weak")}</FieldError> : null}
                           <div data-level={strength} className="flex flex-col gap-2">
                             <div className="grid grid-cols-3 gap-1" aria-hidden>
                               {[1, 2, 3].map((i) => (
@@ -787,20 +828,29 @@ export default function SettingsPage() {
                             ref={confirmRef}
                             value={pw.confirm}
                             autoComplete="new-password"
-                            aria-invalid={pwError ? true : undefined}
-                            aria-describedby={pwError ? "pwConfirmErr" : "pwConfirmHint"}
+                            required
+                            aria-invalid={pwError === "mismatch" ? true : undefined}
+                            aria-describedby={pwError === "mismatch" ? "pwConfirmErr" : "pwConfirmHint"}
                             showLabel={t("login.password.show")}
                             hideLabel={t("login.password.hide")}
                             onChange={(e) => {
                               setPw({ ...pw, confirm: e.target.value })
-                              setPwError(null)
+                              if (pwError === "mismatch") setPwError(null)
                             }}
                           />
-                          {pwError ? <FieldError id="pwConfirmErr">{t("settings.security.password.mismatch")}</FieldError> : <FieldDescription id="pwConfirmHint">{t("settings.security.password.confirmHint")}</FieldDescription>}
+                          {pwError === "mismatch" ? <FieldError id="pwConfirmErr">{t("settings.security.password.mismatch")}</FieldError> : <FieldDescription id="pwConfirmHint">{t("settings.security.password.confirmHint")}</FieldDescription>}
                         </Field>
                       </div>
                     </fieldset>
-                    <SaveBar dirty={dirty.password} busy={busyOf("password")} saveLabel={t("settings.security.password.submit")} onReset={() => setPw({ current: "", next: "", confirm: "" })} />
+                    <SaveBar
+                      dirty={dirty.password}
+                      busy={busyOf("password")}
+                      saveLabel={t("settings.security.password.submit")}
+                      onReset={() => {
+                        setPw({ current: "", next: "", confirm: "" })
+                        setPwError(null)
+                      }}
+                    />
                   </form>
                 </CardContent>
               </Card>
@@ -1452,15 +1502,17 @@ export default function SettingsPage() {
                 <CardContent className="grid grid-cols-3 gap-4 mobile:grid-cols-1">
                 {S.billing.plans.map((p) => {
                   const isCurrent = p.key === plan && planCycle === cycle
-                  const idx = S.billing.plans.findIndex((x) => x.key === p.key)
-                  const curIdx = S.billing.plans.findIndex((x) => x.key === plan)
+                  const idx = planIndex(p.key)
+                  const curIdx = planIndex(plan)
                   const price = cycle === "yearly" ? p.yearly : p.monthly
                   const up = idx > curIdx || (p.key === plan && cycle === "yearly" && planCycle === "monthly")
+                  const contact = p.key === "business" && idx > curIdx
+                  const downgrade = idx < curIdx
                   const actionLabel = isCurrent
                     ? t("settings.billing.plan.current")
                     : p.key === plan
                       ? t(cycle === "yearly" ? "settings.billing.plan.toYearly" : "settings.billing.plan.toMonthly")
-                      : p.key === "business" && up
+                      : contact
                         ? t("settings.billing.plan.contact")
                         : up
                           ? t("settings.billing.plan.upgrade", { plan: p.label })
@@ -1487,9 +1539,20 @@ export default function SettingsPage() {
                         isCurrent ? "border-primary shadow-[0_0_0_var(--border-width-hairline)_var(--color-role-primary)]" : "border-border shadow-none",
                       )}
                       action={
-                        <Button type="button" variant={!isCurrent && up ? "primary" : "secondary"} disabled={isCurrent} onClick={() => choosePlan(p)}>
-                          {actionLabel}
-                        </Button>
+                        contact ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button type="button" aria-disabled="true" className="cursor-not-allowed border-transparent bg-primary-soft text-on-primary-soft hover:border-transparent hover:bg-primary-soft active:border-transparent active:bg-primary-soft">
+                                {actionLabel}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>{t("settings.billing.plan.contact.tip")}</TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          <Button type="button" variant={!isCurrent && up ? "primary" : "secondary"} disabled={isCurrent} onClick={() => (downgrade ? askDowngrade(p) : choosePlan(p))}>
+                            {actionLabel}
+                          </Button>
+                        )
                       }
                     />
                   )
@@ -1746,6 +1809,27 @@ export default function SettingsPage() {
               </Button>
             </AlertDialogFooter>
           </form>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        {...overlay("downgrade")}
+        onOpenChange={(o) => {
+          overlay("downgrade").onOpenChange(o)
+          if (!o) setDowngradeKey(null)
+        }}
+      >
+        <AlertDialogContent className={CENTERED_DIALOG}>
+          <AlertDialogHeader className={DIALOG_HEAD}>
+            <AlertDialogTitle>{t("settings.billing.plan.downgrade.title", { plan: downgradeTarget?.label ?? "" })}</AlertDialogTitle>
+            <AlertDialogDescription>{t("settings.billing.plan.downgrade.description", { current: current.label, cycle: cycleLabel(planCycle), plan: downgradeTarget?.label ?? "" })}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className={DIALOG_ACTS}>
+            <AlertDialogCancel>{t("settings.billing.plan.downgrade.back")}</AlertDialogCancel>
+            <AlertDialogAction variant="danger" onClick={confirmDowngrade}>
+              {t("settings.billing.plan.downgrade.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 

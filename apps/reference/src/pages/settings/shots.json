@@ -20,6 +20,7 @@
   { "name": "team-danger", "query": "tab=team&state=default&open=danger", "overlay": true },
   { "name": "billing-empty", "query": "tab=billing&state=empty", "stretch": true },
   { "name": "billing-monthly", "query": "tab=billing&state=default&cycle=monthly", "stretch": true },
+  { "name": "billing-downgrade", "query": "tab=billing&state=default&open=downgrade", "overlay": true },
   { "name": "profile-leave", "query": "tab=profile&state=default&open=leave", "overlay": true },
   { "name": "profile-notifications", "query": "tab=profile&state=default&open=notifications", "overlay": true },
   { "name": "profile-account", "query": "tab=profile&state=default&open=account", "overlay": true },

@@ -78,7 +78,7 @@ type ShellProps = {
   navOpenKey?: string
   /** 顶栏全局搜索（dashboard hifi 有、orders hifi 无） */
   search?: boolean
-  /** 顶栏「智能助理」入口（chat hifi #assistBtn）：aria-current=page 时 primary-soft */
+  /** 顶栏「智能助理」入口（IA §11-A 跨页工具，默认 → /chat）：aria-current=page 时 primary-soft（chat hifi #assistBtn） */
   assistant?: { label: string; href: string; current?: boolean }
   /** 通栏内容区（chat）：main 不加内边距/最大宽，桌面端整列锁高由内部滚动 */
   flush?: boolean
@@ -169,7 +169,7 @@ function AppShell({
   breadcrumb,
   navOpenKey = "drawer",
   search = true,
-  assistant,
+  assistant = { label: t("chat.title"), href: "/chat" },
   flush = false,
   busy = false,
   beforeLeave,
@@ -295,13 +295,17 @@ function AppShell({
                 </IconButton>
               </>
             ) : null}
-            {assistant ? (
-              <IconButton asChild label={assistant.label} className="aria-[current=page]:bg-primary-soft aria-[current=page]:text-on-primary-soft">
-                <Link to={assistant.href} aria-current={assistant.current ? "page" : undefined}>
-                  <SparklesIcon />
-                </Link>
-              </IconButton>
-            ) : null}
+            <IconButton asChild label={assistant.label} className="aria-[current=page]:bg-primary-soft aria-[current=page]:text-on-primary-soft">
+              <Link
+                to={assistant.href}
+                aria-current={assistant.current ? "page" : undefined}
+                onClick={(e) => {
+                  if (assistant.current || (beforeLeave && !beforeLeave(assistant.href))) e.preventDefault()
+                }}
+              >
+                <SparklesIcon />
+              </Link>
+            </IconButton>
 
             <Popover {...overlay("notifications")}>
               <PopoverTrigger asChild>

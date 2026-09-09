@@ -228,3 +228,16 @@
 | dialog.closeAria | 关闭 | Dialog 右上角 × |
 | team.seats.aria | 席位使用 | progressbar aria-label |
 | team.role.aria | {name} 的角色 | 成员行 Select aria-label |
+
+## 体验走查修复补齐（07-ux-walkthrough P1-2 / P1-3；仅追加）
+
+| key | 文案 | 备注 |
+|---|---|---|
+| security.password.currentRequired | 请输入当前密码 | 更新密码：当前密码为空时内联错误（hifi validate.password 首条） |
+| security.password.weak | 新密码需满足下方全部密码要求 | 新密码未满三条规则时内联错误 |
+| billing.plan.contact.tip | 企业版由销售顾问定制报价，后续轮次提供在线联系 | 「联系销售」本轮不可达：aria-disabled + Tooltip，不改动当前套餐 |
+| billing.plan.downgrade.title | 降级到{plan}？ | 降级二次确认 AlertDialog 标题 |
+| billing.plan.downgrade.description | 当前{current}（{cycle}）将在本周期结束后切换为{plan}，超出{plan}限额的成员与功能届时停用。 | |
+| billing.plan.downgrade.back | 取消 | |
+| billing.plan.downgrade.confirm | 确认降级 | 危险按钮 |
+| billing.plan.downgrade.toast | 已安排降级到{plan}（{cycle}），于当前周期结束后生效 | 与 billing.change.description 语义一致 |

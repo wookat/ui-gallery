@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { cn } from "@/lib/cn"
 import {
   ArrowDownIcon,
@@ -44,6 +44,7 @@ import { IconButton } from "@/components/ui/icon-button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { notYet, toast } from "@/components/ui/sonner"
 import { t } from "@/data/content"
 import { mock } from "@/data/mock"
@@ -140,14 +141,49 @@ function ToolCards({ tools, streaming }: { tools: ToolCallData[]; streaming?: bo
   )
 }
 
+/** 本轮已实现的路由（mock/nav.json implemented）；来源 Chip 指向其外的路径时不可达（aria-disabled + Tooltip） */
+const REACHABLE = new Set(mock.nav.flatMap((g) => g.items.filter((it) => it.implemented).map((it) => it.path)))
+const ORDER_PATH = /^\/orders\/([^/?#]+)$/
+/** IA §11 / brief §11.10-G：`/orders/SO-…` → `/orders?open=drawer&order=…`（订单抽屉实际可达路径） */
+const sourceHref = (s: Source) => {
+  const m = s.href.match(ORDER_PATH)
+  return m ? `/orders?open=drawer&order=${encodeURIComponent(m[1])}` : s.href
+}
+const reachable = (href: string) => REACHABLE.has(href.split(/[?#]/)[0])
+
 function Sources({ list }: { list: Source[] }) {
+  const navigate = useNavigate()
   if (!list.length) return null
   return (
     <div role="group" aria-label={t("chat.sources.aria")} className="mt-1 flex flex-wrap items-center gap-x-2">
       <span className="text-role-caption text-fg-muted">{t("chat.sources.title")}</span>
-      {list.map((s) => (
-        <SourceChip key={`${s.type}-${s.label}`} type={sourceType(s)} label={s.label} href={s.href} aria-label={sourceAria(s)} onClick={(e) => e.preventDefault()} />
-      ))}
+      {list.map((s) => {
+        const href = sourceHref(s)
+        if (!reachable(href)) {
+          return (
+            <Tooltip key={`${s.type}-${s.label}`}>
+              <TooltipTrigger asChild>
+                <SourceChip type={sourceType(s)} label={s.label} href={href} aria-label={sourceAria(s)} aria-disabled="true" className="cursor-not-allowed" onClick={(e) => e.preventDefault()} />
+              </TooltipTrigger>
+              <TooltipContent>{t("shell.nav.disabled.tip")}</TooltipContent>
+            </Tooltip>
+          )
+        }
+        return (
+          <SourceChip
+            key={`${s.type}-${s.label}`}
+            type={sourceType(s)}
+            label={s.label}
+            href={href}
+            aria-label={sourceAria(s)}
+            onClick={(e) => {
+              if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+              e.preventDefault()
+              navigate(href)
+            }}
+          />
+        )
+      })}
     </div>
   )
 }

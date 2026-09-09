@@ -1,6 +1,76 @@
 # 07 · 体验官走查报告
 
-> 本文件按轮次自上而下叠加：**第 4 轮复查（当前结论）** 在前，第 3 轮全量走查、第 2 轮复查、第 1 轮全量走查保留在后作为历史与原始描述。
+> 本文件按轮次自上而下叠加：**第 5 轮复查（当前结论）** 在前，第 4 轮复查、第 3 轮全量走查、第 2 轮复查、第 1 轮全量走查保留在后作为历史与原始描述。
+
+---
+
+## 第 5 轮 · 复查（第 4 轮 P1-5 修复复验 + 主流程回归；任务口径「第 3 轮复查」）
+
+> 角色：roles/legal-research/user-experience-officer（体验官）。
+> 对象：`fe01/integration` @ `4051141`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。该提交 = 第 4 轮报告之后的修复提交「fix(frontend): 体验官 P1-5 / QA-29——「联系销售」hover/active/375 tap 文字消失 + 375 无 Tooltip；Button 新增 soft 变体，orders NotYetLink 同修」。
+> 范围（时间盒 30 分钟，按任务只做两件事）：① 逐条复验第 4 轮唯一 P1（P1-5）以及同一提交顺带改动的 orders `NotYetLink`；② 回归主流程（登录 → 仪表盘 → 顶栏助理入口 → 订单 → 采购单 → settings 五 Tab → landing → chat）。`components` 本轮明确未合入，不在范围、不计缺失。**不再全量探索**，上轮 P2/P3 只顺带记录是否仍复现。
+> 方法：`pnpm install --frozen-lockfile`（根，exit 0）→ `apps/reference`：`pnpm lint && pnpm typecheck && pnpm build`（均 exit 0）→ `pnpm preview --port 4173`（base `/apps/reference/`）。Playwright 1.62.1（复用根 `tools/shoot` 依赖，Chromium headless-shell 1234）以真实用户方式操作：**1440×900 鼠标**（真实坐标 click / hover / mousedown / Tab）与 **375×812 触屏**（`isMobile + hasTouch`，DPR 2，`tap`）× **亮 / 暗**（`prefers-color-scheme`）= 4 组合，每组合跑同一脚本 `~/ux5/walk.mjs`（仓库外），日志 `~/ux5/run-<viewport>-<theme>.out`；定向复核 `~/ux5/probe3.mjs`（真实 Tab 键聚焦「联系销售」是否出 Tooltip，1440 vs 375）。截图 `~/ux5/shots/<viewport>-<theme>/<序号>-<name>.png`，1440 每组合 15 张、375 每组合 16 张，共 62 张（**不入库**）。下文「截图」均指该目录。
+> 注：Playwright 对 `aria-disabled=true` 元素默认拒绝 click / tap（视为 not enabled），本轮对「联系销售」「新建订单」「未勾条款时的提交采购单」用 `force: true` 模拟真实用户点击——真实浏览器里这些按钮本来就能点到，脚本层限制不是产品缺陷。
+> 事实分级：✅ 实测通过 · ❌ 实测缺陷 · ⚠️ 未定论 · 「推断」= 读源码得出、未实测。**不改产品代码。**
+
+### 0. 结论
+
+**verdict = pass**（P0 = 0，P1 = 0）。第 4 轮 P1-5 在 4 组合下均已修复：「联系销售」default / hover / active / 375 tap 四态计算色一致（亮 `bg rgb(213,239,234) / fg rgb(21,92,86)`、暗 `bg rgb(8,35,31) / fg rgb(123,200,187)`），文字全程可见；1440 hover、1440 真实 Tab 聚焦、375 tap 均出 Tooltip「企业版由销售顾问定制报价，后续轮次提供在线联系」；点击后无 Toast、套餐仍是专业版（「当前计划」按钮仍且仅 1 个）。orders 顶部「新建订单」`NotYetLink` 同样四态不变色、hover / tap 出 Tooltip「后续轮次提供」。主流程 4 组合回归 0 ❌，console error 0，375 全程无横向溢出。新增 2 条 P3（375 触屏 + 键盘 Tab 聚焦不出 Tooltip；Tooltip 遮住企业版卡最后一条特性），无新增 P1/P2。
+
+| 级别 | 数量 | 摘要 |
+| --- | --- | --- |
+| P0 | 0 | — |
+| P1 | 0 | P1-5 ✅ 已修复（4 组合） |
+| P2 | 1 项本轮实测仍复现 | P2-9（新会话发送被带回 c_1、用户消息不回显）仍复现；其余 P2 未重跑 |
+| P3 | 2 新增 | **P3-15（新）** 375 触屏下用键盘 Tab 聚焦「联系销售」不出 Tooltip（1440 键盘 ✅）；**P3-16（新）** 1440 Tooltip 弹出位置盖住企业版卡最后一条特性「专属客户经理」 |
+
+### 1. 上轮 P1 逐条复验（4 组合：1440 亮 / 1440 暗 / 375 亮 / 375 暗）
+
+| 上轮编号 | 现象 | 本轮结果 | 证据 |
+| --- | --- | --- | --- |
+| P1-5 「联系销售」hover / active 文字消失（bg = fg）；375 tap 后无字且无 Tooltip | ✅ **已修复**。按钮现为 `data-variant="soft"`、`aria-disabled=true`、`cursor: not-allowed`、热区 1440 240×40 / 375 267×40。**1440**：default → hover（`:hover=true`）→ mousedown（active）三态 `bg / fg` 完全不变，亮 `rgb(213,239,234) / rgb(21,92,86)`、暗 `rgb(8,35,31) / rgb(123,200,187)`，文字始终可见；hover 与真实 Tab 键聚焦均出 Tooltip。**375**：tap 后 `:hover` 仍粘住（`matches(':hover')=true`）但因 soft 变体无 hover 态，颜色不变、文字可见；Tooltip 出现在按钮上方。4 组合 tap / hover 后 `toast=[]`、URL 不变、「当前计划」按钮数 = 1（专业版未被改动）。降级流程未回退：「降级到入门版」→ AlertDialog「降级到入门版？」仍在。 | 4 组合日志 `P1-5 *` 1440 8/8 ✅、375 5/6 ✅（1 ❌ 为 375 键盘聚焦，见 P3-15）；截图 `*/01-billing-contact-default`、`desktop-*/02-billing-contact-hover`、`desktop-*/03-billing-contact-active`、`mobile-*/02-billing-contact-tap`、`*/0x-billing-downgrade-dialog` |
+| （同提交顺带）orders `NotYetLink`「新建订单」「接入渠道」 | ✅ 「新建订单」`aria-disabled=true`，default 与 hover / tap 同色（同上两组值），hover / tap 出 Tooltip「后续轮次提供」，URL 不变。「接入渠道」（空态）未走到，推断同一组件同一修法。 | 4 组合 `orders 新建 *` ✅；截图 `*/0x-orders-create-tip` |
+
+### 2. P0 / P1（新增）
+
+无。
+
+### 3. P2 / P3（本轮口径）
+
+P2：
+- **P2-9 仍复现**（4 组合）：`/chat?state=empty` 输入「杭州仓现在还有多少件床头柜？」→ 发送 → URL `?state=streaming&conversation=c_1`，用户消息出现 0 次（截图 `*/chat-sent`）。
+- 上轮 P2-8 / P2-13 / P2-16 及更早 P2 本轮未重跑（复查时间盒只覆盖 P1 与主流程）。
+
+P3：
+- **P3-15（新）** 375 触屏模拟下，用键盘（真实 Tab 键，`probe3.mjs` 从「降级到入门版」起 Tab 到「联系销售」）聚焦「联系销售」后 500 ms 内 `[role=tooltip]` 为 0；同脚本 1440 下 Tooltip 正常出现。iPad / 外接键盘的触屏用户属边缘场景，且 tap 已能出 Tooltip，故只记 P3。⚠️ 未定位原因（未读 Tooltip 触屏分支源码）。
+- **P3-16（新）** 1440 hover「联系销售」时 Tooltip 定位在按钮上方、正好盖住企业版卡最后一条特性「专属客户经理」（亮 / 暗一致，截图 `desktop-*/02-billing-contact-hover`）。读得到按钮、读不全卡片，建议 Tooltip `side="bottom"` 或加 `sideOffset`。
+- 上轮 P3-14（顶栏图标按钮无 Tooltip）未重测、沿用。
+
+### 4. 主流程回归（4 组合一致，除注明）
+- ✅ 登录 `ruolin.shen@qimu-home.cn` / 任意 ≥ 8 位 → `/?toast=login`，h1「仪表盘」，Toast「欢迎回来，若琳」。
+- ✅ 顶栏「智能助理」入口 40×40，点击 → `/chat`；周期「日」→ `?period=day`；主题按钮 `data-theme` light↔dark。
+- ✅ /orders h1「订单」；1440 搜索「周雅婷」→ 「筛选出 15 单，共 731 单」；首行菜单「查看详情」→ `?open=drawer&order=SO-20260906-0108`，Esc 后 URL 干净；375 「筛选」Sheet 打开。
+- ✅ /form 第 1 → 2 → 3 步 `role=alert` 0、当前步「3 确认提交」；未勾条款时提交按钮 `aria-disabled=true`，点击 → alert 2、焦点 `#terms`；勾选后提交 → 「采购单已提交」（截图 `*/form-success`）。
+- ✅ settings：5 Tab（1440 `aria-orientation=vertical`）、`?tab=` 五值选中正确；profile 改名 → 「保存中」≈1.8 s → Toast「个人资料已保存」；弱密码 `a/a` 被拦（`aria-invalid` 1、无 Toast）；`?open=2fa` Dialog；notifications 25 个 Switch；team 5 行。
+- ✅ landing h1「把全渠道订单和库存，装进一个后台」；滚动后 header `data-state=scrolled`；`?cycle=yearly` 价格 ¥990 / ¥2,990；FAQ 首项默认展开、点击可收起（`true→false`）；375 「打开菜单」Sheet。
+- ✅ chat：c_1 来源 Chip「SO-20260905-0115」→ `/orders?open=drawer&order=SO-20260905-0115`；`?state=error` Alert「回复失败」；`?state=streaming` 「停止生成」；375 「打开会话列表」→ `?open=sidebar`。
+- ✅ /kitchen-sink 按钮矩阵含 7 个 `bg-primary-soft` 按钮（soft 变体已入基准页）。
+- ✅ 375 全程 `scrollWidth = 375`；4 组合 console error = 0。
+
+### 5. 未覆盖（untested，如实标注）
+- orders 空态「接入渠道」`NotYetLink`、settings 降级「确认降级」后的 Toast、危险区、团队邀请、landing 汉堡菜单内链接、chat 附件 / 模型 Select / 停止生成后的状态：本轮修复未触及、未重走。
+- 上轮 P2-8 / P2-13 / P2-16、P3-14 及更早 P2/P3 未重跑。
+- 768 / 1024 视口；真实 iOS / Android 浏览器；读屏软件。
+- 未重跑 shoot / compare（修复提交自述 settings 124/124 最低 97.13%、orders 86/86 最低 96.32%，**此为转述、本轮未复核**）。
+
+### 6. 门禁实跑结果（`apps/reference/`，`~/gates.log`、`~/ux5/a11y-*.out`）
+- `pnpm install --frozen-lockfile` ✅ exit 0
+- `pnpm lint` ✅ exit 0（eslint + no-hardcode：79 个文件通过）
+- `pnpm typecheck` ✅ exit 0
+- `pnpm build` ✅ exit 0（仅既有 chunk > 500 kB warning）
+- `node tools/a11y.mjs settings` ✅ exit 0（452 PASS / 0 FAIL）；`node tools/a11y.mjs orders` ✅ exit 0（372 PASS / 0 FAIL）——修复提交触及的两屏 axe / 热区 / 焦点环 / 375 溢出 / console 全过
+
+本报告只新增本文件的本节，未改任何产品代码、令牌、hifi、content、mock；脚本、截图与日志留在 `~/ux5/`，不入库。
 
 ---
 

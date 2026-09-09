@@ -9,25 +9,27 @@
 > 角色：roles/qa/qa-engineer（兼合规与安全审计）。时间盒 30 分钟，按任务范围**只复验上轮 P0/P1 + 重跑检查项 ①②**；③–⑥ 只做增量核对（改动面 6 个文件，见 §6.3）。
 > 对象：`fe01/integration` @ `9fed979cc5eb305ac319ed096e84993d2cf9a2e5`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。相对上轮审计对象 `39016c7` 新增 2 个提交：`59c9a50`（体验官第 3 轮走查报告，verdict=fix，P1×4）与 `9fed979`（该 4 项 P1 的修复：`chat/index.tsx`、`dashboard/shell.tsx`、`settings/index.tsx`、`settings/shots.json`、`content/settings.md`、`06-impl-notes.md`）。
 > 「上轮 P0/P1」口径：第 5 轮 QA 审计本身 P0/P1 = 0；`07-ux-walkthrough.md` 第 3 轮判定 P1-1 ~ P1-4（其中 P1-1 / P1-4 与本审计 QA-24 / QA-23 同一问题）。本轮逐条复验这 4 项。
-> 方法：本机实跑门禁 + Playwright 1.62.1 对 `pnpm build` 产物走查（`serveDist` 同构静态服务），脚本在仓库外 `~/qa2/probe.mjs`（68 断言，1440×900 鼠标 + 375×812 触屏 × 亮 / 暗 = 4 组合）、`~/qa2/probe2.mjs` / `probe3.mjs`（定点复现），日志 `~/qa2/*.log`，不入库。**只写报告，不改产品代码。**
+> 方法：本机实跑门禁 + Playwright 1.62.1 对 `pnpm build` 产物走查（`serveDist` 同构静态服务），脚本在仓库外 `~/qa2/probe.mjs`（68 断言，1440×900 鼠标 + 375×812 触屏 × 亮 / 暗 = 4 组合）、`~/qa2/probe2.mjs` / `probe3.mjs` / `probe4.mjs`（定点复现），日志 `~/qa2/*.log`，不入库。**只写报告，不改产品代码。**
+> 本轮撰写期间体验官第 4 轮复查（`cb26570`）同步落库并新增 P1-5；QA 已独立复现（§6.1a），纳入本轮结论。
 
 ### 6.0 结论
 
-**verdict = pass（P0 = 0，P1 = 0）。**
+**verdict = fix（P0 = 0，P1 = 1：QA-29 = 体验官 P1-5）。**
 
-- 上轮 P1×4 在 4 组合下**全部复验通过**（§6.1）：/ /orders /settings /form 顶栏均有「智能助理」入口且可达 /chat；更新密码三段校验（空当前密码 / 弱密码 / 不一致）均拦截、仅合法才 Toast；「联系销售」不再改套餐（`aria-disabled` + Tooltip），降级走二次确认且套餐不立即变、Toast 不再写「升级即时生效」；来源 Chip 指向 `/orders?open=drawer&order=<id>` 并真实打开订单抽屉，不可达来源 `aria-disabled` + Tooltip。
+- 上轮 P1×4 的**行为**在 4 组合下全部复验通过（§6.1）：/ /orders /settings /form 顶栏均有「智能助理」入口且可达 /chat；更新密码三段校验（空当前密码 / 弱密码 / 不一致）均拦截、仅合法才 Toast；「联系销售」不再改套餐（`aria-disabled` + Tooltip），降级走二次确认且套餐不立即变、Toast 不再写「升级即时生效」；来源 Chip 指向 `/orders?open=drawer&order=<id>` 并真实打开订单抽屉，不可达来源 `aria-disabled` + Tooltip。
+- **但 P1-3 的修法引入回退（QA-29，P1）**：「联系销售」按钮 hover / active 时 `background-color === color`（亮 `rgb(21,92,86)` / 暗 `rgb(123,200,187)`，对比度 1:1，文字不可见）；375 tap 后 `:hover` 粘住、同样无字，且**无 Tooltip**（§6.1a 实测计算色）。付费决策路径上的强调按钮悬停即变无字色块，按「明显粗糙」定 P1；不影响任务完成故非 P0。
 - 检查项 ①：lint / typecheck / build **exit 0**；② 七屏 `a11y.mjs` **1900 PASS / 0 FAIL**（settings 因新增 `billing-downgrade` 状态由 436 → 452）。
 - ③–⑥ 增量核对无变化：`pnpm-lock.yaml` / `package.json` / 策略文件相对 `9a35556` 无 diff，许可证分布与上轮一致（GPL / AGPL / 非开源 0）；新增 8 条文案为自有中文文案；无 secrets、无 `.github/`、无 `minimumReleaseAge`；`mock/check.mjs` 通过、mock 未改。
-- 新增 1 条 P3（QA-28：chat 375 无 `h1`，axe best-practice moderate）；上轮 P2/P3 中 **QA-23 / QA-24 关闭**，其余状态不变。
+- 新增 1 条 P1（QA-29）、1 条 P3（QA-28：chat 375 无 `h1`，axe best-practice moderate）；上轮 P2/P3 中 **QA-23 / QA-24 关闭**，其余状态不变。体验官第 4 轮的 P2-16（降级确认框不写 `?open=`）归入既有 QA-26 同模式；P3-14（顶栏图标按钮无 Tooltip）记为 QA-30（P3，未独立复验）。
 
 | 级别 | 数量 | 编号 |
 |---|---|---|
 | P0 | 0 | — |
-| P1 | 0 | — |
+| P1 | 1 | **QA-29**（「联系销售」hover / active / 375 tap 文字不可见 bg = fg，375 无 Tooltip；由 P1-3 修复引入） |
 | P2 | 2 | QA-20（主包 **663.50 kB**，较上轮 +3.8 kB）、QA-02（历史） |
-| P3 | 16 | QA-28（新增）、QA-25、QA-26、QA-27、QA-22、QA-21、QA-03、QA-06、QA-08 ~ QA-12、QA-14 ~ QA-16 |
+| P3 | 17 | QA-28（新增）、QA-30（新增）、QA-25、QA-26（含 P2-16）、QA-27、QA-22、QA-21、QA-03、QA-06、QA-08 ~ QA-12、QA-14 ~ QA-16 |
 
-QA + 审计两道对 `fe01/integration@9fed979` **放行**。
+QA + 审计两道对 `fe01/integration@9fed979` **不放行**，修 QA-29 后复验即可（改动面一个按钮的 variant / className，预计一次复查）。门禁 ①② 与合规 ③–⑥ 本身全部通过，阻塞项仅 QA-29。
 
 ### 6.1 上轮 P1 复验（实跑，`~/qa2/probe.mjs`，4 组合 × 17 断言 = 68，**64 PASS / 4 FAIL**，4 条 FAIL 均为同一脚本时序误判，见下）
 
@@ -35,12 +37,23 @@ QA + 审计两道对 `fe01/integration@9fed979` **放行**。
 |---|---|---|---|
 | **P1-1** /chat 无入口（= QA-24） | `/`、`/orders`、`/settings`、`/form` 各数 `header a[href$="/chat"]`；从 `/orders` 点击该入口 | 四页各 **1 个**，`aria-label=智能助理`；点击到达 `/chat`，锚 `aria-current=page`；直开 `/chat` 亦为 `page`；`/form` 首步填入内容后点助理入口 → 「离开页面？」AlertDialog（`beforeLeave` 生效，URL 仍 `/form/`） | **已修复 / 关闭** |
 | **P1-2** 更新密码不校验 | `/settings?tab=security`：① 三字段全空提交；② `old` / `a` / `a`；③ `old` / `Strong#2026` / `Strong#2027`；④ `old` / `Strong#2026` ×2 | ① toast 0、`#pwCur[aria-invalid=true]`、焦点 `pwCur`；② toast 0、`#pwNew[aria-invalid=true]` + `#pwNewErr`「新密码需满足下方全部密码要求」；③ toast 0、`#pwConfirm[aria-invalid=true]`；④ Toast「密码已更新，其他设备需重新登录」 | **已修复 / 关闭** |
-| **P1-3** 联系销售直接换套餐 / 降级无确认 | `/settings?tab=billing&cycle=monthly`：hover + 强制点击「联系销售」；点「降级到入门版」→ 「确认降级」 | 「联系销售」`aria-disabled=true`、Tooltip「企业版由销售顾问定制报价，后续轮次提供在线联系」、点击后 toast 0、按钮仍为「联系销售」；降级 → `alertdialog`「降级到入门版？当前专业版（月付）将在本周期结束后切换为入门版…」；确认 → Toast「已安排降级到入门版（月付），于当前周期结束后生效」、弹窗关闭、「降级到入门版」按钮仍在（套餐未立即变）、无「升级即时生效」 | **已修复 / 关闭** |
+| **P1-3** 联系销售直接换套餐 / 降级无确认 | `/settings?tab=billing&cycle=monthly`：hover + 强制点击「联系销售」；点「降级到入门版」→ 「确认降级」 | 「联系销售」`aria-disabled=true`、1440 hover Tooltip「企业版由销售顾问定制报价，后续轮次提供在线联系」、点击后 toast 0、按钮仍为「联系销售」；降级 → `alertdialog`「降级到入门版？当前专业版（月付）将在本周期结束后切换为入门版…」；确认 → Toast「已安排降级到入门版（月付），于当前周期结束后生效」、弹窗关闭、「降级到入门版」按钮仍在（套餐未立即变）、无「升级即时生效」 | **行为已修复**；但引入视觉回退 **QA-29（P1）**，见 §6.1a |
 | **P1-4** 来源 Chip 不可点（= QA-23） | `/chat?conversation=c_1`：来源行 Chip；点击；hover 不可达来源 | `a[href*="/orders?open=drawer&order=SO-20260905-0115"]` 1 个、无 `aria-disabled`；旧 `/orders/SO-…` 形态 0；点击 → URL `/orders?open=drawer&order=SO-20260905-0115`，`dialog` 含该订单号；不可达来源 2 个 `aria-disabled=true`，hover Tooltip「后续轮次提供」，点击 URL 不变 | **已修复 / 关闭** |
 
 4 条 FAIL 说明：断言「从 /orders 点击到达 /chat → `aria-current=page`」在 `waitForURL` 返回的**同一瞬间**读到 `null`；`probe3.mjs` 以 50ms 轮询复现：`114ms null → 175ms page`，即 React Router 路由切换首帧到 chat 页提交之间约 60ms 的过渡，`networkidle` 后稳定为 `page`（`probe2.mjs`）。属脚本时序，**不计缺陷**。
 
 4 组合全程：375 `scrollWidth = 375`；console error 0（剪贴板权限类已按上轮口径排除，本轮实际也未触发）。
+
+#### 6.1a QA-29（P1，新增）「联系销售」hover / active / 375 tap 文字不可见，375 无 Tooltip —— 独立复现（`~/qa2/probe4.mjs`，计算色）
+
+| 组合 | default | hover | active | 375 tap 后 |
+|---|---|---|---|---|
+| light | `bg rgb(213,239,234)` / `fg rgb(21,92,86)` | **`bg rgb(21,92,86)` = `fg rgb(21,92,86)`** | `bg rgb(19,74,70)` / `fg rgb(21,92,86)` | （未跑，暗色同构） |
+| dark | `bg rgb(8,35,31)` / `fg rgb(123,200,187)` | **`bg rgb(123,200,187)` = `fg rgb(123,200,187)`** | `bg rgb(173,223,214)` / `fg rgb(123,200,187)` | `bg = fg = rgb(123,200,187)`，`matches(':hover') = true`（粘住），`tooltip = []`，toast 0 |
+
+与体验官第 4 轮 `probe2.mjs` 数值一致。根因（代码核对）：`settings/index.tsx` 对该 `Button` 未换 variant，仍是默认 `primary`，页面层叠 `bg-primary-soft text-on-primary-soft hover:bg-primary-soft active:bg-primary-soft`；`ui/button.tsx` primary 变体的 `hover:not-disabled:bg-primary-hover` / `active:not-disabled:bg-primary-active` 特异性更高（`:not(:disabled)` 复合选择器；`aria-disabled` 不是 `:disabled`），hover 背景仍走 primary 深色，而文字已被改为 `on-primary-soft`（= primary 色阶）→ bg = fg。`a11y.mjs` 对比度只测静态态故未捕获（七屏仍 0 FAIL，见 §6.2）。这也违反 AGENTS「屏幕实现只组合控件，不在页面里重写控件外观」。建议：改用 `variant="secondary"`（或为 Button 增加 `primary-soft` / `aria-disabled` 态变体，走 `/kitchen-sink` 与 04-components 映射），375 Tooltip 参照 landing `TipLink` / orders `NotYetLink` 触屏聚焦即开的做法；修后需重跑 `compare settings`（billing-* 4 张）与 `a11y settings`。
+
+注：Playwright 默认 `tap()` 对 `aria-disabled` 元素判 not enabled 而超时，需 `{ force: true }`；真实触屏无此限制（体验官截图 `probe-contact-tap.png` 已证）。
 
 ### 6.2 门禁 ①②（实跑，`apps/reference/`）
 
@@ -83,7 +96,10 @@ axe minor/moderate 提示（不计 FAIL）：仅 chat **mobile** 全部 34 个�
 | QA-23 | P2 → **关闭** | 实跑 | 来源 Chip 已可达（§6.1 P1-4）；不可达来源按 AGENTS 契约 `aria-disabled` + Tooltip |
 | QA-24 | P2 → **关闭** | 实跑 | `AppShell` `assistant` 默认渲染，四壳页均有入口（§6.1 P1-1）。注意：dashboard / orders / settings / form hifi 顶栏仍无 `#assistBtn`，06 notes 记录 compare 四屏仍 ≥ 96.32%，阈值内；设计侧是否补 hifi 由设计 notes 决定 |
 | QA-20 | P2 | 仍开放（实跑） | 主包 663.50 kB（+3.8 kB），仍建议 components 合入同轮做 `React.lazy` 拆包 |
-| QA-28 | P3 | **新增**（实跑） | chat **375** 全部状态无 `h1`（axe `page-has-heading-one`，best-practice / moderate）；1440 有 `h1`「智能助理」。推断为 375 下页头随 Sheet 收起，读屏用户缺少页面级标题；建议 375 保留视觉隐藏的 `h1`（`sr-only`） |
+| **QA-29** | **P1** | **新增**（实跑 + 代码核对；= 体验官 P1-5） | 「联系销售」hover / active / 375 tap 文字不可见（bg = fg），375 无 Tooltip；由 `9fed979` P1-3 修法引入。详见 §6.1a | 改 variant，不在页面层拼按钮外观；修后复跑 compare / a11y settings |
+| QA-28 | P3 | **新增**（实跑） | chat **375** 全部状态无 `h1`（axe `page-has-heading-one`，best-practice / moderate；代码核对：`h1` 在 `ConversationList` 内，375 随 Sheet 收起）；1440 有 `h1`「智能助理」。建议 375 主区保留视觉隐藏的 `h1`（`sr-only`） |
+| QA-30 | P3 | **新增**（体验官 P3-14，本轮未独立复验） | 顶栏 5 个纯图标按钮（含新增「智能助理」）hover 无 Tooltip，仅 aria-label；chat hifi `#assistBtn` 亦无 Tooltip，属设计侧口径 |
+| QA-26 | P3 | 仍开放，**范围扩大** | 体验官 P2-16：用户点「降级」打开的确认框走 `openLocal("downgrade")`，不写 `?open=downgrade`（直开 URL 可用）——与 2FA / 移除 / 危险区 / 离开同模式，归入 QA-26 一并定策略 |
 | QA-25 / 26 / 27 / 22 / 21 / 03 / 06 / 08 ~ 12 / 14 ~ 16 | P3 | 不变 | 本轮未复验，见第 5 轮 §2 |
 | QA-02 / QA-09 | P2 / P3 | 历史 | 未跑 gallery `assemble.mjs` |
 
@@ -93,10 +109,10 @@ axe minor/moderate 提示（不计 FAIL）：仅 chat **mobile** 全部 34 个�
 - `components` 仍未合入，不在范围（第 5 轮 §5 备注仍适用：`ui/combobox.tsx` / `ui/tag-input.tsx` 热区 4 FAIL 需先修再合）。
 - 生产站未实查（集成分支未部署）。
 
-### 6.6 交 release 的备注
-1. verdict = pass，QA + 审计两道放行 `9fed979`；上轮 P1×4 全部关闭，无新增 P0/P1。
+### 6.6 交集成 / release 的备注
+1. verdict = **fix**：上轮 P1×4 行为全部关闭，但 P1-3 修法引入 QA-29（P1），`9fed979` 不放行；门禁 ①② 与合规 ③–⑥ 全部通过，修 QA-29 后只需复验 settings billing（compare + a11y + hover / 375 tap 计算色）即可放行。
 2. 剩余 P2 仅 QA-20（包体）与 QA-02（gallery 组装口径），均为 release / components 合入时处理。
-3. QA-28（chat 375 无 h1）改动一行，可与 components 合入同轮顺手处理。
+3. QA-28（chat 375 无 h1）改动一行，可与 QA-29 同轮顺手处理；QA-26（含 P2-16）与 QA-30 待设计 / 实现 notes 定策略。
 
 ---
 

@@ -52,6 +52,7 @@
 |---|---|---|
 | sample.button.primary | 保存更改 | 按钮示例 |
 | sample.button.secondary | 取消 | |
+| sample.button.soft | 联系销售 | 可聚焦 aria-disabled「本轮不可达」主操作（settings 计费 / orders 新建订单） |
 | sample.button.ghost | 查看全部 | |
 | sample.button.danger | 删除订单 | |
 | sample.button.link | 忘记密码？ | |

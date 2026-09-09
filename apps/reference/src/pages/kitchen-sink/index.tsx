@@ -201,7 +201,7 @@ export default function KitchenSink() {
 
       {/* ---------- 按钮 ---------- */}
       <Section id="button">
-        {(["primary", "secondary", "ghost", "danger", "link"] as const).map((variant) => (
+        {(["primary", "secondary", "soft", "ghost", "danger", "link"] as const).map((variant) => (
           <Matrix
             key={variant}
             label={variant}

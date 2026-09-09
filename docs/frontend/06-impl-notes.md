@@ -2,6 +2,27 @@
 
 > 阶段 5/6 产物。实现阶段不改 `design/hifi/*` 与令牌；实现方发现的设计稿问题在此记录，交回设计侧修正后重生成 `ref/*.png` 并复跑 `node tools/compare.mjs <screen>`。每条标明证据来源（浏览器实测 / 代码核对）。
 
+## 体验官第 4 轮 P1-5 / QA-29 修复（「联系销售」hover / active / 375 tap 文字消失 + 375 无 Tooltip，直接在 `fe01/integration` 修，2026-09-09）
+
+起点 `6b259f2`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。不改 hifi / tokens / mock；文案只在 `content/kitchen-sink.md` 追加 1 条 `sample.button.soft`。
+
+| 项 | 根因（代码核对 + 计算色实测） | 修法 | 实测证据（Playwright 1.62.1 对 `pnpm preview`，临时脚本 `~/probe/*.mjs` 不入库） |
+|---|---|---|---|
+| 色块（bg = fg） | `Button` 仍是 primary 变体，页面层 `hover:bg-primary-soft`（`.x:hover`，特异性 0,2,0）压不过变体的 `hover:not-disabled:bg-primary-hover`（`.x:hover:not(:disabled)`，0,3,0）；文字已是 `on-primary-soft`，与 `primary-hover` 同为 brand.700（亮）/ brand.300（暗）。**orders `NotYetLink`（新建订单 / 配置渠道）用同一套覆盖，实测同样 hover bg=fg**（体验官 / QA 未列，属同根因） | `button.tsx` 新增 `variant="soft"`：`bg-primary-soft text-on-primary-soft`，hover / active 不变色（hifi `[aria-disabled]` 无悬停变化），disabled 同 primary 转 `neutral-soft`；settings「联系销售」与 orders `NotYetLink` 改用该变体、删掉页面层覆盖类 | 修前 1440 hover：亮 `rgb(21,92,86)/rgb(21,92,86)`、暗 `rgb(123,200,187)/rgb(123,200,187)`（复现 QA 数值）。修后 idle / hover / active / 375 tap 四态一致：亮 bg `rgb(213,239,234)` fg `rgb(21,92,86)`，暗 bg `rgb(8,35,31)` fg `rgb(123,200,187)`；orders 新建订单 hover / 375 tap 同 |
+| 375 tap 无 Tooltip | 事件序列 button 与 landing `TipLink`（`<a>`）完全相同（pointerdown/up:touch → mousedown → focus → mouseup → click:touch），差别在 Radix `Tooltip.Trigger` 的 `onClick = composeEventHandlers(props.onClick, onClose)`：`@radix-ui/primitive` 在 `event.defaultPrevented` 时跳过 `onClose`。`TipLink` / `NotYetLink` 的 `onClick=preventDefault` 因此留住 Tooltip；「联系销售」按钮没有 onClick，focus 打开后立刻被 click 关掉 | 按钮加 `onClick={(e) => e.preventDefault()}`（`type="button"` 本无默认行为，仅用于跳过 Radix onClose） | 修前 375 tap `tooltip=[]`、`data-state=closed`；修后 375 亮 / 暗 tap 均 `tooltip=["企业版由销售顾问定制报价，后续轮次提供在线联系"]`，无 Toast，套餐不变 |
+
+### 门禁实跑（`apps/reference/`，修后）
+
+- `pnpm lint` exit 0（eslint + no-hardcode 79 文件）· `pnpm typecheck` exit 0 · `pnpm build` exit 0
+- `node tools/shoot.mjs settings && node tools/compare.mjs settings`：124/124 最低 97.13%（与 9fed979 基线完全一致；billing-* 全部 ≥ 98.12%）；orders：86/86 最低 96.32%（与基线一致）
+- `node tools/a11y.mjs settings` ALL PASS · `node tools/a11y.mjs orders` ALL PASS · `node tools/a11y.mjs kitchen-sink` ALL PASS（新增 soft 矩阵行）
+- 其余屏（login / dashboard / form / landing / chat）不使用 soft 变体、`button.tsx` 现有变体类名未动，未重跑
+
+### 未修 / 交回
+
+- 「联系销售」hifi 仍为实心 `.btn-primary` 且点击换套餐（IA §10 写「本轮不可达」，稿与 IA 不一致）；实现按 IA 走 soft + aria-disabled，与 ref 差异在阈值内。设计侧若要给不可达态定稿样式，建议在 hifi 补 `.btn-soft`。
+- （已复核，非未修）1440 真实 `Tab` 键聚焦「联系销售」：Tooltip 出现（`role=tooltip` 文案同上），回应体验官 §5 的程序化 `focus()` 疑问。
+
 ## 体验官第 3 轮走查 P1 修复（`docs/frontend/07-ux-walkthrough.md` P1-1～P1-4，直接在 `fe01/integration` 修，2026-09-09）
 
 起点 `59c9a50`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。不改 hifi / tokens / mock；文案追加在 `content/settings.md` 末尾新表（8 条 key，只追加）。

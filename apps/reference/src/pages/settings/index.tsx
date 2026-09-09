@@ -1542,7 +1542,7 @@ export default function SettingsPage() {
                         contact ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button type="button" aria-disabled="true" className="cursor-not-allowed border-transparent bg-primary-soft text-on-primary-soft hover:border-transparent hover:bg-primary-soft active:border-transparent active:bg-primary-soft">
+                              <Button type="button" variant="soft" aria-disabled="true" onClick={(e) => e.preventDefault()}>
                                 {actionLabel}
                               </Button>
                             </TooltipTrigger>

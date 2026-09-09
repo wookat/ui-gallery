@@ -25,6 +25,8 @@ type ComboboxProps = {
   emptyText: string
   /** button：触发器同 Select，面板顶部搜索行；input：hifi .ctl.combo —— 搜索图标 + 可输入框，面板紧贴其下 */
   variant?: "button" | "input"
+  /** input 变体的前导图标（默认 search；settings 时区稿为 globe） */
+  leadingIcon?: React.ReactNode
   disabled?: boolean
   invalid?: boolean
   open?: boolean
@@ -52,6 +54,7 @@ function Combobox({
   searchPlaceholder,
   emptyText,
   variant = "button",
+  leadingIcon = <SearchIcon />,
   disabled,
   invalid,
   open: openProp,
@@ -74,6 +77,7 @@ function Combobox({
   const [active, setActive] = React.useState(initialActive)
   const listId = React.useId()
   const anchorRef = React.useRef<HTMLDivElement>(null)
+  const contentRef = React.useRef<HTMLDivElement>(null)
   const selected = options.find((o) => o.value === value) ?? null
   const filtered = options.filter((o) => matches(o, query))
   const close = () => {
@@ -106,7 +110,7 @@ function Combobox({
   }
 
   const list = (
-    <ul id={listId} role="listbox" aria-label={placeholder} className="max-h-[calc(var(--size-hit)*6+var(--space-2))] overflow-y-auto">
+    <ul id={listId} role="listbox" aria-label={placeholder} tabIndex={-1} className="max-h-[calc(var(--size-hit)*6+var(--space-2))] overflow-y-auto">
       {filtered.length === 0 ? (
         <li data-slot="combobox-empty" className={cn("text-center text-fg-muted", inline ? "flex min-h-hit items-center justify-center px-3 text-role-caption" : "px-3 py-6")}>
           {emptyText}
@@ -143,7 +147,7 @@ function Combobox({
         <PopoverPrimitive.Anchor asChild>
           <div ref={anchorRef} data-slot="combobox-input" className={cn("relative flex w-full min-w-0 items-center text-fg-muted [&_svg]:pointer-events-none", className)}>
             <span aria-hidden className="absolute inset-y-0 left-0 grid w-hit place-items-center [&_svg]:size-icon-sm">
-              <SearchIcon />
+              {leadingIcon}
             </span>
             <input
               id={id}
@@ -171,7 +175,12 @@ function Combobox({
               onFocus={() => {
                 if (!open) setOpen(true)
               }}
-              onBlur={onBlur}
+              onBlur={(e) => {
+                // 键盘 Tab 离开（relatedTarget 为面板外元素）时收起面板；程序化 blur / 点在非可聚焦处（null）不处理，交给 onInteractOutside
+                const to = e.relatedTarget
+                if (open && to instanceof Node && !anchorRef.current?.contains(to) && !contentRef.current?.contains(to)) close()
+                onBlur?.(e)
+              }}
               onKeyDown={onKeyDown}
               className="h-control-md w-full min-w-0 rounded-md border border-border-strong bg-surface pl-hit pr-hit text-role-body text-fg transition-colors duration-(--motion-fast) ease-std placeholder:text-fg-muted hover:not-disabled:border-fg-muted focus-visible:border-primary aria-expanded:border-primary aria-invalid:border-(length:--border-width-accent) aria-invalid:border-danger aria-invalid:focus-visible:outline-danger disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-fg-muted"
               {...aria}
@@ -183,6 +192,7 @@ function Combobox({
         </PopoverPrimitive.Anchor>
         <PopoverPrimitive.Portal>
           <PopoverPrimitive.Content
+            ref={contentRef}
             data-slot="combobox-content"
             align="start"
             sideOffset={4}

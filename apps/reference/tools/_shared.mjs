@@ -12,7 +12,27 @@ export const shotsRoot = join(repo, "shots", "reference");
 export const BASE = "/apps/reference";
 
 const requireShoot = createRequire(join(repo, "tools/shoot/package.json"));
-export const { chromium } = requireShoot("playwright");
+const { chromium } = requireShoot("playwright");
+
+/**
+ * 启动 Chromium。`lang`（如 "zh_CN.UTF-8"）写入浏览器进程 LANG/LANGUAGE：原生 <input type=time> 的 12/24 小时制只取自进程区域，
+ * 与页面 lang / context locale / --lang 无关（不设时 headless shell 渲染「10:00 PM」，zh_CN 渲染「22:00」）。
+ * 不做全局默认：进程区域同时改变 webfont 就绪前的回退字体度量，会让 dashboard `?open=order-menu` 首帧 scrollIntoView 的横向滚动量
+ * 偏离其 ref（无 LANG 基准），因此由 shots.json 条目按需声明 `lang`，同 lang 的条目共用一个浏览器（见 shotGroups）。
+ */
+export const launch = ({ lang, ...options } = {}) =>
+  chromium.launch({ ...options, env: lang ? { ...process.env, LANG: lang, LANGUAGE: lang.split(".")[0], ...options.env } : options.env });
+
+/** 按条目 `lang` 分组：[{ lang, items }]，无 lang 的一组在前 */
+export const shotGroups = (list) => {
+  const groups = new Map();
+  for (const item of list) {
+    const key = item.lang ?? "";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  }
+  return [...groups].sort(([a], [b]) => a.localeCompare(b)).map(([lang, items]) => ({ lang: lang || undefined, items }));
+};
 
 const tokens = JSON.parse(readFileSync(join(repo, "design/tokens.json"), "utf8"));
 const bp = (k) => tokens.breakpoint[k].$value.value;
@@ -49,8 +69,8 @@ export function screenArg() {
 export const routeOf = (screen) => (screen === "dashboard" ? "/" : `/${screen}`);
 
 /**
- * 状态清单：src/pages/<id>/shots.json —— [{ name, query, overlay? }]
- * 未提供时默认 default / loading / empty / error（?state=）。
+ * 状态清单：src/pages/<id>/shots.json —— [{ name, query, overlay?, viewports?, stretch?, scrollTo?, lang? }]
+ * 未提供时默认 default / loading / empty / error（?state=）。`lang` 见 launch()。
  */
 export function shotList(screen) {
   const file = join(appDir, "src/pages", screen, "shots.json");

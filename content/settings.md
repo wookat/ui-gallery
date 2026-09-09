@@ -16,6 +16,7 @@
 | actions.saving | 保存中… | |
 | actions.reset | 重置 | 恢复为已保存值，无改动时禁用 |
 | actions.unsaved | 有未保存的修改 | 表单底部粘性条文案 |
+| actions.savingMsg | 正在保存… | 表单底部粘性条文案（提交中，hifi .savebar .msg） |
 | error.title | 保存失败 | Alert（danger），正文用 mock 对应 `errorMessage` |
 | error.retry | 重试 | |
 
@@ -59,6 +60,7 @@
 | security.2fa.switch | 启用两步验证 | Switch aria-label |
 | security.2fa.status.on | 已启用 | Tag success |
 | security.2fa.status.off | 未启用 | Tag neutral |
+| security.2fa.status.pending | 待验证 | Tag warning；开关已打开但尚未通过验证码（setup 中间态） |
 | security.2fa.qr.aria | 两步验证二维码（示意） | 纯 CSS/SVG 图形容器 aria-label |
 | security.2fa.manual | 无法扫码？手动输入密钥 | 折叠链接，展开显示 `manualKey` |
 | security.2fa.code.label | 输入 6 位验证码 | OTP 输入 |
@@ -82,7 +84,7 @@
 | key | 文案 | 说明 |
 |---|---|---|
 | notifications.title | 通知偏好 | |
-| notifications.description | 按事件选择接收方式，站内通知始终显示在铃铛中 | |
+| notifications.description | 按事件分别设置邮件、推送与站内三种接收方式 | 三列均可开关（mock 中「账单与发票」站内=off），文案不再声称站内始终显示 |
 | notifications.channel.aria | 接收方式 | Segmented（邮件 / 推送 / 站内）aria-label |
 | notifications.item.aria | {item}：{channel} | 每个 Switch aria-label |
 | notifications.enableAll | 全部开启 | 分组右侧链接按钮 |
@@ -171,3 +173,71 @@
 | danger.dialog.confirm | 永久删除 | 危险按钮 |
 | danger.dialog.back | 取消 | |
 | danger.toast | 已提交删除申请，24 小时内可在邮件中撤销 | warning |
+
+## 实现阶段补齐（hifi 已有文案，content 原缺 key；仅追加）
+
+| key | 文案 | 备注 |
+|---|---|---|
+| profile.title.hint | 如「运营主管」「仓储主管」 | 职位 hint |
+| profile.language.hint | 界面语言，切换后立即生效 | |
+| profile.bio.max | 最多 {n} 字 | 简介 hint 左侧 |
+| profile.timezone.hint | 用于任务提醒与报表时间显示 | |
+| security.password.confirmHint | 再输入一次新密码 | |
+| security.password.strengthNone | — | 未输入时的强度占位 |
+| security.2fa.copy | 复制密钥 | iconbtn aria-label |
+| security.2fa.copied | 密钥已复制 | Toast |
+| security.2fa.verifying | 验证中… | 验证按钮 busy 文案 |
+| security.2fa.disable.toast | 两步验证已关闭 | warning Toast |
+| security.2fa.dialog.back | 取消 | 2FA Dialog 次按钮 |
+| security.sessions.now | 现在 | 当前设备「最近活动 现在」 |
+| security.sessions.revokeAll.toast | 已注销其他所有会话 | |
+| notifications.channel.all | 全部 | seg 第一项 |
+| notifications.col.event | 事件 | 表头 |
+| notifications.quiet.from | 开始 | time 输入 label |
+| notifications.quiet.to | 结束 | |
+| notifications.quiet.toast | 免打扰时段已更新为 {from} – {to} | |
+| team.invite.sending | 发送中… | |
+| team.invite.removeAria | 移除 {email} | chip × |
+| team.joinedAt | 加入 {date} | 移动卡片 |
+| team.lastActive | 最近活动 {time} | |
+| team.pending.description | 被邀请人 7 天内接受有效 | |
+| team.pending.status | 待接受 | warning Tag |
+| team.pending.empty | 没有待接受的邀请 | |
+| team.pending.resend.toast | 已重新发送邀请至 {email} | |
+| team.pending.revoke.toast | 已撤回对 {email} 的邀请 | |
+| team.remove.back | 取消 | |
+| billing.current.manage | 管理订阅 | 次按钮 |
+| billing.change.title | 更换计划 | |
+| billing.change.description | 升级即时生效，降级于当前周期结束后生效 | |
+| billing.plan.yearlyNote | 按年付 ¥{n} / 年 | 月付视图下的副价 |
+| billing.plan.toYearly | 改为按年付 | |
+| billing.plan.toMonthly | 改为按月付 | |
+| billing.plan.toast | 已切换到{plan}（{cycle}），升级即时生效 | |
+| billing.cycle.monthlyShort | 月付 | Tag / Toast |
+| billing.cycle.yearlyShort | 年付 | |
+| billing.plan.unit.monthly | / 月 | 价格单位 |
+| billing.plan.unit.yearly | / 年 | |
+| billing.invoices.description | 每次扣款后自动开具，可下载 PDF | |
+| billing.invoices.downloadShort | PDF | 移动卡片按钮 |
+| danger.dialog.hint | 输入完全匹配前无法确认（含空格） | |
+| leave.title | 离开页面？ | 有未保存改动时切换 Tab / 导航 |
+| leave.description | 修改尚未保存，离开后将丢失。 | |
+| leave.stay | 继续编辑 | |
+| leave.leave | 放弃并离开 | 危险按钮 |
+| leave.closeAria | 关闭 | |
+| dialog.closeAria | 关闭 | Dialog 右上角 × |
+| team.seats.aria | 席位使用 | progressbar aria-label |
+| team.role.aria | {name} 的角色 | 成员行 Select aria-label |
+
+## 体验走查修复补齐（07-ux-walkthrough P1-2 / P1-3；仅追加）
+
+| key | 文案 | 备注 |
+|---|---|---|
+| security.password.currentRequired | 请输入当前密码 | 更新密码：当前密码为空时内联错误（hifi validate.password 首条） |
+| security.password.weak | 新密码需满足下方全部密码要求 | 新密码未满三条规则时内联错误 |
+| billing.plan.contact.tip | 企业版由销售顾问定制报价，后续轮次提供在线联系 | 「联系销售」本轮不可达：aria-disabled + Tooltip，不改动当前套餐 |
+| billing.plan.downgrade.title | 降级到{plan}？ | 降级二次确认 AlertDialog 标题 |
+| billing.plan.downgrade.description | 当前{current}（{cycle}）将在本周期结束后切换为{plan}，超出{plan}限额的成员与功能届时停用。 | |
+| billing.plan.downgrade.back | 取消 | |
+| billing.plan.downgrade.confirm | 确认降级 | 危险按钮 |
+| billing.plan.downgrade.toast | 已安排降级到{plan}（{cycle}），于当前周期结束后生效 | 与 billing.change.description 语义一致 |

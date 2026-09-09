@@ -348,6 +348,7 @@ html[data-dialog="open"] .scrim { z-index: calc(var(--hifi-z-popover) - 1); }
 .code-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: 0 var(--space-1) 0 var(--space-3); min-height: var(--size-hit); border-bottom: var(--border-width-hairline) solid var(--color-role-border); }
 .code-lang { font: var(--typography-caption); font-family: var(--font-family-mono); color: var(--color-role-fg-muted); text-transform: uppercase; }
 .code pre { margin: 0; padding: var(--space-3) var(--space-4); overflow-x: auto; font: var(--typography-code); letter-spacing: var(--typography-code-letter-spacing); font-family: var(--font-family-mono); color: var(--color-role-fg); }
+.code pre code { font: inherit; }
 .code-copy .lbl { display: none; }
 .code-copy[aria-pressed="true"] { color: var(--color-role-success); }
 

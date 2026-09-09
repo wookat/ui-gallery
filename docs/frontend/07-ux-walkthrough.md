@@ -1,6 +1,253 @@
 # 07 · 体验官走查报告
 
-> 本文件按轮次自上而下叠加：**第 2 轮复查（当前结论）** 在前，第 1 轮全量走查保留在后作为历史与 P2/P3 原始描述。
+> 本文件按轮次自上而下叠加：**第 5 轮复查（当前结论）** 在前，第 4 轮复查、第 3 轮全量走查、第 2 轮复查、第 1 轮全量走查保留在后作为历史与原始描述。
+
+---
+
+## 第 5 轮 · 复查（第 4 轮 P1-5 修复复验 + 主流程回归；任务口径「第 3 轮复查」）
+
+> 角色：roles/legal-research/user-experience-officer（体验官）。
+> 对象：`fe01/integration` @ `4051141`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。该提交 = 第 4 轮报告之后的修复提交「fix(frontend): 体验官 P1-5 / QA-29——「联系销售」hover/active/375 tap 文字消失 + 375 无 Tooltip；Button 新增 soft 变体，orders NotYetLink 同修」。
+> 范围（时间盒 30 分钟，按任务只做两件事）：① 逐条复验第 4 轮唯一 P1（P1-5）以及同一提交顺带改动的 orders `NotYetLink`；② 回归主流程（登录 → 仪表盘 → 顶栏助理入口 → 订单 → 采购单 → settings 五 Tab → landing → chat）。`components` 本轮明确未合入，不在范围、不计缺失。**不再全量探索**，上轮 P2/P3 只顺带记录是否仍复现。
+> 方法：`pnpm install --frozen-lockfile`（根，exit 0）→ `apps/reference`：`pnpm lint && pnpm typecheck && pnpm build`（均 exit 0）→ `pnpm preview --port 4173`（base `/apps/reference/`）。Playwright 1.62.1（复用根 `tools/shoot` 依赖，Chromium headless-shell 1234）以真实用户方式操作：**1440×900 鼠标**（真实坐标 click / hover / mousedown / Tab）与 **375×812 触屏**（`isMobile + hasTouch`，DPR 2，`tap`）× **亮 / 暗**（`prefers-color-scheme`）= 4 组合，每组合跑同一脚本 `~/ux5/walk.mjs`（仓库外），日志 `~/ux5/run-<viewport>-<theme>.out`；定向复核 `~/ux5/probe3.mjs`（真实 Tab 键聚焦「联系销售」是否出 Tooltip，1440 vs 375）。截图 `~/ux5/shots/<viewport>-<theme>/<序号>-<name>.png`，1440 每组合 15 张、375 每组合 16 张，共 62 张（**不入库**）。下文「截图」均指该目录。
+> 注：Playwright 对 `aria-disabled=true` 元素默认拒绝 click / tap（视为 not enabled），本轮对「联系销售」「新建订单」「未勾条款时的提交采购单」用 `force: true` 模拟真实用户点击——真实浏览器里这些按钮本来就能点到，脚本层限制不是产品缺陷。
+> 事实分级：✅ 实测通过 · ❌ 实测缺陷 · ⚠️ 未定论 · 「推断」= 读源码得出、未实测。**不改产品代码。**
+
+### 0. 结论
+
+**verdict = pass**（P0 = 0，P1 = 0）。第 4 轮 P1-5 在 4 组合下均已修复：「联系销售」default / hover / active / 375 tap 四态计算色一致（亮 `bg rgb(213,239,234) / fg rgb(21,92,86)`、暗 `bg rgb(8,35,31) / fg rgb(123,200,187)`），文字全程可见；1440 hover、1440 真实 Tab 聚焦、375 tap 均出 Tooltip「企业版由销售顾问定制报价，后续轮次提供在线联系」；点击后无 Toast、套餐仍是专业版（「当前计划」按钮仍且仅 1 个）。orders 顶部「新建订单」`NotYetLink` 同样四态不变色、hover / tap 出 Tooltip「后续轮次提供」。主流程 4 组合回归 0 ❌，console error 0，375 全程无横向溢出。新增 2 条 P3（375 触屏 + 键盘 Tab 聚焦不出 Tooltip；Tooltip 遮住企业版卡最后一条特性），无新增 P1/P2。
+
+| 级别 | 数量 | 摘要 |
+| --- | --- | --- |
+| P0 | 0 | — |
+| P1 | 0 | P1-5 ✅ 已修复（4 组合） |
+| P2 | 1 项本轮实测仍复现 | P2-9（新会话发送被带回 c_1、用户消息不回显）仍复现；其余 P2 未重跑 |
+| P3 | 2 新增 | **P3-15（新）** 375 触屏下用键盘 Tab 聚焦「联系销售」不出 Tooltip（1440 键盘 ✅）；**P3-16（新）** 1440 Tooltip 弹出位置盖住企业版卡最后一条特性「专属客户经理」 |
+
+### 1. 上轮 P1 逐条复验（4 组合：1440 亮 / 1440 暗 / 375 亮 / 375 暗）
+
+| 上轮编号 | 现象 | 本轮结果 | 证据 |
+| --- | --- | --- | --- |
+| P1-5 「联系销售」hover / active 文字消失（bg = fg）；375 tap 后无字且无 Tooltip | ✅ **已修复**。按钮现为 `data-variant="soft"`、`aria-disabled=true`、`cursor: not-allowed`、热区 1440 240×40 / 375 267×40。**1440**：default → hover（`:hover=true`）→ mousedown（active）三态 `bg / fg` 完全不变，亮 `rgb(213,239,234) / rgb(21,92,86)`、暗 `rgb(8,35,31) / rgb(123,200,187)`，文字始终可见；hover 与真实 Tab 键聚焦均出 Tooltip。**375**：tap 后 `:hover` 仍粘住（`matches(':hover')=true`）但因 soft 变体无 hover 态，颜色不变、文字可见；Tooltip 出现在按钮上方。4 组合 tap / hover 后 `toast=[]`、URL 不变、「当前计划」按钮数 = 1（专业版未被改动）。降级流程未回退：「降级到入门版」→ AlertDialog「降级到入门版？」仍在。 | 4 组合日志 `P1-5 *` 1440 8/8 ✅、375 5/6 ✅（1 ❌ 为 375 键盘聚焦，见 P3-15）；截图 `*/01-billing-contact-default`、`desktop-*/02-billing-contact-hover`、`desktop-*/03-billing-contact-active`、`mobile-*/02-billing-contact-tap`、`*/0x-billing-downgrade-dialog` |
+| （同提交顺带）orders `NotYetLink`「新建订单」「接入渠道」 | ✅ 「新建订单」`aria-disabled=true`，default 与 hover / tap 同色（同上两组值），hover / tap 出 Tooltip「后续轮次提供」，URL 不变。「接入渠道」（空态）未走到，推断同一组件同一修法。 | 4 组合 `orders 新建 *` ✅；截图 `*/0x-orders-create-tip` |
+
+### 2. P0 / P1（新增）
+
+无。
+
+### 3. P2 / P3（本轮口径）
+
+P2：
+- **P2-9 仍复现**（4 组合）：`/chat?state=empty` 输入「杭州仓现在还有多少件床头柜？」→ 发送 → URL `?state=streaming&conversation=c_1`，用户消息出现 0 次（截图 `*/chat-sent`）。
+- 上轮 P2-8 / P2-13 / P2-16 及更早 P2 本轮未重跑（复查时间盒只覆盖 P1 与主流程）。
+
+P3：
+- **P3-15（新）** 375 触屏模拟下，用键盘（真实 Tab 键，`probe3.mjs` 从「降级到入门版」起 Tab 到「联系销售」）聚焦「联系销售」后 500 ms 内 `[role=tooltip]` 为 0；同脚本 1440 下 Tooltip 正常出现。iPad / 外接键盘的触屏用户属边缘场景，且 tap 已能出 Tooltip，故只记 P3。⚠️ 未定位原因（未读 Tooltip 触屏分支源码）。
+- **P3-16（新）** 1440 hover「联系销售」时 Tooltip 定位在按钮上方、正好盖住企业版卡最后一条特性「专属客户经理」（亮 / 暗一致，截图 `desktop-*/02-billing-contact-hover`）。读得到按钮、读不全卡片，建议 Tooltip `side="bottom"` 或加 `sideOffset`。
+- 上轮 P3-14（顶栏图标按钮无 Tooltip）未重测、沿用。
+
+### 4. 主流程回归（4 组合一致，除注明）
+- ✅ 登录 `ruolin.shen@qimu-home.cn` / 任意 ≥ 8 位 → `/?toast=login`，h1「仪表盘」，Toast「欢迎回来，若琳」。
+- ✅ 顶栏「智能助理」入口 40×40，点击 → `/chat`；周期「日」→ `?period=day`；主题按钮 `data-theme` light↔dark。
+- ✅ /orders h1「订单」；1440 搜索「周雅婷」→ 「筛选出 15 单，共 731 单」；首行菜单「查看详情」→ `?open=drawer&order=SO-20260906-0108`，Esc 后 URL 干净；375 「筛选」Sheet 打开。
+- ✅ /form 第 1 → 2 → 3 步 `role=alert` 0、当前步「3 确认提交」；未勾条款时提交按钮 `aria-disabled=true`，点击 → alert 2、焦点 `#terms`；勾选后提交 → 「采购单已提交」（截图 `*/form-success`）。
+- ✅ settings：5 Tab（1440 `aria-orientation=vertical`）、`?tab=` 五值选中正确；profile 改名 → 「保存中」≈1.8 s → Toast「个人资料已保存」；弱密码 `a/a` 被拦（`aria-invalid` 1、无 Toast）；`?open=2fa` Dialog；notifications 25 个 Switch；team 5 行。
+- ✅ landing h1「把全渠道订单和库存，装进一个后台」；滚动后 header `data-state=scrolled`；`?cycle=yearly` 价格 ¥990 / ¥2,990；FAQ 首项默认展开、点击可收起（`true→false`）；375 「打开菜单」Sheet。
+- ✅ chat：c_1 来源 Chip「SO-20260905-0115」→ `/orders?open=drawer&order=SO-20260905-0115`；`?state=error` Alert「回复失败」；`?state=streaming` 「停止生成」；375 「打开会话列表」→ `?open=sidebar`。
+- ✅ /kitchen-sink 按钮矩阵含 7 个 `bg-primary-soft` 按钮（soft 变体已入基准页）。
+- ✅ 375 全程 `scrollWidth = 375`；4 组合 console error = 0。
+
+### 5. 未覆盖（untested，如实标注）
+- orders 空态「接入渠道」`NotYetLink`、settings 降级「确认降级」后的 Toast、危险区、团队邀请、landing 汉堡菜单内链接、chat 附件 / 模型 Select / 停止生成后的状态：本轮修复未触及、未重走。
+- 上轮 P2-8 / P2-13 / P2-16、P3-14 及更早 P2/P3 未重跑。
+- 768 / 1024 视口；真实 iOS / Android 浏览器；读屏软件。
+- 未重跑 shoot / compare（修复提交自述 settings 124/124 最低 97.13%、orders 86/86 最低 96.32%，**此为转述、本轮未复核**）。
+
+### 6. 门禁实跑结果（`apps/reference/`，`~/gates.log`、`~/ux5/a11y-*.out`）
+- `pnpm install --frozen-lockfile` ✅ exit 0
+- `pnpm lint` ✅ exit 0（eslint + no-hardcode：79 个文件通过）
+- `pnpm typecheck` ✅ exit 0
+- `pnpm build` ✅ exit 0（仅既有 chunk > 500 kB warning）
+- `node tools/a11y.mjs settings` ✅ exit 0（452 PASS / 0 FAIL）；`node tools/a11y.mjs orders` ✅ exit 0（372 PASS / 0 FAIL）——修复提交触及的两屏 axe / 热区 / 焦点环 / 375 溢出 / console 全过
+
+本报告只新增本文件的本节，未改任何产品代码、令牌、hifi、content、mock；脚本、截图与日志留在 `~/ux5/`，不入库。
+
+---
+
+## 第 4 轮 · 复查（第 3 轮 P1×4 修复复验 + 主流程回归）
+
+> 角色：roles/legal-research/user-experience-officer（体验官）。
+> 对象：`fe01/integration` @ `9fed979`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。该提交 = 第 3 轮报告之后的修复提交「fix(frontend): 体验官第 3 轮走查 P1×4——顶栏助理入口全局默认渲染、更新密码三段校验、联系销售不可达 + 降级二次确认、来源 Chip 可达跳转」。
+> 范围（时间盒 30 分钟，按任务只做两件事）：① 逐条复验第 3 轮 P1-1 ~ P1-4；② 回归主流程（登录 → 仪表盘 → 订单 → 采购单 → settings 五 Tab → landing → chat）。`components` 本轮明确未合入，不在范围、不计缺失。**不再全量探索**，上轮 P2/P3 只顺带记录是否仍复现。
+> 方法：`pnpm install --frozen-lockfile`（根，exit 0）→ `apps/reference`：`pnpm lint && pnpm typecheck && pnpm build`（均 exit 0）→ `pnpm preview --port 4173`（base `/apps/reference/`）。Playwright 1.62.1（复用根 `tools/shoot` 依赖，Chromium headless-shell 1234）以真实用户方式操作：**1440×900 鼠标**（真实坐标 click / hover）与 **375×812 触屏**（`isMobile + hasTouch`，DPR 2，`tap`）× **亮 / 暗**（`prefers-color-scheme`）= 4 组合，每组合跑同一脚本 `~/ux4/walk.mjs`（仓库外），日志 `~/ux4/run-<viewport>-<theme>.{out,log}`；定向复核 `~/ux4/probe.mjs`（375 触屏禁用态提示对照）、`~/ux4/probe2.mjs`（「联系销售」各状态计算色）。截图 `~/ux4/shots/<viewport>-<theme>/<序号>-<name>.png`，4 组合共 84 张 + probe 1 张（**不入库**）。下文「截图」均指该目录。
+> 事实分级：✅ 实测通过 · ❌ 实测缺陷 · ⚠️ 未定论 · 「推断」= 读源码得出、未实测。**不改产品代码。**
+
+### 0. 结论
+
+**verdict = fix**（P0 = 0，**P1 = 1**）。第 3 轮 4 条 P1 的**行为**在 4 组合下均已修复：/、/orders、/settings、/form 顶栏都有 40×40 的「智能助理」入口且可达 /chat；更新密码三段校验（当前密码必填 → 三条规则 → 两次一致）逐段拦截、只在全过时 Toast；「联系销售」不再改套餐、「降级」有二次确认且 Toast 改为「周期结束后生效」；来源 Chip 点击落到 `/orders?open=drawer&order=…` 并打开抽屉，不可达来源（库存快照）`aria-disabled` + Tooltip。但 P1-3 的修复**引入一处明显视觉缺陷**：「联系销售」按钮 hover / active 时背景色与文字色完全相同（亮 `rgb(21,92,86)` / 暗 `rgb(123,200,187)`），**按钮文字消失成一块色块**；375 触屏 tap 后 `:hover` 粘住，按钮持续无字、且 Tooltip 不出现——用户点了一个空色块、得不到任何反馈。主流程 4 组合回归 0 ❌，console error 0，375 全程无横向溢出，`a11y.mjs settings / chat` ALL PASS。
+
+| 级别 | 数量 | 摘要 |
+| --- | --- | --- |
+| P0 | 0 | — |
+| P1 | 1 | **P1-5（新，由 P1-3 修复引入）**「联系销售」hover / active / 375 tap 后文字不可见（bg = fg），375 tap 亦无 Tooltip |
+| P2 | 3 项本轮实测仍复现 + 1 新增 | 上轮 P2-9（新会话发送被带回 c_1、用户消息不回显）仍复现；P2-13 焦点丢失新增两处（降级对话框「取消」/「确认降级」后焦点落 `body`）；P2-8 侧栏可用/禁用无差别仍在；**P2-16（新）** 用户点「降级」打开的确认框不写入 `?open=downgrade`（直开 URL 可用，刷新/分享后丢失） |
+| P3 | 1 新增 | **P3-14（新）** 顶栏 5 个纯图标按钮（含新增的「智能助理」）hover 均无 Tooltip，仅靠 aria-label；上轮 P3 系列未重测、沿用 |
+
+### 1. 上轮 P1 逐条复验（4 组合：1440 亮 / 1440 暗 / 375 亮 / 375 暗）
+
+| 上轮编号 | 现象 | 本轮结果 | 证据 |
+| --- | --- | --- | --- |
+| P1-1 应用内无「智能助理」入口 | ✅ **已修复**。`/`、`/orders`、`/settings`、`/form` 顶栏均有 `a[href=/chat]`（`aria-label=智能助理`）、可见、热区 40×40，位于搜索与通知之间（与 IA §11-A 一致）；点击 → `/chat`，/chat 页该按钮 `aria-current=page`。/form 有未保存改动时点它 → 「离开页面？」AlertDialog，「放弃并离开」→ /chat（`beforeLeave` 已接上）。 | 4 组合日志 `P1-1 *` 6/6 ✅；截图 `02-topbar-assistant`、`03-chat-from-topbar` |
+| P1-2 更新密码不校验就报成功 | ✅ **已修复**。① 三字段全空 → 无 Toast，当前密码 `aria-invalid=true` + 内联「请输入当前密码」，焦点到 `#pwCur`；② `oldpass123` / `a` / `a` → 无 Toast，新密码 `aria-invalid` + 「新密码需满足下方全部密码要求」，焦点 `#pwNew`；③ `Abcdef12!` / `Abcdef12?` → 「两次输入的密码不一致」；④ 三项合规 → 「保存中」→ Toast「密码已更新，其他设备需重新登录」。输入后对应错误即时清除（`aria-invalid` 去掉、错误文案消失）。 | 4 组合 `P1-2 *` 4/4 ✅；截图 `07-pw-empty` ~ `10-pw-ok` |
+| P1-3 「联系销售」直接换套餐；降级无确认且说「升级即时生效」 | ⚠️ **行为已修复，但引入 P1-5**。行为：「联系销售」`aria-disabled=true`、`cursor: not-allowed`、1440 hover Tooltip「企业版由销售顾问定制报价，后续轮次提供在线联系」，force 点击后无 Toast、专业版仍是「当前计划」；「降级到入门版」→ AlertDialog「降级到入门版？／当前专业版（年付）将在本周期结束后切换为入门版，超出入门版限额的成员与功能届时停用。」默认焦点「取消」；「确认降级」→ Toast「已安排降级到入门版（年付），于当前周期结束后生效」，当前套餐不变（入门版卡按钮仍是「降级到入门版」）；`?open=downgrade` 直开可用。**视觉**：见 §2 P1-5。 | 4 组合 `P1-3 *` 3/3 ✅（行为）；截图 `11-billing-default`、`12-billing-contact-tip`（❌ 色块）、`13-billing-downgrade-dialog`、`14-billing-after-downgrade`、`15-billing-open-downgrade-direct` |
+| P1-4 来源 Chip 像链接但点不动 | ✅ **已修复**。c_1 五个 Chip：3 个订单 Chip `href=/orders?open=drawer&order=SO-…`、无 `aria-disabled`；点「SO-20260905-0115」→ URL `/orders?open=drawer&order=SO-20260905-0115`，右侧抽屉（375 Sheet）打开且首行即该订单号 / 待发货 / 马晓彤。2 个「库存快照 09-06 17:30」→ `/inventory` 未实现 → `aria-disabled=true`、`cursor: not-allowed`、hover / 375 tap 均出 Tooltip「后续轮次提供」、URL 不变。c_2 / c_3 的 4 个订单 Chip 同样全部改写为可达路径。 | 4 组合 `P1-4 *` 4/4 ✅；截图 `04-chat-sources`、`05-orders-drawer-from-chip`、`06-chat-source-disabled-tip` |
+
+### 2. P0 / P1（新增）
+
+**P1-5 「联系销售」按钮 hover / active 时文字消失（背景色 = 文字色）；375 触屏 tap 后持续无字且无任何提示** ❌
+- 路由 `/settings?tab=billing`；1440 + 375；亮 + 暗（4 组合一致）。
+- 步骤（1440）：滚到「更换计划」→ 鼠标移到企业版卡「联系销售」→ 按钮从浅绿底深绿字变成**整块深绿色、看不到任何字**（Tooltip 同时出现）；按住鼠标更深一档，仍无字。（375）tap 该按钮 → 按钮变成整块深绿色块、**无字**、无 Tooltip、无 Toast、套餐不变；`:hover` 在触屏上粘住，直到点别处才恢复。
+- 实测计算色（`probe2.mjs`）：亮色 default `bg rgb(213,239,234) / fg rgb(21,92,86)` → hover `bg rgb(21,92,86) / fg rgb(21,92,86)`（对比度 1:1）→ active `bg rgb(19,74,70) / fg rgb(21,92,86)`；暗色 default `bg rgb(8,35,31) / fg rgb(123,200,187)` → hover `bg rgb(123,200,187) / fg rgb(123,200,187)` → active `bg rgb(173,223,214) / fg rgb(123,200,187)`。375 tap 后 `matches(':hover')=true`，`bg=fg=rgb(21,92,86)`。
+- 影响：计费页是付费决策路径，一个「按钮悬停即变成无字色块」是明显粗糙；375 上还叠加「点了没有任何反馈」——同页的侧栏禁用项、landing 不可达 CTA 在 375 tap 都会出 Tooltip（`probe.mjs` 对照 ✅），只有这个按钮不出，且它长得是 primary 强调样式。定 P1（明显粗糙），不是 P0（不影响任何任务完成，套餐未被改动）。
+- 推断（源码）：修复提交给该 Button 传了 `className="… bg-primary-soft text-on-primary-soft hover:bg-primary-soft active:bg-primary-soft …"` 试图覆盖 primary 变体，但 `ui/button.tsx` primary 变体写的是 `hover:not-disabled:bg-primary-hover` / `active:not-disabled:bg-primary-active`（变体不同、特异性更高，页面层的 `hover:bg-primary-soft` 覆盖不了），背景仍走 primary 深色，而文字色被改成 `on-primary-soft`（= primary 色阶本身），于是 bg = fg。建议改用 `variant="secondary"` 或 `primary-soft` 变体（若存在），不要在页面层用 className 拼一套按钮外观（AGENTS「屏幕实现只组合这些件，不在页面里重写控件外观」）；375 tap 出 Tooltip 的行为可参照 landing `TipLink`（`<a>` 触发器在触屏聚焦即开）。
+- 证据：截图 `*/12-billing-contact-tip.png`（4 组合，深绿无字色块），`probe-contact-tap.png`；日志 `run-mobile-*.log` `联系销售 … tooltip=[]`、`probe2.mjs` 输出。
+
+### 3. P2 / P3（本轮口径）
+
+P2：
+- **P2-9 仍复现**（4 组合）：`/chat?state=empty` 输入「杭州仓现在还有多少件床头柜？」→ 发送 → URL `?state=streaming&conversation=c_1`，气泡 6 条、用户消息出现 0 次（截图 `20-chat-sent`）。
+- **P2-13 新增两处**（4 组合）：降级 AlertDialog「取消」后焦点落 `body`（`跳到主内容` 链接之前）；「确认降级」后焦点亦落 `body`——与上轮「继续编辑 / 移除成员 / 危险区确认」同源。
+- **P2-8 仍在**：侧栏可用（订单 / 设置）与 `aria-disabled` 项视觉同灰（截图 `01-dashboard`）。
+- **P2-16（新）**：用户点「降级到入门版」打开的确认框只存在本地状态，URL 保持 `/settings?tab=billing`（不写 `?open=downgrade`）；直开 `?open=downgrade` 可用。刷新即丢失、无法分享。推断与 settings 其他浮层（`openLocal`）同一实现，故只记 P2、建议统一在 06 notes 说明「?open= 仅作入口」或全部同步。
+- 上轮 P2-10 / P2-11 / P2-12 / P2-14 / P2-15 及 P2-5 ~ P2-7 本轮未重跑（复查时间盒只覆盖 P1 与主流程）。
+
+P3：
+- **P3-14（新）**：1440 顶栏 5 个纯图标按钮（打开导航 / 智能助理 / 通知 / 切换主题 / 账号）hover 均无 Tooltip（`hover tooltip=[]`），新增的「智能助理」入口对首次用户只有一个星形图标、无法得知含义；建议给顶栏 IconButton 统一加 Tooltip（landing Footer 社交 IconButton 已有此做法）。
+- 上轮 P3-8 ~ P3-13 未重测、沿用。
+
+### 4. 主流程回归（4 组合一致，除注明）
+- ✅ 登录 `ruolin.shen@qimu-home.cn` / 任意 ≥ 8 位 → `/?toast=login`，h1「仪表盘」，Toast「欢迎回来，若琳」。
+- ✅ 仪表盘周期「日」→ `?period=day`；主题按钮 `data-theme` 切换（light↔dark）。
+- ✅ /orders h1「订单」；1440 搜索「周雅婷」→ 「筛选出 15 单，共 731 单」；首行菜单「查看详情」→ `?open=drawer&order=SO-20260906-0108`，Esc 后 URL 干净；375 「筛选」Sheet 打开。
+- ✅ /form 第 1 → 2 → 3 步 `role=alert` 0、当前步「3 确认提交」；未勾条款提交 → alert 2、焦点 `#terms`；勾选后提交 → 「采购单已提交」。（P3-6 进入第 3 步焦点 `body` 仍在。）
+- ✅ settings：profile 改名 → Toast「个人资料已保存」；notifications 25 个 Switch；team 5 行；`?open=2fa` Dialog。
+- ✅ landing h1「把全渠道订单和库存，装进一个后台」；滚动后 header `data-state=scrolled`；`?cycle=yearly` 价格 ¥990 / ¥2,990（折合 ¥82.50 / ¥249.17 / 月）。
+- ✅ chat：375 「打开会话列表」→ `?open=sidebar`。
+- ✅ 375 全程 `scrollWidth = 375`；4 组合 console error = 0。
+
+### 5. 未覆盖（untested，如实标注）
+- 「联系销售」**键盘聚焦**是否出 Tooltip：`probe2.mjs` 程序化 `focus()` 后 400 ms 内 `[role=tooltip]` 为 0（⚠️ 可能是 Radix 对程序化聚焦的判定，未用真实 Tab 键复核）。
+- 上轮 P2-10 ~ P2-15、P3-8 ~ P3-13 未重跑；orders 取消 / 删除 / 撤销、form 失败态 / 草稿 / 离开确认、settings 团队邀请 / 危险区、landing FAQ / 汉堡菜单、chat 流式 / 错误态 本轮未重走（第 3 轮已覆盖、本轮修复未触及）。
+- 768 / 1024 视口；真实 iOS / Android 浏览器；读屏软件。
+- 未重跑 shoot / compare（像素门禁与本次行为修复无关；修复提交自述 compare 五屏 ≥ 95%，**此为转述、本轮未复核**）。
+
+### 6. 门禁实跑结果（`apps/reference/`，`~/gates.log`、`~/ux4/a11y-*.out`）
+- `pnpm install --frozen-lockfile` ✅ exit 0
+- `pnpm lint` ✅ exit 0（eslint + no-hardcode：79 个文件通过）
+- `pnpm typecheck` ✅ exit 0
+- `pnpm build` ✅ exit 0
+- `node tools/a11y.mjs settings` ✅ ALL PASS；`node tools/a11y.mjs chat` ✅ ALL PASS（对比度检查基于静态态，未覆盖 hover 态，故未捕获 P1-5）。
+
+本报告只新增本文件的本节，未改任何产品代码、令牌、hifi、content、mock；脚本、截图与日志留在 `~/ux4/`，不入库。
+
+---
+
+## 第 3 轮 · 全量走查（settings / landing / chat 新屏 + login / dashboard / orders / form 回归）
+
+> 角色：roles/legal-research/user-experience-officer（体验官）。
+> 对象：`fe01/integration` @ `39016c7`（任务指定的 `1afe7d577d4aebbec8eb7910404befeb01c46801` 在分支历史内；起点 `git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。
+> 范围：本轮合入的 `settings` / `landing` / `chat` 全部核心任务 + 已上线屏 `login` / `dashboard` / `orders` / `form` 回归。`components` 本轮明确未合入，**不在范围、不计缺失**。
+> 方法：`pnpm install --frozen-lockfile`（根）→ `apps/reference`：`pnpm lint && pnpm typecheck && pnpm build` → `pnpm preview --port 4173`（base `/apps/reference/`）。Playwright（复用根 `tools/shoot` 锁定版本，Chromium headless-shell）以真实用户方式操作：**1440×900 鼠标**（真实坐标 click / hover / 键盘）与 **375×812 触屏**（`isMobile + hasTouch`，DPR 2，`tap`）× **亮 / 暗** = 4 组合，每屏每组合各跑一遍全部任务。脚本与日志在仓库外 `~/ux-walk/`（`settings.mjs` + `settings2.mjs` → `settings*.out`；`landing.mjs` → `landing.out`；`chat.mjs` → `chat.out`；`regress.mjs` → `regress.out`；`probe.mjs` 定向复核 → `probe.out`；结构化日志 `walk.log`）。截图 `~/ux-walk/shots/<screen>/<viewport>-<theme>-<序号>-<name>.png`，共 384 张（**不入库**）。下文「截图」均指该目录。
+> 事实分级：✅ 实测通过 · ❌ 实测缺陷 · ⚠️ 未定论 · 「推断」= 读源码得出、未实测。**不改产品代码。**
+
+### 0. 结论
+
+**verdict = fix**（P0 = 0，**P1 = 4**）。三个新屏的核心任务在 4 组合下均能走通（无 P0），375 全程无横向溢出，console error 除剪贴板权限（环境因素，见 §5）外为 0，`a11y.mjs settings / landing / chat` 三屏 ALL PASS。但有 4 处**明显误导用户**的问题：应用内根本找不到「智能助理」入口；空/弱密码也提示「密码已更新」；点「联系销售」直接把套餐改成企业版并宣称「升级即时生效」；来源 Chip 长得像链接、有 href 却点不动。
+
+| 级别 | 数量 | 摘要 |
+| --- | --- | --- |
+| P0 | 0 | — |
+| P1 | 4 | P1-1 /chat 应用内无入口；P1-2 改密码不校验就报成功；P1-3 「联系销售」= 直接换套餐 + 降级也说「升级」；P1-4 来源 Chip 不可点 |
+| P2 | 8 | 新会话发送被带回 c_1、375 会话落在最旧消息、附件第二次点报「超过 10 MB」、语言 Select 无效、继续编辑/移除成员焦点丢失、重复保存 Toast 叠加、危险区确认后焦点落 body、上轮 P2-5/P2-6/P2-7/P2-8 仍复现 |
+| P3 | 6 | 375 Tab 条被裁无滚动提示、Toast 关闭按钮英文 aria-label、375 邀请需点两次、撤回邀请无二次确认、停止生成无「已停止」提示、上轮 P3 系列 |
+
+### 1. P0 / P1（每条：路由 · 视口 · 主题 · 复现步骤 · 证据）
+
+**P1-1 应用内没有任何「智能助理」入口，/chat 只能手输 URL** ❌
+- 路由 `/`、`/orders`、`/settings`、`/form`；1440 + 375；亮 + 暗（4 组合一致）。
+- 步骤：登录 → 仪表盘顶栏逐个数可点元素 → 只有「打开导航 / 全局搜索 / 通知 / 切换主题 / 账号菜单」，**无**「智能助理」；侧栏 8 项也没有；/orders、/settings 顶栏同样为 0。只有已经在 `/chat` 页时顶栏才出现高亮的助理图标（`aria-current=page`）。
+- 影响：brief §11.10-E / IA §11-A 明确「chat 入口 = 顶栏助理 IconButton，放在搜索与通知之间」，brief 核心任务「用一句话查订单库存」的起点不可达。真实用户完全不知道有助理。参照第 1 轮 P1-1（/orders 无入口）同口径定 P1。
+- 推断（源码）：`pages/dashboard/shell.tsx` 仅当传入 `assistant` prop 时渲染该按钮，而只有 `pages/chat/index.tsx` 传了它。
+- 证据：`regress.out` 4 组合 `[issue] 仪表盘顶栏「智能助理」入口数=0；顶栏可点元素=[…]`；`settings2.out` / `chat.out` 同类 issue；截图 `regress/*-dashboard-topbar.png`。
+
+**P1-2 「更新密码」不校验：三个字段全空 / 新密码「a」也提示「密码已更新，其他设备需重新登录」** ❌
+- 路由 `/settings?tab=security`；1440 + 375；亮 + 暗（4 组合一致）。
+- 步骤：① 三个密码框都不填 → 点「更新密码」→ 转「保存中」→ 绿色 Toast「密码已更新，其他设备需重新登录」。② 当前密码 `old`、新密码 `a`、确认 `a` → 「密码要求」三条规则全部是未满足的空圈 → 点「更新密码」→ 仍 Toast「密码已更新」，焦点落 `body`。
+- 影响：成功反馈与页面上「至少 8 位 / 包含大小写字母 / 包含数字或符号」的规则自相矛盾，用户会以为改成了一个不合规的密码；也没有「当前密码必填」的提示。settings 保存虽是本地模拟，但校验是前端职责。
+- 推断（源码）：`submitPassword` 只比对 `next !== confirm`，表单 `noValidate`，字段无 `required` 分支；规则列表仅作展示。
+- 证据：`settings.out` 4 组合 `[issue] 密码表单全空直接提交 → toast=["密码已更新…"]`；`probe.out` `弱密码 a/a：规则=[…:x,…:x,…:x] → toast=["密码已更新…"]`；截图 `probe/desktop-light-02-weak-password-toast.png`、`probe/mobile-light-04-weak-password-toast.png`、`settings/*-security-*.png`。
+
+**P1-3 计费：点「联系销售」直接把当前套餐改成企业版；「降级」无二次确认，且 Toast 一律写「升级即时生效」** ❌
+- 路由 `/settings?tab=billing`；1440 + 375；亮 + 暗（4 组合一致）。
+- 步骤：① 当前「专业版 · 年付」→ 切到月付 → 企业版卡按钮「联系销售」→ 点击 → Toast「已切换到企业版（月付），升级即时生效」，卡片按钮立刻变成「当前计划」，专业版卡变「降级到专业版」。② 再点入门版「降级到入门版」→ **无确认框**，直接 Toast「已切换到入门版（月付），升级即时生效」。
+- 影响：文案说「联系销售」，行为却是改计费方案并声称即时生效——对付费操作是最严重的一类误导；「降级」用「升级」文案是明显粗糙。content/settings.md 只定义 `billing.plan.toast = 已切换到{plan}（{cycle}），升级即时生效` 一条，IA §10 写「联系销售 → 本轮不可达」，实现与 IA 不一致。
+- 证据：`settings.out` 4 组合 `[issue] 点「联系销售」→ toast=["已切换到企业版（月付），升级即时生效"…]`、`[issue] 点「降级」→ 无二次确认…`；截图 `settings/*-billing-*.png`。
+
+**P1-4 助手消息下的来源 Chip「订单 SO-20260905-0115」像链接（有 href、cursor: pointer）但点了没有任何反应** ❌
+- 路由 `/chat?conversation=c_1`；1440 + 375；亮 + 暗（4 组合一致）。
+- 步骤：滚到 c_1 最后一条助手消息 → 「来源」行的 Chip → click / tap → URL 不变、无 Tooltip、无 Toast、无抽屉；`aria-disabled` 也没有。
+- 影响：IA §11 写「来源 Chip SO-… → /orders?open=drawer&id=… ✔ 可达」，brief §11.10-G 也把 `/orders/:id` 定义为来源 Chip 的目标。这是「问助理 → 顺手去改单」链路的关键一跳，现在是死链但没有任何禁用反馈（对比 landing / 侧栏的 `aria-disabled` + Tooltip 约定）。
+- 推断（源码）：`Sources` 里 `onClick={(e) => e.preventDefault()}`；另 `href=/orders/SO-…` 直开会落到 `/`，而 `/orders?open=drawer&order=SO-…` 实测能打开抽屉——即目标本身可达，只差没接上。
+- 证据：`chat.out` 4 组合 `[issue] 来源 Chip「订单 SO-20260905-0115」href=/orders/SO-20260905-0115 点击后 URL 变化=false tooltip=0 toast=[] aria-disabled=null cursor=pointer`；`直开 /orders/SO-20260903-0087 → 落到 /apps/reference/`；截图 `chat/*-sources-*.png`。
+
+### 2. P2 / P3
+
+P2（8）：
+- **P2-9 chat 新会话发送后被带回 c_1，且自己刚打的话没出现在消息流**（`/chat?state=empty`，4 组合）：点「新建会话」→ 输入「杭州仓现在还有多少件床头柜？」→ 发送 → URL 变 `?conversation=c_1&state=streaming`，消息流显示的是「上周缺货最多的 SKU」那 6 条旧消息 + 半截流式回复，**用户消息 0 条**。IA §11 把「发送 → streaming（c_1 回放）」定义为 mock，故只记 P2；但至少应把用户消息回显，否则像发错了会话。证据 `chat.out` `[issue] 新会话发送…我的消息出现在消息流=0；气泡数=6`；截图 `chat/*-sent-*.png`。
+- **P2-10 375 打开会话落在最早一条消息，最新回复与输入框在首屏下方 ~1000px，没有「回到底部」**（`/chat`，375 亮/暗）：IA 决定 I「375 输入区随内容流末尾」，但进入会话后页面 `scrollY=0`，最后一条气泡 top=1350px、输入区 top=1870px；1440 有的「回到底部」按钮在 375 从不出现。推断：`stick()` 对 375 下 `overflow-visible` 的消息容器调 `scrollTo` 无效。证据 `probe.out` `375 chat 首屏…`；截图 `probe/mobile-light-05-chat-mobile-first-screen.png`。
+- **P2-11 chat「添加附件」第二次点直接报「文件超过 10 MB」**（4 组合）：没有选任何文件就出现大小错误，是把演示错误态绑在了第二次点击上。证据 `chat.out` `[issue] 再点一次「添加附件」→ …=1`。
+- **P2-12 landing Footer 语言 Select 切「繁體中文」无任何变化**（4 组合）：value 变 zh-TW，页面 `lang`/文案仍 zh-CN，无 Toast，也没像其他不可达链接那样 `aria-disabled` + 提示。证据 `landing.out` `切换语言 → value=zh-TW toast=[] 页面语言变化=zh-CN`。
+- **P2-13 settings 焦点丢失**（4 组合）：改姓名后切 Tab → 「有未保存的更改」→「继续编辑」→ 焦点落 `body`；团队「移除成员」确认后焦点落 `body`；危险区输入确认后焦点落 `body`（页面仍在；是否有 Toast 脚本未记录 ⚠️）。证据 `settings.out` / `settings2.out` `继续编辑后焦点=body`、`移除后焦点=body`、`危险区确认后焦点=body…页面仍在=true`。
+- **P2-14 无改动重复点「保存」Toast 叠加**（4 组合）：个人资料无任何改动连点保存 → 两条「个人资料已保存」同时挂着；团队页连续操作后右上角最多 4 条 Toast 叠成一列（截图 `settings/*-team-*.png`）。
+- **P2-15 「管理订阅」滚动落点被顶栏遮住**（1440 + 375）：点「管理订阅」→ 页面滚到「更换套餐」标题 top=0，而顶栏高 56px，标题被吸顶顶栏遮住半截，焦点还留在「管理订阅」按钮上。证据 `probe.out` `管理订阅 2.5s 后：套餐标题 top=0 顶栏高=56`；截图 `probe/*-manage-plan-landing.png`。
+- 上轮 **P2-5**（仪表盘最近订单「查看详情」Toast「后续轮次提供」）、**P2-6**（条款 Dialog 关闭后焦点 body，本轮 375 亮/暗复现）、**P2-7**（「再建一张」联系人仍是吴丽华，375 复现）、**P2-8**（侧栏可用/禁用项视觉无差别，`设置` 已可点后仍是同一灰）本轮回归**仍复现**。
+
+P3（6）：
+- **P3-8 375 settings 顶部 Tab 条被裁切且无滚动提示**：tablist `scrollWidth=564 > 375`，「账号安全」左侧被切一半，没有渐隐/箭头暗示可横滑（活动 Tab 会自动滚入视口 ✅）。截图 `probe/mobile-light-06-invite-tap-once.png`。
+- **P3-9 Toast 关闭按钮 aria-label 为英文「Close toast」**（sonner 默认，全站）：读屏用户听到英文。
+- **P3-10 375 邀请成员：输入邮箱后直接 tap「发送邀请」要点两次**：第一次只把输入转成 Chip、不发送、无 Toast；第二次才发送（1440 一次即可）。证据 `probe.out` `375 邀请输入不回车 tap 发送 → toast=[] 待接受含 newbie=0`→`再 tap 一次…toast=["已向 1 位成员发送邀请"]`。
+- **P3-11 撤回邀请无二次确认、无撤销**（4 组合）：与「移除成员」有确认框不一致。
+- **P3-12 chat 点「停止生成」后没有「已停止生成」之类提示**（4 组合）：按钮变回「发送」、URL 去掉 `state=streaming`，无任何文字说明刚才的生成被中止。
+- **P3-13 landing 定价三卡 CTA、Hero「免费试用 14 天 / 预约演示」全部 `aria-disabled`**：IA 定义为「本轮不可达」，hover / tap 均有 Tooltip「演示站点，链接不可用」✅，仅记录为演示站的体验断点；上轮 P3-1 ~ P3-7 未重测、沿用。
+
+### 3. 已走通的核心任务（✅，4 组合一致，除注明）
+
+settings：5 个 Tab（1024+ 竖向 `aria-orientation=vertical`、375 横向可滚）与 `?tab=` 同步；个人资料改名 → 「保存中」→ Toast「个人资料已保存」；改动后切 Tab → 「有未保存的更改」→「放弃并离开」焦点回目标 Tab；两步验证 `?open=2fa` 6 格 OTP（活跃会话「退出该设备」按钮仅看截图、未点击）；通知 25 个 Switch + 4 项接收方式 Segmented（`?channel=email` 只留 2 列）+ 免打扰开关联动时间字段禁用；团队邀请（重复邮箱提示、角色变更 Toast、重新发送、撤回、席位进度条、`?state=empty` 席位 1）；计费 `切换计费周期` Switch ↔ `?cycle=`、三卡价格随周期变化、发票「下载」Toast「后续轮次提供」；危险区输入不匹配时确认按钮禁用；`?state=error` Alert「保存失败：网络超时，请重试 / 重试」；侧栏「设置」已可点、`/settings` 页 `aria-current=page`；账号菜单「个人资料 / 账号安全」分别落到对应 Tab。Switch 视觉 36×20 但热区扩展实测有效（375 在视觉框外 8px tap 仍切换），**不计缺陷**。
+
+landing：header 滚动后吸顶（`data-state=scrolled`，亮 `#fff` / 暗 `rgb(23,28,28)`）；5 个导航锚点落点 top=80 未被 header 遮挡；1440 header 主题按钮即时切换；定价 Switch 月 ¥99/¥299/¥899 ↔ 年 ¥990/¥2,990/¥8,990（折合 ¥82/¥249/¥749，「省 2 个月」）与 `?cycle=` 同步，点「按月付」文字也能切；FAQ 6 项单开、可全收起、键盘 Enter 可展开且焦点环可见；375 汉堡 40×40 → Sheet 焦点到「关闭菜单」、菜单含 7 链接 + 主题切换、点「定价」自动关 Sheet 并落到 #pricing、关闭后焦点回「打开菜单」；Footer 链接 `aria-disabled` + Tooltip；375 无横向溢出。
+
+chat：`?state=empty` 空态 4 张建议卡点击后填入输入框并聚焦；会话 7 个（今天 3 / 本周 2 / 更早 2、1 未读）、搜索「退款」1 条 / 无结果文案、c_1↔c_2 切换（URL 同步）、会话菜单「重命名 / 删除会话」；`c_6` 历史不可用态 + 「回到最近会话」；`?state=loading` 骨架；成功态工具卡展开/收起、表格 375 卡内横滚 + 「左右滑动查看更多」、代码块复制按钮；`?state=streaming` 光标 + running 工具卡 + 「停止生成」；`?state=error` Alert「回复失败 / 重试 / 忽略」，忽略清除、重试进 streaming；模型 Select（button `aria-haspopup=listbox`）两项可切；Shift+Enter 换行；2000 字上限时发送禁用并提示「消息不超过 2000 字」；`/加急/` 消息触发「已发送」Toast；375 「打开会话列表」Sheet + `?open=sidebar`；删除会话确认框文案完整、删除当前会话后落到 c_1；1440 composer Tab 顺序到「发送」。
+
+回归（login / dashboard / orders / form）：登录空提交/错误账号/成功 → Toast「欢迎回来，若琳」；周期「日」→ `?period=day`；通知弹层「全部标为已读」+ 5 条通知；主题切换；最近订单「查看全部」→ /orders；1440 搜索「周雅婷」15 单 / 无结果空态 / 金额排序 / 行菜单查看详情抽屉 + Esc 焦点回行 / 取消订单（未选原因 `aria-invalid`）/ 已取消行「删除订单」→ 删除 + 撤销 ✅ / 下一页；375 筛选 Sheet「查看 63 单」/ 卡片 tap 抽屉 / 下一页；form 第 1 步联系人必填 → 第 2 → 第 3 无误报 → 未勾条款 2 alert 焦点到 `#terms` → 条款 Dialog → 提交成功焦点「查看采购单」→ `?fail=1` 失败 Alert 焦点「重新提交」→ 保存草稿 Toast → 改动后离开确认框 → 放弃并离开；settings 有未保存改动时点侧栏「仪表盘」有「离开页面？」确认（375 亮）。
+
+### 4. 未覆盖（untested，如实标注）
+- **1440 form 回归只走到「未勾条款提交 → alert=2」**：脚本 force-click 条款链接误点导致后续 6 步（条款 Dialog / 提交成功 / 失败 / 草稿 / 再建 / 离开确认）1440 亮暗**未走查**（375 亮暗已走完；第 2 轮 1440 结论沿用，非产品缺陷）。
+- **375 暗色**最后一步「settings 未保存改动 → 跨页离开确认」未走到（脚本旧选择器超时）；375 亮已验证。
+- 上轮 P2-1 / P2-2 / P2-3 / P2-4 / P3-1 ~ P3-5 未重跑。
+- landing 6 评价、数据带、CTA 横幅只看截图无交互；chat 「重新生成 / 有帮助 / 没帮助」反馈按钮、会话重命名；settings 头像上传、活跃会话「退出其他所有设备」的 Toast 文案未逐字核对。
+- 768 / 1024 视口；真实 iOS / Android 浏览器；读屏软件。
+
+### 5. 门禁实跑结果（`apps/reference/`）
+- `pnpm install --frozen-lockfile` ✅ exit 0
+- `pnpm lint` ✅ exit 0（eslint + no-hardcode：79 个文件通过）
+- `pnpm typecheck` ✅ exit 0
+- `pnpm build` ✅ exit 0（仅既有 dynamic-import / chunk > 500 kB warning）
+- `node tools/a11y.mjs settings` ✅ ALL PASS（437 PASS）；`node tools/a11y.mjs landing` ✅ ALL PASS（69 PASS）；`node tools/a11y.mjs chat` ✅ ALL PASS（357 PASS）——日志 `~/ux-walk/a11y-{settings,landing,chat}.out`。
+- console error：4 组合全程仅 chat 复制按钮触发 `NotAllowedError: Failed to execute 'writeText' on 'Clipboard': Write permission denied.`（headless 环境未授剪贴板权限，**判为环境因素、非产品缺陷**；但按钮同时弹「已复制」Toast，真实环境若权限被拒也会误报成功——记入 P3 备查，未单列）。其余 0。
+- 375 全程 `document.documentElement.scrollWidth = 375`，无横向溢出（`walk.log` 无 overflow 记录）。
+- 本轮未重跑 shoot / compare（像素门禁与体验走查无关）。
+
+本报告只新增本文件的本节，未改任何产品代码、令牌、hifi、content、mock；截图与日志留在 `~/ux-walk/`，不入库。
 
 ---
 

@@ -244,10 +244,7 @@ function NotYetLink({ href, children, className }: { href: string; children: Rea
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button
-          className={cn("cursor-not-allowed border-transparent bg-primary-soft text-on-primary-soft hover:bg-primary-soft hover:border-transparent active:bg-primary-soft active:border-transparent", className)}
-          asChild
-        >
+        <Button variant="soft" className={className} asChild>
           <a href={href} role="link" aria-disabled="true" onClick={(e) => e.preventDefault()}>
             {children}
           </a>

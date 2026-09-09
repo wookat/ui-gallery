@@ -18,12 +18,13 @@ import {
   SearchIcon,
   SettingsIcon,
   ShieldIcon,
+  SparklesIcon,
   SunIcon,
   TruckIcon,
   UserIcon,
   WarehouseIcon,
 } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 import { Avatar } from "@/components/composed/avatar"
 import { BrandMark } from "@/components/composed/brand"
@@ -77,10 +78,24 @@ type ShellProps = {
   navOpenKey?: string
   /** 顶栏全局搜索（dashboard hifi 有、orders hifi 无） */
   search?: boolean
+  /** 顶栏「智能助理」入口（IA §11-A 跨页工具，默认 → /chat）：aria-current=page 时 primary-soft（chat hifi #assistBtn） */
+  assistant?: { label: string; href: string; current?: boolean }
+  /** 通栏内容区（chat）：main 不加内边距/最大宽，桌面端整列锁高由内部滚动 */
+  flush?: boolean
   /** 提交中：侧栏与顶栏导航置 inert（hifi syncInert） */
   busy?: boolean
   /** 离开拦截：返回 false 则阻止导航（有未保存改动时弹「离开页面？」） */
   beforeLeave?: (path: string) => boolean
+  /** 账号菜单当前项（hifi .menu-item[aria-current=page] primary-soft 高亮）：settings 屏按 ?tab= 传 profile / security */
+  accountCurrent?: AccountMenuKey
+}
+
+type AccountMenuKey = "profile" | "security"
+
+/** 账号菜单可达项 → 目标路由（hifi settings #acctPop href="?tab=…"） */
+const accountLinks: Record<AccountMenuKey, string> = {
+  profile: "/settings?tab=profile",
+  security: "/settings?tab=security",
 }
 
 function NavList({ rail, empty, current, onNavigate, beforeLeave }: { rail: boolean; empty: boolean; current: string; onNavigate?: () => void; beforeLeave?: (path: string) => boolean }) {
@@ -154,8 +169,11 @@ function AppShell({
   breadcrumb,
   navOpenKey = "drawer",
   search = true,
+  assistant = { label: t("chat.title"), href: "/chat" },
+  flush = false,
   busy = false,
   beforeLeave,
+  accountCurrent,
 }: ShellProps) {
   const mobile = useMaxWidth("--breakpoint-md")
   const tablet = useMaxWidth("--breakpoint-lg")
@@ -181,6 +199,13 @@ function AppShell({
   }
   const drawerOpen = open === navOpenKey && mobile
   const collapseLabel = rail ? t("shell.nav.expand") : t("shell.nav.collapse")
+  /** 与 hifi 一致：当前项点击不导航；其余项先过离开拦截再跳转 */
+  const goAccount = (key: AccountMenuKey) => {
+    if (key === accountCurrent) return
+    const href = accountLinks[key]
+    if (beforeLeave && !beforeLeave(href)) return
+    navigate(href)
+  }
 
   return (
     <div data-slot="app-shell" data-sidebar={rail ? "rail" : "expanded"} className="flex min-h-svh bg-bg text-fg">
@@ -232,7 +257,7 @@ function AppShell({
         </SheetContent>
       </Sheet>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className={cn("flex min-w-0 flex-1 flex-col", flush && "h-svh mobile:h-auto mobile:min-h-svh")}>
         <header data-slot="topbar" className="sticky top-0 z-20 flex h-topbar shrink-0 items-center gap-3 border-b bg-surface px-6 mobile:gap-2 mobile:px-4">
           <IconButton label={t("shell.nav.open")} aria-expanded={drawerOpen} className="hidden mobile:inline-flex" onClick={() => setOpen(navOpenKey)}>
             <MenuIcon />
@@ -270,6 +295,17 @@ function AppShell({
                 </IconButton>
               </>
             ) : null}
+            <IconButton asChild label={assistant.label} className="aria-[current=page]:bg-primary-soft aria-[current=page]:text-on-primary-soft">
+              <Link
+                to={assistant.href}
+                aria-current={assistant.current ? "page" : undefined}
+                onClick={(e) => {
+                  if (assistant.current || (beforeLeave && !beforeLeave(assistant.href))) e.preventDefault()
+                }}
+              >
+                <SparklesIcon />
+              </Link>
+            </IconButton>
 
             <Popover {...overlay("notifications")}>
               <PopoverTrigger asChild>
@@ -321,10 +357,10 @@ function AppShell({
                     <span className="block truncate text-role-caption text-fg-muted">{mock.user.email}</span>
                   </div>
                 </DropdownMenuHeader>
-                <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.profile"))}>
+                <DropdownMenuItem aria-current={accountCurrent === "profile" ? "page" : undefined} onSelect={() => goAccount("profile")}>
                   <UserIcon /> {t("shell.account.menu.profile")}
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.security"))}>
+                <DropdownMenuItem aria-current={accountCurrent === "security" ? "page" : undefined} onSelect={() => goAccount("security")}>
                   <ShieldIcon /> {t("shell.account.menu.security")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => notYet(t("shell.account.menu.switch"))}>
@@ -347,7 +383,7 @@ function AppShell({
             </DropdownMenu>
           </div>
         </header>
-        <main id="main" className="mx-auto flex w-full max-w-content-max flex-1 flex-col gap-6 p-6 mobile:gap-4 mobile:p-4">
+        <main id="main" className={flush ? "flex min-h-0 w-full flex-1" : "mx-auto flex w-full max-w-content-max flex-1 flex-col gap-6 p-6 mobile:gap-4 mobile:p-4"}>
           {children}
         </main>
       </div>

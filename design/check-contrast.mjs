@@ -20,6 +20,8 @@ const TEXT_PAIRS = [
   ["on-warning", "warning"],
   ["danger", "danger-soft"],
   ["on-danger", "danger"],
+  ["on-danger", "danger-hover"],
+  ["scan-fg", "scan-bg"],
   ["on-neutral-soft", "neutral-soft"],
   ["fg-inverse", "bg-inverse"],
   ["on-primary-muted", "primary"],

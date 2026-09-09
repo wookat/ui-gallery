@@ -48,7 +48,7 @@ function DropdownMenuContent({ className, align = "end", sideOffset, compact = f
   )
 }
 
-/** 菜单项：hifi .menu-item —— min-h size.hit、space.3 内距、hover surface-muted；danger 变体转 danger-soft */
+/** 菜单项：hifi .menu-item —— min-h size.hit、space.3 内距、hover surface-muted；aria-current=page 为 primary-soft；danger 变体转 danger-soft */
 function DropdownMenuItem({
   className,
   variant = "default",
@@ -59,7 +59,7 @@ function DropdownMenuItem({
       data-slot="dropdown-menu-item"
       data-variant={variant}
       className={cn(
-        "flex min-h-hit w-full cursor-default items-center gap-3 rounded-md px-3 text-role-body text-fg outline-none select-none transition-colors duration-(--motion-fast) ease-std data-highlighted:bg-surface-muted data-disabled:disabled-look [&_svg]:size-icon-md [&_svg]:shrink-0 [&_svg]:text-fg-muted",
+        "flex min-h-hit w-full cursor-default items-center gap-3 rounded-md px-3 text-role-body text-fg outline-none select-none transition-colors duration-(--motion-fast) ease-std data-highlighted:bg-surface-muted data-disabled:disabled-look aria-[current=page]:bg-primary-soft aria-[current=page]:text-on-primary-soft aria-[current=page]:data-highlighted:bg-primary-soft [&_svg]:size-icon-md [&_svg]:shrink-0 [&_svg]:text-fg-muted",
         variant === "danger" && "text-danger data-highlighted:bg-danger-soft [&_svg]:text-current",
         className,
       )}

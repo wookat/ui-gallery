@@ -1,6 +1,106 @@
 # 07 · QA + 合规安全审计
 
-> 本文件按轮次自上而下叠加：**第 6 轮复查（当前结论）** 在前，第 5 轮全量审计保留在后作为历史与编号原始描述（QA-01 ~ QA-27）。
+> 本文件按轮次自上而下叠加：**第 7 轮复查（当前结论）** 在前，第 6 轮复查、第 5 轮全量审计保留在后作为历史与编号原始描述（QA-01 ~ QA-30）。
+
+---
+
+## 第 7 轮 · 复查（第 3 轮复查：QA-29 修复复验 + 门禁 ①② 重跑）
+
+> 角色：roles/qa/qa-engineer（兼合规与安全审计）。时间盒 30 分钟，按任务范围**只复验上轮 P0/P1（QA-29）+ 重跑检查项 ①②**；③–⑥ 对改动面做增量核对（§7.3）。
+> 对象：`fe01/integration` @ `4051141dbddb800b7cf46d4faa1fd80ba3edff11`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。相对上轮审计对象 `9fed979` 新增 4 个提交：`cb26570` / `5d119b8` / `6b259f2` 为文档（体验官第 4 轮、QA 第 6 轮）；**`4051141` = QA-29 修复**（`ui/button.tsx` 新增 `variant="soft"`；`settings/index.tsx`「联系销售」与 `orders/index.tsx` `NotYetLink` 改用该变体并去掉页面层覆盖类、`onClick preventDefault`；`kitchen-sink` 按钮矩阵加 soft 行；`content/kitchen-sink.md` +1 key；04-components / 06-impl-notes 文档）。产品代码改动面 4 个文件 +12 / −7 行。
+> 方法：本机实跑门禁 + Playwright 1.62.1 对 `pnpm build` 产物走查（`serveDist` 同构静态服务），脚本在仓库外 `~/qa3/probe29.mjs`（3 目标 × 亮 / 暗 × 1440 鼠标 / 375 触屏，计算色 + Tooltip + URL + toast + console），`~/qa3/probe-remarks*.mjs`（§7.2 定点复现），日志 `~/qa3/*.log`，不入库。**只写报告，不改产品代码。**
+
+### 7.0 结论
+
+**verdict = pass（P0 = 0，P1 = 0）。QA-29 关闭。**
+
+- **QA-29（上轮唯一 P1）实跑关闭**：「联系销售」（settings billing）与同修的 orders「新建订单」/「配置渠道」`NotYetLink`，4 组合下 default / hover / active / 375 tap 计算色**全部** `bg ≠ fg` 且与 default 完全相同（亮 `bg rgb(213,239,234)` / `fg rgb(21,92,86)`；暗 `bg rgb(8,35,31)` / `fg rgb(123,200,187)`）；1440 hover Tooltip 出现；**375 tap 后 Tooltip 出现**（「企业版由销售顾问定制报价，后续轮次提供在线联系」/「后续轮次提供」）；点击 / tap 后 URL 不变、toast 0、console error 0、375 `scrollWidth ≤ 375`。`probe29.mjs` **84 / 84 PASS**（§7.1）。修法（新增 `soft` 变体、进 kitchen-sink 矩阵与 04 映射表，页面不再拼按钮外观）符合 AGENTS「屏幕实现只组合控件」，上轮 §6.1a 的建议已按第二种方案落地。
+- 检查项 ①：lint / typecheck / build **exit 0**（`no-hardcode` 79 文件）；② 七屏 `a11y.mjs` **2100 PASS / 1 FAIL**（login / dashboard / form / settings / landing / chat 六屏 0 FAIL；orders `mobile/dark/success-drawer-remarks 键盘可达 0 个元素`，两次复跑同一条 FAIL）。**该 FAIL 经定点复现与基线对照判定为 `a11y.mjs` 脚本时序竞态，非产品缺陷，亦非 `4051141` 引入**（§7.2；基线 `9fed979` 同机同脚本同样 371 / 1，FAIL 落在 `mobile/light/success-drawer-remarks`）→ 记 **QA-31（P3，工具侧）**。另跑 `a11y kitchen-sink`（修复触及）180 PASS / 0 FAIL。
+- ③–⑥ 增量核对无变化：`pnpm-lock.yaml` / `package.json` / `pnpm-workspace.yaml` 相对 `9fed979` 无 diff；许可证分布与上两轮完全一致（GPL / AGPL / 非开源 0，字体 OFL-1.1 ×3）；新增 1 条文案为自有中文（「联系销售」）；无 secrets、无 `.github/`、无 `minimumReleaseAge`；`mock/check.mjs` 通过、`mock/` 未改。
+- P2 / P3：QA-29 关闭；新增 QA-31（P3）；其余不变（§7.4）。
+
+| 级别 | 数量 | 编号 |
+|---|---|---|
+| P0 | 0 | — |
+| P1 | 0 | — |
+| P2 | 2 | QA-20（主包 **663.47 kB**，与上轮 663.50 持平）、QA-02（历史） |
+| P3 | 18 | **QA-31（新增，工具侧）**、QA-28、QA-30、QA-25、QA-26（含 P2-16）、QA-27、QA-22、QA-21、QA-03、QA-06、QA-08 ~ QA-12、QA-14 ~ QA-16 |
+
+QA + 审计两道对 `fe01/integration@4051141` **放行**。
+
+### 7.1 QA-29 复验（实跑，`~/qa3/probe29.mjs`，3 目标 × 4 组合 × 7 断言 = 84，**84 PASS / 0 FAIL**）
+
+| 目标（选择器） | 组合 | default | hover（1440） | active（1440 mousedown） | 375 tap（`tap({force:true})`，真实触屏无此限制） | Tooltip | URL / toast / console |
+|---|---|---|---|---|---|---|---|
+| settings `/settings?tab=billing&cycle=monthly` `button[aria-disabled=true]`「联系销售」 | light | `bg (213,239,234)` / `fg (21,92,86)` | 同 default，`:hover=true` | 同 default | 同 default（`:hover` 粘住但色不变） | 1440 hover 1 个；**375 tap `["企业版由销售顾问定制报价，后续轮次提供在线联系"]`** | 不变 / 0 / 0 |
+| 同上 | dark | `bg (8,35,31)` / `fg (123,200,187)` | 同 default | 同 default | 同 default | 同上 | 不变 / 0 / 0 |
+| orders `/orders` `a[aria-disabled=true][href*=/orders/new]`「新建订单」 | light / dark | 同上两行 | 同 default | 同 default | 同 default | 1440 hover 1 个；375 tap `["后续轮次提供"]` | 不变 / 0 / 0 |
+| orders `/orders?state=empty-new` `a[aria-disabled=true][href*=/settings/channels]`「配置渠道」 | light / dark | 同上 | 同 default | 同 default | 同 default | 同上 | 不变 / 0 / 0 |
+
+与上轮 §6.1a 对照：hover 由 `bg = fg`（1:1）→ `bg = primary-soft` 不变；375 tap Tooltip 由 `[]` → 出现。代码核对：`soft` 变体只声明 `bg-primary-soft text-on-primary-soft` + disabled 态，无 `hover:` / `active:` 类，故不再与页面层争特异性；`onClick preventDefault` 让 Radix `Tooltip.Trigger` 的 `composeEventHandlers` 跳过 `onClose`，与 landing `TipLink` / orders `NotYetLink` 既有做法一致。**关闭 QA-29。**
+
+未复验（06 notes 记录、属「历史」）：`compare settings` 124/124 ≥ 97.13%、`compare orders` 86/86 ≥ 96.32%（任务范围 ①②，本轮未重截）。
+
+### 7.2 门禁 ①②（实跑，`apps/reference/`）
+
+环境：Ubuntu，Node 22.23.2，pnpm 11.9.0，根 `pnpm install --frozen-lockfile` exit 0（无 `MINIMUM_RELEASE_AGE` 输出）；Playwright 1.62.1（`tools/shoot` 下 `npx playwright install chromium`）。
+
+| 命令 | 结果 |
+|---|---|
+| `pnpm lint` | exit 0；eslint 0 error；`no-hardcode: 79 个文件通过` |
+| `pnpm typecheck` | exit 0 |
+| `pnpm build` | exit 0，`✓ built in 858ms`；`index-*.css` 233.37 kB；**`index-*.js` 663.47 kB（gzip 173.63）**，与上轮 663.50 持平 → `> 500 kB` 告警（QA-20） |
+
+`node tools/a11y.mjs <screen>`：
+
+| 屏 | 本轮 | 上轮 | 说明 |
+|---|---|---|---|
+| login | 116 PASS / 0 FAIL | 116 | |
+| dashboard | 212 / 0 | 212 | |
+| orders | **371 / 1**（两次复跑同一条） | 372 / 0 | `mobile/dark/success-drawer-remarks 键盘可达 0 个元素` → **QA-31（P3，脚本时序）**，见下 |
+| form | 324 / 0 | 324 | |
+| settings | 452 / 0 | 452 | 「联系销售」`aria-disabled` 按热区规则跳过；静态对比度 axe 0 违规 |
+| landing | 68 / 0 | 68 | |
+| chat | 356 / 0 | 356 | axe moderate `page-has-heading-one` 34 处（mobile 全部状态）= QA-28，不计 FAIL |
+| 合计 | **2100 / 1** | 1900 / 0 | |
+| kitchen-sink（加测，修复触及） | 180 / 0 | — | 新增 soft 矩阵行 |
+
+**QA-31 判定依据（实跑）：**
+1. `~/qa3/probe-remarks.mjs`：同一状态单独打开（click(1,1) 后等 100ms 再 Tab），mobile light / dark 各 2 次，Tab 序列均为「跳到主内容 → 打开导航 → 智能助理 → 通知 → 主题切换」，**可达**；drawer 被 click(1,1) 关闭后 URL 变为 `?state=success`（这也意味着 375 下 a11y 的 Tab 检查量的是关闭抽屉后的列表页，而不是抽屉内部）。
+2. `~/qa3/probe-remarks2.mjs`：忠实复刻 `a11y.mjs` 的同 page 连跑 + click 后**不等待**立即 Tab，`success-drawer` / `-logistics` / `-remarks` 三个状态在 light / dark 下共 6 次，其中 **5 次 tabs = 0**（click 瞬间 `dialogs` 仍为 1、`activeElement = BODY`，第一次 Tab 落在正在卸载的 Radix FocusScope）——与 a11y 日志里同三个状态 tabs 在 2 / 3 / 5 / 6 / 12 / 13 / 15 间随机漂移一致，是竞态而非确定性行为。
+3. 基线对照：`git worktree add ~/qa3/wt-9fed979 9fed979` → `pnpm build` → 同机 `a11y orders` = **371 / 1**，FAIL 落在 `mobile/light/success-drawer-remarks 键盘可达 0`（本轮 HEAD 落在 dark）。上轮 372 / 0 为不同机器 / 时序下的结果。**`4051141` 未触及 Drawer / 抽屉备注 Tab 相关代码（`git diff 9fed979..HEAD -- apps/reference/src/pages/orders/index.tsx` 仅 `NotYetLink` 3 行）。**
+
+结论：非产品缺陷、非本轮回退，记 P3 工具项。建议（工具侧，不改产品代码）：`a11y.mjs` 在 `page.mouse.click(1,1)` 后 `await page.waitForTimeout(100)` 或等待 `[role=dialog]` 数归零 / 焦点回到 body 再开始 Tab；并考虑 overlay 状态下改为 `Escape` 之外的「不关闭」方式（例如点击浮层内部空白）以真正度量抽屉内键盘可达性。
+
+### 7.3 ③–⑥ 增量核对（对 `9fed979..4051141` 改动面）
+
+- ③ 许可证：`pnpm --filter reference licenses list --prod --json`（`~/qa3/licenses.json`）：MIT 172、ISC 23、OFL-1.1 3（`@fontsource-variable/{inter,jetbrains-mono,noto-sans-sc}`）、Apache-2.0 3、BSD-3-Clause 3、MPL-2.0 2（lightningcss，QA-06）、BlueOak-1.0.0 1、0BSD 1、(MIT OR Apache-2.0) 1、MIT AND ISC 1 —— 与第 5 / 6 轮完全一致；GPL / AGPL / SSPL / BUSL / NC / UNLICENSED / UNKNOWN **0**。`git diff --stat 9fed979..HEAD -- pnpm-lock.yaml package.json apps/reference/package.json pnpm-workspace.yaml .npmrc` 无输出（未新增依赖）。
+- ④ 文案 / 图片 / 商标：新增 1 条 `content/kitchen-sink.md` key `sample.button.soft`「联系销售」，自有中文文案；改动不含位图；`git diff 9fed979..HEAD -- apps/reference/src content` 新增行 grep `lorem|ipsum|unsplash|pravatar|#hex|Npx` **0 命中**（`no-hardcode` 亦通过）。
+- ⑤ secrets / 供应链：`git ls-files` 无 `.env|.pem|id_rsa|credentials|secret`；AKIA / ghp_ / sk- / xox / 私钥头 grep 0；无 `.github/`；`minimumReleaseAge` 于 `pnpm-workspace.yaml` / `package.json` 0（仅 `.devin/skills/*/workflow.py` 的规则文本本身）；策略文件无 diff。
+- ⑥ mock：`node mock/check.mjs` exit 0（`mock ok … orders.json 5 · orders-all 50/731 · skus 18 · suppliers 6 · chat 7 会话`）；`git diff --stat 9fed979..HEAD -- mock` 无输出。
+
+### 7.4 P2 / P3 状态变更
+
+| 编号 | 级别 | 状态 | 说明 |
+|---|---|---|---|
+| **QA-29** | P1 → **关闭** | 实跑（§7.1，84 / 84） | `soft` 变体落地；hover / active / 375 tap 色不变、375 Tooltip 出现 |
+| **QA-31** | **P3（新增，工具侧）** | 实跑（§7.2） | `a11y.mjs` 键盘可达检查在 overlay 状态下 click(1,1) 关闭浮层后不等待即 Tab，随机得 0 → 误报 FAIL；同时 375 下量不到抽屉内部可达性。基线 `9fed979` 同机同样命中。建议脚本加等待 / 改关闭方式 |
+| QA-20 | P2 | 仍开放（实跑） | 主包 663.47 kB，持平；仍建议 components 合入同轮做 `React.lazy` 拆包 |
+| QA-28 / QA-30 / QA-25 / QA-26（含 P2-16）/ QA-27 / QA-22 / QA-21 / QA-03 / QA-06 / QA-08 ~ QA-12 / QA-14 ~ QA-16 | P3 | 不变 | 本轮未复验，见第 5 / 6 轮 |
+| QA-02 / QA-09 | P2 / P3 | 历史 | 未跑 gallery `assemble.mjs` |
+
+补充观察（不计缺陷，交设计 notes）：06 notes 已如实记录「联系销售」hifi 仍为实心 `.btn-primary` 且可点换套餐，与 IA §10「本轮不可达」不一致，实现按 IA 走 `soft` + `aria-disabled`，compare 仍在阈值内；设计侧如需定稿不可达态样式，补 `.btn-soft` 即可，QA 侧无阻塞。
+
+### 7.5 本轮未覆盖（如实标注）
+- 按任务范围未重跑 shoot / compare（settings / orders 修后 compare 以 06 notes 记录为「历史」证据）；未复跑第 5 轮 188 断言功能走查与体验官 P2 / P3。
+- 1024 / 768 视口、真实移动端浏览器、读屏未测；375 tap 用 Playwright `tap({force:true})`（`aria-disabled` 元素默认判 not enabled），真实触屏行为由体验官第 4 轮截图佐证。
+- `components` 仍未合入，不在范围（第 5 轮 §5 备注仍适用）。
+- 生产站未实查（集成分支未部署）。
+
+### 7.6 交集成 / release 的备注
+1. verdict = **pass**：QA + 审计两道放行 `4051141`；P0 / P1 = 0。上轮 QA-29 关闭，门禁 ①② 与合规 ③–⑥ 全部通过（orders a11y 1 FAIL 为脚本竞态 QA-31，基线同样命中，非回退）。
+2. QA-31 建议在 release 前顺手修 `tools/a11y.mjs`（加一次等待），否则后续轮次会继续随机误报；属工具改动，不触碰 `src/`。
+3. 剩余 P2 仅 QA-20（包体）与 QA-02（gallery 组装口径），均为 release / components 合入时处理；QA-28（chat 375 无 h1）一行可修。
 
 ---
 

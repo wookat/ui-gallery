@@ -1,4 +1,106 @@
-# 07 · QA + 合规安全审计（第 5 轮：settings / landing / chat 合入后全量审计）
+# 07 · QA + 合规安全审计
+
+> 本文件按轮次自上而下叠加：**第 6 轮复查（当前结论）** 在前，第 5 轮全量审计保留在后作为历史与编号原始描述（QA-01 ~ QA-27）。
+
+---
+
+## 第 6 轮 · 复查（体验官第 3 轮 P1×4 修复复验 + 门禁 ①② 重跑）
+
+> 角色：roles/qa/qa-engineer（兼合规与安全审计）。时间盒 30 分钟，按任务范围**只复验上轮 P0/P1 + 重跑检查项 ①②**；③–⑥ 只做增量核对（改动面 6 个文件，见 §6.3）。
+> 对象：`fe01/integration` @ `9fed979cc5eb305ac319ed096e84993d2cf9a2e5`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。相对上轮审计对象 `39016c7` 新增 2 个提交：`59c9a50`（体验官第 3 轮走查报告，verdict=fix，P1×4）与 `9fed979`（该 4 项 P1 的修复：`chat/index.tsx`、`dashboard/shell.tsx`、`settings/index.tsx`、`settings/shots.json`、`content/settings.md`、`06-impl-notes.md`）。
+> 「上轮 P0/P1」口径：第 5 轮 QA 审计本身 P0/P1 = 0；`07-ux-walkthrough.md` 第 3 轮判定 P1-1 ~ P1-4（其中 P1-1 / P1-4 与本审计 QA-24 / QA-23 同一问题）。本轮逐条复验这 4 项。
+> 方法：本机实跑门禁 + Playwright 1.62.1 对 `pnpm build` 产物走查（`serveDist` 同构静态服务），脚本在仓库外 `~/qa2/probe.mjs`（68 断言，1440×900 鼠标 + 375×812 触屏 × 亮 / 暗 = 4 组合）、`~/qa2/probe2.mjs` / `probe3.mjs`（定点复现），日志 `~/qa2/*.log`，不入库。**只写报告，不改产品代码。**
+
+### 6.0 结论
+
+**verdict = pass（P0 = 0，P1 = 0）。**
+
+- 上轮 P1×4 在 4 组合下**全部复验通过**（§6.1）：/ /orders /settings /form 顶栏均有「智能助理」入口且可达 /chat；更新密码三段校验（空当前密码 / 弱密码 / 不一致）均拦截、仅合法才 Toast；「联系销售」不再改套餐（`aria-disabled` + Tooltip），降级走二次确认且套餐不立即变、Toast 不再写「升级即时生效」；来源 Chip 指向 `/orders?open=drawer&order=<id>` 并真实打开订单抽屉，不可达来源 `aria-disabled` + Tooltip。
+- 检查项 ①：lint / typecheck / build **exit 0**；② 七屏 `a11y.mjs` **1900 PASS / 0 FAIL**（settings 因新增 `billing-downgrade` 状态由 436 → 452）。
+- ③–⑥ 增量核对无变化：`pnpm-lock.yaml` / `package.json` / 策略文件相对 `9a35556` 无 diff，许可证分布与上轮一致（GPL / AGPL / 非开源 0）；新增 8 条文案为自有中文文案；无 secrets、无 `.github/`、无 `minimumReleaseAge`；`mock/check.mjs` 通过、mock 未改。
+- 新增 1 条 P3（QA-28：chat 375 无 `h1`，axe best-practice moderate）；上轮 P2/P3 中 **QA-23 / QA-24 关闭**，其余状态不变。
+
+| 级别 | 数量 | 编号 |
+|---|---|---|
+| P0 | 0 | — |
+| P1 | 0 | — |
+| P2 | 2 | QA-20（主包 **663.50 kB**，较上轮 +3.8 kB）、QA-02（历史） |
+| P3 | 16 | QA-28（新增）、QA-25、QA-26、QA-27、QA-22、QA-21、QA-03、QA-06、QA-08 ~ QA-12、QA-14 ~ QA-16 |
+
+QA + 审计两道对 `fe01/integration@9fed979` **放行**。
+
+### 6.1 上轮 P1 复验（实跑，`~/qa2/probe.mjs`，4 组合 × 17 断言 = 68，**64 PASS / 4 FAIL**，4 条 FAIL 均为同一脚本时序误判，见下）
+
+| 项 | 复现步骤（对 dist） | 结果 | 判定 |
+|---|---|---|---|
+| **P1-1** /chat 无入口（= QA-24） | `/`、`/orders`、`/settings`、`/form` 各数 `header a[href$="/chat"]`；从 `/orders` 点击该入口 | 四页各 **1 个**，`aria-label=智能助理`；点击到达 `/chat`，锚 `aria-current=page`；直开 `/chat` 亦为 `page`；`/form` 首步填入内容后点助理入口 → 「离开页面？」AlertDialog（`beforeLeave` 生效，URL 仍 `/form/`） | **已修复 / 关闭** |
+| **P1-2** 更新密码不校验 | `/settings?tab=security`：① 三字段全空提交；② `old` / `a` / `a`；③ `old` / `Strong#2026` / `Strong#2027`；④ `old` / `Strong#2026` ×2 | ① toast 0、`#pwCur[aria-invalid=true]`、焦点 `pwCur`；② toast 0、`#pwNew[aria-invalid=true]` + `#pwNewErr`「新密码需满足下方全部密码要求」；③ toast 0、`#pwConfirm[aria-invalid=true]`；④ Toast「密码已更新，其他设备需重新登录」 | **已修复 / 关闭** |
+| **P1-3** 联系销售直接换套餐 / 降级无确认 | `/settings?tab=billing&cycle=monthly`：hover + 强制点击「联系销售」；点「降级到入门版」→ 「确认降级」 | 「联系销售」`aria-disabled=true`、Tooltip「企业版由销售顾问定制报价，后续轮次提供在线联系」、点击后 toast 0、按钮仍为「联系销售」；降级 → `alertdialog`「降级到入门版？当前专业版（月付）将在本周期结束后切换为入门版…」；确认 → Toast「已安排降级到入门版（月付），于当前周期结束后生效」、弹窗关闭、「降级到入门版」按钮仍在（套餐未立即变）、无「升级即时生效」 | **已修复 / 关闭** |
+| **P1-4** 来源 Chip 不可点（= QA-23） | `/chat?conversation=c_1`：来源行 Chip；点击；hover 不可达来源 | `a[href*="/orders?open=drawer&order=SO-20260905-0115"]` 1 个、无 `aria-disabled`；旧 `/orders/SO-…` 形态 0；点击 → URL `/orders?open=drawer&order=SO-20260905-0115`，`dialog` 含该订单号；不可达来源 2 个 `aria-disabled=true`，hover Tooltip「后续轮次提供」，点击 URL 不变 | **已修复 / 关闭** |
+
+4 条 FAIL 说明：断言「从 /orders 点击到达 /chat → `aria-current=page`」在 `waitForURL` 返回的**同一瞬间**读到 `null`；`probe3.mjs` 以 50ms 轮询复现：`114ms null → 175ms page`，即 React Router 路由切换首帧到 chat 页提交之间约 60ms 的过渡，`networkidle` 后稳定为 `page`（`probe2.mjs`）。属脚本时序，**不计缺陷**。
+
+4 组合全程：375 `scrollWidth = 375`；console error 0（剪贴板权限类已按上轮口径排除，本轮实际也未触发）。
+
+### 6.2 门禁 ①②（实跑，`apps/reference/`）
+
+环境：Ubuntu，Node 22.23.2，pnpm 11.9.0，根 `pnpm install --frozen-lockfile` exit 0（无 `MINIMUM_RELEASE_AGE` 输出）；Playwright 1.62.1，`tools/shoot` 下 `npx playwright install chromium`。
+
+| 命令 | 结果 |
+|---|---|
+| `pnpm lint` | exit 0；eslint 0 error；`no-hardcode: 79 个文件通过` |
+| `pnpm typecheck` | exit 0 |
+| `pnpm build` | exit 0，`✓ built in 1.12s`；`index-*.css` 233.64 kB；**`index-*.js` 663.50 kB（gzip 173.62）**，较上轮 659.71 +3.8 kB（P1 修复代码）→ `> 500 kB` 告警（QA-20）；`__dirname` 告警（QA-11） |
+
+`node tools/a11y.mjs <screen>`（light + dark × 1440 / 375 × shots.json 状态；axe wcag2a/aa/21aa + best-practice、375 scrollWidth、热区 ≥ 40、Tab 焦点环、console error）— **七屏全部 EXIT 0**：
+
+| 屏 | 本轮 | 上轮 |
+|---|---|---|
+| login | 116 PASS / 0 FAIL | 116 |
+| dashboard | 212 / 0 | 212 |
+| orders | 372 / 0 | 372 |
+| form | 324 / 0 | 324 |
+| settings | **452** / 0（新增 `billing-downgrade` overlay 状态 ×4 组合） | 436 |
+| landing | 68 / 0 | 68 |
+| chat | 356 / 0 | 356 |
+| 合计 | **1900 / 0** | 1884 |
+
+axe minor/moderate 提示（不计 FAIL）：仅 chat **mobile** 全部 34 个状态 `page-has-heading-one(1)` → QA-28（P3）；其余六屏 0 条。日志 `~/qa2/a11y-<screen>.log`。
+
+本轮未重跑 shoot / compare（任务范围 ①②；06 notes 记录修后 chat 88/88 ≥ 95.99%、settings 124/124 ≥ 97.13%、dashboard 56/56 ≥ 98.33%、orders 86/86 ≥ 96.32%、form 84/84 ≥ 96.82%，属「历史」证据）。
+
+### 6.3 ③–⑥ 增量核对（对 `9a35556..9fed979` 改动面）
+
+- ③ 许可证：`pnpm --filter reference licenses list --prod --json`（`~/qa2/licenses.json`）：MIT 172、ISC 23、OFL-1.1 3、Apache-2.0 3、BSD-3-Clause 3、MPL-2.0 2（lightningcss，QA-06）、BlueOak-1.0.0 1、0BSD 1、(MIT OR Apache-2.0) 1、MIT AND ISC 1 —— 与上轮完全一致；GPL / AGPL / SSPL / BUSL / NC / UNLICENSED / UNKNOWN 0。`git diff 9a35556..HEAD -- pnpm-lock.yaml package.json apps/reference/package.json pnpm-workspace.yaml .npmrc` 无输出（未新增依赖）。字体未变（OFL-1.1 ×3）。
+- ④ 文案 / 图片 / 商标：新增 8 条 `content/settings.md` key 均为自有中文文案（「企业版由销售顾问定制报价…」等），无第三方文案；改动不含位图、图标仍 `lucide-react`（`SparklesIcon`）；`lorem|ipsum|unsplash|pravatar|#hex|px` 于新增行 0 命中。
+- ⑤ secrets / 供应链：`git ls-files` 无 `.env|.pem|id_rsa|credentials|secret`；AKIA / ghp_ / sk- / xox / 私钥头 grep 0；无 `.github/`；`minimumReleaseAge` grep 0；策略文件无 diff。
+- ⑥ mock：`node mock/check.mjs` exit 0（`mock ok … orders.json 5 · orders-all 50/731 · skus 18 · suppliers 6 · chat 7 会话`）；本轮改动未触及 `mock/`。
+
+### 6.4 P2 / P3 状态变更
+
+| 编号 | 级别 | 状态 | 说明 |
+|---|---|---|---|
+| QA-23 | P2 → **关闭** | 实跑 | 来源 Chip 已可达（§6.1 P1-4）；不可达来源按 AGENTS 契约 `aria-disabled` + Tooltip |
+| QA-24 | P2 → **关闭** | 实跑 | `AppShell` `assistant` 默认渲染，四壳页均有入口（§6.1 P1-1）。注意：dashboard / orders / settings / form hifi 顶栏仍无 `#assistBtn`，06 notes 记录 compare 四屏仍 ≥ 96.32%，阈值内；设计侧是否补 hifi 由设计 notes 决定 |
+| QA-20 | P2 | 仍开放（实跑） | 主包 663.50 kB（+3.8 kB），仍建议 components 合入同轮做 `React.lazy` 拆包 |
+| QA-28 | P3 | **新增**（实跑） | chat **375** 全部状态无 `h1`（axe `page-has-heading-one`，best-practice / moderate）；1440 有 `h1`「智能助理」。推断为 375 下页头随 Sheet 收起，读屏用户缺少页面级标题；建议 375 保留视觉隐藏的 `h1`（`sr-only`） |
+| QA-25 / 26 / 27 / 22 / 21 / 03 / 06 / 08 ~ 12 / 14 ~ 16 | P3 | 不变 | 本轮未复验，见第 5 轮 §2 |
+| QA-02 / QA-09 | P2 / P3 | 历史 | 未跑 gallery `assemble.mjs` |
+
+### 6.5 本轮未覆盖（如实标注）
+- 按任务范围未重跑 shoot / compare；未复跑第 5 轮 188 断言功能走查与体验官第 3 轮 P2 / P3（P2-9 ~ P2-15、P3-8 ~ P3-13 未复验，仍由体验官侧跟踪）。
+- 1024 / 768 视口、真实移动端浏览器、读屏未测。
+- `components` 仍未合入，不在范围（第 5 轮 §5 备注仍适用：`ui/combobox.tsx` / `ui/tag-input.tsx` 热区 4 FAIL 需先修再合）。
+- 生产站未实查（集成分支未部署）。
+
+### 6.6 交 release 的备注
+1. verdict = pass，QA + 审计两道放行 `9fed979`；上轮 P1×4 全部关闭，无新增 P0/P1。
+2. 剩余 P2 仅 QA-20（包体）与 QA-02（gallery 组装口径），均为 release / components 合入时处理。
+3. QA-28（chat 375 无 h1）改动一行，可与 components 合入同轮顺手处理。
+
+---
+
+# 历史 · 第 5 轮：settings / landing / chat 合入后全量审计
 
 > 角色：roles/qa/qa-engineer（兼合规与安全审计，CHARTER 四道把关中的 QA + 审计）。
 > 对象：`fe01/integration` @ `39016c710a4b70c89fcb255d05b60a539fcd78d0`（= `origin/fe01/integration` HEAD；`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date，`origin/main@a32171b` 已包含）。

@@ -1,6 +1,84 @@
 # 07 · 体验官走查报告
 
-> 本文件按轮次自上而下叠加：**第 3 轮全量走查（当前结论）** 在前，第 2 轮复查、第 1 轮全量走查保留在后作为历史与原始描述。
+> 本文件按轮次自上而下叠加：**第 4 轮复查（当前结论）** 在前，第 3 轮全量走查、第 2 轮复查、第 1 轮全量走查保留在后作为历史与原始描述。
+
+---
+
+## 第 4 轮 · 复查（第 3 轮 P1×4 修复复验 + 主流程回归）
+
+> 角色：roles/legal-research/user-experience-officer（体验官）。
+> 对象：`fe01/integration` @ `9fed979`（`git fetch && git checkout fe01/integration && git merge --ff-only origin/main` → Already up to date）。该提交 = 第 3 轮报告之后的修复提交「fix(frontend): 体验官第 3 轮走查 P1×4——顶栏助理入口全局默认渲染、更新密码三段校验、联系销售不可达 + 降级二次确认、来源 Chip 可达跳转」。
+> 范围（时间盒 30 分钟，按任务只做两件事）：① 逐条复验第 3 轮 P1-1 ~ P1-4；② 回归主流程（登录 → 仪表盘 → 订单 → 采购单 → settings 五 Tab → landing → chat）。`components` 本轮明确未合入，不在范围、不计缺失。**不再全量探索**，上轮 P2/P3 只顺带记录是否仍复现。
+> 方法：`pnpm install --frozen-lockfile`（根，exit 0）→ `apps/reference`：`pnpm lint && pnpm typecheck && pnpm build`（均 exit 0）→ `pnpm preview --port 4173`（base `/apps/reference/`）。Playwright 1.62.1（复用根 `tools/shoot` 依赖，Chromium headless-shell 1234）以真实用户方式操作：**1440×900 鼠标**（真实坐标 click / hover）与 **375×812 触屏**（`isMobile + hasTouch`，DPR 2，`tap`）× **亮 / 暗**（`prefers-color-scheme`）= 4 组合，每组合跑同一脚本 `~/ux4/walk.mjs`（仓库外），日志 `~/ux4/run-<viewport>-<theme>.{out,log}`；定向复核 `~/ux4/probe.mjs`（375 触屏禁用态提示对照）、`~/ux4/probe2.mjs`（「联系销售」各状态计算色）。截图 `~/ux4/shots/<viewport>-<theme>/<序号>-<name>.png`，4 组合共 84 张 + probe 1 张（**不入库**）。下文「截图」均指该目录。
+> 事实分级：✅ 实测通过 · ❌ 实测缺陷 · ⚠️ 未定论 · 「推断」= 读源码得出、未实测。**不改产品代码。**
+
+### 0. 结论
+
+**verdict = fix**（P0 = 0，**P1 = 1**）。第 3 轮 4 条 P1 的**行为**在 4 组合下均已修复：/、/orders、/settings、/form 顶栏都有 40×40 的「智能助理」入口且可达 /chat；更新密码三段校验（当前密码必填 → 三条规则 → 两次一致）逐段拦截、只在全过时 Toast；「联系销售」不再改套餐、「降级」有二次确认且 Toast 改为「周期结束后生效」；来源 Chip 点击落到 `/orders?open=drawer&order=…` 并打开抽屉，不可达来源（库存快照）`aria-disabled` + Tooltip。但 P1-3 的修复**引入一处明显视觉缺陷**：「联系销售」按钮 hover / active 时背景色与文字色完全相同（亮 `rgb(21,92,86)` / 暗 `rgb(123,200,187)`），**按钮文字消失成一块色块**；375 触屏 tap 后 `:hover` 粘住，按钮持续无字、且 Tooltip 不出现——用户点了一个空色块、得不到任何反馈。主流程 4 组合回归 0 ❌，console error 0，375 全程无横向溢出，`a11y.mjs settings / chat` ALL PASS。
+
+| 级别 | 数量 | 摘要 |
+| --- | --- | --- |
+| P0 | 0 | — |
+| P1 | 1 | **P1-5（新，由 P1-3 修复引入）**「联系销售」hover / active / 375 tap 后文字不可见（bg = fg），375 tap 亦无 Tooltip |
+| P2 | 3 项本轮实测仍复现 + 1 新增 | 上轮 P2-9（新会话发送被带回 c_1、用户消息不回显）仍复现；P2-13 焦点丢失新增两处（降级对话框「取消」/「确认降级」后焦点落 `body`）；P2-8 侧栏可用/禁用无差别仍在；**P2-16（新）** 用户点「降级」打开的确认框不写入 `?open=downgrade`（直开 URL 可用，刷新/分享后丢失） |
+| P3 | 1 新增 | **P3-14（新）** 顶栏 5 个纯图标按钮（含新增的「智能助理」）hover 均无 Tooltip，仅靠 aria-label；上轮 P3 系列未重测、沿用 |
+
+### 1. 上轮 P1 逐条复验（4 组合：1440 亮 / 1440 暗 / 375 亮 / 375 暗）
+
+| 上轮编号 | 现象 | 本轮结果 | 证据 |
+| --- | --- | --- | --- |
+| P1-1 应用内无「智能助理」入口 | ✅ **已修复**。`/`、`/orders`、`/settings`、`/form` 顶栏均有 `a[href=/chat]`（`aria-label=智能助理`）、可见、热区 40×40，位于搜索与通知之间（与 IA §11-A 一致）；点击 → `/chat`，/chat 页该按钮 `aria-current=page`。/form 有未保存改动时点它 → 「离开页面？」AlertDialog，「放弃并离开」→ /chat（`beforeLeave` 已接上）。 | 4 组合日志 `P1-1 *` 6/6 ✅；截图 `02-topbar-assistant`、`03-chat-from-topbar` |
+| P1-2 更新密码不校验就报成功 | ✅ **已修复**。① 三字段全空 → 无 Toast，当前密码 `aria-invalid=true` + 内联「请输入当前密码」，焦点到 `#pwCur`；② `oldpass123` / `a` / `a` → 无 Toast，新密码 `aria-invalid` + 「新密码需满足下方全部密码要求」，焦点 `#pwNew`；③ `Abcdef12!` / `Abcdef12?` → 「两次输入的密码不一致」；④ 三项合规 → 「保存中」→ Toast「密码已更新，其他设备需重新登录」。输入后对应错误即时清除（`aria-invalid` 去掉、错误文案消失）。 | 4 组合 `P1-2 *` 4/4 ✅；截图 `07-pw-empty` ~ `10-pw-ok` |
+| P1-3 「联系销售」直接换套餐；降级无确认且说「升级即时生效」 | ⚠️ **行为已修复，但引入 P1-5**。行为：「联系销售」`aria-disabled=true`、`cursor: not-allowed`、1440 hover Tooltip「企业版由销售顾问定制报价，后续轮次提供在线联系」，force 点击后无 Toast、专业版仍是「当前计划」；「降级到入门版」→ AlertDialog「降级到入门版？／当前专业版（年付）将在本周期结束后切换为入门版，超出入门版限额的成员与功能届时停用。」默认焦点「取消」；「确认降级」→ Toast「已安排降级到入门版（年付），于当前周期结束后生效」，当前套餐不变（入门版卡按钮仍是「降级到入门版」）；`?open=downgrade` 直开可用。**视觉**：见 §2 P1-5。 | 4 组合 `P1-3 *` 3/3 ✅（行为）；截图 `11-billing-default`、`12-billing-contact-tip`（❌ 色块）、`13-billing-downgrade-dialog`、`14-billing-after-downgrade`、`15-billing-open-downgrade-direct` |
+| P1-4 来源 Chip 像链接但点不动 | ✅ **已修复**。c_1 五个 Chip：3 个订单 Chip `href=/orders?open=drawer&order=SO-…`、无 `aria-disabled`；点「SO-20260905-0115」→ URL `/orders?open=drawer&order=SO-20260905-0115`，右侧抽屉（375 Sheet）打开且首行即该订单号 / 待发货 / 马晓彤。2 个「库存快照 09-06 17:30」→ `/inventory` 未实现 → `aria-disabled=true`、`cursor: not-allowed`、hover / 375 tap 均出 Tooltip「后续轮次提供」、URL 不变。c_2 / c_3 的 4 个订单 Chip 同样全部改写为可达路径。 | 4 组合 `P1-4 *` 4/4 ✅；截图 `04-chat-sources`、`05-orders-drawer-from-chip`、`06-chat-source-disabled-tip` |
+
+### 2. P0 / P1（新增）
+
+**P1-5 「联系销售」按钮 hover / active 时文字消失（背景色 = 文字色）；375 触屏 tap 后持续无字且无任何提示** ❌
+- 路由 `/settings?tab=billing`；1440 + 375；亮 + 暗（4 组合一致）。
+- 步骤（1440）：滚到「更换计划」→ 鼠标移到企业版卡「联系销售」→ 按钮从浅绿底深绿字变成**整块深绿色、看不到任何字**（Tooltip 同时出现）；按住鼠标更深一档，仍无字。（375）tap 该按钮 → 按钮变成整块深绿色块、**无字**、无 Tooltip、无 Toast、套餐不变；`:hover` 在触屏上粘住，直到点别处才恢复。
+- 实测计算色（`probe2.mjs`）：亮色 default `bg rgb(213,239,234) / fg rgb(21,92,86)` → hover `bg rgb(21,92,86) / fg rgb(21,92,86)`（对比度 1:1）→ active `bg rgb(19,74,70) / fg rgb(21,92,86)`；暗色 default `bg rgb(8,35,31) / fg rgb(123,200,187)` → hover `bg rgb(123,200,187) / fg rgb(123,200,187)` → active `bg rgb(173,223,214) / fg rgb(123,200,187)`。375 tap 后 `matches(':hover')=true`，`bg=fg=rgb(21,92,86)`。
+- 影响：计费页是付费决策路径，一个「按钮悬停即变成无字色块」是明显粗糙；375 上还叠加「点了没有任何反馈」——同页的侧栏禁用项、landing 不可达 CTA 在 375 tap 都会出 Tooltip（`probe.mjs` 对照 ✅），只有这个按钮不出，且它长得是 primary 强调样式。定 P1（明显粗糙），不是 P0（不影响任何任务完成，套餐未被改动）。
+- 推断（源码）：修复提交给该 Button 传了 `className="… bg-primary-soft text-on-primary-soft hover:bg-primary-soft active:bg-primary-soft …"` 试图覆盖 primary 变体，但 `ui/button.tsx` primary 变体写的是 `hover:not-disabled:bg-primary-hover` / `active:not-disabled:bg-primary-active`（变体不同、特异性更高，页面层的 `hover:bg-primary-soft` 覆盖不了），背景仍走 primary 深色，而文字色被改成 `on-primary-soft`（= primary 色阶本身），于是 bg = fg。建议改用 `variant="secondary"` 或 `primary-soft` 变体（若存在），不要在页面层用 className 拼一套按钮外观（AGENTS「屏幕实现只组合这些件，不在页面里重写控件外观」）；375 tap 出 Tooltip 的行为可参照 landing `TipLink`（`<a>` 触发器在触屏聚焦即开）。
+- 证据：截图 `*/12-billing-contact-tip.png`（4 组合，深绿无字色块），`probe-contact-tap.png`；日志 `run-mobile-*.log` `联系销售 … tooltip=[]`、`probe2.mjs` 输出。
+
+### 3. P2 / P3（本轮口径）
+
+P2：
+- **P2-9 仍复现**（4 组合）：`/chat?state=empty` 输入「杭州仓现在还有多少件床头柜？」→ 发送 → URL `?state=streaming&conversation=c_1`，气泡 6 条、用户消息出现 0 次（截图 `20-chat-sent`）。
+- **P2-13 新增两处**（4 组合）：降级 AlertDialog「取消」后焦点落 `body`（`跳到主内容` 链接之前）；「确认降级」后焦点亦落 `body`——与上轮「继续编辑 / 移除成员 / 危险区确认」同源。
+- **P2-8 仍在**：侧栏可用（订单 / 设置）与 `aria-disabled` 项视觉同灰（截图 `01-dashboard`）。
+- **P2-16（新）**：用户点「降级到入门版」打开的确认框只存在本地状态，URL 保持 `/settings?tab=billing`（不写 `?open=downgrade`）；直开 `?open=downgrade` 可用。刷新即丢失、无法分享。推断与 settings 其他浮层（`openLocal`）同一实现，故只记 P2、建议统一在 06 notes 说明「?open= 仅作入口」或全部同步。
+- 上轮 P2-10 / P2-11 / P2-12 / P2-14 / P2-15 及 P2-5 ~ P2-7 本轮未重跑（复查时间盒只覆盖 P1 与主流程）。
+
+P3：
+- **P3-14（新）**：1440 顶栏 5 个纯图标按钮（打开导航 / 智能助理 / 通知 / 切换主题 / 账号）hover 均无 Tooltip（`hover tooltip=[]`），新增的「智能助理」入口对首次用户只有一个星形图标、无法得知含义；建议给顶栏 IconButton 统一加 Tooltip（landing Footer 社交 IconButton 已有此做法）。
+- 上轮 P3-8 ~ P3-13 未重测、沿用。
+
+### 4. 主流程回归（4 组合一致，除注明）
+- ✅ 登录 `ruolin.shen@qimu-home.cn` / 任意 ≥ 8 位 → `/?toast=login`，h1「仪表盘」，Toast「欢迎回来，若琳」。
+- ✅ 仪表盘周期「日」→ `?period=day`；主题按钮 `data-theme` 切换（light↔dark）。
+- ✅ /orders h1「订单」；1440 搜索「周雅婷」→ 「筛选出 15 单，共 731 单」；首行菜单「查看详情」→ `?open=drawer&order=SO-20260906-0108`，Esc 后 URL 干净；375 「筛选」Sheet 打开。
+- ✅ /form 第 1 → 2 → 3 步 `role=alert` 0、当前步「3 确认提交」；未勾条款提交 → alert 2、焦点 `#terms`；勾选后提交 → 「采购单已提交」。（P3-6 进入第 3 步焦点 `body` 仍在。）
+- ✅ settings：profile 改名 → Toast「个人资料已保存」；notifications 25 个 Switch；team 5 行；`?open=2fa` Dialog。
+- ✅ landing h1「把全渠道订单和库存，装进一个后台」；滚动后 header `data-state=scrolled`；`?cycle=yearly` 价格 ¥990 / ¥2,990（折合 ¥82.50 / ¥249.17 / 月）。
+- ✅ chat：375 「打开会话列表」→ `?open=sidebar`。
+- ✅ 375 全程 `scrollWidth = 375`；4 组合 console error = 0。
+
+### 5. 未覆盖（untested，如实标注）
+- 「联系销售」**键盘聚焦**是否出 Tooltip：`probe2.mjs` 程序化 `focus()` 后 400 ms 内 `[role=tooltip]` 为 0（⚠️ 可能是 Radix 对程序化聚焦的判定，未用真实 Tab 键复核）。
+- 上轮 P2-10 ~ P2-15、P3-8 ~ P3-13 未重跑；orders 取消 / 删除 / 撤销、form 失败态 / 草稿 / 离开确认、settings 团队邀请 / 危险区、landing FAQ / 汉堡菜单、chat 流式 / 错误态 本轮未重走（第 3 轮已覆盖、本轮修复未触及）。
+- 768 / 1024 视口；真实 iOS / Android 浏览器；读屏软件。
+- 未重跑 shoot / compare（像素门禁与本次行为修复无关；修复提交自述 compare 五屏 ≥ 95%，**此为转述、本轮未复核**）。
+
+### 6. 门禁实跑结果（`apps/reference/`，`~/gates.log`、`~/ux4/a11y-*.out`）
+- `pnpm install --frozen-lockfile` ✅ exit 0
+- `pnpm lint` ✅ exit 0（eslint + no-hardcode：79 个文件通过）
+- `pnpm typecheck` ✅ exit 0
+- `pnpm build` ✅ exit 0
+- `node tools/a11y.mjs settings` ✅ ALL PASS；`node tools/a11y.mjs chat` ✅ ALL PASS（对比度检查基于静态态，未覆盖 hover 态，故未捕获 P1-5）。
+
+本报告只新增本文件的本节，未改任何产品代码、令牌、hifi、content、mock；脚本、截图与日志留在 `~/ux4/`，不入库。
 
 ---
 
